@@ -19,6 +19,15 @@ public struct PlanSelection: Sendable, Hashable {
     public var duration: PlanDuration
 }
 
+/// How the airports for a duration are chosen.
+public enum DestinationRule: Sendable, Hashable {
+    /// PRD PLAN-3: airports whose flight time is within `RangeRing.defaultToleranceMinutes` of the duration.
+    case tolerance
+    /// The canvas rule (`Planner.dc.html` `model()`, ADR 0008): every airport inside the ring (distance up to the
+    /// ring radius), at least half the duration away, one per city, nearest match first, at most 12.
+    case canvas
+}
+
 public enum SurpriseResult: Sendable, Hashable {
     case picked(Airport)
     /// No airport sits inside the ring for this origin and duration.
@@ -46,16 +55,26 @@ public struct PlanState: Sendable {
     public private(set) var selectedDestinationIata: String?
 
     public var preferences: PlanPreferences
+    public private(set) var rule: DestinationRule
+
+    /// Canvas candidate rule: airports left out of the dock unless the origin is one of `canvasMinorOrigins`.
+    public static let canvasMinorAirports: Set<String> = ["BLK", "VLY", "NQY", "MME", "EXT", "NWI", "JER", "GCI", "DNR", "RNS", "BVA", "ORY", "CRL", "LTN", "LCY", "STN", "SOU", "EMA", "EIN", "ANR", "LIL", "NTE", "SNN", "SAW", "KCO"]
+    public static let canvasMinorOrigins: Set<String> = ["KCO", "SAW"]
+    public static let canvasMaxCandidates = 12
+
+    /// Flight minutes as the canvas computes them for any distance (`K.minutes`: `round(15 + km / 12.9)`).
+    public static func canvasMinutes(forKm km: Double) -> Int { Int((15 + km / FlightTiming.kmPerMinute).rounded()) }
 
     /// Falls back to the home airport, then to `fallbackOriginIata`, then to the
     /// first airport in the index. Returns `nil` only for an empty index.
-    public init(index: AirportIndex, preferences: PlanPreferences = .init(), fallbackOriginIata: String = "LHR") {
+    public init(index: AirportIndex, preferences: PlanPreferences = .init(), fallbackOriginIata: String = "LHR", rule: DestinationRule = .tolerance) {
         let candidates = [preferences.homeIata, preferences.lastLandingIata, fallbackOriginIata].compactMap { $0 }
         guard let origin = candidates.lazy.compactMap({ index.airport(iata: $0) }).first ?? index.airports.first else {
             preconditionFailure("PlanState needs a non-empty airport index")
         }
         self.index = index
         self.preferences = preferences
+        self.rule = rule
         self.origin = origin
         self.duration = .minutes(preferences.lastRoute?.durationMinutes.map(Self.snap) ?? Self.defaultDurationMinutes)
         self.destinations = []
@@ -145,7 +164,10 @@ public struct PlanState: Sendable {
     }
 
     public mutating func setDuration(minutes: Int) {
-        duration = .minutes(Self.snap(minutes))
+        let snapped = Self.snap(minutes)
+        // Canvas `setMin`: moving the ruler drops the pick, the nearest match is selected again.
+        if rule == .canvas, duration != .minutes(snapped) { selectedDestinationIata = nil }
+        duration = .minutes(snapped)
         recomputeDestinations()
     }
 
@@ -290,10 +312,39 @@ public struct PlanState: Sendable {
             selectedDestinationIata = nil
             return
         }
-        destinations = index.destinations(from: origin, minutes: minutes, toleranceMinutes: RangeRing.defaultToleranceMinutes)
+        switch rule {
+        case .tolerance:
+            destinations = index.destinations(from: origin, minutes: minutes, toleranceMinutes: RangeRing.defaultToleranceMinutes)
+        case .canvas:
+            destinations = canvasDestinations(minutes: minutes)
+        }
         // Keep the user's pick if it is still in the ring; otherwise the nearest match.
         if let kept = selectedDestinationIata, destinations.contains(where: { $0.iata == kept }) { return }
         selectedDestinationIata = destinations.first?.iata
+    }
+
+    /// `Planner.dc.html` candidates: inside the ring, >= half the duration, other city, closest match first.
+    private func canvasDestinations(minutes: Int) -> [Airport] {
+        let ringKm = FlightTiming.km(forMinutes: Double(minutes))
+        let allowMinor = Self.canvasMinorOrigins.contains(origin.iata)
+        var scored: [(Airport, Int)] = []
+        for airport in index.airports where airport.iata != origin.iata && airport.city != origin.city {
+            if !allowMinor, Self.canvasMinorAirports.contains(airport.iata) { continue }
+            let km = Geo.distanceKm(from: origin.coordinate, to: airport.coordinate)
+            guard km <= ringKm + 1 else { continue }
+            let t = Self.canvasMinutes(forKm: km)
+            guard Double(t) >= max(15, Double(minutes) * 0.5) else { continue }
+            scored.append((airport, abs(t - minutes)))
+        }
+        // `sorted` is not stable; the index (canvas) order breaks ties like the canvas does.
+        let order = Dictionary(uniqueKeysWithValues: scored.enumerated().map { ($0.element.0.iata, $0.offset) })
+        scored.sort { ($0.1, order[$0.0.iata] ?? 0) < ($1.1, order[$1.0.iata] ?? 0) }
+        var seen = Set<String>(), out: [Airport] = []
+        for (airport, _) in scored where seen.insert(airport.city).inserted {
+            out.append(airport)
+            if out.count == Self.canvasMaxCandidates { break }
+        }
+        return out
     }
 
     private mutating func moveSelection(by step: Int) {

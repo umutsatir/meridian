@@ -11,6 +11,7 @@ public struct AirportTag: View {
     private let showsIcon: Bool
     private let visitedColor: Color?
     private let forcedHover: Bool
+    private var minWidth: CGFloat?
     @Environment(\.colorScheme) private var scheme
     @Environment(\.isFocused) private var isFocused
     @Environment(\.colorSchemeContrast) private var contrast
@@ -26,6 +27,9 @@ public struct AirportTag: View {
         self.code = code; self.city = city; self.minutes = minutes; self.isSelected = isSelected; self.isDisabled = isDisabled
         self.isDim = isDim; self.showsIcon = showsIcon; self.visitedColor = visitedColor; self.forcedHover = forcedHover
     }
+
+    /// `min-width` with centred content (the search rows use 48).
+    public func minWidth(_ w: CGFloat) -> AirportTag { var t = self; t.minWidth = w; return t }
 
     /// Pins the hover state for galleries (`.is-hover`).
     public func hoverPinned() -> AirportTag {
@@ -51,7 +55,7 @@ public struct AirportTag: View {
         }
         .foregroundStyle(isDisabled ? p.text3.color : p.ink.color)
         .padding(.leading, 6).padding(.trailing, 8)
-        .frame(height: 24)
+        .frame(minWidth: minWidth, minHeight: 24, maxHeight: 24)
         .background {
             if isDisabled {
                 shape.fill(p.fill2.color)

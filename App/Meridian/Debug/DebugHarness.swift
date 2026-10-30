@@ -43,6 +43,7 @@ struct DebugHost: View {
 
     init(launch: DebugLaunch) {
         self.launch = launch
+        NSApp?.appearance = NSAppearance(named: launch.theme == .light ? .aqua : .darkAqua)
         // Deterministic first-run state: hide the developer's saved plan preferences
         // while the harness runs, restore them afterwards (AppModel persists on change).
         let backup = UserDefaults.standard.data(forKey: Self.preferencesKey)
@@ -79,6 +80,8 @@ private struct WindowCapture: NSViewRepresentable {
         DispatchQueue.main.async { [weak view] in
             guard let window = view?.window else { fail("no window") }
             // Borderless: window content == window frame, no title bar inset, exactly <size> points.
+            // Follow --theme regardless of the system appearance (materials and NSColors read the window appearance).
+            NSApp.appearance = NSAppearance(named: launch.theme == .light ? .aqua : .darkAqua)
             window.styleMask = [.borderless]
             window.setContentSize(launch.size)
             window.center()

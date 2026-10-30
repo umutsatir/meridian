@@ -6,15 +6,19 @@ import MeridianPlan
 import Observation
 import SwiftData
 
+enum PlanStage: String { case home, plan }
+
 enum AppSection: String, CaseIterable, Identifiable {
-    case fly, wallet, map, stats, together
+    case fly, wallet, cards, passport, map, stats, together
 
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .fly: "Fly"
-        case .wallet: "Wallet"
+        case .wallet: "Tickets"
+        case .cards: "Cards"
+        case .passport: "Passport"
         case .map: "Map"
         case .stats: "Stats"
         case .together: "Together"
@@ -25,6 +29,8 @@ enum AppSection: String, CaseIterable, Identifiable {
         switch self {
         case .fly: "airplane.departure"
         case .wallet: "ticket"
+        case .cards: "creditcard"
+        case .passport: "book.closed"
         case .map: "globe.europe.africa"
         case .stats: "chart.bar"
         case .together: "person.2"
@@ -37,6 +43,10 @@ final class AppModel {
     var section: AppSection = .fly
     /// First-run onboarding done (or skipped). Written by `completeOnboarding` (Features/Onboarding).
     var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "onboarding.completed")
+    /// Fly section: the globe Home or the Plan map (canvas `stage`).
+    var planStage: PlanStage = .home
+    /// ⌘K search palette.
+    var searchOpen = false
     var plan: PlanState {
         didSet { savePreferences() }
     }
@@ -76,7 +86,7 @@ final class AppModel {
         self.index = index
         let stored = UserDefaults.standard.data(forKey: Self.preferencesKey)
             .flatMap { try? JSONDecoder().decode(PlanPreferences.self, from: $0) }
-        plan = PlanState(index: index, preferences: stored ?? PlanPreferences())
+        plan = PlanState(index: PlanKit.index, preferences: stored ?? PlanPreferences(), rule: .canvas)
         store = FlightStore(modelContainer: container ?? Self.makeContainer())
         lastActiveAt = (UserDefaults.standard.object(forKey: Self.heartbeatKey) as? Date) ?? .now
         enqueue { store in await store.configure(airports: index) }

@@ -8,8 +8,9 @@ public struct MRSegmented<Value: Hashable>: View {
         public let value: Value
         public let title: String
         public let icon: MRIconName?
+        public let iconSize: CGFloat
         public var id: Value { value }
-        public init(_ value: Value, _ title: String, icon: MRIconName? = nil) { self.value = value; self.title = title; self.icon = icon }
+        public init(_ value: Value, _ title: String, icon: MRIconName? = nil, iconSize: CGFloat = 16) { self.value = value; self.title = title; self.icon = icon; self.iconSize = iconSize }
     }
 
     private let options: [Option]
@@ -35,7 +36,7 @@ public struct MRSegmented<Value: Hashable>: View {
                 let item = RoundedRectangle(cornerRadius: 9, style: .continuous)
                 Button { selection = opt.value } label: {
                     HStack(spacing: 6) {
-                        if let icon = opt.icon { MRIcon(icon, size: 16) }
+                        if let icon = opt.icon { MRIcon(icon, size: opt.iconSize) }
                         Text(opt.title).font(.mr(.ui, size: 13, weight: 500)).lineLimit(1)
                     }
                     .foregroundStyle(on || hover ? p.text1.color : p.text2.color)
