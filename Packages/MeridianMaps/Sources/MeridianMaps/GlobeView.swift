@@ -50,6 +50,16 @@ public struct GlobePlane: Sendable {
     public init(from: Coordinate, to: Coordinate, t: Double = 0.5) { self.from = from; self.to = to; self.t = t }
 }
 
+/// Per-instance override of the globe tokens (`--gl-sea-a`, `--gl-sea-b`, `--gl-land`, `--gl-shade`, `--gl-rim`),
+/// e.g. the Home screen's `.ph-globe` rule. Colours are `0xRRGGBB`.
+public struct GlobeColorOverride: Sendable, Hashable {
+    public var seaA: UInt32, seaB: UInt32, land: UInt32
+    public var shade: Double, rim: Double
+    public init(seaA: UInt32, seaB: UInt32, land: UInt32, shade: Double, rim: Double) {
+        self.seaA = seaA; self.seaB = seaB; self.land = land; self.shade = shade; self.rim = rim
+    }
+}
+
 // MARK: - View
 
 /// Orthographic globe of the design (`Globe.dc.html` + `meridian-world.js`), drawn in a SwiftUI `Canvas`.
@@ -72,6 +82,7 @@ public struct GlobeView: View {
     public var live: Bool
     public var speed: Double
     public var isDraggable: Bool
+    public var colorOverride: GlobeColorOverride?
 
     @Environment(\.colorScheme) private var scheme
     @State private var drag: CGSize = .zero
@@ -81,7 +92,8 @@ public struct GlobeView: View {
     public init(lon: Double = 10, lat: Double = 28, size: CGFloat = 560, theme: MapTheme? = nil,
                 routes: [GlobeRoute] = [], pins: [GlobePin] = [], plane: GlobePlane? = nil, visited: Bool = false,
                 showsGraticule: Bool = true, showsAtmosphere: Bool = true, showsLabels: Bool = true,
-                live: Bool = false, speed: Double = 6, isDraggable: Bool = false) {
+                live: Bool = false, speed: Double = 6, isDraggable: Bool = false, colorOverride: GlobeColorOverride? = nil) {
+        self.colorOverride = colorOverride
         self.lon = lon; self.lat = lat; self.size = size; self.theme = theme
         self.routes = routes; self.pins = pins; self.plane = plane; self.visited = visited
         self.showsGraticule = showsGraticule; self.showsAtmosphere = showsAtmosphere; self.showsLabels = showsLabels
@@ -116,7 +128,8 @@ public struct GlobeView: View {
     private func globe(theme: MapTheme, extraLon: Double) -> some View {
         let r = GlobeRenderer(size: Double(size), lon: lon + drag.width + extraLon,
                               lat: max(-70, min(70, lat + drag.height)) , theme: theme, routes: routes, pins: pins,
-                              plane: plane, visited: visited, graticule: showsGraticule, atmosphere: showsAtmosphere, labels: showsLabels)
+                              plane: plane, visited: visited, graticule: showsGraticule, atmosphere: showsAtmosphere, labels: showsLabels,
+                              colorOverride: colorOverride)
         // The glow reaches 0.12 * size beyond the sphere: draw in a larger canvas that overflows the frame.
         let pad = showsAtmosphere ? ceil(size * 0.12 * 1.6) : 0
         return Canvas { ctx, sz in
@@ -303,9 +316,14 @@ struct GlobeRenderer {
     var graticule: Bool
     var atmosphere: Bool
     var labels: Bool
+    var colorOverride: GlobeColorOverride? = nil
 
     func draw(_ ctx: inout GraphicsContext) {
-        let pal = GlobePalette.resolve(theme: theme)
+        var pal = GlobePalette.resolve(theme: theme)
+        if let o = colorOverride {
+            pal.seaA = RGBA(hex: o.seaA); pal.seaB = RGBA(hex: o.seaB); pal.land = RGBA(hex: o.land)
+            pal.shade = o.shade; pal.rim = o.rim
+        }
         let S = size, c = S / 2, R = S * 0.43
         let world = MapResources.world
         // JS: l0 = ((lon + 180) % 360 + 360) % 360 - 180
