@@ -52,6 +52,7 @@ enum ScreenRegistry {
     private static func registerAll() {
         register(DebugRoute.plan.rawValue) { PlanView() }
         register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { InFlightView() }
+        SystemRoutes.register()
         // register("wallet") { WalletView() }
     }
 }
