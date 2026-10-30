@@ -42,3 +42,6 @@ node_modules/
 # Competitor reference material (do not commit)
 design-reference/
 docs/research/reference-images/
+
+# Agent worktrees
+.claude/worktrees/
