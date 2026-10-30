@@ -26,8 +26,8 @@ import Testing
     @Test func schemeResolution() {
         #expect(MRPalette.resolve(.dark).isDark)
         #expect(!MRPalette.resolve(.light).isDark)
-        #expect(MRPalette.dark.onAccent == MRPalette.dark.bg0)
-        #expect(MRPalette.light.onAccent == MRPalette.light.bg2)
+        #expect(MRPalette.dark.onAccent.hex == "#04101A")
+        #expect(MRPalette.light.onAccent.hex == "#FFFFFF")
     }
 
     @Test(arguments: [MRPalette.dark, MRPalette.light])
@@ -58,10 +58,10 @@ import Testing
 
     @Test func spacingRadiiAndTypeScale() {
         #expect(MRSpacing.all == [4, 8, 12, 16, 24, 32, 48, 64])
-        #expect([MRRadius.window, MRRadius.panel, MRRadius.card, MRRadius.control, MRRadius.ticket, MRRadius.ticketNotch] == [26, 28, 20, 14, 22, 14])
+        #expect([MRRadius.window, MRRadius.sidebar, MRRadius.panel, MRRadius.card, MRRadius.control, MRRadius.ticket, MRRadius.ticketNotch] == [26, 18, 28, 20, 14, 22, 14])
         let scale = MRTextStyle.allCases.map { ($0.size, $0.lineHeight) }
-        #expect(scale.map(\.0) == [56, 34, 24, 17, 15, 13, 11])
-        #expect(scale.map(\.1) == [60, 40, 30, 22, 22, 18, 14])
+        #expect(scale.map(\.0) == [56, 34, 24, 17, 15, 13, 11, 11])
+        #expect(scale.map(\.1) == [60, 40, 30, 22, 22, 18, 14, 14])
         #expect(MRTextStyle.allCases.allSatisfy { $0.lineHeight > $0.size })
     }
 
@@ -69,5 +69,6 @@ import Testing
         #expect(MRMotion.durations == MRMotion.durations.sorted())
         #expect(MRMotion.instant == 0.12 && MRMotion.fast == 0.2 && MRMotion.base == 0.32 && MRMotion.slow == 0.52)
         #expect(MRMotion.cinematicRange == 0.9...1.4)
+        #expect(MRMotion.durations == [0.12, 0.2, 0.32, 0.52, 0.9, 1.4])
     }
 }
