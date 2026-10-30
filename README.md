@@ -20,7 +20,7 @@ Pre-development. The product definition and design are ready; the first engineer
 
 ## Stack (planned)
 
-Swift 6, SwiftUI + AppKit, MapKit, SwiftData + CloudKit, StoreKit 2, WidgetKit, AVAudioEngine. Pure-Swift domain logic lives in a package that builds and tests without Apple frameworks. A WebSocket backend for friends and public flights arrives in v1.5. See PRD §11.
+Swift 6, SwiftUI + AppKit, MapKit, SwiftData + CloudKit, StoreKit 2, WidgetKit, AVAudioEngine. Pure-Swift domain logic lives in [`Packages/MeridianCore`](Packages/MeridianCore), which builds and tests without Apple frameworks (`cd Packages/MeridianCore && swift test`, needs Xcode for Swift Testing). A WebSocket backend for friends and public flights arrives in v1.5. See PRD §11.
 
 ## Requirements
 
