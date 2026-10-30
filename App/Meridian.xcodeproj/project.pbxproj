@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000000000000000300000007 /* MeridianMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000400000007 /* MeridianMaps */; };
 		000000000000000300000000 /* MeridianCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000400000000 /* MeridianCore */; };
 		000000000000000300000001 /* MeridianUI in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000400000001 /* MeridianUI */; };
 		000000000000000300000002 /* MeridianPlan in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000400000002 /* MeridianPlan */; };
@@ -32,6 +33,7 @@
 		000000000000000130000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				000000000000000300000007 /* MeridianMaps in Frameworks */,
 				000000000000000300000000 /* MeridianCore in Frameworks */,
 				000000000000000300000001 /* MeridianUI in Frameworks */,
 				000000000000000300000002 /* MeridianPlan in Frameworks */,
@@ -78,6 +80,7 @@
 			);
 			name = Meridian;
 			packageProductDependencies = (
+				000000000000000400000007 /* MeridianMaps */,
 				000000000000000400000000 /* MeridianCore */,
 				000000000000000400000001 /* MeridianUI */,
 				000000000000000400000002 /* MeridianPlan */,
@@ -115,6 +118,7 @@
 			mainGroup = 000000000000000000000001;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				000000000000000200000007 /* XCLocalSwiftPackageReference "../Packages/MeridianMaps" */,
 				000000000000000200000000 /* XCLocalSwiftPackageReference "../Packages/MeridianCore" */,
 				000000000000000200000001 /* XCLocalSwiftPackageReference "../Packages/MeridianUI" */,
 				000000000000000200000002 /* XCLocalSwiftPackageReference "../Packages/MeridianPlan" */,
@@ -378,6 +382,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		000000000000000200000007 /* XCLocalSwiftPackageReference "../Packages/MeridianMaps" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianMaps;
+		};
 		000000000000000200000000 /* XCLocalSwiftPackageReference "../Packages/MeridianCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../Packages/MeridianCore;
@@ -409,6 +417,10 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		000000000000000400000007 /* MeridianMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianMaps;
+		};
 		000000000000000400000000 /* MeridianCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MeridianCore;
