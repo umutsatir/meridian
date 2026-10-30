@@ -6,14 +6,14 @@ public struct MRColorToken: Sendable, Hashable {
     public let rgb: RGB
     public var color: Color { Color(rgb) }
 
-    init(_ hex: String) {
+    public init(_ hex: String) {
         guard let rgb = HexColor.parse(hex) else { preconditionFailure("Invalid token hex \(hex)") }
         self.hex = hex
         self.rgb = rgb
     }
 
     /// CSS `rgba(r,g,b,a)` with 0...255 channels and 0...1 alpha, as written in meridian.css.
-    init(_ r: Int, _ g: Int, _ b: Int, _ a: Double) {
+    public init(_ r: Int, _ g: Int, _ b: Int, _ a: Double) {
         self.rgb = RGB(r: Double(r) / 255, g: Double(g) / 255, b: Double(b) / 255, a: a)
         self.hex = String(format: "#%02X%02X%02X%02X", r, g, b, Int((a * 255).rounded()))
     }
