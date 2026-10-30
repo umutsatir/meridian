@@ -21,6 +21,11 @@ struct MeridianApp: App {
             } else {
                 LaunchGate()
                     .environment(model)
+                    .task {
+                        SettingsEffects.applyAll()
+                        FocusCoordinator.shared.run(model: model)
+                        await ProModel.shared.start()
+                    }
                     .frame(minWidth: 960, minHeight: 640)
             }
         }
@@ -44,6 +49,11 @@ struct MeridianApp: App {
                 Button("Quick Start") { model.quickStart() }
                     .keyboardShortcut(.return, modifiers: .command)
             }
+        }
+        Settings {
+            SettingsView()
+                .environment(model)
+                .frame(width: 1280, height: 800)
         }
     }
 }

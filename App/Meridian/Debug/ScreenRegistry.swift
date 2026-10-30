@@ -1,3 +1,5 @@
+import MeridianFocus
+import MeridianPro
 import SwiftUI
 
 /// Built-in debug routes. Other routes are plain strings registered in `ScreenRegistry.registerAll()`.
@@ -55,5 +57,24 @@ enum ScreenRegistry {
         registerOnboarding()
         SystemRoutes.register()
         // register("wallet") { WalletView() }
+        registerSettingsRoutes()
+    }
+}
+
+// MARK: Settings, Focus, Sounds, Pro, States (phase-b/settings)
+
+extension ScreenRegistry {
+    static func registerSettingsRoutes() {
+        for pane in SettingsPane.allCases where pane != .focus && pane != .sounds {
+            register("settings-\(pane.rawValue)") { SettingsView(pane: pane, showsChrome: true) }
+        }
+        register("focus-strict") { SettingsView(pane: .focus, showsChrome: true, focusModeOverride: .strictOverlay) }
+        register("focus-nudge") { SettingsView(pane: .focus, showsChrome: true, focusModeOverride: .nudge) }
+        register("focus-off") { SettingsView(pane: .focus, showsChrome: true, focusModeOverride: .off) }
+        register("sounds") { SettingsView(pane: .sounds, showsChrome: true) }
+        register("paywall-lifetime") { PaywallScreen(plan: .lifetime) }
+        register("paywall-annual") { PaywallScreen(plan: .annual) }
+        register("paywall-light") { PaywallScreen(plan: .annual) }
+        register("states") { StatesSheet() }
     }
 }
