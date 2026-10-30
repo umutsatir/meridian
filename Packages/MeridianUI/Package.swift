@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "MeridianUI", targets: ["MeridianUI"]),
     ],
     targets: [
-        .target(name: "MeridianUI"),
-        .testTarget(name: "MeridianUITests", dependencies: ["MeridianUI"]),
+        .target(name: "MeridianUI", resources: [.copy("Resources/Fonts")]),
+        .testTarget(name: "MeridianUITests", dependencies: ["MeridianUI"], exclude: ["Fixtures"]),
     ]
 )

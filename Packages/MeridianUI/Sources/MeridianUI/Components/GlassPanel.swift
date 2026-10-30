@@ -1,33 +1,22 @@
 import SwiftUI
 
-/// Liquid Glass on macOS/iOS 26, material before that, solid bg-2 under Reduce Transparency.
+/// The canvas `.glass` material (ADR 0008: material + overlay layers, not the system glassEffect).
+/// Reduce Transparency / Increase Contrast fall back to a solid bg-2 with the hairline kept.
 public struct GlassPanel<Content: View>: View {
     private let cornerRadius: CGFloat
     private let padding: CGFloat
+    private let elevation: MRElevation
     private let content: Content
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
-    @Environment(\.colorScheme) private var scheme
 
-    public init(cornerRadius: CGFloat = MRRadius.panel, padding: CGFloat = MRSpacing.l, @ViewBuilder content: () -> Content) {
+    public init(cornerRadius: CGFloat = MRRadius.panel, padding: CGFloat = MRSpacing.l, elevation: MRElevation = .e3, @ViewBuilder content: () -> Content) {
         self.cornerRadius = cornerRadius
         self.padding = padding
+        self.elevation = elevation
         self.content = content()
     }
 
     public var body: some View {
-        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        let palette = MRPalette.resolve(scheme)
-        if reduceTransparency {
-            content.padding(padding)
-                .background(palette.bg2.color, in: shape)
-                .overlay(shape.strokeBorder(palette.text3.color.opacity(0.35), lineWidth: 1))
-        } else if #available(macOS 26.0, iOS 26.0, *) {
-            content.padding(padding).glassEffect(.regular, in: shape)
-        } else {
-            content.padding(padding)
-                .background(.regularMaterial, in: shape)
-                .overlay(shape.strokeBorder(palette.text3.color.opacity(0.2), lineWidth: 1))
-        }
+        content.padding(padding).mrGlass(cornerRadius: cornerRadius, elevation: elevation)
     }
 }
 
