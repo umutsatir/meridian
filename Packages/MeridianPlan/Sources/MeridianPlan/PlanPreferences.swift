@@ -17,8 +17,19 @@ public struct LastRoute: Sendable, Hashable, Codable {
     public init(originIata: String, destinationIata: String?, durationMinutes: Int?, scenarioID: String) {
         self.originIata = originIata
         self.destinationIata = destinationIata
-        self.durationMinutes = durationMinutes
+        self.durationMinutes = durationMinutes.map(FlightTiming.clamp(minutes:))
         self.scenarioID = scenarioID
+    }
+
+    /// Stored values from before the 30-minute minimum (ADR 0008) are clamped on load.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        try self.init(
+            originIata: c.decode(String.self, forKey: .originIata),
+            destinationIata: c.decodeIfPresent(String.self, forKey: .destinationIata),
+            durationMinutes: c.decodeIfPresent(Int.self, forKey: .durationMinutes),
+            scenarioID: c.decode(String.self, forKey: .scenarioID)
+        )
     }
 }
 

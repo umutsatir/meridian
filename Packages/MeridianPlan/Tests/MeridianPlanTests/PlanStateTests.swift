@@ -23,9 +23,9 @@ private func state(_ prefs: PlanPreferences = .init(homeIata: "AAA")) -> PlanSta
     @Test func snapsToFiveMinuteDetentsAndClamps() {
         #expect(PlanState.snap(42) == 40)
         #expect(PlanState.snap(43) == 45)
-        #expect(PlanState.snap(3) == 10)
-        #expect(PlanState.snap(0) == 10)
-        #expect(PlanState.snap(-50) == 10)
+        #expect(PlanState.snap(3) == 30)
+        #expect(PlanState.snap(0) == 30)
+        #expect(PlanState.snap(-50) == 30)
         #expect(PlanState.snap(9999) == 360)
     }
 
@@ -43,9 +43,9 @@ private func state(_ prefs: PlanPreferences = .init(homeIata: "AAA")) -> PlanSta
         #expect(s.durationMinutes == 55)
         s.stepDuration(by: -2)
         #expect(s.durationMinutes == 45)
-        s.setDuration(minutes: 10)
+        s.setDuration(minutes: 30)
         s.stepDuration(by: -1)
-        #expect(s.durationMinutes == 10)
+        #expect(s.durationMinutes == 30)
     }
 
     @Test func stepRightPastSixHoursEntersFreeFlightAndBack() {
@@ -56,11 +56,24 @@ private func state(_ prefs: PlanPreferences = .init(homeIata: "AAA")) -> PlanSta
         s.stepDuration(by: -1) // nothing happens going left from Free
         #expect(s.isFreeFlight)
         s.stepDuration(by: 1)
-        #expect(s.durationMinutes == PlanState.defaultDurationMinutes)
+        #expect(s.durationMinutes == PlanState.snap(PlanState.defaultDurationMinutes))
     }
 
-    @Test func quickChipsMatchThePRD() {
-        #expect(PlanState.quickChipMinutes == [15, 25, 50, 90, 120])
+    @Test func minimumIsThirtyMinutes() {
+        #expect(PlanState.durationRange == 30...360)
+        #expect(PlanState.defaultDurationMinutes == 42)
+    }
+
+    @Test func oldStoredShortDurationsAreClamped() throws {
+        let json = #"{"originIata":"AAA","destinationIata":"NEAR","durationMinutes":15,"scenarioID":"study"}"#
+        let route = try JSONDecoder().decode(LastRoute.self, from: Data(json.utf8))
+        #expect(route.durationMinutes == 30)
+        let s = state(PlanPreferences(homeIata: "AAA", lastRoute: LastRoute(originIata: "AAA", destinationIata: "NEAR", durationMinutes: 10, scenarioID: "study")))
+        #expect(s.durationMinutes == 30)
+    }
+
+    @Test func quickChipsStartAtThirty() {
+        #expect(PlanState.quickChipMinutes == [30, 50, 90, 120])
         var s = state()
         for chip in PlanState.quickChipMinutes {
             s.applyQuickChip(minutes: chip)

@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-30
-- **Related:** PRD §7.1, Q10
+- **Related:** PRD §7.1, Q10, ADR 0008
 
 ## Context
 
@@ -16,3 +16,7 @@ Use `overhead(d) = min(15, d / 2)`. Below 30 minutes: `km = d / 2 × 12.9` (10 m
 
 - Every duration from 10 minutes has a non-empty range ring in dense regions; sparse regions may still have no match inside ±3 minutes, which the UI must handle.
 - Distance and minutes round-trip for the supported durations (tested).
+
+## Update (ADR 0008)
+
+The minimum flight duration is now 30 minutes, so the short regime (below 30 minutes) is **not reachable from the UI**. It stays in `FlightTiming` and its tests because the formula must remain continuous and total.

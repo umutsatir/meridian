@@ -32,8 +32,11 @@ public enum SurpriseResult: Sendable, Hashable {
 public struct PlanState: Sendable {
     public static let durationRange = FlightTiming.minDurationMinutes...FlightTiming.maxDurationMinutes
     public static let detentMinutes = 5
-    public static let quickChipMinutes = [15, 25, 50, 90, 120]
-    public static let defaultDurationMinutes = 50
+    /// Quick-set chips: the canvas has 15·25·50·90·2h; ADR 0008 raises the minimum to 30,
+    /// so the first two are replaced by a single 30 chip.
+    public static let quickChipMinutes = [30, 50, 90, 120]
+    /// The canvas opens at 42 minutes (LHR→CDG). It snaps to a detent on the first drag.
+    public static let defaultDurationMinutes = 42
 
     public private(set) var index: AirportIndex
     public private(set) var origin: Airport
@@ -135,7 +138,7 @@ public struct PlanState: Sendable {
 
     // MARK: Duration (PLAN-2)
 
-    /// Snaps to the 5-minute detent and clamps to 10 min...6 h.
+    /// Snaps to the 5-minute detent and clamps to 30 min...6 h.
     public static func snap(_ minutes: Int) -> Int {
         let snapped = Int((Double(minutes) / Double(detentMinutes)).rounded()) * detentMinutes
         return min(durationRange.upperBound, max(durationRange.lowerBound, snapped))
@@ -161,6 +164,20 @@ public struct PlanState: Sendable {
         // Past the 6 h end, → goes to Free flight.
         if m == Self.durationRange.upperBound, detents > 0 { setFreeFlight(); return }
         setDuration(minutes: m + detents * Self.detentMinutes)
+    }
+
+    /// Starts a ruler gesture (drag, two-finger scroll or key) from the current duration.
+    public func makeScrub() -> DurationScrub { DurationScrub(duration: duration) }
+
+    /// Applies the detent value of a scrub in progress (called when a 5-minute detent is crossed
+    /// and on release). Only recomputes when the value changed.
+    public mutating func apply(_ scrub: DurationScrub) {
+        let target = scrub.detentDuration
+        guard target != duration else { return }
+        switch target {
+        case .free: setFreeFlight()
+        case .minutes(let m): setDuration(minutes: m)
+        }
     }
 
     public mutating func applyQuickChip(minutes: Int) {

@@ -102,9 +102,9 @@ The Claude Design canvas already covers every screen below (S01–S54, M01–M06
 ## 7. Domain model and rules (shared by engineering and design)
 
 ### 7.1 Flights
-- **Duration range:** 10 minutes to 6 hours, plus **Free flight** (open-ended, "∞" end stop).
+- **Duration range:** 30 minutes to 6 hours, plus **Free flight** (open-ended, "∞" end stop). *Minimum raised from 10 to 30 minutes by ADR 0008; stored values below 30 are clamped to 30.*
 - **Flight time from distance:** `minutes(km) = round(15 + km / 12.9)`; inverse `km(minutes) = max(0, (minutes − 15) × 12.9)`. (LHR→CDG = 348 km = 42 min.)
-- **Short-flight rule (gap in the design, see Q10):** the formula gives 0 km for ≤ 15 minutes, so flights of 10–15 min would have no destinations. Recommended fix: overhead scales for short flights, `overhead(d) = min(15, d / 2)`, giving 10 min ≈ 64 km, 20 min ≈ 129 km, 30 min ≈ 194 km, continuous with the formula above.
+- **Short-flight rule (gap in the design, see Q10):** the formula gives 0 km for ≤ 15 minutes, so flights of 10–15 min would have no destinations. Recommended fix (kept in `FlightTiming`, but unreachable from the UI since the minimum is 30 min, ADR 0008): overhead scales for short flights, `overhead(d) = min(15, d / 2)`, giving 10 min ≈ 64 km, 20 min ≈ 129 km, 30 min ≈ 194 km, continuous with the formula above.
 - **Distance:** great-circle (haversine) between airports; the drawn route adds a mild lateral curve (cosmetic).
 - **Cabin class by duration:** Economy < 45 min, Premium 45–90, Business 90–180, First 180–300, Long-haul ≥ 300. Shown as a foil edge on the ticket.
 - **Scenario (focus type):** eight defaults, each with an icon and a color: Study, Work, Read, Create, Code, Meditate, Fitness, Other. Users can add custom scenarios.
@@ -163,7 +163,7 @@ Priority: **P0** = v1.0 required, **P1** = v1.5, **P2** = later. Design referenc
 | ID | Requirement | Pri | Acceptance criteria |
 |---|---|---|---|
 | PLAN-1 | **Origin chip always visible and editable**; "Use my location", "Continue from last landing", favorites, search | P0 | Changing origin redraws ring and destinations in < 300 ms; persists as default |
-| PLAN-2 | Duration ruler 10 min–6 h + Free flight; 5-minute detents; quick-set chips 15·25·50·90·2h | P0 | Dragging resizes the range ring in real time; trackpad detent haptics; keyboard ←/→ steps by 5 |
+| PLAN-2 | Duration ruler 30 min–6 h + Free flight; 5-minute detents; quick-set chips 30·50·90·2h (ADR 0008; was 10 min and 15·25·50·90·2h); default 42 min | P0 | Dragging resizes the range ring in real time; two-finger scroll and drag scrub the ruler (3.6 pt per minute, `DurationScrub`) with a haptic tick per 5-minute detent; keyboard ←/→ steps by 5, ⇧←/→ by 30 |
 | PLAN-3 | Range ring and amber airport tags for destinations inside the ring | P0 | Tags are exactly the airports whose `minutes(km)` is within ±3 min of the selected duration (see §7.1); selected tag grows and an arc connects it to the origin |
 | PLAN-4 | Destination dock of cards (code, city, flag, time, mini route) | P0 | Selected card is paper-white; ←/→ cycles; ⏎ confirms |
 | PLAN-5 | Random destination ("Surprise me") with a split-flap reveal | P0 | Result is within the ring; reveal ≤ 1.5 s; reduce-motion shows result directly |

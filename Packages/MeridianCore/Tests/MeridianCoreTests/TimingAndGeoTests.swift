@@ -67,3 +67,14 @@ import Testing
         #expect(abs(b - 90) < 0.001)
     }
 }
+
+@Suite struct MinimumDurationTests {
+    @Test func minimumIsThirtyAndOldValuesClamp() {
+        #expect(FlightTiming.minDurationMinutes == 30)
+        #expect(FlightTiming.clamp(minutes: 10) == 30)
+        #expect(FlightTiming.clamp(minutes: 45) == 45)
+        #expect(FlightTiming.clamp(minutes: 999) == 360)
+        #expect(!FlightTiming.isValidDuration(minutes: 29))
+        #expect(FlightTiming.isValidDuration(minutes: 30))
+    }
+}
