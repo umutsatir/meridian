@@ -240,6 +240,17 @@ final class AppModel {
         }
     }
 
+    /// Settings > Data and privacy > "Delete all Meridian data": flights, cards, stamps and profile
+    /// (`FlightStore.deleteAllData`). Added by the Settings feature.
+    func deleteAllData() {
+        activeFlight = nil
+        lastLanded = nil
+        latestLanding = nil
+        resumeBanner = nil
+        enqueue { store in try? await store.deleteAllData() }
+        refreshCollections()
+    }
+
     // MARK: Helpers
 
     func airport(_ iata: String?) -> Airport? { iata.flatMap { index.airport(iata: $0) } }

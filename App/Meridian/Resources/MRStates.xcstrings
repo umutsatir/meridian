@@ -1,0 +1,227 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "flight.landedWhileAway.action": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the ticket"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bileti gör"
+          }
+        }
+      }
+    },
+    "flight.landedWhileAway.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The whole flight counted. Your stamp is in the passport."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçuşun tamamı sayıldı. Damganız pasaportta."
+          }
+        }
+      }
+    },
+    "flight.landedWhileAway.openEnded.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your time counted. Your stamp is in the passport."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Süreniz sayıldı. Damganız pasaportta."
+          }
+        }
+      }
+    },
+    "flight.landedWhileAway.openEnded.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Landed while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken uçak indi."
+          }
+        }
+      }
+    },
+    "flight.landedWhileAway.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Landed in %@ while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken %@ şehrine indi."
+          }
+        }
+      }
+    },
+    "flight.resumed.afterQuit.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plane kept flying while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken uçağınız uçmaya devam etti."
+          }
+        }
+      }
+    },
+    "flight.resumed.afterQuit.openEnded.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plane kept flying while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken uçağınız uçmaya devam etti."
+          }
+        }
+      }
+    },
+    "flight.resumed.afterSleep.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plane kept flying while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken uçağınız uçmaya devam etti."
+          }
+        }
+      }
+    },
+    "flight.resumed.afterSleep.openEnded.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your plane kept flying while you were away."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Siz yokken uçağınız uçmaya devam etti."
+          }
+        }
+      }
+    },
+    "flight.resumed.dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Got it"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tamam"
+          }
+        }
+      }
+    },
+    "flight.resumed.flown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min flown"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%lld dk uçuldu"
+          }
+        }
+      }
+    },
+    "flight.resumed.left": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld min left"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%lld dk kaldı"
+          }
+        }
+      }
+    },
+    "flight.resumed.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flight resumed."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçuş devam ediyor."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

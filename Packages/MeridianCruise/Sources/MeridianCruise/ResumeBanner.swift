@@ -25,6 +25,10 @@ public struct ResumeBanner: Sendable, Equatable {
     public var bodyKey: String
     public var arguments: [Argument]
 
+    public init(kind: Kind, titleKey: String, bodyKey: String, arguments: [Argument]) {
+        self.kind = kind; self.titleKey = titleKey; self.bodyKey = bodyKey; self.arguments = arguments
+    }
+
     /// Picks the banner for a flight that was just settled on launch or wake.
     ///
     /// - Parameters:
