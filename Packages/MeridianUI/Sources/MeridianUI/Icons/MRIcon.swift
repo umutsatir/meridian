@@ -13,6 +13,8 @@ public struct MRIconShape: Shape {
     public let name: MRIconName
     public let filled: Bool
 
+    public init(name: MRIconName, filled: Bool) { self.name = name; self.filled = filled }
+
     public func path(in rect: CGRect) -> Path {
         let k = min(rect.width, rect.height) / MRIconMetrics.viewBox
         let t = CGAffineTransform(translationX: rect.minX, y: rect.minY).scaledBy(x: k, y: k)

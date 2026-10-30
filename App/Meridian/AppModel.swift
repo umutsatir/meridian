@@ -127,6 +127,17 @@ final class AppModel {
         enqueue { store in try? await store.begin(started) }
     }
 
+    /// Pause / resume the clock (menu bar, mini map, widget). No-op when the policy forbids it.
+    func togglePause(at now: Date = .now) {
+        guard var flight = activeFlight, flight.status == .inFlight || flight.status == .onBreak else { return }
+        do {
+            if flight.isHeld { try flight.resume(at: now) } else { try flight.startPause(at: now) }
+        } catch { return }
+        activeFlight = flight
+        let saved = flight
+        enqueue { store in try? await store.update(saved) }
+    }
+
     func landEarly() {
         guard var flight = activeFlight else { return }
         do { try flight.landEarly(at: .now) } catch { return }

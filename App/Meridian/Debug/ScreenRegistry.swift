@@ -53,6 +53,7 @@ enum ScreenRegistry {
         register(DebugRoute.plan.rawValue) { PlanView() }
         register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { InFlightView() }
         registerOnboarding()
+        SystemRoutes.register()
         // register("wallet") { WalletView() }
     }
 }
