@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plane marker</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div style="{{boxStyle}}">
+<svg viewBox="0 0 100 100" width="100%" height="100%" style="display:block;overflow:visible" aria-hidden="true">
+<defs>
+<linearGradient id="{{idF}}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0B1020" stop-opacity=".34"/><stop offset=".2" stop-color="#0B1020" stop-opacity=".06"/><stop offset=".42" stop-color="#FFFFFF" stop-opacity=".34"/><stop offset=".6" stop-color="#FFFFFF" stop-opacity=".14"/><stop offset=".85" stop-color="#0B1020" stop-opacity=".1"/><stop offset="1" stop-color="#0B1020" stop-opacity=".38"/></linearGradient>
+<linearGradient id="{{idW}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity=".36"/><stop offset=".42" stop-color="#FFFFFF" stop-opacity=".02"/><stop offset="1" stop-color="#0B1020" stop-opacity=".26"/></linearGradient>
+<linearGradient id="{{idN}}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0B1020" stop-opacity=".42"/><stop offset=".34" stop-color="#FFFFFF" stop-opacity=".3"/><stop offset=".62" stop-color="#FFFFFF" stop-opacity=".02"/><stop offset="1" stop-color="#0B1020" stop-opacity=".5"/></linearGradient>
+<clipPath id="{{idC}}"><path d="{{fus}}"/></clipPath>
+</defs>
+<!-- tailplane -->
+<path d="{{stabs}}" fill="{{color}}"/><path d="{{stabs}}" fill="#0B1020" opacity=".1"/><path d="{{stabs}}" fill="{{fillW}}"/>
+<!-- wings -->
+<path d="{{wings}}" fill="{{color}}" stroke="{{color}}" stroke-width=".5" stroke-linejoin="round"/>
+<path d="{{wings}}" fill="#0B1020" opacity=".08"/>
+<path d="{{wings}}" fill="{{fillW}}"/>
+<sc-if value="{{hasLets}}" hint-placeholder-val="{{ true }}"><path d="{{winglet}}" fill="{{color}}" stroke="{{color}}" stroke-width=".3"/><path d="{{winglet}}" fill="#0B1020" opacity=".22"/></sc-if>
+<path d="{{lines}}" fill="none" stroke="#0B1020" stroke-opacity=".3" stroke-width=".32" stroke-linecap="round"/>
+<!-- engines -->
+<path d="{{nacR}}" fill="{{color}}"/><path d="{{nacR}}" fill="#0B1020" opacity=".12"/><path d="{{nacR}}" fill="{{fillN}}"/>
+<path d="{{nacL}}" fill="{{color}}"/><path d="{{nacL}}" fill="#0B1020" opacity=".12"/><path d="{{nacL}}" fill="{{fillN}}"/>
+<sc-if value="{{isProp}}" hint-placeholder-val="{{ false }}"><g fill="#0B1020" opacity=".22"><circle cx="{{pxR}}" cy="{{pyy}}" r="{{prr}}"/><circle cx="{{pxL}}" cy="{{pyy}}" r="{{prr}}"/></g><path d="{{blades}}" stroke="#0B1020" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round" fill="none"/></sc-if>
+<sc-if value="{{notProp}}" hint-placeholder-val="{{ true }}"><path d="{{intakes}}" fill="#0B1020" opacity=".78"/><path d="{{exhaust}}" fill="#0B1020" opacity=".7"/></sc-if>
+<!-- fuselage -->
+<path d="{{fair}}" fill="{{color}}"/><path d="{{fair}}" fill="#0B1020" opacity=".05"/>
+<path d="{{fus}}" fill="{{color}}"/>
+<g clip-path="{{clipRef}}"><rect x="0" y="0" width="100" height="100" fill="{{fillF}}"/><path d="{{seams}}" stroke="#0B1020" stroke-opacity=".13" stroke-width=".26" fill="none"/><rect x="{{finX}}" y="{{finY}}" width="{{finW}}" height="{{finH}}" rx="{{finR}}" fill="#FFFFFF" opacity=".5"/><rect x="{{finX}}" y="{{finY}}" width="{{finW}}" height="{{finH}}" rx="{{finR}}" fill="none" stroke="#0B1020" stroke-opacity=".22" stroke-width=".25"/></g>
+<path d="{{win}}" fill="#12192A" opacity=".88"/>
+<sc-if value="{{lights}}" hint-placeholder-val="{{ true }}">
+<circle class="nl" cx="{{tipLx}}" cy="{{tipY}}" r="1.8" fill="#FF5C5C"/>
+<circle class="nl b" cx="{{tipRx}}" cy="{{tipY}}" r="1.8" fill="#4DF08C"/>
+<circle class="nl c" cx="50" cy="{{tailY}}" r="1.4" fill="#fff"/>
+</sc-if>
+</svg>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"variant":{"editor":"enum","options":["twin","wide","prop"],"default":"twin"},"size":{"editor":"int","default":28},"color":{"editor":"color","default":"#FFFFFF"},"heading":{"editor":"float","default":0},"lights":{"editor":"boolean","default":true},"shadow":{"editor":"boolean","default":true},"$preview":{"width":64,"height":64}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 8);
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, v = ['twin', 'wide', 'prop'].indexOf(p.variant) >= 0 ? p.variant : 'twin', size = +(p.size || 28), h = +(p.heading || 0), u = this.uid;
+    const g = K.plane(v), e = g.eng;
+    const shadow = p.shadow === false || p.shadow === 'false' ? '' : 'filter:drop-shadow(0 6px 5px rgba(0,0,0,.45));';
+    const prr = e.w * 1.6, blades = [[0, 1], [1, 0]].map(q => [g.engC[0], g.engC[1]].map(cx => 'M' + (cx - q[0] * prr).toFixed(2) + ' ' + (e.y0 - .4 - q[1] * prr).toFixed(2) + ' L' + (cx + q[0] * prr).toFixed(2) + ' ' + (e.y0 - .4 + q[1] * prr).toFixed(2)).join(' ')).join(' ');
+    const seams = []; for (let y = g.nose + 22; y < g.tail - 30; y += 11.5) seams.push('M' + (50 - g.fw) + ' ' + y.toFixed(1) + ' L' + (50 + g.fw) + ' ' + y.toFixed(1));
+    return {
+      fus: g.fus, win: g.win, wings: g.wings, stabs: g.stabs, fair: g.fair, lines: g.lines, winglet: g.winglet, nacR: g.nacR, nacL: g.nacL, intakes: g.intakes, exhaust: g.exhaust,
+      hasLets: g.lets, isProp: g.prop, notProp: !g.prop, pxR: g.engC[0], pxL: g.engC[1], pyy: e.y0 - .4, prr, blades, seams: seams.join(' '),
+      finX: g.fin.x, finY: g.fin.y, finW: g.fin.w, finH: g.fin.h, finR: g.fin.w / 2,
+      idF: 'pf-' + u, idW: 'pw-' + u, idN: 'pn-' + u, idC: 'pc-' + u, clipRef: 'url(#pc-' + u + ')', fillF: 'url(#pf-' + u + ')', fillW: 'url(#pw-' + u + ')', fillN: 'url(#pn-' + u + ')',
+      color: p.color || '#FFFFFF', lights: !(p.lights === false || p.lights === 'false'),
+      tipLx: (100 - g.wing.tx).toFixed(1), tipRx: g.wing.tx.toFixed(1), tipY: ((g.wing.tle + g.wing.tte) / 2).toFixed(1), tailY: (g.tail - .2).toFixed(1),
+      boxStyle: 'width:' + size + 'px;height:' + size + 'px;transform:rotate(' + h + 'deg);' + shadow
+    };
+  }
+}
+</script>
+</body>
+</html>

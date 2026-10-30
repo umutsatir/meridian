@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seat-back TV (second display)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.tv-st{display:flex;flex-direction:column;gap:3px;padding:0 22px;min-width:0}
+.tv-st+.tv-st{border-left:1px solid rgba(255,255,255,.12)}
+.tv-lb{font:600 11px/14px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;color:rgba(243,245,250,.62)}
+.tv-v{font:500 34px/38px var(--font-serif);letter-spacing:-.02em;color:#F3F5FA;white-space:nowrap;font-feature-settings:"tnum" 1,"lnum" 1}
+.tv-v small{font:500 13px/1 var(--font-ui);letter-spacing:0;color:rgba(243,245,250,.7);margin-left:6px}
+.tv-seg{display:inline-flex;gap:2px;padding:3px;border-radius:14px;background:rgba(18,26,46,.6);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}
+.tv-seg>*{height:34px;padding:0 18px;border-radius:11px;display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--font-ui);color:rgba(243,245,250,.72);cursor:pointer;transition:background var(--d1) var(--ease),color var(--d1) var(--ease)}
+.tv-seg>*:hover,.tv-seg>*.is-hover{color:#fff;background:rgba(255,255,255,.08)}
+.tv-seg>.on{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.tv-seg>*:focus-visible{outline:2px solid #6AB7FF;outline-offset:2px}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:800px;background:#000;overflow:hidden;font-family:var(--font-ui);color:#F3F5FA;-webkit-font-smoothing:antialiased" tabindex="0" onKeyDown="{{onKey}}" role="application" aria-label="Seat-back screen, {{viewName}}">
+<!-- screen -->
+<div style="position:absolute;left:22px;top:22px;width:1236px;height:756px;border-radius:26px;overflow:hidden;background:#05070D;box-shadow:0 0 0 1px rgba(255,255,255,.07),inset 0 0 0 1px rgba(255,255,255,.04)">
+<sc-if value="{{isMap}}" hint-placeholder-val="{{ true }}">
+<dc-import name="MapLayer" w="1236" h="756" map-style="terra" zoom="{{zoom}}" lat="{{cLat}}" lon="{{cLon}}" labels="true" smooth="true" hint-size="1236px,756px"></dc-import>
+<div style="position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 42%,rgba(6,8,13,0) 52%,rgba(6,8,13,.72) 100%)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(180deg,rgba(6,8,13,0),rgba(6,8,13,.7))"></div>
+<svg width="1236" height="756" style="position:absolute;left:0;top:0;overflow:visible" aria-hidden="true"><defs><linearGradient id="tv-g-{{uid}}" gradientUnits="userSpaceOnUse" x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs>
+<path d="{{futureD}}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"/>
+<path d="{{trailD}}" fill="none" stroke="#6AB7FF" stroke-opacity=".28" stroke-width="12" stroke-linecap="round"/>
+<path d="{{trailD}}" fill="none" stroke="url(#tv-g-{{uid}})" stroke-width="4" stroke-linecap="round"/>
+<circle cx="{{ax}}" cy="{{ay}}" r="6" fill="#fff"/><circle cx="{{bx}}" cy="{{by}}" r="6" fill="none" stroke="#FFB547" stroke-width="2.5"/></svg>
+<div style="position:absolute;left:{{pxL}}px;top:{{pxT}}px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))"><dc-import name="Plane" size="64" heading="{{heading}}" color="#FFFFFF" hint-size="64px,64px"></dc-import></div>
+<div style="position:absolute;left:{{aLx}}px;top:{{aLy}}px;font:600 15px/18px var(--font-ui)">Heathrow<div style="font:500 12px/16px var(--font-mono);color:rgba(243,245,250,.62)">LHR · departed 10:06</div></div>
+<div style="position:absolute;left:{{bLx}}px;top:{{bLy}}px;font:600 15px/18px var(--font-ui)">Charles de Gaulle<div style="font:500 12px/16px var(--font-mono);color:rgba(243,245,250,.62)">CDG · lands 11:42 local</div></div>
+</sc-if>
+<sc-if value="{{isWin}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(90% 90% at 50% 40%,#12161F,#040508)"></div>
+<div style="position:absolute;left:0;top:24px"><dc-import name="WindowView" scene="blue" w="1236" h="680" shade="0" bare="true" hint-size="1236px,680px"></dc-import></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:220px;background:linear-gradient(180deg,rgba(6,8,13,0),rgba(6,8,13,.7))"></div>
+</sc-if>
+
+<!-- top row -->
+<div style="position:absolute;left:34px;top:30px;display:flex;align-items:center;gap:14px">
+<span style="width:40px;height:40px;border-radius:13px;background:rgba(18,26,46,.6);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center"><svg class="ic ic20" style="color:#6AB7FF"><use href="./icons.svg#plane"></use></svg></span>
+<div><div class="tv-lb" style="color:rgba(243,245,250,.8)">MR 0142 · Cruise</div><div style="font:600 18px/22px var(--font-ui)">London to Paris</div></div>
+</div>
+<div style="position:absolute;right:34px;top:30px;display:flex;align-items:center;gap:16px">
+<span class="mono" style="font-size:13px;color:rgba(243,245,250,.7)">10:24 London · 11:24 Paris</span>
+<div class="tv-seg" role="tablist" aria-label="View"><span class="{{mapCls}}" role="tab" tabindex="0" aria-selected="{{mapSel}}" onClick="{{toMap}}"><svg class="ic ic16"><use href="./icons.svg#map"></use></svg>Map</span><span class="{{winCls}}" role="tab" tabindex="0" aria-selected="{{winSel}}" onClick="{{toWin}}"><svg class="ic ic16"><use href="./icons.svg#window"></use></svg>Window</span></div>
+</div>
+
+<!-- floating info bar -->
+<div class="glass e3" style="position:absolute;left:34px;right:34px;bottom:30px;height:{{barH}}px;border-radius:30px;padding:0 10px;display:flex;flex-direction:column;justify-content:center;gap:14px;background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 40%,rgba(255,255,255,.05)),rgba(14,20,36,.62)" role="group" aria-label="Flight information">
+<div style="display:flex;align-items:center;gap:16px;padding:0 22px">
+<span class="mono" style="font-size:14px;color:#F3F5FA">LHR</span>
+<div style="position:relative;flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.16)"><i style="position:absolute;left:0;top:0;bottom:0;width:{{pct}}%;border-radius:3px;background:linear-gradient(90deg,#6AB7FF,#8BF3D8)"></i><span style="position:absolute;left:{{pct}}%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(106,183,255,.3)"></span></div>
+<span class="mono" style="font-size:14px;color:#F3F5FA">CDG</span>
+</div>
+<div style="display:flex;align-items:stretch">
+<sc-for list="{{stats}}" as="s" hint-placeholder-count="5"><div class="tv-st" style="flex:1"><span class="tv-lb">{{s.k}}</span><span class="tv-v">{{s.v}}<small>{{s.u}}</small></span></div></sc-for>
+</div>
+</div>
+<div class="mono" style="position:absolute;right:38px;bottom:7px;font-size:11px;color:rgba(243,245,250,.5)">← → switch view · Esc close</div>
+</div>
+
+<!-- bezel reflection -->
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(112deg,rgba(255,255,255,.13) 0%,rgba(255,255,255,.04) 14%,rgba(255,255,255,0) 30%),linear-gradient(112deg,rgba(255,255,255,0) 54%,rgba(255,255,255,.05) 60%,rgba(255,255,255,0) 66%);mix-blend-mode:screen"></div>
+<div style="position:absolute;left:22px;top:22px;width:1236px;height:756px;border-radius:26px;pointer-events:none;box-shadow:inset 0 0 40px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.05)"></div>
+<sc-if value="{{annotate}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:34px;top:92px;width:300px;border:1px dashed rgba(255,255,255,.35);border-radius:14px;padding:12px 14px;background:rgba(0,0,0,.55);font:500 11px/1.5 var(--font-mono);color:#8BF3D8">
+<b style="display:block;font:700 10px/1.4 var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-bottom:2px">Native</b>Borderless NSWindow on the second NSScreen, level above the menu bar, hides the cursor after 3 s. SwiftUI hosting view; the map is MapKit with the same Terra overlay. Bezel streak = a static LinearGradient blended with .plusLighter.
+<b style="display:block;font:700 10px/1.4 var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:#fff;margin:8px 0 2px">Cabin type</b>Numerals 34 pt serif, labels 11 pt caps, built for reading across a room.</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["map","window"],"default":"map"},"p":{"editor":"float","default":.55},"annotate":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { view: null };
+  uid = Math.random().toString(36).slice(2, 8);
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, EU = K.eu, st = this.state;
+    const view = st.view || (p.view === 'window' ? 'window' : 'map');
+    const W = 1236, H = 756, prog = Math.max(0, Math.min(1, +(p.p === undefined ? .55 : p.p)));
+    const pts = K.arc('LHR', 'CDG', 60), si = prog * (pts.length - 1), k0 = Math.floor(si), k1 = Math.min(pts.length - 1, k0 + 1), f = si - k0;
+    const here = [pts[k0][0] + (pts[k1][0] - pts[k0][0]) * f, pts[k0][1] + (pts[k1][1] - pts[k0][1]) * f];
+    const A = EU.xy(pts[0][0], pts[0][1]), B = EU.xy(pts[pts.length - 1][0], pts[pts.length - 1][1]);
+    const z = Math.min(.56 * W / Math.max(Math.abs(A[0] - B[0]), 1), .46 * H / Math.max(Math.abs(A[1] - B[1]), 1), 6);
+    const mid = pts[Math.floor(pts.length / 2)], C = EU.xy(mid[0], mid[1]);
+    const scr = (lat, lon) => { const q = EU.xy(lat, lon); return [(q[0] - C[0]) * z + W / 2, (q[1] - C[1]) * z + H / 2 - 70]; };
+    const sp = pts.map(q => scr(q[0], q[1])), hp = scr(here[0], here[1]), path = a => a.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join(' ');
+    const heading = Math.atan2(sp[Math.min(sp.length - 1, k0 + 2)][0] - sp[k0][0], -(sp[Math.min(sp.length - 1, k0 + 2)][1] - sp[k0][1])) * 180 / Math.PI;
+    const rem = Math.round((1 - prog) * 42 * 60), km = Math.round((1 - prog) * 348);
+    const set = v => () => this.setState({ view: v });
+    return {
+      uid: this.uid, isMap: view === 'map', isWin: view === 'window', viewName: view === 'map' ? 'map view' : 'window view',
+      zoom: z, cLat: mid[0], cLon: mid[1], x1: sp[0][0], y1: sp[0][1], x2: sp[sp.length - 1][0], y2: sp[sp.length - 1][1],
+      futureD: path(sp.slice(k0)), trailD: path(sp.slice(0, k0 + 1).concat([hp])), ax: sp[0][0].toFixed(1), ay: sp[0][1].toFixed(1), bx: sp[sp.length - 1][0].toFixed(1), by: sp[sp.length - 1][1].toFixed(1),
+      pxL: (hp[0] - 32).toFixed(1), pxT: (hp[1] - 32).toFixed(1), heading,
+      aLx: (sp[0][0] - 60).toFixed(0), aLy: (sp[0][1] + 16).toFixed(0), bLx: (sp[sp.length - 1][0] + 16).toFixed(0), bLy: (sp[sp.length - 1][1] + 12).toFixed(0),
+      mapCls: view === 'map' ? 'on' : '', winCls: view === 'window' ? 'on' : '', mapSel: String(view === 'map'), winSel: String(view === 'window'), toMap: set('map'), toWin: set('window'),
+      onKey: e => { if (e.key === 'ArrowLeft') this.setState({ view: 'map' }); if (e.key === 'ArrowRight') this.setState({ view: 'window' }); },
+      barH: 150, pct: Math.round(prog * 100),
+      stats: [{ k: 'Time to go', v: K.mmss(rem), u: '' }, { k: 'Distance to go', v: String(km), u: 'km' }, { k: 'Ground speed', v: '812', u: 'km/h' }, { k: 'Altitude', v: '11,280', u: 'm' }, { k: 'Outside air', v: '−48', u: '°C' }],
+      annotate: this.flag(p.annotate, false)
+    };
+  }
+}
+</script>
+</body>
+</html>

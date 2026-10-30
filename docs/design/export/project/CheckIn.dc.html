@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seat and scenario</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ci-h{font:500 42px/46px var(--font-serif);letter-spacing:-.02em;margin:0}
+.ci-topic{display:flex;align-items:center;gap:12px;height:56px;padding:0 10px 0 18px;border-radius:20px;transition:box-shadow var(--d2) var(--ease)}
+.ci-topic input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--text-1);font:500 16px/1 var(--font-ui)}
+.ci-topic input::placeholder{color:var(--text-3)}
+.ci-topic:focus-within,.ci-topic.is-focus{box-shadow:inset 0 1px 0 var(--stroke-glow),0 0 0 2px var(--accent-1),var(--e2)}
+.ci-sum{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--stroke-hair)}
+.ci-sum:last-child{border-bottom:0}
+.ci-lg{display:flex;align-items:center;gap:20px;font:500 12px/16px var(--font-ui);color:var(--text-2)}
+.ci-lg span{display:inline-flex;align-items:center;gap:8px}.ci-lg .ci-sp{flex:1}.ci-lg .mono{font-size:11px;color:var(--text-3)}
+.ci-sw{width:16px;height:16px;border-radius:5px;background:var(--fill-2);box-shadow:inset 0 0 0 1px var(--stroke-hair),inset 0 1px 0 var(--stroke-glow)}
+.ci-sw.sel{background:linear-gradient(135deg,rgba(106,183,255,.55),rgba(139,243,216,.35));box-shadow:0 0 0 1.5px var(--accent-1)}
+.ci-sw.off{opacity:.5;background:repeating-linear-gradient(135deg,var(--fill-1) 0 3px,transparent 3px 6px)}
+.ci-sw.fr{box-shadow:0 0 0 1.5px #FF8FB1,inset 0 1px 0 var(--stroke-glow)}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-0)">
+<div style="position:absolute;inset:0;filter:blur(18px) brightness(.85) saturate(.8);transform:scale(1.08)"><dc-import name="MapLayer" w="1280" h="800" map-style="terra" zoom="1.4" lat="49.8" lon="2.2" labels="false" hint-size="1280px,800px"></dc-import></div>
+<div style="position:absolute;inset:0;background:rgba(6,8,13,.55)"></div>
+<dc-import name="Sidebar" active="plan" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<div style="position:absolute;left:264px;top:52px;right:24px;display:flex;align-items:flex-end;justify-content:space-between">
+<div><div class="eyebrow">Check in · Step 2 of 2</div><h1 class="ci-h" style="margin-top:6px">Choose your seat.</h1></div>
+<div class="glass e2" style="height:44px;border-radius:22px;padding:0 18px;display:flex;align-items:center;gap:12px"><span class="cond" style="font-size:22px">{{from}}</span><svg class="ic ic14 c3" style="transform:rotate(90deg)"><use href="./icons.svg#plane"></use></svg><span class="cond" style="font-size:22px">{{to}}</span><span class="mono c2" style="font-size:12px">{{dur}} min · {{km}} km · MR 0142</span></div>
+</div>
+
+<div style="position:absolute;left:264px;top:136px;width:740px;height:362px"><dc-import name="SeatMap" scale=".92" seat="{{seat}}" zone="{{zone}}" live="{{live}}" on-seat="{{onSeat}}" hover="{{hoverSeat}}" hint-size="800px,392px"></dc-import></div>
+<div class="ci-lg" style="position:absolute;left:272px;top:516px;width:724px"><span><i class="ci-sw"></i>Free</span><span><i class="ci-sw sel"></i>Your seat</span><span><i class="ci-sw off"></i>Taken</span><span><i class="ci-sw fr"></i>Friend</span><span class="ci-sp"></span><span class="mono">A F window · C D aisle</span></div>
+
+<div class="glass e2 ci-topic {{topicCls}}" style="position:absolute;left:264px;top:574px;width:740px"><svg class="ic ic20 c2"><use href="./icons.svg#pencil"></use></svg><input placeholder="What are you working on?" value="{{topic}}" aria-label="What are you working on?" onInput="{{onTopic}}"><span class="chip" style="--sc:#B49CFF;height:36px"><svg class="ic ic14"><use href="./icons.svg#code"></use></svg>Coding</span></div>
+
+<div class="glass e1" style="position:absolute;left:264px;top:646px;width:740px;height:68px;border-radius:22px;padding:0 18px;display:flex;align-items:center;gap:14px">
+<div style="display:flex"><span class="av" style="--avc:#FFB86B;box-shadow:0 0 0 2px var(--bg-1)">A</span><span class="av" style="--avc:#7ADDB2;margin-left:-8px;box-shadow:0 0 0 2px var(--bg-1)">M</span><span class="av" style="--avc:#FF8FB1;margin-left:-8px;box-shadow:0 0 0 2px var(--bg-1)">S</span></div>
+<div style="flex:1"><div style="font:600 14px/18px var(--font-ui)">Fly together</div><div class="t-callout c2">Invite friends to this flight. They pick seats next to yours.</div></div>
+<button class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#link"></use></svg>Copy invite link</button>
+<span class="toggle {{togCls}}" role="switch" tabindex="0" aria-label="Fly together" onClick="{{toggleTog}}"></span>
+</div>
+
+<div style="position:absolute;left:1030px;top:142px;width:226px;height:372px"><dc-import name="Ticket" from="{{from}}" to="{{to}}" scenario="code" state="printed" scale=".628" seat="{{seat}}" topic="{{topic}}" hint-size="226px,377px"></dc-import></div>
+<div style="position:absolute;left:1030px;top:530px;width:226px">
+<div class="ci-sum"><span class="t-callout c2">Seat</span><span class="mono" style="font-size:13px">{{seat}} · {{seatType}}</span></div>
+<div class="ci-sum"><span class="t-callout c2">Zone</span><span class="mono" style="font-size:13px">{{zoneName}}</span></div>
+<div class="ci-sum"><span class="t-callout c2">Gate</span><span class="mono" style="font-size:13px">A12 · 10:00</span></div>
+</div>
+<div style="position:absolute;left:1030px;top:668px;width:226px;display:flex;flex-direction:column;gap:8px"><button class="btn btn-primary btn-lg {{ctaCls}}" style="width:226px;padding:0" onClick="{{checkin}}">Check in</button><div class="t-callout c3" style="text-align:center"><span class="kbd">⌘</span> <span class="kbd">⏎</span> to quick start</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"seat":{"editor":"text","default":"1A"},"topic":{"editor":"text","default":"Auth module refactor"},"together":{"editor":"boolean","default":false},"live":{"editor":"boolean","default":false},"hover":{"editor":"text","default":""},"onCheckin":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { seat: null, zone: null, topic: null, tog: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state;
+    const S = (v, d) => typeof v === 'string' && v ? v : d;
+    const from = S(p.from, 'LHR'), to = S(p.to, 'CDG'), km = Math.round(K.gc(from, to));
+    const seat = st.seat || S(p.seat, '1A'), letter = seat.slice(-1), zk = ['study', 'work', 'read', 'create'][Math.floor(((parseInt(seat) || 1) - 1) / 3)];
+    const zone = st.zone || zk, topic = st.topic !== null ? st.topic : (typeof p.topic === 'string' ? p.topic : 'Auth module refactor');
+    const tog = st.tog !== null ? st.tog : this.flag(p.together, false);
+    const type = (letter === 'A' || letter === 'F') ? 'Window' : 'Aisle';
+    return {
+      from, to, km, dur: K.minutes(km), seat, zone: zk, seatType: type, zoneName: K.scenarios[zk][0] + ' zone', topic, live: this.flag(p.live, false),
+      hoverSeat: typeof p.hover === 'string' ? p.hover : '', topicCls: p.hover === 'topic' ? 'is-focus' : '', togCls: tog ? 'on' : '', ctaCls: p.hover === 'cta' ? 'is-hover' : '',
+      onSeat: o => this.setState({ seat: o.seat, zone: o.zone }), onTopic: e => this.setState({ topic: e.target.value.slice(0, 48) }), toggleTog: () => this.setState({ tog: !tog }),
+      checkin: () => { const cb = this.props.onCheckin; if (typeof cb === 'function') cb({ seat, topic }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

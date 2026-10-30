@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boarding gate</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.gt-cap{font:600 10px/12px var(--font-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+@keyframes gt-pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div class="win" style="background:#06080D" tabindex="0" onKeyDown="{{onKey}}">
+<div style="position:absolute;inset:0;filter:blur(14px) brightness(1.05) saturate(.9);transform:scale(1.06)"><dc-import name="MapLayer" w="1280" h="800" map-style="terra" zoom="1.1" lat="49.6" lon="2.6" labels="false" hint-size="1280px,800px"></dc-import></div>
+<div style="position:absolute;inset:0;background:rgba(5,7,13,.34)"></div>
+<dc-import name="Sidebar" active="plan" badge="tickets" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- pinned ticket -->
+<div style="position:absolute;left:262px;top:76px;width:202px;height:253px;z-index:10"><dc-import name="Ticket" from="{{from}}" to="{{to}}" state="torn" scale=".56" topic="Auth module refactor" hint-size="202px,253px"></dc-import></div>
+
+<!-- departures board -->
+<div class="glass e3" style="position:absolute;left:492px;top:76px;width:748px;height:253px;border-radius:26px;padding:22px 26px">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="eyebrow">Departures</div><div class="mono c2" style="font-size:13px">{{clock}} · Heathrow T5</div></div>
+<div style="display:flex;gap:24px;margin-top:22px">
+<div><div class="gt-cap">Flight</div><dc-import name="SplitFlap" text="MR 0142" size="xs" live="{{live}}" hint-size="170px,30px"></dc-import></div>
+<div><div class="gt-cap">Route</div><dc-import name="SplitFlap" text="{{routeText}}" size="xs" tone="white" live="{{live}}" hint-size="210px,30px"></dc-import></div>
+<div><div class="gt-cap">Gate</div><dc-import name="SplitFlap" text="A12" size="xs" live="{{live}}" hint-size="70px,30px"></dc-import></div>
+<div><div class="gt-cap">Status</div><dc-import name="SplitFlap" text="{{status}}" len="8" size="xs" live="{{live}}" sound="{{live}}" hint-size="190px,30px"></dc-import></div>
+</div>
+<div class="hr" style="margin:24px 0 18px"></div>
+<div style="display:flex;align-items:center;gap:22px">
+<div><div class="gt-cap">Passenger</div><div style="font:600 15px/18px var(--font-ui)">Elif Kaya</div></div>
+<div><div class="gt-cap">Seat</div><div class="mono" style="font-size:15px">1A · Window</div></div>
+<div><div class="gt-cap">Flight time</div><div class="mono" style="font-size:15px">{{dur}} min · {{km}} km</div></div>
+<span style="flex:1"></span><span class="pill {{pillCls}}"><span class="dotp pulse"></span>{{pillText}}</span>
+</div>
+</div>
+
+<!-- countdown -->
+<div style="position:absolute;left:236px;right:20px;top:372px;display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:224px;height:224px"><svg width="224" height="224" viewBox="0 0 224 224" style="position:absolute;left:0;top:0;transform:rotate(-90deg)"><circle cx="112" cy="112" r="104" fill="none" stroke="var(--fill-2)" stroke-width="3"/><circle cx="112" cy="112" r="104" fill="none" stroke="url(#gtg)" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{ringDash}}"/><defs><linearGradient id="gtg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs></svg>
+<div class="mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:132px;font-weight:500;letter-spacing:-.04em">{{count}}</div></div>
+<div class="t-title2" style="margin-top:22px">Doors close in {{count}}…</div>
+<div class="t-callout c2" style="margin-top:6px">Boarding</div>
+</div>
+<div class="glass e2" style="position:absolute;left:{{chipLeft}}px;bottom:34px;height:52px;border-radius:26px;padding:0 8px 0 18px;display:flex;align-items:center;gap:14px"><svg class="ic ic20 c2"><use href="./icons.svg#shield"></use></svg><span style="font:500 14px/1 var(--font-ui)">Close your other windows?</span><span class="pill accent"><span class="dotp"></span>Soft blocking is on</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"count":{"editor":"int","default":3},"live":{"editor":"boolean","default":false},"onBoard":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { n: 3, t: 0 };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  live() { return this.flag(this.props.live, false); }
+  componentDidMount() { if (this.live()) { this._t0 = performance.now(); const A = window.MeridianAudio; const L = () => { const e = performance.now() - this._t0, n = Math.max(0, 3 - Math.floor(e / 1000)); if (n !== this._ln) { this._ln = n; if (A && A.enabled) { if (n > 0) A.tick(false); else A.tick(true); } } this.setState({ n, t: Math.min(1, e / 3000) }); if (e >= 3000) { const cb = this.props.onBoard; if (typeof cb === 'function') cb(); return; } this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); } }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, live = this.live(), n = live ? this.state.n : +(p.count === undefined ? 3 : p.count), tf = live ? this.state.t : (3 - n) / 3;
+    const from = p.from || 'LHR', to = p.to || 'CDG', km = p.km ? +p.km : Math.round(K.gc(from, to)), circ = 2 * Math.PI * 104;
+    const closing = n === 0;
+    return {
+      from, to, live, km, dur: p.minutes || K.minutes(km), routeText: from + ' → ' + to, status: closing ? 'CLOSED' : 'BOARDING', count: n, clock: '09:57',
+      pillCls: closing ? 'warn' : 'ok', pillText: closing ? 'Doors closed' : 'Boarding', ringDash: (circ * (1 - tf)).toFixed(1) + ' ' + circ.toFixed(1), chipLeft: 236 + Math.round((1024 - 560) / 2),
+      onKey: e => { if (e.key === 'Enter' || e.key === ' ') { const cb = this.props.onBoard; if (typeof cb === 'function') cb(); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

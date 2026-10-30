@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P3 Planning</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.p3-bar{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:12px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair);font:500 12px/1 var(--font-ui);color:var(--text-2)}
+.p3-bar b{color:var(--text-1);font-weight:600}
+.p3-hint{display:inline-flex;align-items:center;gap:6px;padding:0 10px;height:26px;border-radius:13px;background:var(--fill-1)}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:884px">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;border-radius:22px 22px 0 0;overflow:hidden">
+<dc-import name="Planner" live="true" origin="LHR" minutes="42" selected="{{selected}}" on-checkin="{{onCheckin}}" hint-size="1280px,800px"></dc-import>
+<sc-if value="{{showSearch}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;z-index:50"><dc-import name="Search" bg="false" live="true" minutes="42" on-choose="{{onChoose}}" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="glass e3 toast" style="position:absolute;left:50%;top:26px;transform:translateX(-50%);z-index:60"><span style="width:34px;height:34px;border-radius:50%;background:rgba(91,227,160,.16);color:var(--ok);display:flex;align-items:center;justify-content:center;flex:none"><svg class="ic ic18"><use href="./icons.svg#check"></use></svg></span><div><div style="font:600 14px/18px var(--font-ui)">{{toastTitle}}</div><div class="t-callout c2">{{toastSub}}</div></div></div></sc-if>
+</div>
+<div class="p3-bar"><b>Prototype</b><span class="p3-hint">Press “Start flight”</span><span class="p3-hint">Drag the ruler</span><span class="p3-hint">Click a destination</span><span class="p3-hint">Click your city to change airport</span><span class="p3-hint">Search <span class="kbd">⌘K</span></span><span style="flex:1"></span><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{openSearch}}"><svg class="ic ic14"><use href="./icons.svg#search"></use></svg>Search</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":884}}'>
+class Component extends DCLogic {
+  state = { search: false, selected: '', toast: '' };
+  componentDidMount() { this._k = e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); this.setState({ search: true }); } else if (e.key === 'Escape') this.setState({ search: false }); }; window.addEventListener('keydown', this._k); }
+  componentWillUnmount() { window.removeEventListener('keydown', this._k); clearTimeout(this._tt); }
+  flash(t, s) { this.setState({ toast: t, toastSub: s }); clearTimeout(this._tt); this._tt = setTimeout(() => this.setState({ toast: '' }), 3200); }
+  renderVals() {
+    const st = this.state;
+    return {
+      showSearch: st.search, selected: st.selected, toast: !!st.toast, toastTitle: st.toast, toastSub: st.toastSub || '',
+      openSearch: () => this.setState({ search: true }),
+      onChoose: c => { this.setState({ selected: c }); setTimeout(() => this.setState({ search: false }), 900); },
+      onCheckin: o => this.flash('Checked in for ' + o.to, 'In the full flow, your boarding pass prints here. See P1.')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Map layer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="map" data-map="{{style}}" style="{{rootStyle}}">
+<div class="eu" style="{{planeStyle}}">
+<sc-if value="{{isSat}}" hint-placeholder-val="{{ false }}"><div class="eu-sat" style="{{satStyle}}"></div></sc-if>
+<sc-if value="{{notSat}}" hint-placeholder-val="{{ true }}"><div class="eu-land"></div><div class="eu-land2"></div></sc-if>
+<div class="eu-border"></div>
+<sc-if value="{{grid}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{gv}}" as="g" hint-placeholder-count="4"><div class="grat-v" style="{{g.s}}"></div></sc-for>
+<sc-for list="{{gh}}" as="g" hint-placeholder-count="4"><div class="grat-h" style="{{g.s}}"></div></sc-for>
+</sc-if>
+<sc-if value="{{labels}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{seas}}" as="l" hint-placeholder-count="3"><div class="eu-lbl" style="{{l.s}}">{{l.t}}</div></sc-for>
+<sc-for list="{{cities}}" as="l" hint-placeholder-count="5"><div class="eu-city" style="{{l.s}}">{{l.t}}</div></sc-for>
+</sc-if>
+</div>
+<div style="{{glowStyle}}"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"w":{"editor":"int","default":1280},"h":{"editor":"int","default":800},"mapStyle":{"editor":"enum","options":["terra","mono","standard","satellite"],"default":"terra"},"zoom":{"editor":"float","default":1.9},"labels":{"editor":"boolean","default":true},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = window.MeridianKit, EU = K.eu, p = this.props;
+    const w = +(p.w || 1280), h = +(p.h || 800), z = +(p.zoom || 1.9);
+    const lat = p.lat != null ? +p.lat : 51.47, lon = p.lon != null ? +p.lon : -0.45;
+    const dx = +(p.dx || 0), dy = +(p.dy || 0);
+    const P = EU.xy(lat, lon);
+    const tx = w / 2 + dx - P[0] * z, ty = h / 2 + dy - P[1] * z;
+    const style = p.mapStyle || 'terra';
+    const flag = v => !(v === false || v === 'false');
+    const gv = [], gh = [];
+    for (let l = -30; l <= 60; l += 10) gv.push({ s: 'left:' + EU.xy(40, l)[0].toFixed(1) + 'px;width:' + (1 / z).toFixed(3) + 'px' });
+    for (let a = 30; a <= 70; a += 10) gh.push({ s: 'top:' + EU.xy(a, 0)[1].toFixed(1) + 'px;height:' + (1 / z).toFixed(3) + 'px' });
+    const vis = (X, Y) => { const sx = X * z + tx, sy = Y * z + ty; return sx > -60 && sx < w + 60 && sy > -30 && sy < h + 30; };
+    const seaList = [['North Sea', 56.3, 2.6], ['Atlantic Ocean', 47.5, -16], ['Mediterranean Sea', 36.4, 16], ['Baltic Sea', 58.4, 19.6], ['Bay of Biscay', 45.2, -5.2], ['Norwegian Sea', 66.2, 1.5], ['Black Sea', 43.3, 34.2], ['Irish Sea', 53.8, -4.9], ['English Channel', 50.15, -2.2]];
+    const cityList = [['London', 51.51, -0.13], ['Paris', 48.86, 2.35], ['Amsterdam', 52.37, 4.9], ['Brussels', 50.85, 4.35], ['Berlin', 52.52, 13.4], ['Madrid', 40.42, -3.7], ['Rome', 41.9, 12.5], ['Dublin', 53.35, -6.26], ['Edinburgh', 55.95, -3.19], ['Manchester', 53.48, -2.24], ['Copenhagen', 55.68, 12.57], ['Oslo', 59.91, 10.75], ['Stockholm', 59.33, 18.07], ['Vienna', 48.21, 16.37], ['Zurich', 47.37, 8.54], ['Lisbon', 38.72, -9.14], ['Rennes', 48.11, -1.68], ['Lille', 50.63, 3.06], ['Cologne', 50.94, 6.96], ['Bristol', 51.45, -2.59], ['Newcastle', 54.98, -1.62], ['Birmingham', 52.48, -1.9], ['Istanbul', 41.01, 28.98], ['Athens', 37.98, 23.73], ['Warsaw', 52.23, 21.01], ['Reykjavik', 64.15, -21.94], ['Helsinki', 60.17, 24.94], ['Munich', 48.14, 11.58], ['Barcelona', 41.39, 2.17], ['Milan', 45.46, 9.19]];
+    const mk = (arr, size, kind) => arr.map(r => { const xy = EU.xy(r[1], r[2]); return { xy, t: r[0] }; }).filter(r => vis(r.xy[0], r.xy[1])).map(r => ({ t: r.t, s: 'left:' + r.xy[0].toFixed(1) + 'px;top:' + r.xy[1].toFixed(1) + 'px;font-size:' + (size / z).toFixed(2) + 'px' + (kind === 'sea' ? ';font-style:italic;letter-spacing:' + (.14 / z * 1).toFixed(3) + 'em' : '') }));
+    const rim = style === 'terra' ? 'radial-gradient(70% 55% at 28% -10%,rgba(150,140,255,.20),transparent 70%)' : style === 'satellite' ? 'radial-gradient(120% 100% at 50% 50%,transparent 55%,rgba(4,10,20,.55))' : 'none';
+    return {
+      style, isSat: style === 'satellite', notSat: style !== 'satellite', grid: flag(p.grid) && style !== 'satellite', labels: flag(p.labels),
+      rootStyle: 'position:relative;width:' + w + 'px;height:' + h + 'px;',
+      planeStyle: 'transform:translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + z + ')' + (p.smooth === true || p.smooth === 'true' ? ';transition:transform 560ms var(--ease)' : ''),
+      satStyle: 'background-size:' + Math.round(1100) + 'px ' + Math.round(1100) + 'px;filter:saturate(.8) brightness(.9)',
+      glowStyle: 'position:absolute;inset:0;pointer-events:none;background:' + rim,
+      gv, gh, seas: mk(seaList, 11.5, 'sea'), cities: mk(cityList, 11, 'city')
+    };
+  }
+}
+</script>
+</body>
+</html>

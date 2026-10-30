@@ -1,0 +1,1674 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-29T19:50:00Z"
+ },
+ "title": "Meridian — Design System",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "F1-Color.dc.html": {
+   "x": 0,
+   "y": 360,
+   "w": 1440,
+   "h": 2575,
+   "title": "Foundations — Color"
+  },
+  "F2-Type-Layout.dc.html": {
+   "x": 1520,
+   "y": 360,
+   "w": 1440,
+   "h": 2052,
+   "title": "Foundations — Type, spacing, layout, icons"
+  },
+  "F3-Glass-Motion.dc.html": {
+   "x": 3040,
+   "y": 360,
+   "w": 1440,
+   "h": 2462,
+   "title": "Foundations — Glass, paper, elevation, motion"
+  },
+  "C01-Boarding-Pass.dc.html": {
+   "x": 0,
+   "y": 3315,
+   "w": 1440,
+   "h": 5225,
+   "title": "C01 — Boarding pass"
+  },
+  "C02-Print-Animation.dc.html": {
+   "x": 1520,
+   "y": 3315,
+   "w": 1440,
+   "h": 2859,
+   "title": "C02 — Ticket printer and print animation"
+  },
+  "C03-Tear-Off.dc.html": {
+   "x": 3040,
+   "y": 3315,
+   "w": 1440,
+   "h": 3826,
+   "title": "C03 — Tear-off interaction"
+  },
+  "C04-Membership-Cards.dc.html": {
+   "x": 4560,
+   "y": 3315,
+   "w": 1440,
+   "h": 3950,
+   "title": "C04 — Membership cards"
+  },
+  "C05-Destination-Picker.dc.html": {
+   "x": 6080,
+   "y": 3315,
+   "w": 1440,
+   "h": 7531,
+   "title": "C05 — Destination picker"
+  },
+  "C06-Seat-Window.dc.html": {
+   "x": 0,
+   "y": 10996,
+   "w": 1440,
+   "h": 4531,
+   "title": "C06 — Seat map and window view"
+  },
+  "C07-Flight-HUD.dc.html": {
+   "x": 1520,
+   "y": 10996,
+   "w": 1440,
+   "h": 3864,
+   "title": "C07 — Flight HUD, route line and plane"
+  },
+  "C08-Map-Styles.dc.html": {
+   "x": 3040,
+   "y": 10996,
+   "w": 1440,
+   "h": 2671,
+   "title": "C08 — Map styles"
+  },
+  "C09-Passport-Stamps.dc.html": {
+   "x": 4560,
+   "y": 10996,
+   "w": 1440,
+   "h": 3500,
+   "title": "C09 — Passport and stamps"
+  },
+  "C10-Stats-Sound.dc.html": {
+   "x": 6080,
+   "y": 10996,
+   "w": 1440,
+   "h": 4256,
+   "title": "C10 — Statistics and sound mixer"
+  },
+  "C11-Social.dc.html": {
+   "x": 0,
+   "y": 15677,
+   "w": 1440,
+   "h": 3130,
+   "title": "C11 — Social components"
+  },
+  "C12-UI-Kit.dc.html": {
+   "x": 1520,
+   "y": 15677,
+   "w": 1440,
+   "h": 4480,
+   "title": "C12 — System UI kit"
+  },
+  "S01-Welcome.dc.html": {
+   "x": 0,
+   "y": 20537,
+   "w": 1280,
+   "h": 800,
+   "title": "S01 — Welcome"
+  },
+  "S01T-Welcome-Turkish.dc.html": {
+   "x": 1360,
+   "y": 20537,
+   "w": 1280,
+   "h": 800,
+   "title": "S01 — Welcome · Turkish (copy length test)"
+  },
+  "S02-Home-Airport.dc.html": {
+   "x": 2720,
+   "y": 20537,
+   "w": 1280,
+   "h": 800,
+   "title": "S02 — Home airport"
+  },
+  "S03-Scenarios.dc.html": {
+   "x": 4080,
+   "y": 20537,
+   "w": 1280,
+   "h": 800,
+   "title": "S03 — Choose your scenarios (drag, click to select)",
+   "is_interactive": true
+  },
+  "S04-Map-Style.dc.html": {
+   "x": 0,
+   "y": 21487,
+   "w": 1280,
+   "h": 800,
+   "title": "S04 — Map style"
+  },
+  "S05A-Notifications.dc.html": {
+   "x": 1360,
+   "y": 21487,
+   "w": 1280,
+   "h": 800,
+   "title": "S05 — Warm-up 1 · Notifications"
+  },
+  "S05B-Focus-Filter.dc.html": {
+   "x": 2720,
+   "y": 21487,
+   "w": 1280,
+   "h": 800,
+   "title": "S05 — Warm-up 2 · Focus filter"
+  },
+  "S05C-Accessibility.dc.html": {
+   "x": 4080,
+   "y": 21487,
+   "w": 1280,
+   "h": 800,
+   "title": "S05 — Warm-up 3 · Accessibility"
+  },
+  "S06-Account.dc.html": {
+   "x": 0,
+   "y": 22437,
+   "w": 1280,
+   "h": 800,
+   "title": "S06 — Account"
+  },
+  "S07-Ready.dc.html": {
+   "x": 1360,
+   "y": 22437,
+   "w": 1280,
+   "h": 800,
+   "title": "S07 — Ready for take-off"
+  },
+  "L01-Localisation-Test.dc.html": {
+   "x": 2720,
+   "y": 22437,
+   "w": 1440,
+   "h": 981,
+   "title": "L01 — Turkish and German length test (deck strings in real components)"
+  },
+  "S10-Plan.dc.html": {
+   "x": 0,
+   "y": 23798,
+   "w": 1280,
+   "h": 800,
+   "title": "S10 — Plan · home"
+  },
+  "S10L-Plan-Light.dc.html": {
+   "x": 1360,
+   "y": 23798,
+   "w": 1280,
+   "h": 800,
+   "title": "S10 — Plan · light"
+  },
+  "S10F-Plan-First-Run.dc.html": {
+   "x": 2720,
+   "y": 23798,
+   "w": 1280,
+   "h": 800,
+   "title": "S10 — Plan · first-run coach mark"
+  },
+  "S11-Search.dc.html": {
+   "x": 4080,
+   "y": 23798,
+   "w": 1280,
+   "h": 800,
+   "title": "S11 — ⌘K search"
+  },
+  "S12-Seat-and-Scenario.dc.html": {
+   "x": 0,
+   "y": 24748,
+   "w": 1280,
+   "h": 800,
+   "title": "S12 — Seat and scenario"
+  },
+  "S12B-Seat-Together.dc.html": {
+   "x": 1360,
+   "y": 24748,
+   "w": 1280,
+   "h": 800,
+   "title": "S12 — Seat and scenario · Together on"
+  },
+  "S11B-Surprise-Me.dc.html": {
+   "x": 2720,
+   "y": 24748,
+   "w": 1280,
+   "h": 800,
+   "title": "S11 — Surprise me, split-flap reveal"
+  },
+  "S13-Printing.dc.html": {
+   "x": 4080,
+   "y": 24748,
+   "w": 1280,
+   "h": 800,
+   "title": "S13 — Printing the boarding pass"
+  },
+  "S14A-Tear.dc.html": {
+   "x": 0,
+   "y": 25698,
+   "w": 1280,
+   "h": 800,
+   "title": "S14 — Tear the stub"
+  },
+  "S14B-Gate.dc.html": {
+   "x": 1360,
+   "y": 25698,
+   "w": 1280,
+   "h": 800,
+   "title": "S14 — Boarding gate"
+  },
+  "S15A-Takeoff-Roll.dc.html": {
+   "x": 2720,
+   "y": 25698,
+   "w": 1280,
+   "h": 800,
+   "title": "S15 — Take-off roll"
+  },
+  "S15B-Takeoff-Rotate.dc.html": {
+   "x": 4080,
+   "y": 25698,
+   "w": 1280,
+   "h": 800,
+   "title": "S15 — Rotate and climb"
+  },
+  "S15C-Takeoff-Reduced.dc.html": {
+   "x": 0,
+   "y": 26648,
+   "w": 1280,
+   "h": 800,
+   "title": "S15 — Reduce Motion cross-fade"
+  },
+  "S30-Wallet-Scenario.dc.html": {
+   "x": 0,
+   "y": 27828,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · color by Scenario"
+  },
+  "S30B-Wallet-Class.dc.html": {
+   "x": 1360,
+   "y": 27828,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · color by Class"
+  },
+  "S30C-Wallet-Continent.dc.html": {
+   "x": 2720,
+   "y": 27828,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · color by Continent · hover"
+  },
+  "S30D-Wallet-Month.dc.html": {
+   "x": 4080,
+   "y": 27828,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · color by Month · filtered"
+  },
+  "S30L-Wallet-Light.dc.html": {
+   "x": 0,
+   "y": 28778,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · light"
+  },
+  "S30S-Wallet-Stack.dc.html": {
+   "x": 1360,
+   "y": 28778,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Stack view · closed bundle"
+  },
+  "S30T-Wallet-Stack-Fanned.dc.html": {
+   "x": 2720,
+   "y": 28778,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Stack view · fanned by scrolling"
+  },
+  "S30E-Wallet-Empty.dc.html": {
+   "x": 4080,
+   "y": 28778,
+   "w": 1280,
+   "h": 800,
+   "title": "S30 — Wallet · empty state"
+  },
+  "S31-Ticket-Detail.dc.html": {
+   "x": 0,
+   "y": 29728,
+   "w": 1280,
+   "h": 800,
+   "title": "S31 — Ticket detail · hover tilt (torn edge at bottom)"
+  },
+  "S31B-Ticket-Detail-Back.dc.html": {
+   "x": 1360,
+   "y": 29728,
+   "w": 1280,
+   "h": 800,
+   "title": "S31 — Ticket detail · flipped to notes"
+  },
+  "S32-Cards.dc.html": {
+   "x": 2720,
+   "y": 29728,
+   "w": 1280,
+   "h": 800,
+   "title": "S32 — Membership cards"
+  },
+  "S32L-Cards-Light.dc.html": {
+   "x": 4080,
+   "y": 29728,
+   "w": 1280,
+   "h": 800,
+   "title": "S32 — Membership cards · light"
+  },
+  "S33-Unlock.dc.html": {
+   "x": 0,
+   "y": 30678,
+   "w": 1280,
+   "h": 800,
+   "title": "S33 — Unlock and tier-up"
+  },
+  "S34-Passport.dc.html": {
+   "x": 1360,
+   "y": 30678,
+   "w": 1280,
+   "h": 800,
+   "title": "S34 — Passport · all stamps"
+  },
+  "S34B-Passport-Filtered.dc.html": {
+   "x": 2720,
+   "y": 30678,
+   "w": 1280,
+   "h": 800,
+   "title": "S34 — Passport · filtered 2025 · Coding"
+  },
+  "S34C-Passport-Spread-2.dc.html": {
+   "x": 4080,
+   "y": 30678,
+   "w": 1280,
+   "h": 800,
+   "title": "S34 — Passport · second spread with locked stamps"
+  },
+  "S35-World-Globe.dc.html": {
+   "x": 0,
+   "y": 31628,
+   "w": 1280,
+   "h": 800,
+   "title": "S35 — World map · globe · by frequency"
+  },
+  "S35B-World-Flat-Scenario.dc.html": {
+   "x": 1360,
+   "y": 31628,
+   "w": 1280,
+   "h": 800,
+   "title": "S35 — World map · flat · by scenario"
+  },
+  "S35C-World-Replay.dc.html": {
+   "x": 2720,
+   "y": 31628,
+   "w": 1280,
+   "h": 800,
+   "title": "S35 — World map · replay scrubbed to Dec 2025"
+  },
+  "S36-Stats.dc.html": {
+   "x": 4080,
+   "y": 31628,
+   "w": 1280,
+   "h": 800,
+   "title": "S36 — Stats · bento"
+  },
+  "S36B-Stats-Hover.dc.html": {
+   "x": 0,
+   "y": 32578,
+   "w": 1280,
+   "h": 800,
+   "title": "S36 — Stats · bar hover tooltip"
+  },
+  "S36L-Stats-Light.dc.html": {
+   "x": 1360,
+   "y": 32578,
+   "w": 1280,
+   "h": 800,
+   "title": "S36 — Stats · light"
+  },
+  "S37-Year-in-Flight.dc.html": {
+   "x": 2720,
+   "y": 32578,
+   "w": 1280,
+   "h": 800,
+   "title": "S37 — Year in flight · story with share panel"
+  },
+  "S37B-Year-Frames.dc.html": {
+   "x": 0,
+   "y": 33528,
+   "w": 3320,
+   "h": 900,
+   "title": "S37 — Year in flight · all eight frames"
+  },
+  "S16-Cruise-Terra.dc.html": {
+   "x": 0,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · Terra"
+  },
+  "S16B-Cruise-Mono.dc.html": {
+   "x": 1360,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · Monochrome"
+  },
+  "S16C-Cruise-Standard.dc.html": {
+   "x": 2720,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · Standard"
+  },
+  "S16D-Cruise-Satellite.dc.html": {
+   "x": 4080,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · Satellite"
+  },
+  "S16L-Cruise-Light.dc.html": {
+   "x": 0,
+   "y": 35758,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · light"
+  },
+  "S16X-Cruise-Large.dc.html": {
+   "x": 1360,
+   "y": 35758,
+   "w": 1728,
+   "h": 1117,
+   "title": "S16 — Cruise · 1728 × 1117"
+  },
+  "S17-Window.dc.html": {
+   "x": 3168,
+   "y": 35758,
+   "w": 1280,
+   "h": 800,
+   "title": "S17 — Window view"
+  },
+  "S17L-Window-Light.dc.html": {
+   "x": 0,
+   "y": 37025,
+   "w": 1280,
+   "h": 800,
+   "title": "S17 — Window view · light"
+  },
+  "S18-Dashboard.dc.html": {
+   "x": 1360,
+   "y": 37025,
+   "w": 1280,
+   "h": 800,
+   "title": "S18 — Minimal dashboard"
+  },
+  "S19-Pause-Land-Early.dc.html": {
+   "x": 2720,
+   "y": 37025,
+   "w": 1280,
+   "h": 800,
+   "title": "S19 — Pause, land early, divert"
+  },
+  "S20-Meal-Break.dc.html": {
+   "x": 4080,
+   "y": 37025,
+   "w": 1280,
+   "h": 800,
+   "title": "S20 — Meal break, timed"
+  },
+  "S20B-Meal-Choose.dc.html": {
+   "x": 0,
+   "y": 37975,
+   "w": 1280,
+   "h": 800,
+   "title": "S20B — Meal break, choose length"
+  },
+  "S20C-Meal-Open.dc.html": {
+   "x": 1360,
+   "y": 37975,
+   "w": 1280,
+   "h": 800,
+   "title": "S20C — Meal break, until I’m back"
+  },
+  "S20D-Meal-Over.dc.html": {
+   "x": 2720,
+   "y": 37975,
+   "w": 1280,
+   "h": 800,
+   "title": "S20D — Meal break, time’s up"
+  },
+  "S21-Descent.dc.html": {
+   "x": 4080,
+   "y": 37975,
+   "w": 1280,
+   "h": 800,
+   "title": "S21 — Prepare for landing"
+  },
+  "S22-Landing.dc.html": {
+   "x": 0,
+   "y": 38925,
+   "w": 1280,
+   "h": 800,
+   "title": "S22 — Landing"
+  },
+  "S23-Wallet-In.dc.html": {
+   "x": 1360,
+   "y": 38925,
+   "w": 1280,
+   "h": 800,
+   "title": "S23 — Ticket into the wallet"
+  },
+  "S40-Friends.dc.html": {
+   "x": 0,
+   "y": 40105,
+   "w": 1280,
+   "h": 800,
+   "title": "S40 — Friends"
+  },
+  "S41-Create-Shared-Flight.dc.html": {
+   "x": 1360,
+   "y": 40105,
+   "w": 1280,
+   "h": 800,
+   "title": "S41 — Create shared flight"
+  },
+  "S42-Lobby.dc.html": {
+   "x": 2720,
+   "y": 40105,
+   "w": 1280,
+   "h": 800,
+   "title": "S42 — Lobby and boarding gate with friends"
+  },
+  "S43-Shared-In-Flight.dc.html": {
+   "x": 4080,
+   "y": 40105,
+   "w": 1280,
+   "h": 800,
+   "title": "S43 — In-flight shared view"
+  },
+  "S44-Group-Landing.dc.html": {
+   "x": 0,
+   "y": 41055,
+   "w": 1280,
+   "h": 800,
+   "title": "S44 — Group landing"
+  },
+  "S45-Public-Flights.dc.html": {
+   "x": 1360,
+   "y": 41055,
+   "w": 1280,
+   "h": 800,
+   "title": "S45 — Public scheduled flights"
+  },
+  "S50-Settings.dc.html": {
+   "x": 0,
+   "y": 42235,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, General"
+  },
+  "S50L-Settings-Light.dc.html": {
+   "x": 1360,
+   "y": 42235,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, General (light)"
+  },
+  "S50B-Settings-Flight.dc.html": {
+   "x": 2720,
+   "y": 42235,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Flight"
+  },
+  "S50C-Settings-Maps.dc.html": {
+   "x": 4080,
+   "y": 42235,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Maps and labels"
+  },
+  "S50D-Settings-Appearance.dc.html": {
+   "x": 0,
+   "y": 43185,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Appearance"
+  },
+  "S50E-Settings-Notifications.dc.html": {
+   "x": 1360,
+   "y": 43185,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Notifications"
+  },
+  "S50F-Settings-Shortcuts.dc.html": {
+   "x": 2720,
+   "y": 43185,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Shortcuts"
+  },
+  "S50G-Settings-Account.dc.html": {
+   "x": 4080,
+   "y": 43185,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Account and Pro"
+  },
+  "S50H-Settings-Privacy.dc.html": {
+   "x": 0,
+   "y": 44135,
+   "w": 1280,
+   "h": 800,
+   "title": "S50 — Settings, Data and privacy"
+  },
+  "S51-Focus-Strict.dc.html": {
+   "x": 1360,
+   "y": 44135,
+   "w": 1280,
+   "h": 800,
+   "title": "S51 — Focus and blocking, Strict overlay"
+  },
+  "S51B-Focus-Nudge.dc.html": {
+   "x": 2720,
+   "y": 44135,
+   "w": 1280,
+   "h": 800,
+   "title": "S51 — Focus and blocking, Nudge"
+  },
+  "S51C-Focus-Off.dc.html": {
+   "x": 4080,
+   "y": 44135,
+   "w": 1280,
+   "h": 800,
+   "title": "S51 — Focus and blocking, Off"
+  },
+  "S52-Sounds.dc.html": {
+   "x": 0,
+   "y": 45085,
+   "w": 1280,
+   "h": 800,
+   "title": "S52 — Sounds and announcements"
+  },
+  "S53-Pro-Lifetime.dc.html": {
+   "x": 1360,
+   "y": 45085,
+   "w": 1280,
+   "h": 800,
+   "title": "S53 — Meridian Pro, Lifetime selected"
+  },
+  "S53B-Pro-Annual.dc.html": {
+   "x": 2720,
+   "y": 45085,
+   "w": 1280,
+   "h": 800,
+   "title": "S53 — Meridian Pro, Annual with trial timeline"
+  },
+  "S53L-Pro-Light.dc.html": {
+   "x": 4080,
+   "y": 45085,
+   "w": 1280,
+   "h": 800,
+   "title": "S53 — Meridian Pro (light)"
+  },
+  "S54-State-Sheet.dc.html": {
+   "x": 0,
+   "y": 46035,
+   "w": 1280,
+   "h": 1620,
+   "title": "S54 — States: empty, error, loading, flight resumed"
+  },
+  "M01-Menu-Bar.dc.html": {
+   "x": 0,
+   "y": 48035,
+   "w": 1280,
+   "h": 800,
+   "title": "M01 — Menu bar item and popover"
+  },
+  "M01B-Menu-Bar-States.dc.html": {
+   "x": 1360,
+   "y": 48035,
+   "w": 1280,
+   "h": 2470,
+   "title": "M01 — Menu bar item states and popover states"
+  },
+  "M02-Mini-Map.dc.html": {
+   "x": 2720,
+   "y": 48035,
+   "w": 1280,
+   "h": 800,
+   "title": "M02 — Mini floating map"
+  },
+  "M02B-Mini-Map-States.dc.html": {
+   "x": 4080,
+   "y": 48035,
+   "w": 1280,
+   "h": 2650,
+   "title": "M02 — Mini map sizes and states"
+  },
+  "M03-Seat-TV.dc.html": {
+   "x": 0,
+   "y": 50835,
+   "w": 1280,
+   "h": 800,
+   "title": "M03 — Seat-back TV, map view"
+  },
+  "M03B-Seat-TV-Window.dc.html": {
+   "x": 1360,
+   "y": 50835,
+   "w": 1280,
+   "h": 800,
+   "title": "M03 — Seat-back TV, window view"
+  },
+  "M04-Widgets.dc.html": {
+   "x": 2720,
+   "y": 50835,
+   "w": 1280,
+   "h": 1420,
+   "title": "M04 — Widgets"
+  },
+  "M05-Notifications.dc.html": {
+   "x": 4080,
+   "y": 50835,
+   "w": 1280,
+   "h": 1490,
+   "title": "M05 — Notifications"
+  },
+  "M06-App-Icon-Dock.dc.html": {
+   "x": 0,
+   "y": 52475,
+   "w": 1280,
+   "h": 1990,
+   "title": "M06 — App icon and Dock"
+  },
+  "R01-Redline-Boarding-Pass.dc.html": {
+   "x": 0,
+   "y": 54845,
+   "w": 1440,
+   "h": 1780,
+   "title": "R01 — Redlines, boarding pass"
+  },
+  "R02-Redline-Membership-Card.dc.html": {
+   "x": 1520,
+   "y": 54845,
+   "w": 1440,
+   "h": 1655,
+   "title": "R02 — Redlines, membership card"
+  },
+  "R03-Redline-Ticket-Printer.dc.html": {
+   "x": 3040,
+   "y": 54845,
+   "w": 1440,
+   "h": 1423,
+   "title": "R03 — Redlines, ticket printer"
+  },
+  "R04-Redline-Mini-Window.dc.html": {
+   "x": 0,
+   "y": 56775,
+   "w": 1440,
+   "h": 1460,
+   "title": "R04 — Redlines, mini window"
+  },
+  "R05-Redline-Menu-Bar-Popover.dc.html": {
+   "x": 1520,
+   "y": 56775,
+   "w": 1440,
+   "h": 1774,
+   "title": "R05 — Redlines, menu bar item and popover"
+  },
+  "T01-Motion-Ticket-and-Planning.dc.html": {
+   "x": 0,
+   "y": 58929,
+   "w": 1440,
+   "h": 3482,
+   "title": "T01 — Motion specs · printing, tear, card, ruler, tag"
+  },
+  "T02-Motion-Flight.dc.html": {
+   "x": 1520,
+   "y": 58929,
+   "w": 1440,
+   "h": 3391,
+   "title": "T02 — Motion specs · seat, take-off, phases, landing, wallet"
+  },
+  "T03-Motion-Rewards-and-Objects.dc.html": {
+   "x": 3040,
+   "y": 58929,
+   "w": 1440,
+   "h": 3836,
+   "title": "T03 — Motion specs · unlock, stamp, flap, shade, mini, sheet"
+  },
+  "A01-Sound-Specs.dc.html": {
+   "x": 0,
+   "y": 62915,
+   "w": 1440,
+   "h": 3804,
+   "title": "A01 — Sound specs · nine synthesized sounds"
+  },
+  "P1-Ticket-Ritual.dc.html": {
+   "x": 0,
+   "y": 67099,
+   "w": 1280,
+   "h": 884,
+   "title": "P1 — Ticket ritual (plan to cruise)",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "P2-Membership-Card.dc.html": {
+   "x": 1360,
+   "y": 67099,
+   "w": 1280,
+   "h": 884,
+   "title": "P2 — Membership card",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "P3-Planning.dc.html": {
+   "x": 2720,
+   "y": 67099,
+   "w": 1280,
+   "h": 884,
+   "title": "P3 — Planning",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "P4-In-Flight.dc.html": {
+   "x": 4080,
+   "y": 67099,
+   "w": 1280,
+   "h": 884,
+   "title": "P4 — In-flight",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "P5-Together.dc.html": {
+   "x": 0,
+   "y": 68133,
+   "w": 1280,
+   "h": 884,
+   "title": "P5 — Together",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "P6-Mini-MenuBar.dc.html": {
+   "x": 1360,
+   "y": 68133,
+   "w": 1280,
+   "h": 884,
+   "title": "P6 — Mini map and menu bar",
+   "is_interactive": true,
+   "radius": 22
+  },
+  "Z01-Rationale-and-Open-Questions.dc.html": {
+   "x": 0,
+   "y": 69397,
+   "w": 1440,
+   "h": 1947,
+   "title": "Z01 — Designer’s rationale and open questions"
+  },
+  "Ticket.dc.html": {
+   "x": 0,
+   "y": 71724,
+   "w": 360,
+   "h": 600,
+   "title": "Block — Boarding pass"
+  },
+  "Plane.dc.html": {
+   "x": 440,
+   "y": 71724,
+   "w": 64,
+   "h": 64,
+   "title": "Block — Plane marker"
+  },
+  "MapLayer.dc.html": {
+   "x": 584,
+   "y": 71724,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Europe map layer"
+  },
+  "Card.dc.html": {
+   "x": 1944,
+   "y": 71724,
+   "w": 340,
+   "h": 214,
+   "title": "Block — Membership card"
+  },
+  "Sidebar.dc.html": {
+   "x": 2364,
+   "y": 71724,
+   "w": 236,
+   "h": 784,
+   "title": "Block — Floating sidebar"
+  },
+  "Planner.dc.html": {
+   "x": 2680,
+   "y": 71724,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Planner (S10)"
+  },
+  "WindowView.dc.html": {
+   "x": 4040,
+   "y": 71724,
+   "w": 420,
+   "h": 580,
+   "title": "Block — Window view"
+  },
+  "Flight.dc.html": {
+   "x": 0,
+   "y": 72674,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — In-flight (S16–S22)"
+  },
+  "SplitFlap.dc.html": {
+   "x": 1360,
+   "y": 72674,
+   "w": 320,
+   "h": 56,
+   "title": "Block — Split-flap"
+  },
+  "Ritual.dc.html": {
+   "x": 1760,
+   "y": 72674,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Print and tear stage"
+  },
+  "Takeoff.dc.html": {
+   "x": 3120,
+   "y": 72674,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Take-off sequence"
+  },
+  "Gate.dc.html": {
+   "x": 0,
+   "y": 73624,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Boarding gate"
+  },
+  "Landing.dc.html": {
+   "x": 1360,
+   "y": 73624,
+   "w": 1280,
+   "h": 800,
+   "title": "Block — Landing and arrival"
+  },
+  "Globe.dc.html": {
+   "x": 2720,
+   "y": 73624,
+   "w": 560,
+   "h": 560,
+   "title": "Globe"
+  },
+  "WorldFlat.dc.html": {
+   "x": 3360,
+   "y": 73624,
+   "w": 1000,
+   "h": 378,
+   "title": "WorldFlat"
+  },
+  "SeatMap.dc.html": {
+   "x": 4440,
+   "y": 73624,
+   "w": 740,
+   "h": 410,
+   "title": "SeatMap"
+  },
+  "Stamp.dc.html": {
+   "x": 5260,
+   "y": 73624,
+   "w": 160,
+   "h": 160,
+   "title": "Stamp"
+  },
+  "Passport.dc.html": {
+   "x": 0,
+   "y": 74574,
+   "w": 982,
+   "h": 600,
+   "title": "Passport"
+  },
+  "Stats.dc.html": {
+   "x": 1062,
+   "y": 74574,
+   "w": 560,
+   "h": 280,
+   "title": "Stats"
+  },
+  "Mixer.dc.html": {
+   "x": 1702,
+   "y": 74574,
+   "w": 420,
+   "h": 900,
+   "title": "Mixer"
+  },
+  "CardsScreen.dc.html": {
+   "x": 2202,
+   "y": 74574,
+   "w": 1280,
+   "h": 800,
+   "title": "CardsScreen"
+  },
+  "Desktop.dc.html": {
+   "x": 3562,
+   "y": 74574,
+   "w": 1280,
+   "h": 800,
+   "title": "Desktop"
+  },
+  "MenuPopover.dc.html": {
+   "x": 4922,
+   "y": 74574,
+   "w": 340,
+   "h": 560,
+   "title": "MenuPopover"
+  },
+  "MiniMap.dc.html": {
+   "x": 0,
+   "y": 75624,
+   "w": 480,
+   "h": 270,
+   "title": "MiniMap"
+  },
+  "Search.dc.html": {
+   "x": 560,
+   "y": 75624,
+   "w": 1280,
+   "h": 800,
+   "title": "Search"
+  },
+  "Together.dc.html": {
+   "x": 1920,
+   "y": 75624,
+   "w": 1280,
+   "h": 800,
+   "title": "Together"
+  },
+  "Onboarding.dc.html": {
+   "x": 3280,
+   "y": 75624,
+   "w": 1280,
+   "h": 800,
+   "title": "Onboarding"
+  },
+  "CheckIn.dc.html": {
+   "x": 0,
+   "y": 76574,
+   "w": 1280,
+   "h": 800,
+   "title": "CheckIn"
+  },
+  "TicketDetail.dc.html": {
+   "x": 1360,
+   "y": 76574,
+   "w": 1280,
+   "h": 800,
+   "title": "TicketDetail"
+  },
+  "Wallet.dc.html": {
+   "x": 2720,
+   "y": 76574,
+   "w": 1280,
+   "h": 800,
+   "title": "Wallet"
+  },
+  "PassportScreen.dc.html": {
+   "x": 4080,
+   "y": 76574,
+   "w": 1280,
+   "h": 800,
+   "title": "PassportScreen"
+  },
+  "WorldMap.dc.html": {
+   "x": 0,
+   "y": 77524,
+   "w": 1280,
+   "h": 800,
+   "title": "WorldMap"
+  },
+  "Recap.dc.html": {
+   "x": 1360,
+   "y": 77524,
+   "w": 360,
+   "h": 640,
+   "title": "Recap"
+  },
+  "RecapScreen.dc.html": {
+   "x": 1800,
+   "y": 77524,
+   "w": 1280,
+   "h": 800,
+   "title": "RecapScreen"
+  },
+  "RecapSheet.dc.html": {
+   "x": 0,
+   "y": 78474,
+   "w": 3320,
+   "h": 900,
+   "title": "RecapSheet"
+  },
+  "StatsScreen.dc.html": {
+   "x": 3400,
+   "y": 78474,
+   "w": 1280,
+   "h": 800,
+   "title": "StatsScreen"
+  },
+  "Meal.dc.html": {
+   "x": 0,
+   "y": 79524,
+   "w": 1280,
+   "h": 800,
+   "title": "Meal"
+  },
+  "AppIcon.dc.html": {
+   "x": 1360,
+   "y": 79524,
+   "w": 256,
+   "h": 256,
+   "title": "AppIcon"
+  },
+  "Paywall.dc.html": {
+   "x": 1696,
+   "y": 79524,
+   "w": 1280,
+   "h": 800,
+   "title": "Paywall"
+  },
+  "Settings.dc.html": {
+   "x": 3056,
+   "y": 79524,
+   "w": 1280,
+   "h": 800,
+   "title": "Settings"
+  },
+  "SeatTV.dc.html": {
+   "x": 0,
+   "y": 80474,
+   "w": 1280,
+   "h": 800,
+   "title": "SeatTV"
+  },
+  "Redline.dc.html": {
+   "x": 1360,
+   "y": 80474,
+   "w": 1440,
+   "h": 1600,
+   "title": "Redline"
+  },
+  "MotionSpec.dc.html": {
+   "x": 2880,
+   "y": 80474,
+   "w": 1440,
+   "h": 2200,
+   "title": "MotionSpec"
+  },
+  "SoundSpec.dc.html": {
+   "x": 0,
+   "y": 82824,
+   "w": 1440,
+   "h": 3000,
+   "title": "SoundSpec"
+  },
+  "Rationale.dc.html": {
+   "x": 1520,
+   "y": 82824,
+   "w": 1440,
+   "h": 2000,
+   "title": "Rationale"
+  },
+  "Localisation.dc.html": {
+   "x": 3040,
+   "y": 82824,
+   "w": 1440,
+   "h": 820,
+   "title": "Localisation"
+  },
+  "S10B-Plan-Choose.dc.html": {
+   "x": 5440,
+   "y": 23798,
+   "w": 1280,
+   "h": 800,
+   "title": "S10 — Plan · choose time and destination"
+  },
+  "S16E-Cruise-Controls.dc.html": {
+   "x": 5440,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · map controls, labels open"
+  },
+  "S16F-Cruise-Style-Menu.dc.html": {
+   "x": 6800,
+   "y": 34808,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · map style menu"
+  },
+  "S16G-Cruise-Free-Camera.dc.html": {
+   "x": 5440,
+   "y": 35758,
+   "w": 1280,
+   "h": 800,
+   "title": "S16 — Cruise · free camera, Follow off"
+  },
+  "S17E-Window-Scene-Menu.dc.html": {
+   "x": 6800,
+   "y": 35758,
+   "w": 1280,
+   "h": 800,
+   "title": "S17 — Window view · scene menu"
+  }
+ },
+ "order": [
+  "F1-Color.dc.html",
+  "F2-Type-Layout.dc.html",
+  "F3-Glass-Motion.dc.html",
+  "C01-Boarding-Pass.dc.html",
+  "C02-Print-Animation.dc.html",
+  "C03-Tear-Off.dc.html",
+  "C04-Membership-Cards.dc.html",
+  "C05-Destination-Picker.dc.html",
+  "C06-Seat-Window.dc.html",
+  "C07-Flight-HUD.dc.html",
+  "C08-Map-Styles.dc.html",
+  "C09-Passport-Stamps.dc.html",
+  "C10-Stats-Sound.dc.html",
+  "C11-Social.dc.html",
+  "C12-UI-Kit.dc.html",
+  "S01-Welcome.dc.html",
+  "S01T-Welcome-Turkish.dc.html",
+  "S02-Home-Airport.dc.html",
+  "S03-Scenarios.dc.html",
+  "S04-Map-Style.dc.html",
+  "S05A-Notifications.dc.html",
+  "S05B-Focus-Filter.dc.html",
+  "S05C-Accessibility.dc.html",
+  "S06-Account.dc.html",
+  "S07-Ready.dc.html",
+  "L01-Localisation-Test.dc.html",
+  "S10-Plan.dc.html",
+  "S10L-Plan-Light.dc.html",
+  "S10F-Plan-First-Run.dc.html",
+  "S10B-Plan-Choose.dc.html",
+  "S11-Search.dc.html",
+  "S12-Seat-and-Scenario.dc.html",
+  "S12B-Seat-Together.dc.html",
+  "S11B-Surprise-Me.dc.html",
+  "S13-Printing.dc.html",
+  "S14A-Tear.dc.html",
+  "S14B-Gate.dc.html",
+  "S15A-Takeoff-Roll.dc.html",
+  "S15B-Takeoff-Rotate.dc.html",
+  "S15C-Takeoff-Reduced.dc.html",
+  "S30-Wallet-Scenario.dc.html",
+  "S30B-Wallet-Class.dc.html",
+  "S30C-Wallet-Continent.dc.html",
+  "S30D-Wallet-Month.dc.html",
+  "S30L-Wallet-Light.dc.html",
+  "S30S-Wallet-Stack.dc.html",
+  "S30T-Wallet-Stack-Fanned.dc.html",
+  "S30E-Wallet-Empty.dc.html",
+  "S31-Ticket-Detail.dc.html",
+  "S31B-Ticket-Detail-Back.dc.html",
+  "S32-Cards.dc.html",
+  "S32L-Cards-Light.dc.html",
+  "S33-Unlock.dc.html",
+  "S34-Passport.dc.html",
+  "S34B-Passport-Filtered.dc.html",
+  "S34C-Passport-Spread-2.dc.html",
+  "S35-World-Globe.dc.html",
+  "S35B-World-Flat-Scenario.dc.html",
+  "S35C-World-Replay.dc.html",
+  "S36-Stats.dc.html",
+  "S36B-Stats-Hover.dc.html",
+  "S36L-Stats-Light.dc.html",
+  "S37-Year-in-Flight.dc.html",
+  "S37B-Year-Frames.dc.html",
+  "S16-Cruise-Terra.dc.html",
+  "S16B-Cruise-Mono.dc.html",
+  "S16C-Cruise-Standard.dc.html",
+  "S16D-Cruise-Satellite.dc.html",
+  "S16L-Cruise-Light.dc.html",
+  "S16X-Cruise-Large.dc.html",
+  "S16E-Cruise-Controls.dc.html",
+  "S16F-Cruise-Style-Menu.dc.html",
+  "S16G-Cruise-Free-Camera.dc.html",
+  "S17-Window.dc.html",
+  "S17E-Window-Scene-Menu.dc.html",
+  "S17L-Window-Light.dc.html",
+  "S18-Dashboard.dc.html",
+  "S19-Pause-Land-Early.dc.html",
+  "S20-Meal-Break.dc.html",
+  "S20B-Meal-Choose.dc.html",
+  "S20C-Meal-Open.dc.html",
+  "S20D-Meal-Over.dc.html",
+  "S21-Descent.dc.html",
+  "S22-Landing.dc.html",
+  "S23-Wallet-In.dc.html",
+  "S40-Friends.dc.html",
+  "S41-Create-Shared-Flight.dc.html",
+  "S42-Lobby.dc.html",
+  "S43-Shared-In-Flight.dc.html",
+  "S44-Group-Landing.dc.html",
+  "S45-Public-Flights.dc.html",
+  "S50-Settings.dc.html",
+  "S50L-Settings-Light.dc.html",
+  "S50B-Settings-Flight.dc.html",
+  "S50C-Settings-Maps.dc.html",
+  "S50D-Settings-Appearance.dc.html",
+  "S50E-Settings-Notifications.dc.html",
+  "S50F-Settings-Shortcuts.dc.html",
+  "S50G-Settings-Account.dc.html",
+  "S50H-Settings-Privacy.dc.html",
+  "S51-Focus-Strict.dc.html",
+  "S51B-Focus-Nudge.dc.html",
+  "S51C-Focus-Off.dc.html",
+  "S52-Sounds.dc.html",
+  "S53-Pro-Lifetime.dc.html",
+  "S53B-Pro-Annual.dc.html",
+  "S53L-Pro-Light.dc.html",
+  "S54-State-Sheet.dc.html",
+  "M01-Menu-Bar.dc.html",
+  "M01B-Menu-Bar-States.dc.html",
+  "M02-Mini-Map.dc.html",
+  "M02B-Mini-Map-States.dc.html",
+  "M03-Seat-TV.dc.html",
+  "M03B-Seat-TV-Window.dc.html",
+  "M04-Widgets.dc.html",
+  "M05-Notifications.dc.html",
+  "M06-App-Icon-Dock.dc.html",
+  "R01-Redline-Boarding-Pass.dc.html",
+  "R02-Redline-Membership-Card.dc.html",
+  "R03-Redline-Ticket-Printer.dc.html",
+  "R04-Redline-Mini-Window.dc.html",
+  "R05-Redline-Menu-Bar-Popover.dc.html",
+  "T01-Motion-Ticket-and-Planning.dc.html",
+  "T02-Motion-Flight.dc.html",
+  "T03-Motion-Rewards-and-Objects.dc.html",
+  "A01-Sound-Specs.dc.html",
+  "P1-Ticket-Ritual.dc.html",
+  "P2-Membership-Card.dc.html",
+  "P3-Planning.dc.html",
+  "P4-In-Flight.dc.html",
+  "P5-Together.dc.html",
+  "P6-Mini-MenuBar.dc.html",
+  "Z01-Rationale-and-Open-Questions.dc.html",
+  "Ticket.dc.html",
+  "Plane.dc.html",
+  "MapLayer.dc.html",
+  "Card.dc.html",
+  "Sidebar.dc.html",
+  "Planner.dc.html",
+  "WindowView.dc.html",
+  "Flight.dc.html",
+  "SplitFlap.dc.html",
+  "Ritual.dc.html",
+  "Takeoff.dc.html",
+  "Gate.dc.html",
+  "Landing.dc.html",
+  "Globe.dc.html",
+  "WorldFlat.dc.html",
+  "SeatMap.dc.html",
+  "Stamp.dc.html",
+  "Passport.dc.html",
+  "Stats.dc.html",
+  "Mixer.dc.html",
+  "CardsScreen.dc.html",
+  "Desktop.dc.html",
+  "MenuPopover.dc.html",
+  "MiniMap.dc.html",
+  "Search.dc.html",
+  "Together.dc.html",
+  "Onboarding.dc.html",
+  "CheckIn.dc.html",
+  "TicketDetail.dc.html",
+  "Wallet.dc.html",
+  "PassportScreen.dc.html",
+  "WorldMap.dc.html",
+  "Recap.dc.html",
+  "RecapScreen.dc.html",
+  "RecapSheet.dc.html",
+  "StatsScreen.dc.html",
+  "Meal.dc.html",
+  "AppIcon.dc.html",
+  "Paywall.dc.html",
+  "Settings.dc.html",
+  "SeatTV.dc.html",
+  "Redline.dc.html",
+  "MotionSpec.dc.html",
+  "SoundSpec.dc.html",
+  "Rationale.dc.html",
+  "Localisation.dc.html"
+ ],
+ "notes": {
+  "row0": {
+   "x": 0,
+   "y": 70,
+   "text": "01  Foundations",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "row1": {
+   "x": 0,
+   "y": 210,
+   "text": "Tokens, type, glass, motion and iconography. Everything else is built only from what is on these boards.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row2": {
+   "x": 0,
+   "y": 3025,
+   "text": "02  Components",
+   "kind": "title1",
+   "maxW": 7520
+  },
+  "row3": {
+   "x": 0,
+   "y": 3165,
+   "text": "Every part with every state, dark and light. Frames are the real components, so what you see here is what the screens use.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row4": {
+   "x": 0,
+   "y": 20247,
+   "text": "04a  Onboarding",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row5": {
+   "x": 0,
+   "y": 20387,
+   "text": "S01 to S07. First run: welcome, home airport, scenarios, map style, three permission warm-ups, optional account, ready for take-off. S01 also shown in Turkish to test copy length. L01 sets the four Turkish deck strings in real components next to English and a German length test.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row6": {
+   "x": 0,
+   "y": 23508,
+   "text": "04b  Plan, check in and board",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row7": {
+   "x": 0,
+   "y": 23648,
+   "text": "S10 to S15. Choose where the time takes you, check in, watch the pass print, tear the stub, and leave the ground.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row8": {
+   "x": 0,
+   "y": 27538,
+   "text": "04c  Wallet, cards, passport and stats",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row9": {
+   "x": 0,
+   "y": 27678,
+   "text": "S30 to S37. The collection: tickets, membership cards, passport, world map, stats, and your year in flight.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row10": {
+   "x": 0,
+   "y": 34518,
+   "text": "04d  In flight and landing",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row11": {
+   "x": 0,
+   "y": 34658,
+   "text": "S16 to S23. The cruise map in four styles, the window, a quiet dashboard, pausing and landing early, a meal break, descent, landing and the ticket's trip into the wallet.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row12": {
+   "x": 0,
+   "y": 39815,
+   "text": "04e  Together",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row13": {
+   "x": 0,
+   "y": 39955,
+   "text": "S40 to S45. Friends, a shared flight, the lobby where each stub tears off in turn, quiet company in the air, and a public departures board.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row14": {
+   "x": 0,
+   "y": 41945,
+   "text": "04f  Settings and Pro",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row15": {
+   "x": 0,
+   "y": 42085,
+   "text": "Settings is a sidebar-in-window scene (⌘,). Soft blocking, sound mixing and the honest paywall live here.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row16": {
+   "x": 0,
+   "y": 47745,
+   "text": "05  System surfaces",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row17": {
+   "x": 0,
+   "y": 47885,
+   "text": "M01 to M06. Meridian outside its own window: menu bar, floating map, seat-back TV, widgets, notifications, app icon and Dock.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row18": {
+   "x": 0,
+   "y": 54555,
+   "text": "06  Redlines",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "row19": {
+   "x": 0,
+   "y": 54695,
+   "text": "R01 to R05. Dimensions, paddings, radii, type styles and colour tokens for the boarding pass, membership card, ticket printer, mini window and menu bar popover.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row20": {
+   "x": 0,
+   "y": 58639,
+   "text": "07  Motion and sound",
+   "kind": "title1",
+   "maxW": 4480
+  },
+  "row21": {
+   "x": 0,
+   "y": 58779,
+   "text": "T01 to T03 storyboard and timeline the sixteen signature motions (frames from the live components, tracks to scale, curve, Reduce Motion and native notes). A01 specifies the eight synthesized sounds.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row22": {
+   "x": 0,
+   "y": 66809,
+   "text": "08  Prototypes",
+   "kind": "title1",
+   "maxW": 5360
+  },
+  "row23": {
+   "x": 0,
+   "y": 66949,
+   "text": "Every prototype below is live. Click, drag, hold and press keys inside the artboard.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row24": {
+   "x": 0,
+   "y": 69107,
+   "text": "09  Rationale",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "row25": {
+   "x": 0,
+   "y": 69247,
+   "text": "Z01. Where the design departs from the brief and why, the stand-ins to replace in the native build, and the open questions with the defaults used.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  },
+  "row26": {
+   "x": 0,
+   "y": 71434,
+   "text": "99  Building blocks",
+   "kind": "title1",
+   "maxW": 5420
+  },
+  "row27": {
+   "x": 0,
+   "y": 71574,
+   "text": "Components imported by the boards above. Each takes props, so the same file draws every state.",
+   "size": "m",
+   "w": 1400,
+   "color": "gray"
+  }
+ },
+ "designSystems": []
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C10 Stats and sound mixer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c10-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c10-card{border-radius:22px;padding:18px 20px;box-sizing:border-box}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C10 · §2.13 and §2.14</div>
+<h1 class="t-display" style="margin:0">Statistics and sound</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">Data here is a personal log, not a scoreboard. One accent, no rainbow charts, big serif numbers. The sound mixer sits next to it because both are about the quality of time spent: what you did, and what it sounded like.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Time-focused bars</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:20px;flex-wrap:nowrap">
+<sc-for list="{{periods}}" as="p" hint-placeholder-count="4"><div class="c10-st"><div class="glass e1 c10-card" style="width:290px"><dc-import name="Stats" kind="bars" period="{{p.k}}" w="250" h="170" hover="{{p.hover}}" hint-size="250px,170px"></dc-import></div><div class="sh-cap">{{p.t}}</div></div></sc-for>
+</div>
+<div class="sh-note" style="max-width:900px">Bars are stacked by scenario in the scenario tints, so one glance shows what the time was spent on. Hovering a bar lifts it to full strength and opens a tooltip with the per-scenario breakdown. Day is hours, week is days, month is weeks, year is months. The axis is 11 pt Mono in the third text tone and there are no gridlines except the baseline.</div>
+<div class="sh-title"><h2>Heat map, goal ring, streak, tiles</h2></div>
+<div class="sh-row" style="gap:32px">
+<div class="c10-st"><div class="glass e1 c10-card" style="width:560px"><dc-import name="Stats" kind="heat" weeks="26" w="520" h="150" hint-size="520px,150px"></dc-import></div><div class="sh-cap">Heat map · 26 weeks, five intensity steps</div></div>
+<div class="c10-st"><div class="glass e1 c10-card" style="width:260px"><dc-import name="Stats" kind="ring" progress=".56" w="220" h="190" label="Daily goal" value="1 h 52" unit="of 3 h" hint-size="220px,190px"></dc-import></div><div class="sh-cap">Goal ring · 56 %</div></div>
+<div class="c10-st"><div class="glass e1 c10-card" style="width:260px"><dc-import name="Stats" kind="streak" w="220" h="190" label="Streak" value="12" unit="days" hint-size="220px,190px"></dc-import></div><div class="sh-cap">Streak · chevron badge</div></div>
+</div>
+<div class="sh-row" style="gap:32px">
+<div class="c10-st"><div class="glass e1 c10-card" style="width:420px"><dc-import name="Stats" kind="top" w="380" h="220" hint-size="380px,220px"></dc-import></div><div class="sh-cap">Top scenarios · share of time</div></div>
+<div class="c10-st"><div class="sh-row" style="gap:14px;flex-wrap:nowrap"><div class="glass e1 c10-card" style="width:200px"><dc-import name="Stats" kind="tile" w="160" h="90" label="Total time" value="94.5" unit="h" sub="+6.2 h vs last month" hint-size="160px,90px"></dc-import></div><div class="glass e1 c10-card" style="width:200px"><dc-import name="Stats" kind="tile" w="160" h="90" label="Distance" value="12,022" unit="km" sub="0.3× around the world" hint-size="160px,90px"></dc-import></div><div class="glass e1 c10-card" style="width:200px"><dc-import name="Stats" kind="tile" w="160" h="90" label="Countries" value="19" unit="" sub="41 airports" hint-size="160px,90px"></dc-import></div></div><div class="sh-cap">Stat tiles</div></div>
+</div>
+<div class="sh-title"><h2>Controls</h2></div>
+<div class="sh-row" style="gap:28px;align-items:center">
+<div class="seg glass" style="padding:3px"><span>Day</span><span class="on">Week</span><span>Month</span><span>Year</span></div>
+<span class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#download"></use></svg>Export CSV</span>
+<span class="btn btn-secondary btn-sm is-hover"><svg class="ic ic14"><use href="./icons.svg#download"></use></svg>Export PDF</span>
+<span class="btn btn-secondary btn-sm is-disabled"><svg class="ic ic14"><use href="./icons.svg#download"></use></svg>Export PDF</span>
+<div class="tip" style="position:static">Tue · 2 h 14 min · 3 flights</div>
+</div>
+<div class="sh-note" style="max-width:900px">Export is a pill button pair, CSV for every flight with date, route, scenario, minutes, km; PDF for a one-page year summary. The disabled state is for an empty period. The tooltip uses the standard 11 pt Mono tip.</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Sound mixer and announcements</h2></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c10-st"><div class="glass e3" style="width:420px;border-radius:26px;overflow:hidden"><dc-import name="Mixer" w="420" section="all" preset="deep" hint-size="420px,900px"></dc-import></div><div class="sh-cap">Default · preset “Deep focus”</div></div>
+<div class="c10-st"><div class="glass e3" style="width:420px;border-radius:26px;overflow:hidden"><dc-import name="Mixer" w="420" section="layers" preset="rain" focus-row="2" hint-size="420px,520px"></dc-import></div><div class="sh-cap">Keyboard focus on the third layer</div></div>
+<div class="c10-st" style="max-width:360px"><div class="sh-sub">Rules</div><div class="sh-note" style="max-width:360px">Seven ambient layers (cabin hum, rain on glass, ocean, forest, brown noise, pink noise, soft music), each 0–100 %. Presets set all levels at once and glide over 600 ms. Announcements are a separate section so the voice never fights the noise.</div><div class="sh-note" style="max-width:360px">Every control has a visible state. Sliders step by 5 with arrow keys and by 25 with Option. Mute is a single switch that holds the levels so un-muting returns to the same mix.</div></div>
+</div>
+<div class="sh-native"><b>Native</b><span>Layers are <span style="color:var(--text-1)">AVAudioEngine</span> player nodes mixed into one bus with a shared limiter. Presets are <span style="color:var(--text-1)">Codable</span> structs; the sliders are <span style="color:var(--text-1)">Slider</span> with a custom track. Announcements use <span style="color:var(--text-1)">AVSpeechSynthesizer</span> with a bundled chime.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const periods = [{ k: 'day', t: 'Day', hover: -1 }, { k: 'week', t: 'Week · hover Tue', hover: 1 }, { k: 'month', t: 'Month', hover: -1 }, { k: 'year', t: 'Year', hover: -1 }];
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], periods };
+  }
+}
+</script>
+</body>
+</html>

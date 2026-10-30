@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C09 Passport and stamps</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c9-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c9-paper{position:relative;border-radius:16px;padding:18px;display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C09 · §2.12</div>
+<h1 class="t-display" style="margin:0">Passport and stamps</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">Paper in a glass app. The passport is the one place Meridian looks like an object on a desk: two cream pages, a dark spine, and ink that was clearly pressed by hand. Each stamp is original, in the scenario’s ink, rotated up to ±12° and slightly bled. Pages turn the way paper does: grab the outer edge with the mouse and pull it across the spine.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Passport page spread</h2><span class="th">{{t.label}}</span></div>
+<div style="padding:34px;border-radius:24px;background:radial-gradient(80% 90% at 50% 40%,rgba(120,100,60,.22),rgba(20,16,10,.0)),var(--bg-2);display:flex;justify-content:center"><dc-import name="Passport" anim-index="14" hint-size="982px,600px"></dc-import></div>
+<div class="sh-note" style="max-width:900px">Left page “Entries”, right page “Visas”. Six stamps per page, jittered ±8 pt, never overlapping. The newest stamp is mid-bleed in this frame. Page numbers and the totals sit in the footer in 10 pt caps.</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Stamp shapes and inks</h2></div>
+<div class="sh-row" style="gap:14px;flex-wrap:nowrap">
+<sc-for list="{{shapes}}" as="s" hint-placeholder-count="8"><div class="c9-st"><div class="paper c9-paper" style="width:188px;height:{{s.h}}px"><dc-import name="Stamp" shape="{{s.shape}}" country="{{s.country}}" cc="{{s.cc}}" code="{{s.code}}" date="{{s.date}}" ink="{{s.ink}}" rot="{{s.rot}}" seed="{{s.seed}}" size="{{s.size}}" hint-size="150px,150px"></dc-import></div><div class="sh-cap">{{s.t}}</div></div></sc-for>
+</div>
+<div class="sh-row" style="gap:20px;align-items:flex-start">
+<div class="c9-st"><div class="sh-sub">Scenario inks</div><div style="display:flex;gap:10px;flex-wrap:wrap;width:620px"><sc-for list="{{inks}}" as="i" hint-placeholder-count="8"><div class="c9-st" style="gap:6px;align-items:center"><span style="width:52px;height:30px;border-radius:8px;background:{{i.c}};box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)"></span><span class="sh-cap" style="font-size:10px">{{i.t}}</span></div></sc-for></div><div class="sh-note" style="max-width:620px">Ink is darker than the scenario tint so it reads on paper: ink-blue, ochre, green, red, violet, teal, vermilion, graphite. Blend mode is multiply so overlapping ink deepens.</div></div>
+<div class="c9-st"><div class="sh-sub">Locked country</div><div class="paper c9-paper" style="width:200px;height:200px"><dc-import name="Stamp" shape="round" country="Japan" locked="true" size="150" hint-size="150px,150px"></dc-import></div><div class="sh-note" style="max-width:260px">A dotted outline with the country name. Not a lock icon: it reads as “not yet”, not “denied”.</div></div>
+</div>
+<div class="sh-title"><h2>Stamping animation</h2></div>
+<div class="sh-row" style="gap:20px">
+<sc-for list="{{frames}}" as="f" hint-placeholder-count="5"><div class="c9-st"><div class="paper c9-paper" style="width:230px;height:230px;overflow:hidden"><div style="{{f.s}}"><dc-import name="Stamp" shape="round" country="Japan" code="NRT" date="11 FEB 2026" ink="#A82A24" rot="-8" size="150" hint-size="150px,150px"></dc-import></div><sc-if value="{{f.ink}}" hint-placeholder-val="{{ false }}"><svg width="74" height="96" viewBox="0 0 74 96" style="position:absolute;left:78px;top:-6px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));{{f.rs}}" aria-hidden="true"><defs><linearGradient id="c9-wd" x1="0" x2="1"><stop offset="0" stop-color="#3A2A1B"/><stop offset=".45" stop-color="#7A5A3A"/><stop offset="1" stop-color="#2E2114"/></linearGradient><linearGradient id="c9-rb" x1="0" x2="1"><stop offset="0" stop-color="#1B1B20"/><stop offset=".5" stop-color="#3B3B44"/><stop offset="1" stop-color="#17171B"/></linearGradient></defs><ellipse cx="37" cy="12" rx="17" ry="11" fill="url(#c9-wd)"/><path d="M29 20 Q31 36 28 46 H46 Q43 36 45 20Z" fill="url(#c9-wd)"/><rect x="10" y="46" width="54" height="11" rx="4" fill="url(#c9-wd)"/><rect x="12" y="57" width="50" height="9" rx="2" fill="url(#c9-rb)"/><rect x="14" y="66" width="46" height="3" rx="1.5" fill="#243F8F" opacity=".85"/></svg></sc-if></div><div class="sh-cap">{{f.t}}</div><div class="sh-note" style="max-width:230px">{{f.n}}</div></div></sc-for>
+</div>
+<div class="sh-note" style="max-width:900px">Sound: a low “thunk”, 90 Hz body with a short noise burst, 120 ms, played once per stamp; a staggered sequence of several stamps plays at 140 ms intervals. Haptic: a firm single tap. Reduce Motion replaces thump and bleed with a 200 ms fade.</div>
+<div class="sh-title"><h2>Turning pages</h2></div>
+<div class="sh-row" style="gap:16px;align-items:flex-start;flex-wrap:nowrap">
+<sc-for list="{{turns}}" as="f" hint-placeholder-count="4"><div class="c9-st" style="gap:8px"><div style="width:{{f.w}}px;height:{{f.h}}px;position:relative;overflow:visible"><div style="position:absolute;left:0;top:0;width:982px;height:600px;transform:scale({{f.k}});transform-origin:0 0"><dc-import name="Passport" spread="{{f.spread}}" flip="{{f.u}}" flip-dir="{{f.dir}}" hint-size="982px,600px"></dc-import></div></div><div class="sh-cap">{{f.t}}</div><div class="sh-note" style="max-width:{{f.w}}px">{{f.n}}</div></div></sc-for>
+</div>
+<div class="sh-row" style="gap:28px;align-items:flex-start">
+<div class="c9-st"><div class="sh-sub">Grab and release</div><div class="sh-note" style="max-width:560px">Grab zones are the outer 54 pt of each page, full height. Hover or keyboard focus lifts a dog-ear at the bottom corner (18 → 46 pt, 160 ms) and the cursor becomes an open hand; pressing makes it a closed hand. While dragging, the free edge follows the pointer and the leaf angle is acos((x − spine) ÷ 486), so the paper never stretches. Release past the spine (90°) or with a flick faster than 0.5 pt/ms from 15° finishes the turn in 380 ms; anything less settles back in 260 ms. Only the leaf and the page it uncovers are drawn during a turn.</div></div>
+<div class="c9-st"><div class="sh-sub">Light and shadow</div><div class="sh-note" style="max-width:520px">The turning leaf darkens toward its free edge by up to 42%, with a 14% warm lift on the rising face. The page it uncovers receives a cast shadow from the spine, up to 36%, peaking at 90°. Perspective is 2400 pt from a point on the spine, so the leaf foreshortens without looking fisheyed.</div></div>
+<div class="c9-st"><div class="sh-sub">Other ways to turn</div><div class="sh-note" style="max-width:520px">Return, space or the left and right arrow keys on a focused edge play the same 520 ms turn. VoiceOver reads each edge as “Turn to the next spread” and announces “Page 16, Visas, 6 stamps” on landing. Reduce Motion drops the turn: the spread swaps at once (a 200 ms cross-fade in the native build) and drag is disabled.</div></div>
+</div>
+<div class="sh-title"><h2>Filters</h2></div>
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div class="seg glass" style="padding:3px"><span class="on">All years</span><span>2026</span><span>2025</span></div><span class="chip" style="--sc:#B49CFF"><svg class="ic ic14"><use href="./icons.svg#code"></use></svg>Coding</span><span class="chip is-selected" style="--sc:#7ADDB2"><svg class="ic ic14"><use href="./icons.svg#book"></use></svg>Read</span><span class="chip" style="--sc:#FFB86B"><svg class="ic ic14"><use href="./icons.svg#case"></use></svg>Work</span><span class="chip" style="--sc:#7AA2FF"><svg class="ic ic14"><use href="./icons.svg#cap"></use></svg>Study</span><span style="flex:1"></span><span class="mono c2" style="font-size:12px">3 stamps shown</span></div>
+<div class="sh-note" style="max-width:900px">Year is a segmented control; scenario is a row of chips that multi-select. Filtering turns the page and re-places stamps with a Smooth spring; “3 stamps shown” is announced to VoiceOver.</div></div>
+<div class="sh-native"><b>Native</b><span>Stamp art is vector with a Metal ink shader (noise-thresholded alpha plus a 0.3 pt bleed blur); pages are two <span style="color:var(--text-1)">rotation3DEffect</span> leaves (anchor .leading / .trailing, perspective 0.4) driven by a <span style="color:var(--text-1)">DragGesture</span> on the page edge, with a spring-settled release. Stamping is a <span style="color:var(--text-1)">KeyframeAnimator</span>: scale 1.45→0.98 in 60 ms, 1.05 bleed in 140 ms, settle 1.0.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const shapes = [{ shape: 'round', t: 'Round seal', country: 'France', cc: 'FR', code: 'CDG', date: '14 Apr 2025', ink: '#243F8F', rot: -8, seed: 3, size: 160, h: 200 }, { shape: 'oval', t: 'Oval border', country: 'Ireland', cc: 'IE', code: 'DUB', date: '19 May 2025', ink: '#08613F', rot: -3, seed: 8, size: 160, h: 200 }, { shape: 'octagon', t: 'Octagon gate', country: 'Netherlands', cc: 'NL', code: 'AMS', date: '02 May 2025', ink: '#8C4B08', rot: 5, seed: 5, size: 160, h: 200 }, { shape: 'rosette', t: 'Scalloped rosette', country: 'Belgium', cc: 'BE', code: 'BRU', date: '08 Jun 2025', ink: '#4B2FA0', rot: 9, seed: 11, size: 160, h: 200 }, { shape: 'round', t: 'Round · red', country: 'Japan', cc: 'JP', code: 'NRT', date: '11 Feb 2026', ink: '#A82A24', rot: 7, seed: 6, size: 160, h: 200 }, { shape: 'octagon', t: 'Octagon · teal', country: 'Finland', cc: 'FI', code: 'HEL', date: '28 Apr 2026', ink: '#0C6A74', rot: -6, seed: 14, size: 160, h: 200 }];
+    const inks = [['study', '#243F8F'], ['work', '#8C4B08'], ['read', '#08613F'], ['create', '#A82A24'], ['code', '#4B2FA0'], ['meditate', '#0C6A74'], ['fitness', '#B0401F'], ['other', '#4A5163']].map(a => ({ t: window.MeridianKit.scenarios[a[0]][0], c: a[1] }));
+    const fr = (t, n, s, ink, rs) => ({ t, n, s: 'position:absolute;left:40px;top:38px;' + s, ink, rs: rs || '' });
+    const turns = [{ t: 'Rest', n: 'Dog-ear shows on hover or focus.', spread: 0, u: 0, dir: 1, k: .29, w: 288, h: 178 }, { t: 'Lifting · 30°', n: 'Leaf follows the pointer; shadow grows on the uncovered page.', spread: 0, u: .17, dir: 1, k: .29, w: 288, h: 178 }, { t: 'Past the spine · 105°', n: 'Back of the leaf shows the next left page, mirrored by the turn.', spread: 0, u: .58, dir: 1, k: .29, w: 288, h: 178 }, { t: 'Turning back · 70°', n: 'Dragging the left edge reverses the same motion.', spread: 1, u: .39, dir: -1, k: .29, w: 288, h: 178 }];
+    const frames = [fr('0 ms · lift', 'Rubber stamp hovers above the page, ink side down.', 'opacity:0', true, 'transform:translateY(-6px)'), fr('60 ms · thump', 'Stamp lands; impression appears at 1.45× and snaps to 0.98×.', 'opacity:1;transform:rotate(-8deg) scale(.98)', true, 'transform:translateY(62px) scale(.96);opacity:.5'), fr('200 ms · bleed', 'Ink spreads: 1.05× with a 0.9 px blur.', 'opacity:.96;transform:rotate(-8deg) scale(1.05);filter:blur(.9px)', false), fr('420 ms · settle', 'Back to 1.0, blur gone, ink at 94%.', 'opacity:.94;transform:rotate(-8deg) scale(1)', false), fr('Reduce Motion', '200 ms cross-fade, no movement.', 'opacity:.94;transform:rotate(-8deg)', false)];
+    return { turns, themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], shapes, inks, frames };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Membership cards screen</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.cs-slot{position:absolute;transition:transform 640ms var(--spring-smooth),opacity 400ms var(--ease),filter 400ms var(--ease);transform-style:preserve-3d;cursor:pointer}
+.cs-dot{width:7px;height:7px;border-radius:50%;background:var(--fill-3);transition:all var(--d2) var(--ease);cursor:pointer}
+.cs-dot.on{width:22px;border-radius:4px;background:var(--accent-grad)}
+.cs-tools{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:14px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair);font:500 12px/1 var(--font-ui);color:var(--text-2)}
+@keyframes cs-burst{0%{transform:scale(.2);opacity:0}30%{opacity:1}100%{transform:scale(2.2);opacity:0}}
+@keyframes cs-float{0%{transform:translate(0,0) rotate(var(--r));opacity:0}15%{opacity:.9}100%{transform:translate(var(--dx),var(--dy)) rotate(calc(var(--r) + 40deg));opacity:0}}
+@keyframes cs-caret{50%{opacity:0}}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:{{hostH}}px">
+<div class="win" data-theme="{{theme}}" tabindex="0" onKeyDown="{{onKey}}" style="{{winStyle}}">
+<div style="position:absolute;inset:0;background:radial-gradient(70% 60% at 62% 30%,{{glow}},transparent 70%)"></div>
+<dc-import name="Sidebar" active="cards" km="{{sbKm}}" ring-pulse="{{ringPulse}}" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<div style="position:absolute;left:252px;top:52px;width:996px;display:flex;justify-content:space-between;align-items:flex-end">
+<div><div class="eyebrow">Membership</div><div class="serif" style="font-size:44px;line-height:48px;font-weight:500;letter-spacing:-.015em;margin-top:4px">{{name}}</div><div class="serif it c2" style="font-size:18px;margin-top:2px">{{tag}}</div></div>
+<span class="pill {{pillCls}}"><svg class="ic ic12"><use href="{{pillIc}}"></use></svg>{{pillText}}</span>
+</div>
+
+<!-- coverflow -->
+<div style="position:absolute;left:220px;top:150px;width:1060px;height:340px;perspective:1100px">
+<sc-for list="{{slots}}" as="s" hint-placeholder-count="6">
+<div class="cs-slot" style="{{s.style}}" onClick="{{s.pick}}"><dc-import name="Card" tier="{{s.tier}}" size="{{s.size}}" locked="{{s.locked}}" live="{{s.live}}" km="{{km}}" hint-size="{{s.hint}}"></dc-import></div>
+</sc-for>
+</div>
+<span class="btn-round glass glass-ctl" style="position:absolute;left:236px;top:296px" role="button" aria-label="Previous card" onClick="{{prev}}"><svg class="ic ic18"><use href="./icons.svg#chev-l"></use></svg></span>
+<span class="btn-round glass glass-ctl" style="position:absolute;left:1232px;top:296px;margin-left:-40px" role="button" aria-label="Next card" onClick="{{next}}"><svg class="ic ic18"><use href="./icons.svg#chev-r"></use></svg></span>
+<div style="position:absolute;left:220px;width:1060px;top:496px;display:flex;justify-content:center;gap:8px"><sc-for list="{{dots}}" as="d" hint-placeholder-count="6"><span class="cs-dot {{d.cls}}" onClick="{{d.pick}}"></span></sc-for></div>
+
+<!-- progress -->
+<div class="glass e2" style="position:absolute;left:252px;top:540px;width:996px;height:196px;border-radius:28px;padding:24px 30px;box-sizing:border-box;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:34px">
+<div style="display:flex;flex-direction:column;justify-content:space-between">
+<div><div class="eyebrow">{{progLabel}}</div><div class="serif" style="font-size:34px;line-height:38px;margin-top:6px;font-weight:500">{{togo}}<span class="c2" style="font-size:16px;font-style:italic"> {{toUnit}}</span></div></div>
+<div><div class="bar" style="--p:{{pct}};height:6px;border-radius:3px"><i style="background:{{tint}};box-shadow:0 0 10px {{tint}}"></i></div><div style="display:flex;justify-content:space-between;margin-top:8px" class="mono c3"><span style="font-size:11px">{{fromKm}} km</span><span style="font-size:11px">{{nextKm}} km</span></div></div>
+</div>
+<div style="display:flex;flex-direction:column;justify-content:space-between"><div><div class="eyebrow">Member</div><div style="font:600 17px/22px var(--font-ui);margin-top:8px">Elif Kaya</div><div class="t-callout c2" style="margin-top:2px">Joined Mar 2025 · 365 days flown</div></div><div class="mono c3" style="font-size:12px">0048 1317 2204</div></div>
+<div style="display:flex;gap:16px;align-items:center"><svg width="86" height="86" viewBox="0 0 86 86" style="transform:rotate(-90deg);flex:none"><circle cx="43" cy="43" r="36" fill="none" stroke="var(--fill-2)" stroke-width="6"/><circle cx="43" cy="43" r="36" fill="none" stroke="var(--accent-1)" stroke-width="6" stroke-linecap="round" stroke-dasharray="{{earthDash}}"/></svg><div><div class="serif" style="font-size:34px;line-height:36px;font-weight:500">0.3×</div><div class="t-callout c2" style="margin-top:4px">around the world</div><div class="mono c3" style="font-size:11px;margin-top:4px">{{fmtMe}} of 40,075 km</div></div></div>
+</div>
+
+<!-- unlock moment -->
+<sc-if value="{{showUnlock}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:70;background:rgba(3,5,10,{{ovOp}});backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center">
+<div style="position:absolute;left:50%;top:{{burstTop}}px;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(circle,rgba(255,244,205,.9),rgba(255,233,168,.35) 38%,transparent 68%);opacity:{{burstOp}};transform:scale({{burstSc}})"></div>
+<sc-for list="{{parts}}" as="p" hint-placeholder-count="12"><svg width="22" height="18" viewBox="0 0 22 18" fill="none" stroke="#FFE9A8" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" style="{{p.style}}"><path d="M1 8L21 1L14 17L10 10Z"/><path d="M21 1L10 10"/></svg></sc-for>
+<div style="position:absolute;left:50%;top:{{cardTop}}px;margin-left:-240px;width:480px;height:302px;opacity:{{cardOp}};filter:drop-shadow(0 30px 40px rgba(0,0,0,.55))"><dc-import name="Card" tier="{{uTier}}" size="hero" live="false" km="{{km}}" hint-size="480px,302px"></dc-import></div>
+<div style="position:absolute;left:50%;top:{{sleeveTop}}px;margin-left:-300px;width:600px;height:46px;border-radius:12px;background:linear-gradient(180deg,#1B2133,#0E1322);box-shadow:0 20px 40px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;opacity:{{sleeveOp}}"><span class="eyebrow" style="letter-spacing:.3em">Meridian</span></div>
+<div style="position:absolute;left:0;right:0;top:510px;display:flex;flex-direction:column;align-items:center">
+<div class="serif" style="font-size:52px;line-height:56px;font-weight:500;letter-spacing:-.015em;min-height:56px">{{typed}}<span style="display:inline-block;width:2px;height:44px;background:var(--accent-1);margin-left:4px;vertical-align:-6px;animation:cs-caret 1s steps(2) infinite;opacity:{{caret}}"></span></div>
+<div class="serif c2" style="font-size:19px;line-height:28px;text-align:center;max-width:560px;margin-top:8px;opacity:{{paraOp}};font-style:italic">You have reached {{uName}}. {{uKm}} kilometres of focused time, one quiet session at a time. This card is yours to keep, and your next stop, {{uNext}}, is waiting at {{uNextKm}} km.</div>
+<div style="display:flex;gap:12px;margin-top:20px;opacity:{{btnOp}}"><span class="btn btn-primary btn-lg" role="button" tabindex="0" onClick="{{dismiss}}">View card</span><span class="btn btn-secondary btn-lg" role="button" tabindex="0"><svg class="ic ic18"><use href="./icons.svg#share"></use></svg>Share</span></div>
+</div>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{tools}}" hint-placeholder-val="{{ false }}">
+<div class="cs-tools" data-theme="dark"><span style="color:var(--text-1);font-weight:600">Prototype</span><span>Move the pointer over the card, click to flip, press ← → to browse.</span><span style="flex:1"></span><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{simulate}}"><svg class="ic ic14"><use href="./icons.svg#plane"></use></svg>Fly {{boostLabel}} km</span><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{reset}}"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Reset</span></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"text","default":"dark"},"live":{"editor":"boolean","default":false},"index":{"editor":"int","default":3},"unlockT":{"editor":"int","default":-1},"unlockTier":{"editor":"int","default":3},"tools":{"editor":"boolean","default":false},"startKm":{"editor":"int","default":12022},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { idx: null, km: null, uT: null, uTier: 3 };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  go(d) { const n = Math.max(0, Math.min(5, this.cur() + d)); this.setState({ idx: n }); const A = window.MeridianAudio; if (A && A.enabled) A.click(); }
+  cur() { return this.state.idx !== null ? this.state.idx : (+(this.props.index === undefined ? 3 : this.props.index)); }
+  km() { return this.state.km !== null ? this.state.km : (+(this.props.startKm || 12022)); }
+  startUnlock(tier) {
+    const A = window.MeridianAudio; this.setState({ uT: 0, uTier: tier }); const t0 = performance.now(); let chimed = false;
+    const L = now => { const t = now - t0; if (t > 1000 && !chimed) { chimed = true; if (A && A.enabled) { A.init(); A.chime('land'); } } this.setState({ uT: t }); if (t < 3400) this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L);
+  }
+  simulate() {
+    const K = window.MeridianKit, km = this.km(); const nxt = K.tiers.find(t => t.km > km); if (!nxt) return; const boost = nxt.km - km + 12; const nk = km + boost; this.setState({ km: nk }); const ti = K.tiers.indexOf(nxt); this.startUnlock(ti);
+  }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.flag(p.live, false), tools = this.flag(p.tools, false);
+    const idx = this.cur(), km = this.km(), T = K.tiers[idx], nxt = K.tiers[idx + 1];
+    const unlockT = live ? st.uT : (+(p.unlockT === undefined ? -1 : p.unlockT) >= 0 ? +p.unlockT : null);
+    const uTierI = live ? st.uTier : +(p.unlockTier === undefined ? 3 : p.unlockTier), U = K.tiers[uTierI], UN = K.tiers[uTierI + 1] || U;
+    const TINT = ['#6AB7FF', '#6AB7FF', '#8BF3D8', '#FFE9A8', '#FFFFFF', '#B49CFF'];
+    const locked = T.km > km, tint = TINT[idx];
+    const slots = K.tiers.map((t, i) => {
+      const off = i - idx, a = Math.abs(off), isC = off === 0;
+      const sc = isC ? 1 : Math.pow(.8, a) * .92, W = isC ? 480 : 340, H = isC ? 302 : 214;
+      const x = 530 + off * (off === 0 ? 0 : 300 + (a - 1) * 70) - W / 2 + (off === 0 ? 0 : 0);
+      const ry = off === 0 ? 0 : (off > 0 ? -28 : 28), z = 100 - a * 10;
+      const left = isC ? 290 : 530 - 170 + off * (a === 1 ? 300 : 300 + (a - 1) * 120);
+      return { tier: t.k, size: isC ? 'hero' : 'list', locked: t.km > km, live: live && isC, hint: W + 'px,' + H + 'px',
+        style: 'left:' + (isC ? 290 : left) + 'px;top:' + (isC ? 20 : 54) + 'px;width:' + W + 'px;height:' + H + 'px;z-index:' + z + ';opacity:' + (a > 2 ? 0 : (isC ? 1 : (a === 1 ? .9 : .5))) + ';pointer-events:' + (a > 2 ? 'none' : 'auto') + ';transform:' + (isC ? 'translateZ(40px)' : 'translateZ(' + (-60 * a) + 'px) rotateY(' + ry + 'deg) scale(' + (a === 1 ? .84 : .7) + ')') + ';filter:' + (isC ? 'none' : 'blur(' + (2 * a).toFixed(0) + 'px)'),
+        pick: () => this.setState({ idx: i }) };
+    });
+    const dots = K.tiers.map((t, i) => ({ cls: i === idx ? 'on' : '', pick: () => this.setState({ idx: i }) }));
+    const togo = locked ? T.km - km : (nxt ? nxt.km - km : 0);
+    const from = T.km, to = nxt ? nxt.km : T.km;
+    const pct = locked ? Math.min(100, km / T.km * 100) : (nxt ? Math.min(100, (km - from) / (to - from) * 100) : 100);
+    const circ = 2 * Math.PI * 36;
+    // unlock timeline
+    const ut = unlockT === null ? 0 : unlockT, cl = (v, a, b) => Math.max(a, Math.min(b, v)), ease = u => u * u * (3 - 2 * u);
+    const full = 'Congratulations', typedN = Math.floor(cl((ut - 1300) / 40, 0, full.length));
+    const rise = ease(cl((ut - 400) / 900, 0, 1));
+    const parts = []; const rr = K.rng(21);
+    for (let i = 0; i < 12; i++) { const x = 140 + rr() * 1000, y = 560 + rr() * 140, dx = (rr() - .5) * 120, dy = -(160 + rr() * 220), r = Math.round(-30 + rr() * 80), del = 900 + i * 120; const u = cl((ut - del) / 2200, 0, 1); parts.push({ style: 'position:absolute;left:' + x.toFixed(0) + 'px;top:' + y.toFixed(0) + 'px;--r:' + r + 'deg;--dx:' + dx.toFixed(0) + 'px;--dy:' + dy.toFixed(0) + 'px;opacity:' + (u <= 0 || u >= 1 ? 0 : (u < .15 ? u / .15 * .9 : .9 * (1 - (u - .15) / .85))).toFixed(2) + ';transform:translate(' + (dx * u).toFixed(1) + 'px,' + (dy * u).toFixed(1) + 'px) rotate(' + (r + 40 * u) + 'deg)' }); }
+    const winStyle = 'background:var(--bg-1)';
+    return {
+      theme: p.theme === 'light' ? 'light' : 'dark', hostH: tools ? 884 : 800, winStyle, tools,
+      glow: tint + '22', name: T.name, tag: T.tag, sbKm: Math.round(km), ringPulse: unlockT !== null && unlockT > 1000 && unlockT < 3200,
+      pillCls: locked ? '' : 'ok', pillIc: locked ? './icons.svg#lock' : './icons.svg#check', pillText: locked ? K.fmtKm(T.km - km) + ' km to unlock' : 'Unlocked',
+      slots, dots, km: Math.round(km), fmtMe: K.fmtKm(km), prev: () => this.go(-1), next: () => this.go(1),
+      progLabel: locked ? 'To unlock ' + T.name : (nxt ? 'Next card · ' + nxt.name : 'Highest card reached'), togo: K.fmtKm(togo), toUnit: nxt || locked ? 'km to go' : 'km flown', pct: pct.toFixed(1), tint,
+      fromKm: K.fmtKm(locked ? 0 : from), nextKm: K.fmtKm(locked ? T.km : to), earthDash: (Math.min(1, km / 40075) * circ).toFixed(1) + ' ' + circ.toFixed(1),
+      showUnlock: unlockT !== null, ovOp: (.78 * cl(ut / 300, 0, 1)).toFixed(2), uTier: U.k, uName: U.name, uKm: K.fmtKm(U.km), uNext: UN.name, uNextKm: K.fmtKm(UN.km),
+      cardTop: Math.round(176 + (1 - rise) * 330), cardOp: rise < .02 ? 0 : 1, sleeveTop: 440, sleeveOp: cl((ut - 150) / 250, 0, 1).toFixed(2), burstTop: 330, burstOp: cl(1 - Math.abs((ut - 1100) / 700), 0, 1).toFixed(2), burstSc: (.3 + cl((ut - 800) / 1200, 0, 1) * 1.6).toFixed(2),
+      typed: full.slice(0, typedN), caret: typedN < full.length || ut < 2600 ? 1 : 0, paraOp: cl((ut - 2000) / 500, 0, 1).toFixed(2), btnOp: cl((ut - 2400) / 400, 0, 1).toFixed(2), parts,
+      dismiss: () => this.setState({ uT: null, idx: this.state.uTier }),
+      onKey: e => { if (e.key === 'ArrowRight') this.go(1); else if (e.key === 'ArrowLeft') this.go(-1); else if (e.key === 'Escape' && st.uT !== null) this.setState({ uT: null, idx: st.uTier }); },
+      simulate: () => this.simulate(), reset: () => { cancelAnimationFrame(this._raf); this.setState({ km: null, uT: null, idx: null }); },
+      boostLabel: (() => { const n = K.tiers.find(t => t.km > km); return n ? K.fmtKm(n.km - km) : '0'; })()
+    };
+  }
+}
+</script>
+</body>
+</html>

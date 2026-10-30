@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M05 — Notifications</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.m5{width:1280px;height:1490px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:30px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.m5 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.m5-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.m5-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.m5-wall{border-radius:28px;padding:28px 34px;background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:flex;flex-direction:column;gap:22px}
+.m5-row{display:grid;grid-template-columns:360px 360px 1fr;gap:28px;align-items:start}
+.m5-n{position:relative;width:344px;border-radius:22px;padding:12px 14px 12px 12px;display:flex;gap:12px;color:#F3F5FA;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 40%,rgba(255,255,255,.07)),rgba(22,30,52,.66);-webkit-backdrop-filter:blur(40px) saturate(1.6);backdrop-filter:blur(40px) saturate(1.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.1),0 18px 44px rgba(0,0,0,.4);box-sizing:border-box}
+.m5-n.hv{background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.05) 40%,rgba(255,255,255,.09)),rgba(26,36,62,.72)}
+.m5-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.m5-t{font:600 14px/18px var(--font-ui)}
+.m5-b{font:400 13px/18px var(--font-ui);color:rgba(243,245,250,.78);margin-top:1px}
+.m5-ti{font:500 11px/14px var(--font-ui);color:rgba(243,245,250,.7);white-space:nowrap}
+.m5-ac{display:flex;gap:8px;margin-top:10px}
+.m5-ac>span{flex:1;height:30px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 12px/1 var(--font-ui);background:rgba(255,255,255,.14);color:#fff;cursor:pointer;transition:background var(--d1) var(--ease)}
+.m5-ac>span:hover,.m5-ac>span.is-hover{background:rgba(255,255,255,.22)}
+.m5-ac>span:focus-visible{outline:2px solid #6AB7FF;outline-offset:2px}
+.m5-ac>span.m5-pr{background:linear-gradient(135deg,#6AB7FF,#8BF3D8);color:#04101A}
+.m5-tag{display:inline-flex;align-items:center;gap:5px;height:18px;padding:0 7px;border-radius:9px;background:rgba(255,181,71,.18);color:#FFC27A;font:600 10px/1 var(--font-ui);letter-spacing:.05em;text-transform:uppercase;margin-top:6px}
+.m5-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.m5-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.m5-spec{font:400 12px/1.55 var(--font-mono);color:rgba(243,245,250,.72)}
+.m5-spec b{display:block;font:700 10px/1.6 var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:#fff;margin-top:6px}
+.m5-spec b:first-child{margin-top:0}
+.m5-lb{font:600 10px/12px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.68);margin-bottom:8px}
+</style>
+</helmet>
+<div class="m5" data-screen-label="M05 Notifications">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">M05</div><h1 style="margin-top:6px">Notifications</h1><div class="t-callout c2" style="margin-top:6px;max-width:660px">Four calm banners. They say one thing, offer at most two actions, and use the icon you chose. Only the landing heads-up is time sensitive.</div></div><div class="t-callout c3" style="text-align:right;max-width:340px">Banner 344 wide, radius 22, icon 38. Actions appear on hover or with the Options key.</div></div>
+
+<div class="m5-wall">
+<div class="m5-row" style="color:rgba(255,255,255,.55)"><div class="m5-lb">Banner</div><div class="m5-lb">Hover, actions</div><div class="m5-lb">Behavior</div></div>
+<sc-for list="{{items}}" as="n" hint-placeholder-count="5">
+<div class="m5-row">
+<div class="m5-n" role="group" aria-label="{{n.aria}}"><div style="flex:none"><dc-import name="AppIcon" concept="b" variant="default" size="38" hint-size="38px,38px"></dc-import></div><div style="flex:1;min-width:0"><div class="m5-h"><span class="m5-t">{{n.t}}</span><span class="m5-ti">{{n.time}}</span></div><div class="m5-b">{{n.b}}</div><sc-if value="{{n.ts}}" hint-placeholder-val="{{ false }}"><span class="m5-tag"><svg class="ic ic12"><use href="./icons.svg#clock"></use></svg>Time Sensitive</span></sc-if></div></div>
+<div class="m5-n hv" role="group" aria-label="{{n.aria}}, with actions"><div style="flex:none"><dc-import name="AppIcon" concept="b" variant="default" size="38" hint-size="38px,38px"></dc-import></div><div style="flex:1;min-width:0"><div class="m5-h"><span class="m5-t">{{n.t}}</span><span class="m5-ti">{{n.time}}</span></div><div class="m5-b">{{n.b}}</div><div class="m5-ac"><span class="m5-pr" role="button" tabindex="0">{{n.a1}}</span><span role="button" tabindex="0">{{n.a2}}</span></div></div></div>
+<div class="m5-spec"><b>Sound</b>{{n.sound}}<b>Opens</b>{{n.opens}}<b>Rule</b>{{n.rule}}</div>
+</div>
+</sc-for>
+</div>
+
+<div><div class="m5-cap">Turkish and long text<span>copy deck sample, +30 % length</span></div>
+<div class="m5-wall" style="flex-direction:row;gap:28px;padding:26px 34px;align-items:flex-start">
+<div class="m5-n" role="group" aria-label="İniş için hazırlanın"><div style="flex:none"><dc-import name="AppIcon" concept="b" variant="default" size="38" hint-size="38px,38px"></dc-import></div><div style="flex:1;min-width:0"><div class="m5-h"><span class="m5-t">İniş için hazırlanın</span><span class="m5-ti">şimdi</span></div><div class="m5-b">İniş için hazırlanın. 5 dakika kaldı.</div><span class="m5-tag"><svg class="ic ic12"><use href="./icons.svg#clock"></use></svg>Zamana duyarlı</span><div class="m5-ac"><span class="m5-pr" role="button" tabindex="0">Odağa dön</span><span role="button" tabindex="0">5 dk ekle</span></div></div></div>
+<div class="m5-spec" style="flex:1"><b>Rules</b>The title wraps to two lines before it truncates; the body to three. Action labels stay on one line and the two buttons share the row 50/50, so long German or Turkish labels shrink to 12 pt and then ellipsize. Tags and times never wrap.<b>Right to left</b>Icon on the right, times on the left, action order mirrored.</div>
+</div></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="m5-nat"><b>Native</b><span>UNUserNotificationCenter with categories: BOARDING (Check in, Snooze 2 min), GATE (Choose seat), LANDING (Return to focus, Add 5 min; interruptionLevel .timeSensitive), TOGETHER (Open lobby). threadIdentifier = flight id so a flight collapses into one stack.</span></div>
+<div class="m5-nat"><b>Focus and quiet</b><span>Only the landing heads-up uses Time Sensitive. Everything else respects Focus. A banner never appears while Meridian is frontmost: the in-app toast replaces it. Sounds are 1.2 s synthesized chimes bundled as .caf files.</span></div>
+<div class="m5-nat"><b>VoiceOver</b><span>“Meridian. Prepare for landing. Cabin crew, prepare for landing. 5 minutes to go. Time Sensitive. Actions available: Return to focus, Add 5 minutes.”</span></div>
+<div class="m5-nat"><b>Copy</b><span>No exclamation marks, no emoji, no countdown pressure. The body is never longer than one sentence of fact and one of kindness.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1490}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { items: [
+      { t: 'Boarding · MR 0142', b: 'Gate A12 is open. Doors close in 3…', time: 'now', ts: false, a1: 'Check in', a2: 'Snooze 2 min', aria: 'Boarding, gate A12 is open, doors close in 3 minutes', sound: 'Boarding chime: C5, E5, G5, soft bell, 1.2 s.', opens: 'The ticket, ready to tear.', rule: 'Sent once. Snooze sends it once more, never a third time.' },
+      { t: 'Gate opens in 5 min', b: 'Your 11:00 flight to Paris. Pick a seat while you wait.', time: '10:55', ts: false, a1: 'Choose seat', a2: 'Not now', aria: 'Gate opens in 5 minutes', sound: 'Two soft sine tones, 880 then 660 Hz.', opens: 'Seat and scenario step of the plan.', rule: 'Only for flights you scheduled yourself.' },
+      { t: 'Prepare for landing', b: 'Cabin crew, prepare for landing. 5 minutes to go.', time: 'now', ts: true, a1: 'Return to focus', a2: 'Add 5 min', aria: 'Prepare for landing, 5 minutes to go', sound: 'Landing chime: G5, E5, C5 with a long decay.', opens: 'The cruise screen. Add 5 min extends the flight.', rule: 'Time Sensitive. Muted if you are already in Meridian.' },
+      { t: 'Anna joined your flight', b: 'LHR → CDG · 4 of 4 aboard', time: '10:02', ts: false, a1: 'Open lobby', a2: 'Dismiss', aria: 'Anna joined your flight, 4 of 4 aboard', sound: 'Single soft tick.', opens: 'The lobby with the seat map.', rule: 'Status only. Collapses into one stack per flight.' }] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Split-flap</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.sf-row{display:inline-flex;gap:3px;perspective:600px}
+.sf-c{position:relative;border-radius:5px;background:#0D0F13;box-shadow:0 1px 0 rgba(255,255,255,.07),0 3px 8px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.04)}
+.sf-h{position:absolute;left:0;right:0;height:50%;overflow:hidden;backface-visibility:hidden}
+.sf-h.t{top:0;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#252932,#171A20);transform-origin:50% 100%}
+.sf-h.b{bottom:0;border-radius:0 0 5px 5px;background:linear-gradient(180deg,#14171C,#0F1115);transform-origin:50% 0}
+.sf-ch{position:absolute;left:0;right:0;height:200%;display:flex;align-items:center;justify-content:center;font-family:var(--font-cond);font-weight:600;letter-spacing:.02em;color:var(--sf-ink,#FFB547);text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.sf-h.t .sf-ch{top:0}.sf-h.b .sf-ch{top:-100%}
+.sf-hinge{position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:#050608;box-shadow:0 1px 0 rgba(255,255,255,.06);z-index:5}
+.sf-c:after{content:"";position:absolute;left:3px;right:3px;top:50%;height:0;margin-top:-5px;border-top:0;pointer-events:none}
+@keyframes sf-top{from{transform:rotateX(0)}to{transform:rotateX(-90deg)}}
+@keyframes sf-bot{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
+.sf-h.ft.go{animation:sf-top 62ms cubic-bezier(.5,0,1,.6) forwards;z-index:3}
+.sf-h.fb.go{animation:sf-bot 62ms cubic-bezier(0,.4,.5,1) 62ms forwards;z-index:3;transform:rotateX(90deg)}
+.sf-h.fb{transform:rotateX(90deg)}
+.sf-h.fb.go{transform:none}
+.sf-c.dim .sf-ch{opacity:.4}
+</style>
+</helmet>
+<div class="sf-row" style="{{rowStyle}}" role="img" aria-label="{{label}}">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="12">
+<div class="sf-c" style="{{c.s}}">
+<div class="sf-h t" style="{{c.hs}}"><div class="sf-ch" style="{{c.cs}}">{{c.nxt}}</div></div>
+<div class="sf-h b" style="{{c.hs}}"><div class="sf-ch" style="{{c.cs}}">{{c.cur}}</div></div>
+<div class="sf-h t ft {{c.go}}" style="{{c.hs}}"><div class="sf-ch" style="{{c.cs}}">{{c.cur}}</div></div>
+<div class="sf-h b fb {{c.go}}" style="{{c.hs}}"><div class="sf-ch" style="{{c.cs}}">{{c.nxt}}</div></div>
+<div class="sf-hinge"></div>
+</div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"text":{"editor":"text","default":"MR 0142"},"len":{"editor":"int","default":0},"size":{"editor":"enum","options":["s","m","l"],"default":"m"},"tone":{"editor":"enum","options":["amber","white"],"default":"amber"},"live":{"editor":"boolean","default":false},"cycle":{"editor":"text","default":""},"sound":{"editor":"boolean","default":false},"$preview":{"width":320,"height":56}}'>
+class Component extends DCLogic {
+  state = { cur: null, nxt: null, go: null, text: null };
+  CH = ' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789→·:-+/';
+  componentDidMount() { if (this.live()) { this._pending = null; this.retarget(); this._cyc = this.props.cycle ? setInterval(() => this.nextCycle(), 3800) : null; } }
+  componentWillUnmount() { clearInterval(this._cyc); (this._timers || []).forEach(clearTimeout); }
+  componentDidUpdate(prev) { if (this.live() && prev.text !== this.props.text) this.retarget(); }
+  live() { const v = this.props.live; return v === true || v === 'true'; }
+  nextCycle() { const list = String(this.props.cycle).split('|'); this._ci = ((this._ci || 0) + 1) % list.length; this.target(list[this._ci]); }
+  retarget() { this.target(this.props.text || ''); }
+  target(txt) {
+    const len = this.len(txt), t = (txt + ' '.repeat(len)).slice(0, len).toUpperCase().split('');
+    const cur = this.state.cur ? this.state.cur.slice() : new Array(len).fill(' ');
+    while (cur.length < len) cur.push(' ');
+    this.setState({ text: t.join(''), cur: cur.slice(0, len), nxt: cur.slice(0, len), go: new Array(len).fill(false) });
+    (this._timers || []).forEach(clearTimeout); this._timers = [];
+    t.forEach((ch, i) => {
+      const steps = Math.min(5, Math.max(0, Math.abs(this.CH.indexOf(ch) - this.CH.indexOf(cur[i])) || (ch === cur[i] ? 0 : 3)));
+      let k = 0; const chain = []; for (let s = 0; s < steps; s++) chain.push(s === steps - 1 ? ch : this.CH[(this.CH.indexOf(cur[i]) + 1 + Math.floor(Math.random() * 30)) % this.CH.length]);
+      const run = () => {
+        if (k >= chain.length) return;
+        const st = this.state; const nx = st.nxt.slice(), go = st.go.slice(); nx[i] = chain[k]; go[i] = true; this.setState({ nxt: nx, go });
+        const sound = this.props.sound === true || this.props.sound === 'true'; if (sound && window.MeridianAudio && i % 2 === 0) window.MeridianAudio.flap();
+        this._timers.push(setTimeout(() => { const s2 = this.state; const c2 = s2.cur.slice(), g2 = s2.go.slice(); c2[i] = chain[k]; g2[i] = false; this.setState({ cur: c2, go: g2 }); k++; this._timers.push(setTimeout(run, 8)); }, 128));
+      };
+      this._timers.push(setTimeout(run, 40 * i));
+    });
+  }
+  len(txt) { const L = +(this.props.len || 0); return L > 0 ? L : String(txt === undefined ? this.props.text : txt).length; }
+  renderVals() {
+    const p = this.props, size = p.size || 'm', D = { xs: [20, 30, 19], s: [22, 32, 20], m: [30, 44, 30], l: [42, 62, 44] }[size] || [30, 44, 30];
+    const live = this.live(), st = this.state;
+    const txt = String(live && st.text !== null ? st.text : (p.text || '')).toUpperCase(), len = this.len(p.text);
+    const arr = (txt + ' '.repeat(len)).slice(0, len).split('');
+    const cur = live && st.cur ? st.cur : arr, nxt = live && st.nxt ? st.nxt : arr, go = live && st.go ? st.go : [];
+    const ink = p.tone === 'white' ? '#F3F5FA' : '#FFB547';
+    const cells = arr.map((ch, i) => ({
+      cur: cur[i] === undefined ? ' ' : cur[i], nxt: nxt[i] === undefined ? ' ' : nxt[i], go: go[i] ? 'go' : '',
+      s: 'width:' + D[0] + 'px;height:' + D[1] + 'px', hs: 'width:' + D[0] + 'px', cs: 'font-size:' + D[2] + 'px;height:' + D[1] + 'px;line-height:' + D[1] + 'px'
+    }));
+    return { cells, rowStyle: '--sf-ink:' + ink + ';' + (p.dim === 'true' ? 'opacity:.55' : ''), label: arr.join('').trim() };
+  }
+}
+</script>
+</body>
+</html>

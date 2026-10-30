@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motion spec sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.mt{width:1440px;padding:56px 56px 64px;box-sizing:border-box;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);display:flex;flex-direction:column;gap:24px;-webkit-font-smoothing:antialiased}
+.mt h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:6px 0 0}
+.mt-card{display:grid;grid-template-columns:600px 1fr;gap:28px;padding:22px 24px 24px;border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.mt-hd{grid-column:1 / span 2;display:flex;align-items:baseline;gap:14px}
+.mt-no{font:700 11px/16px var(--font-mono);letter-spacing:.1em;color:var(--accent-1)}
+.mt-ti{font:600 20px/26px var(--font-ui);letter-spacing:-.01em}
+.mt-tr{font:400 12px/16px var(--font-mono);color:var(--text-2);margin-left:auto;text-align:right}
+.mt-frames{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;align-content:flex-start}
+.mt-fb{position:relative;overflow:hidden;border-radius:12px;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.mt-fb>*{position:absolute}
+.mt-fc{margin-top:7px;font:400 11px/14px var(--font-mono);color:var(--text-2)}
+.mt-pw>*{position:absolute}
+.mt-pw{position:absolute}
+.mt-fc b{color:var(--text-1);font-weight:600}
+.mt-right{display:flex;flex-direction:column;gap:16px;min-width:0}
+.mt-tl{position:relative}
+.mt-tl>*{position:absolute}
+.mt-lb{font:500 10.5px/14px var(--font-mono);color:var(--text-2);white-space:nowrap}
+.mt-ax{background:var(--stroke-hair);width:1px}
+.mt-axl{font:400 10px/12px var(--font-mono);color:var(--text-3);transform:translateX(-50%);white-space:nowrap}
+.mt-trk{font:600 11px/14px var(--font-ui);color:var(--text-2);white-space:nowrap}
+.mt-bar{height:10px;border-radius:5px}
+.mt-pt{width:9px;height:9px;transform:rotate(45deg);border-radius:2px}
+.mt-bl{font:500 10.5px/14px var(--font-mono);color:var(--text-2);white-space:nowrap}
+.mt-par{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.mt-pr{display:grid;grid-template-columns:104px 1fr;gap:10px;padding:6px 0;border-top:1px solid var(--stroke-hair)}
+.mt-pk{font:600 10px/16px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.mt-pv{font:400 12px/16px var(--font-ui);color:var(--text-1)}
+.mt-cv{display:flex;align-items:center;gap:12px}
+.mt-cvs{flex:none;border-radius:10px;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.mt-cvn{font:400 11.5px/16px var(--font-mono);color:var(--text-2)}
+.mt-cvn b{display:block;color:var(--text-1);font:600 12px/16px var(--font-ui)}
+.mt-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.mt-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.mt-pp{border-radius:4px}
+</style>
+</helmet>
+<div class="mt" data-theme="dark" data-screen-label="{{screenLabel}}">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="mx-stamp" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="11" result="n2"/><feColorMatrix in="n2" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  7 0 0 0 -2.05" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></defs></svg>
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px"><div><div class="eyebrow">{{code}} · Motion specs</div><h1>{{title}}</h1><div class="t-callout c2" style="margin-top:6px;max-width:780px">{{lede}}</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:330px">Frames are rendered from the live components. Bars on the timeline are to scale; ◆ marks an instant. Springs use the F3 tokens.</div></div>
+
+<sc-for list="{{motions}}" as="m" hint-placeholder-count="5">
+<section class="mt-card">
+<div class="mt-hd"><span class="mt-no">{{m.no}}</span><span class="mt-ti">{{m.title}}</span><span class="mt-tr">{{m.trigger}}</span></div>
+<div class="mt-frames">
+<sc-for list="{{m.frames}}" as="f" hint-placeholder-count="4"><sc-if value="{{f.br}}" hint-placeholder-val="{{ false }}"><div style="flex-basis:100%;height:0"></div></sc-if><div>
+<div class="mt-fb" style="{{f.box}}">
+<sc-if value="{{f.isRitual}}" hint-placeholder-val="{{ false }}"><div style="{{f.inner}}"><dc-import name="Ritual" t="{{f.t}}" tear="{{f.tear}}" fly="{{f.fly}}" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{f.isCard}}" hint-placeholder-val="{{ false }}"><div style="{{f.inner}}"><dc-import name="Card" tier="gold" px="{{f.px}}" py="{{f.py}}" flipped="{{f.flip}}" hint-size="340px,214px"></dc-import></div></sc-if>
+<sc-if value="{{f.isTakeoff}}" hint-placeholder-val="{{ false }}"><div style="{{f.inner}}"><dc-import name="Takeoff" t="{{f.t}}" total="42" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{f.isLanding}}" hint-placeholder-val="{{ false }}"><div style="{{f.inner}}"><dc-import name="Landing" anim="true" fly="{{f.fly}}" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{f.isUnlock}}" hint-placeholder-val="{{ false }}"><div style="{{f.inner}}"><dc-import name="CardsScreen" index="3" unlock-t="{{f.t}}" unlock-tier="3" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{f.isWindow}}" hint-placeholder-val="{{ false }}"><div style="left:0;top:0"><dc-import name="WindowView" scene="day" shade="{{f.shade}}" w="{{f.w}}" h="{{f.h}}" hint-size="{{f.w}}px,{{f.h}}px"></dc-import></div></sc-if>
+<sc-if value="{{f.isStampC}}" hint-placeholder-val="{{ false }}"><div style="left:0;top:0;width:100%;height:100%;background:var(--paper)"></div><div style="{{f.ws}}"><dc-import name="Stamp" shape="round" size="110" rot="0" hint-size="110px,110px"></dc-import></div></sc-if>
+<sc-if value="{{f.isFlap}}" hint-placeholder-val="{{ false }}"><div style="left:47px;top:18px"><dc-import name="SplitFlap" text="{{f.text}}" size="m" hint-size="96px,44px"></dc-import></div></sc-if>
+<sc-if value="{{f.isFlapMid}}" hint-placeholder-val="{{ false }}"><div class="sf-row" style="--sf-ink:#FFB547;left:47px;top:18px">
+<div class="sf-c" style="width:30px;height:44px"><div class="sf-h t" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">C</div></div><div class="sf-h b" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">C</div></div><div class="sf-hinge"></div></div>
+<div class="sf-c" style="width:30px;height:44px"><div class="sf-h t" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">D</div></div><div class="sf-h b" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">H</div></div><div class="sf-h t ft" style="width:30px;transform:rotateX(-64deg);z-index:3;filter:brightness(.8)"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">H</div></div><div class="sf-hinge"></div></div>
+<div class="sf-c" style="width:30px;height:44px"><div class="sf-h t" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">R</div></div><div class="sf-h b" style="width:30px"><div class="sf-ch" style="font-size:30px;height:44px;line-height:44px">R</div></div><div class="sf-hinge"></div></div>
+</div></sc-if>
+<sc-if value="{{f.isStampCss}}" hint-placeholder-val="{{ false }}"><div style="left:0;top:0;width:100%;height:100%;background:var(--paper);display:flex;align-items:center;justify-content:center"><div class="stamp" style="{{f.ss}}"><span>Landed</span><small>Paris · 10:42</small></div></div></sc-if>
+<sc-if value="{{f.isParts}}" hint-placeholder-val="{{ false }}"><div class="mt-pw" style="{{f.pst}}"><sc-for list="{{f.parts}}" as="q" hint-placeholder-count="12"><div class="{{q.c}}" style="{{q.s}}"><sc-if value="{{q.isSvg}}" hint-placeholder-val="{{ false }}"><svg width="{{q.W}}" height="{{q.H}}" viewBox="0 0 {{q.W}} {{q.H}}" style="display:block;overflow:visible"><path d="{{q.d}}" fill="none" stroke="{{q.stroke}}" stroke-width="{{q.sw}}" stroke-dasharray="{{q.dash}}" stroke-linecap="round"/></svg></sc-if>{{q.t}}</div></sc-for></div></sc-if>
+</div>
+<div class="mt-fc" style="max-width:{{f.cw}}px"><b>{{f.at}}</b> {{f.cap}}</div></div></sc-for>
+</div>
+<div class="mt-right">
+<div class="mt-tl" style="{{m.tlStyle}}">
+<sc-for list="{{m.axis}}" as="a" hint-placeholder-count="6"><i class="mt-ax" style="{{a.s}}"></i><span class="mt-axl" style="{{a.ls}}">{{a.t}}</span></sc-for>
+<sc-for list="{{m.tracks}}" as="r" hint-placeholder-count="5"><span class="mt-trk" style="{{r.ns}}">{{r.n}}</span><i class="{{r.bc}}" style="{{r.bs}}"></i><span class="mt-bl" style="{{r.ls}}">{{r.l}}</span></sc-for>
+</div>
+<div class="mt-cv"><svg class="mt-cvs" width="132" height="64" viewBox="0 0 132 64"><path d="M10 52H122" stroke="rgba(255,255,255,.14)" stroke-width="1"/><path d="M10 14H122" stroke="rgba(255,255,255,.14)" stroke-width="1" stroke-dasharray="2 3"/><path d="{{m.curve}}" fill="none" stroke="#6AB7FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="mt-cvn"><b>{{m.cvName}}</b>{{m.cvNote}}</div></div>
+<div class="mt-par"><sc-for list="{{m.params}}" as="p" hint-placeholder-count="8"><div class="mt-pr"><span class="mt-pk">{{p.k}}</span><span class="mt-pv">{{p.v}}</span></div></sc-for></div>
+</div>
+</section></sc-for>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<sc-for list="{{nat}}" as="n" hint-placeholder-count="2"><div class="mt-nat"><b>{{n.h}}</b><span>{{n.t}}</span></div></sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"set":{"editor":"enum","options":["a","b","c"],"default":"a"},"$preview":{"width":1440,"height":2200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const set = this.props.set || 'a';
+    const f1 = v => Math.round(v * 10) / 10;
+    // ---------- frame builders ----------
+    const FB = (w, h) => 'width:' + w + 'px;height:' + h + 'px';
+    const base = { br: false, isRitual: false, isCard: false, isTakeoff: false, isLanding: false, isUnlock: false, isWindow: false, isStampC: false, isFlap: false, isFlapMid: false, isStampCss: false, isParts: false, parts: [], pst: '', tear: 0, fly: 0, px: 0, py: 0, flip: false, t: 0, shade: 0, w: 0, h: 0, text: '', inner: '', ws: '', ss: '', box: '', cw: 0, at: '', cap: '' };
+    const mk = (o) => { const r = Object.assign({}, base, o); r.cw = +(r.box.match(/width:(\d+)/) || [0, 140])[1]; return r; };
+    const SW = 288, SC = SW / 1280, stage = 'left:0;top:0;transform:scale(' + SC.toFixed(4) + ');transform-origin:0 0';
+    const TX = 132, TH = 226, tkt = 'left:' + f1(66 - 748 * .3) + 'px;top:' + f1(-110 * .3) + 'px;transform:scale(.3);transform-origin:0 0';
+    const Rt = (tear, fly, crop, at, cap, t, br) => crop === 'ticket' ? mk({ isRitual: true, t: t == null ? 2400 : t, tear, fly, at, cap, br: !!br, box: FB(TX, TH), inner: tkt }) : mk({ isRitual: true, t: t == null ? 2400 : t, tear, fly, at, cap, br: !!br, box: FB(SW, 180), inner: stage });
+    const T = (t, at, cap) => Rt(0, 0, 'ticket', at, cap, t);
+    const CZ = .74, Cd = (px, py, flip, at, cap) => mk({ isCard: true, px, py, flip, at, cap, box: FB(280, 176), inner: 'left:' + f1((280 - 340 * CZ) / 2) + 'px;top:' + f1((176 - 214 * CZ) / 2) + 'px;transform:scale(' + CZ + ');transform-origin:0 0' });
+    const Sc = (kind, v, at, cap) => { const o = { at, cap, box: FB(SW, 180), inner: stage }; if (kind === 'takeoff') { o.isTakeoff = true; o.t = v; } if (kind === 'landing') { o.isLanding = true; o.fly = v; } if (kind === 'unlock') { o.isUnlock = true; o.t = v; } return mk(o); };
+    const Wn = (shade, at, cap) => mk({ isWindow: true, shade, w: 118, h: 170, at, cap, box: FB(118, 170) });
+    const Sp = (sc, op, rot, blur, at, cap) => mk({ isStampC: true, at, cap, box: FB(138, 138), ws: 'left:14px;top:14px;width:110px;height:110px;opacity:' + op + ';transform:scale(' + f1(sc * .84) + ') rotate(' + rot + 'deg);filter:blur(' + blur + 'px);transform-origin:50% 50%' });
+    const Fl = (text, at, cap) => mk({ isFlap: true, text, at, cap, box: FB(190, 80) });
+    const FlMid = (at, cap) => mk({ isFlapMid: true, at, cap, box: FB(190, 80) });
+    const SCss = (sc, op, bl, at, cap) => mk({ isStampCss: true, at, cap, box: FB(190, 118), ss: 'transform:rotate(-6deg) scale(' + f1(sc * .6) + ');opacity:' + op + ';filter:url(#mx-stamp) blur(' + bl + 'px);color:var(--stamp-ok);transform-origin:50% 50%;flex:none' });
+    const P = (w, h, parts, at, cap, z) => { z = z || 1; return mk({ isParts: true, parts, at, cap, box: FB(Math.round(w * z), Math.round(h * z)), pst: 'left:0;top:0;width:' + w + 'px;height:' + h + 'px;transform:scale(' + z + ');transform-origin:0 0' }); };
+    const q = (x, y, w, h, st, t, c) => ({ s: 'left:' + f1(x) + 'px;top:' + f1(y) + 'px;width:' + f1(w) + 'px;height:' + f1(h) + 'px;' + (st || ''), t: t || '', c: c || '', isSvg: false, W: 0, H: 0, d: '', stroke: '', sw: 0, dash: '' });
+    const sv = (x, y, W, H, d, stroke, sw, dash) => ({ s: 'left:' + x + 'px;top:' + y + 'px;width:' + W + 'px;height:' + H + 'px', t: '', c: '', isSvg: true, W, H, d, stroke, sw, dash: dash || '0 0' });
+    const tx = (x, y, t, st) => q(x, y, 160, 14, 'font:500 10.5px/14px var(--font-mono);color:var(--text-2);' + (st || ''), t);
+    // ---------- timeline builder: bar on the first line, label under it ----------
+    const COL = { a: '#6AB7FF', b: '#8BF3D8', c: '#FFB547', d: '#B49CFF', e: '#FF8FB1' };
+    const TL = (T, tracks, W) => {
+      W = W || 440; const NW = 164, TOT = NW + W + 24, X = ms => NW + ms / T * W, PITCH = 36, TOP = 28, rows = tracks.length, H = TOP + rows * PITCH + 2, axis = [];
+      const step = T <= 700 ? 100 : T <= 1500 ? 250 : T <= 2600 ? 500 : T <= 6500 ? 1000 : 2000;
+      for (let t = 0; t <= T + 1; t += step) axis.push({ s: 'left:' + f1(X(t)) + 'px;top:16px;height:' + (H - 16) + 'px', ls: 'left:' + f1(X(t)) + 'px;top:2px', t: t >= 1000 && step >= 500 ? (t / 1000) + ' s' : t + ' ms' });
+      const tr = tracks.map((r, i) => {
+        const y = TOP + i * PITCH, a = r[1], b = r[2], pt = b === a, col = COL[r[4] || 'a'], x0 = X(a), w = Math.max(3, X(b) - X(a));
+        const est = r[3].length * 6.4, lx = Math.max(NW, Math.min(x0 - 4, TOT - est));
+        return { n: r[0], ns: 'left:0;top:' + (y - 1) + 'px', bc: pt ? 'mt-pt' : 'mt-bar', bs: pt ? 'left:' + f1(x0 - 4) + 'px;top:' + (y + 1) + 'px;background:' + col : 'left:' + f1(x0) + 'px;top:' + (y + 1) + 'px;width:' + f1(w) + 'px;background:' + col + ';opacity:.92', l: r[3], ls: 'left:' + f1(lx) + 'px;top:' + (y + 14) + 'px' };
+      });
+      return { axis, tracks: tr, tlStyle: 'height:' + H + 'px;width:' + TOT + 'px' };
+    };
+    // ---------- curves ----------
+    const bez = (a, b, c, d) => { const pts = []; const B = (t, p1, p2) => 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t; for (let i = 0; i <= 40; i++) { const t = i / 40; pts.push((10 + B(t, a, c) * 112).toFixed(1) + ' ' + (52 - B(t, b, d) * 38).toFixed(1)); } return 'M' + pts.join('L'); };
+    const spring = (r, z) => { const w = 2 * Math.PI / r, wd = w * Math.sqrt(Math.max(1e-6, 1 - z * z)); return t => 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t)); };
+    const spr = (r, z) => { const f = spring(r, z), Tm = r * 2.4, pts = []; for (let i = 0; i <= 60; i++) { pts.push((10 + i / 60 * 112).toFixed(1) + ' ' + (52 - f(i / 60 * Tm) * 38).toFixed(1)); } return 'M' + pts.join('L'); };
+    const stp = n => { let d = ''; for (let i = 0; i < n; i++) { const x0 = 10 + i / n * 112, x1 = 10 + (i + 1) / n * 112, y0 = 52 - i / n * 38, y1 = 52 - (i + 1) / n * 38; d += (i ? 'L' : 'M') + x0.toFixed(1) + ' ' + y0.toFixed(1) + 'C' + (x0 + (x1 - x0) * .3).toFixed(1) + ' ' + y1.toFixed(1) + ' ' + (x0 + (x1 - x0) * .6).toFixed(1) + ' ' + y1.toFixed(1) + ' ' + x1.toFixed(1) + ' ' + y1.toFixed(1); } return d; };
+    const smooth = bez(.4, 0, .6, 1);
+    const SNAP = spr(.32, .82), SMOOTH = spr(.5, .86), BOUNCY = spr(.55, .68);
+    const M = (no, title, trigger, frames, T, tracks, cv, params) => Object.assign({ no, title, trigger, frames, curve: cv[0], cvName: cv[1], cvNote: cv[2], params: params.map(p => ({ k: p[0], v: p[1] })) }, TL(T, tracks));
+    const all = {};
+
+    all.m1 = M('01', 'Ticket printing', 'Check in · ⌘⏎ · §2.2', [T(300, '300 ms', 'Step 1 of 14. Head line leads the paper.'), T(800, '800 ms', 'Step 6. Ink darkens behind the head.'), T(1300, '1,300 ms', 'Step 11. Barcode still blank.'), T(2100, '2,100 ms', 'Settled. Barcode and serial were the last to emerge.')], 2100,
+      [['LED blink', 0, 170, '60 on · 50 off · 60 on', 'c'], ['Feed, 14 steps', 200, 1796, '114 ms each = 84 ease-out + 30 hold', 'a'], ['Heat veil', 200, 2060, '120 pt cream gradient trails the paper', 'e'], ['Barcode, serial emerge', 1570, 1796, 'last two steps (paper feeds top first)', 'b'], ['Settle bounce', 1800, 2100, '6 pt sine · ±1.5° seeded', 'a'], ['Finish tick', 1800, 1800, 'heavier tick, soft sound', 'c']],
+      [stp(14), 'Stepped ease-out cubic', '14 steps · 84 ms ease-out [.215 .61 .355 1] then 30 ms hold'],
+      [['Trigger', 'Check in. The pass cannot be skipped by accident; Space or the Skip button jumps to the end.'], ['Duration', '2.1 s from Check in to settled (LED 0–200 ms, feed 200–1,796, settle 1,800–2,100)'], ['Haptic', '14 trackpad ticks (alignment), one heavier tick at the settle'], ['Sound', 'Printer: stepper chirp ×14 on a paper-slide bed, tick at the end (see A01 Sound spec)'], ['Reduce Motion', 'No printer. The pass appears in place with a 200 ms cross-fade.'], ['Native', 'KeyframeAnimator, 14 CubicKeyframe(84 ms) + LinearKeyframe(30 ms); mask the paper to the slit.']]);
+
+    all.m2 = M('02', 'Ticket tear', 'Drag the stub · Space or Return · §2.3', [Rt(.3, 0, 'ticket', '30 %', 'Stub follows the pointer; the jagged edge opens, light tick every 10 %.'), Rt(.72, 0, 'ticket', '72 %', 'Threshold. Release below it and the partial tear stays.'), Rt(1, .35, 'stage', 'fly 35 %', 'Stub flies on an arc, spinning, shrinking.', 2400, true), Rt(1, .8, 'stage', 'fly 80 %', 'Arrives at the Wallet icon; thud and +1 badge.')], 2300,
+      [['Drag (follows pointer)', 0, 800, 'direct, velocity drives the rip sound', 'a'], ['Auto-complete ≥ 72 %', 800, 1060, '260 ms ease-in quad, rip accelerates', 'c'], ['Stub flight', 1060, 1780, '720 ms smoothstep · scale 1 → 0.1 · spin 320°', 'b'], ['Thud + “+1” badge', 1780, 1780, 'Wallet icon bounce, 150 Hz thump', 'e'], ['Pass slides to pin', 1780, 2200, '420 ms Smooth spring', 'd']],
+      [smooth, 'Smoothstep (flight)', 'u² (3 − 2u) · the drag itself is 1 : 1 with the pointer'],
+      [['Trigger', 'Drag the stub sideways, or press the visible “Tear” button, Space or Return.'], ['Threshold', '≥ 72 % auto-completes with the drag velocity and spin; below it the stub stays attached.'], ['Haptic', 'Light tick every 10 %, release tick at the thud.'], ['Sound', 'Paper rip: noise → bandpass 1.5–4 kHz, gain and pitch follow drag velocity, 150 Hz thump at completion.'], ['Reduce Motion', 'Quick fade of the stub, rip sound only.'], ['Native', 'DragGesture + seeded Path; matchedGeometryEffect into the sidebar Wallet icon.']]);
+
+    all.m3 = M('03', 'Card tilt and flip', 'Pointer over a card · click · §2.4', [Cd(0, 0, false, 'rest', 'Flat. Glare off, shadow straight down.'), Cd(-.4, -.3, false, 'pointer top-left', 'rotateY −11.2°, rotateX +8.4°, glare top-left.'), Cd(.4, .3, false, 'pointer bottom-right', 'Foil hue shifts +48°, edge glint right.'), Cd(0, 0, true, 'flipped', 'Back face: stripe, stats, signature.')], 800,
+      [['Tilt tracking', 0, 90, '90 ms linear per pointer move', 'a'], ['Lift +10 pt', 0, 320, 'Snappy spring', 'b'], ['Glare fade-in', 0, 420, 'standard ease', 'e'], ['Release to rest', 0, 650, 'Smooth spring', 'd'], ['Flip 180°', 0, 700, 'Bouncy spring, parts hide backface', 'c']],
+      [BOUNCY, 'Bouncy spring', 'response 0.55 · damping 0.68 · ~5 % overshoot, used for the flip'],
+      [['Trigger', 'Pointer move tilts, click or Space flips, Esc returns to the carousel.'], ['Range', 'rotateY = pointerX × 28°, rotateX = −pointerY × 28°; ±14° at the edge, perspective 900.'], ['Haptic', 'None while tilting. Light tick when the flip lands.'], ['Sound', 'Tilt: none. Flip: soft whoosh, noise swept 400 → 1200 Hz in 250 ms.'], ['Reduce Motion', 'No tilt. Flip becomes a 200 ms cross-fade between faces.'], ['Native', '.rotation3DEffect(perspective: 1/9) + .onContinuousHover; foil via Metal colorEffect.']]);
+
+    // M4: ruler and range ring
+    const ring = (r, x, lab, at, cap) => P(190, 150, [q(95 - r, 54 - r, r * 2, r * 2, 'border:2px solid #6AB7FF;border-radius:50%;background:rgba(106,183,255,.12)'), q(91, 50, 8, 8, 'border-radius:50%;background:#fff'), q(16, 119, 158, 8, 'background:repeating-linear-gradient(90deg,rgba(255,255,255,.4) 0 1px,transparent 1px 8px)'), q(16, 126, 158, 1, 'background:rgba(255,255,255,.3)'), q(x - 7, 116, 14, 14, 'border-radius:50%;background:#F3F5FA;box-shadow:0 0 0 3px rgba(106,183,255,.55)'), tx(x - 30, 132, lab, 'width:60px;text-align:center')], at, cap);
+    all.m4 = M('04', 'Ruler dial and range ring', 'Drag the range ruler · ← → · Plan', [ring(14, 40, '400 km', '400 km', 'Ring is a 28 pt disc around the origin.'), ring(30, 90, '1,200 km', '1,200 km', 'Destination cards re-sort by closeness to the range.'), ring(52, 150, '3,000 km', '3,000 km', 'Ring grows with the map zoom so it never clips.')], 600,
+      [['Knob follows pointer', 0, 600, 'direct, detent every 50 km', 'a'], ['Range ring resize', 0, 320, 'Snappy spring', 'b'], ['Cards re-sort', 80, 520, '40 ms stagger, 200 ms each', 'd'], ['Map zoom', 120, 520, 'standard ease 400 ms', 'e'], ['Detent tick', 0, 0, 'every 50 km', 'c']],
+      [SNAP, 'Snappy spring', 'response 0.32 · damping 0.82 · ~2 % overshoot'],
+      [['Trigger', 'Drag the ruler, or focus it and press ← → (50 km), ⇧← ⇧→ (250 km).'], ['Range', '50 km to 9,000 km on a log-feeling scale; the 45 min default is 348 km.'], ['Haptic', 'Alignment tick at each 50 km detent, stronger tick at 500 km multiples.'], ['Sound', 'None. Optional 12 ms UI tick when “UI sounds” is on.'], ['Reduce Motion', 'Ring and cards change at once, with a 200 ms cross-fade.'], ['VoiceOver', '“Range, 1,200 kilometres, adjustable. Swipe up or down to change.”']]);
+
+    // M5: tag selection
+    const arcFrame = (sc, d, at, cap) => P(190, 130, [q(24, 96, 8, 8, 'border-radius:50%;background:#FFB547'), q(150, 36, 8, 8, 'border-radius:50%;background:#fff'), sv(0, 0, 190, 130, 'M28 100 Q70 12 154 40', '#6AB7FF', 2.2, d), q(54, 58, 62, 30, 'transform:scale(' + sc + ');transform-origin:50% 50%', 'CDG', 'tag')], at, cap);
+    all.m5 = M('05', 'Tag selection', 'Click a destination tag', [arcFrame(.94, '0 300', '0 ms', 'Press: tag compresses to 0.94.'), arcFrame(1.14, '90 300', '120 ms', 'Pop: overshoot 1.14, arc draws from the origin.'), arcFrame(1, '300 300', '420 ms', 'Settled. Arc complete, dot lands on the destination.')], 420,
+      [['Tag pop', 0, 420, 'Bouncy spring · scale 0.94 → 1.14 → 1', 'a'], ['Arc draw', 60, 420, 'stroke-dashoffset, standard ease', 'b'], ['Destination dot', 300, 420, 'fade + scale 0.6 → 1', 'c'], ['Card lifts 6 pt', 0, 320, 'Snappy', 'd'], ['Selection tick', 120, 120, 'haptic', 'e']],
+      [BOUNCY, 'Bouncy spring', 'response 0.55 · damping 0.68 · arc uses standard [.2 0 0 1]'],
+      [['Trigger', 'Click, Return or Space on a destination tag.'], ['Duration', '420 ms to settled; the arc is drawn in 360 ms starting at 60 ms.'], ['Haptic', 'One alignment tick at the peak of the pop.'], ['Sound', 'None. UI sound: 12 ms click.'], ['Reduce Motion', 'No pop. The arc and the tag cross-fade in over 200 ms.'], ['Native', 'sensoryFeedback(.selection), .animation(.bouncy), Shape.trim(from: 0, to:) for the arc.']]);
+
+    // M6: seat select
+    const seats = (x0, y0) => { const a = []; for (let r = 0; r < 3; r++) for (let c = 0; c < 6; c++) a.push(q(x0 + c * 17, y0 + r * 17, 14, 14, 'border-radius:4px;background:' + (r === 0 && c === 0 ? 'transparent' : 'rgba(255,255,255,.14)'))); return a; };
+    const tk = (glow) => [q(112, 14, 66, 42, 'border-radius:8px;background:#F5F0E6;box-shadow:0 6px 14px rgba(0,0,0,.4)' + (glow ? ',0 0 0 3px rgba(106,183,255,.7)' : '')), tx(118, 18, 'SEAT', 'color:rgba(20,17,15,.62);font-size:9px;width:40px'), q(118, 31, 40, 18, 'font:500 14px/18px var(--font-mono);color:#14110F', glow ? '1A' : '—')];
+    all.m6 = M('06', 'Seat select', 'Click a seat · S12', [P(190, 90, seats(6, 18).concat(tk(false), [q(6, 18, 14, 14, 'border-radius:4px;background:#6AB7FF;transform:scale(.88)')]), '0 ms', 'Seat 1A pressed, scale 0.88.'), P(190, 90, seats(6, 18).concat(tk(false), [q(76, 14, 20, 20, 'border-radius:5px;background:#6AB7FF;box-shadow:0 8px 16px rgba(0,0,0,.45);transform:scale(1.1)')]), '260 ms', 'In flight between seat map and ticket (matched geometry).'), P(190, 90, seats(6, 18).concat(tk(true)), '520 ms', 'Lands in the ticket seat field; the field glows.')], 560,
+      [['Matched geometry', 0, 520, 'Smooth spring · response 0.5', 'a'], ['Seat scale 0.88 → 1.1 → 1', 0, 360, 'Snappy', 'b'], ['Ticket field glow', 380, 560, '180 ms fade in, 1 pt ring', 'c'], ['Landing tick', 460, 460, 'alignment', 'e']],
+      [SMOOTH, 'Smooth spring', 'response 0.5 · damping 0.86 · no visible overshoot'],
+      [['Trigger', 'Click or Return on a free seat; arrows move between seats.'], ['Duration', '520 ms'], ['Haptic', 'Alignment tick when the seat lands in the ticket.'], ['Sound', 'None.'], ['Reduce Motion', 'The seat field updates with a 200 ms cross-fade.'], ['Native', 'matchedGeometryEffect(id: seat, in: namespace) across the seat map and the ticket preview.']]);
+
+    // M7: take-off
+    all.m7 = M('07', 'Take-off', 'After the gate · ≈ 6 s · S15', [Sc('takeoff', 600, '0.6 s', 'Taxi. Runway lights, plane at the threshold.'), Sc('takeoff', 2400, '2.4 s', 'Take-off roll. Speed blur, camera shake.'), Sc('takeoff', 3900, '3.9 s', 'Rotate. Nose up, ground texture drops.'), Sc('takeoff', 5400, '5.4 s', 'Climb. Satellite imagery fades to the map.')], 6000,
+      [['Taxi', 0, 1200, 'hold, lights pulse', 'a'], ['Roll', 1200, 3200, 'accelerate 0 → 158 kt (u²)', 'b'], ['Camera shake', 1200, 3400, '0.9 pt sine, amplitude × speed', 'e'], ['Rotate and lift-off', 3200, 5600, 'height eased 1.35 power', 'c'], ['Cross-fade to map', 4300, 5200, '900 ms smoothstep', 'd'], ['Boarding-complete chime', 5600, 5600, 'optional', 'e']],
+      [smooth, 'Smoothstep', 'Roll is u²; climb is smoothstep^1.35 so it leaves the ground late'],
+      [['Trigger', 'Automatically after the gate; Skip (Esc) is always available.'], ['Duration', '6 s: taxi 1.2 · roll 2.0 · rotate 1.2 · climb 1.6'], ['Haptic', 'None. A soft tick at lift-off.'], ['Sound', 'Cabin hum rises with speed; optional boarding-complete chime at the end.'], ['Reduce Motion', 'A 200 ms cross-fade from gate to cruise.'], ['Native', 'TimelineView(.animation) driving a Canvas over MapKit satellite imagery; time of day from the real sun.']]);
+
+    // M8: phase change (dots at 16, 56, 96, 136, 176)
+    const DX = [16, 56, 96, 136, 176];
+    const phase = (x, la, lb, at, cap) => P(190, 100, [q(16, 52, 160, 2, 'background:rgba(255,255,255,.2)'), q(16, 52, x - 16, 2, 'background:#6AB7FF')].concat(DX.map((d, i) => q(d - 4, 49, 8, 8, 'border-radius:50%;background:' + (d <= x + 1 ? '#6AB7FF' : 'rgba(255,255,255,.3)'))), [q(x - 7, 46, 14, 14, 'border-radius:50%;background:#F3F5FA;box-shadow:0 0 0 4px rgba(106,183,255,.45)'), q(16, 18, 120, 16, 'font:600 13px/16px var(--font-ui);color:#F3F5FA;opacity:' + la, 'Take-off'), q(16, 18, 120, 16, 'font:600 13px/16px var(--font-ui);color:#F3F5FA;opacity:' + lb, 'Cruise')]), at, cap);
+    all.m8 = M('08', 'Phase change', 'Flight enters a new phase', [phase(16, 1, 0, '0 ms', 'Dot rests on Take-off, label visible.'), phase(38, .5, .5, '200 ms', 'Dot glides; the two labels cross-fade in place, nothing moves.'), phase(56, 0, 1, '520 ms', 'Dot settles on Cruise; label rests.')], 600,
+      [['Dot glides along the timeline', 0, 520, 'Smooth spring', 'a'], ['Old label fades out', 0, 160, '120 ms standard', 'b'], ['New label fades in', 160, 360, '200 ms standard', 'c'], ['Phase chime', 0, 0, 'soft, only if “Announcements” is on', 'e']],
+      [SMOOTH, 'Smooth spring', 'The label never moves; it only cross-fades'],
+      [['Trigger', 'Take-off 0 %, Climb 8 %, Cruise 15 %, Descent 85 %, Landing 97 % of the flight time.'], ['Duration', '520 ms'], ['Haptic', 'None.'], ['Sound', 'Seatbelt chime (880 → 660 Hz) at descent when announcements are on.'], ['Reduce Motion', 'Dot jumps; label cross-fades over 200 ms.'], ['Native', 'matchedGeometryEffect for the dot, .contentTransition(.opacity) for the label.']]);
+
+    // M9: landing stamp
+    all.m9 = M('09', 'Landing stamp', 'Wheels down · S22', [SCss(1.6, .22, 1.6, '0 ms', 'Starts at 160 % scale, faint, blurred.'), SCss(.96, 1, .2, '60 ms', 'Thump. Slightly under 100 %, fully inked.'), SCss(1, .92, 0, '180 ms', 'Bleed. Ink settles at 92 % and the blur clears.')], 420,
+      [['Drop to 96 %', 0, 60, 'accelerate [.3 0 .8 .15]', 'a'], ['Bleed to 100 %', 60, 180, '120 ms [.3 0 .2 1]', 'b'], ['Thump', 0, 120, '80 → 45 Hz sine', 'c'], ['Noise click', 0, 3, '3 ms', 'e'], ['Room tail', 120, 420, 'soft reverb tail', 'd'], ['Haptic', 60, 60, 'heavy tick', 'e']],
+      [bez(.3, 0, .2, 1), 'cubic-bezier(.3, 0, .2, 1)', 'One curve across 180 ms; keyframes at 0, 34 %, 100 %'],
+      [['Trigger', 'The plane touches down on the cruise map.'], ['Duration', '180 ms visual, 420 ms with the sound tail'], ['Haptic', 'Heavy tick at 60 ms, with the thump.'], ['Sound', 'Stamp thump: 80 → 45 Hz sine over 120 ms, 3 ms noise click, soft room tail.'], ['Reduce Motion', 'The stamp fades in over 200 ms. The thump stays.'], ['Native', 'KeyframeAnimator with three keyframes; ink bleed is a blur(0.2 → 0) plus the mx-stamp displacement filter.']]);
+
+    // M10: wallet-in
+    all.m10 = M('10', 'Wallet-in', 'Add the ticket to the Wallet · S23', [Sc('landing', .15, '110 ms', 'The torn ticket leaves its place.'), Sc('landing', .5, '360 ms', 'Arc toward the Wallet icon, shrinking, spinning.'), Sc('landing', .9, '650 ms', 'Almost at the icon; fades at 86 %.'), Sc('landing', 1, '720 ms', 'Thud. The “+1” badge pops on the icon.')], 1100,
+      [['Shrink and fly on an arc', 0, 720, 'smoothstep · scale 1 → 0.1', 'a'], ['Spin', 0, 720, '320° eased', 'd'], ['Fade out', 620, 720, 'last 14 %', 'e'], ['Wallet thud', 720, 720, '150 Hz soft thump', 'c'], ['“+1” badge', 720, 1100, 'Bouncy pop, 380 ms', 'b'], ['Toast “Added to Wallet”', 720, 1100, 'Smooth, slides in 20 pt', 'c']],
+      [smooth, 'Smoothstep', 'Path is a quadratic Bézier; control point 150 pt above both ends'],
+      [['Trigger', 'Add to Wallet, or the end of the landing summary.'], ['Duration', '720 ms flight, 1.1 s with badge and toast'], ['Haptic', 'Release tick at the thud.'], ['Sound', 'Wallet thud: soft 150 Hz sine, 120 ms.'], ['Reduce Motion', 'The ticket fades; the badge pops without scale.'], ['Native', 'matchedGeometryEffect between the ticket and the sidebar Wallet icon; badge is an overlay with .symbolEffect(.bounce).']]);
+
+    // M11: tier-up unbox
+    all.m11 = M('11', 'Tier-up unbox', 'Crossing a distance threshold · S33', [Sc('unlock', 200, '0.2 s', 'Scrim comes up to 78 %.'), Sc('unlock', 1400, '1.4 s', 'New card rises; ring pulses; “Congratulations” types.'), Sc('unlock', 2900, '2.9 s', 'Confetti drifts, next-card progress appears.')], 4600,
+      [['Scrim to 78 %', 0, 300, 'standard', 'a'], ['Card rises from the dock', 400, 1300, '900 ms smoothstep', 'b'], ['Progress ring pulse', 1000, 3200, 'accent glow, 1.4 s period', 'c'], ['“Congratulations” types', 1300, 1900, '40 ms per letter', 'd'], ['Confetti ×12', 900, 4420, '2.2 s each, 120 ms stagger', 'e'], ['Chime', 1300, 1300, 'boarding chime C5 E5 G5', 'c']],
+      [BOUNCY, 'Bouncy spring', 'Card reveal: response 0.55 · damping 0.68'],
+      [['Trigger', 'A flight crosses a tier threshold.'], ['Duration', '4.6 s; skippable with Return after 1 s'], ['Haptic', 'Heavy tick when the card lands.'], ['Sound', 'Boarding chime (C5 E5 G5) at 1.3 s.'], ['Reduce Motion', 'Card cross-fades in; no confetti.'], ['Native', 'KeyframeAnimator for the rise; confetti as a Canvas particle layer with 12 seeded pieces.']]);
+
+    // M12: passport stamp
+    all.m12 = M('12', 'Passport stamp', 'A flight lands in a new country · S34', [Sp(1.45, .15, -12, 0, '0 ms', 'Starts large, faint, rotated 6° past rest.'), Sp(.98, 1, -6, 0, '55 ms', 'Thump into the page, slightly small.'), Sp(1.05, .96, -6, .5, '156 ms', 'Ink spreads; a hair large, 0.5 pt blur.'), Sp(1, .94, -6, 0, '460 ms', 'Settled at 94 % ink, blur gone.')], 700,
+      [['Drop', 0, 55, 'scale 1.45 → 0.98', 'a'], ['Spread', 55, 156, 'scale → 1.05, blur 0.5', 'b'], ['Settle', 156, 460, '[.2 0 0 1]', 'c'], ['Stamp thump', 0, 120, 'same recipe as landing', 'e'], ['Page shadow dent', 40, 300, '1 pt, fades', 'd']],
+      [bez(.2, 0, 0, 1), 'standard [.2 0 0 1]', '460 ms with keyframes at 12 % and 34 %'],
+      [['Trigger', 'First time a country, or a new airport, appears on a landed ticket.'], ['Duration', '460 ms'], ['Haptic', 'Heavy tick at 55 ms.'], ['Sound', 'Stamp thump, shared with the landing stamp.'], ['Reduce Motion', 'Stamp fades in over 200 ms.'], ['Native', 'The same stamp view as the landing; four shapes (round, oval, octagon, rosette), seeded wear.']]);
+
+    // M13: split-flap
+    all.m13 = M('13', 'Split-flap cascade', 'Flight number and gate change · Gate, Together', [Fl('LHR', '0 ms', 'Old value at rest.'), FlMid('180 ms', 'Cell 1 has landed, cell 2 is folding, cell 3 waits its 40 ms turn.'), Fl('CDG', '520 ms', 'New value at rest.')], 700,
+      [['Top flap falls', 0, 62, '62 ms [.5 0 1 .6]', 'a'], ['Bottom flap lands', 62, 124, '62 ms [0 .4 .5 1]', 'b'], ['Cascade stagger', 0, 320, '40 ms per cell, left → right', 'c'], ['Clack', 62, 62, '2.6 kHz noise, 8 ms', 'e'], ['Row settled', 520, 520, 'last cell', 'd']],
+      [bez(.5, 0, 1, .6), 'ease-in then ease-out', 'Top half accelerates into the fold; the bottom half decelerates'],
+      [['Trigger', 'Any text change: flight number, gate, boarding time, route codes.'], ['Duration', '124 ms per flip, up to 8 flips per cell on the way to the new character'], ['Haptic', 'None.'], ['Sound', 'Flap clack, rate-limited to 25 per second.'], ['Reduce Motion', 'The text cross-fades over 200 ms. No flaps.'], ['Native', 'A ForEach of cells with .rotation3DEffect(axis: x); each half animates with a custom curve.']]);
+
+    // M14: window shade
+    all.m14 = M('14', 'Window shade pull', 'Drag the shade handle · ↑ ↓ · S17', [Wn(0, '0 %', 'Open.'), Wn(.4, '40 %', 'Dragged: 1 : 1 with the pointer.'), Wn(.85, '85 %', 'Light leaks under the edge past 80 %.'), Wn(1, '100 %', 'Closed. Lines on the shade, handle at the sill.')], 700,
+      [['Drag', 0, 700, '1 : 1 with the pointer', 'a'], ['Release snap', 0, 460, 'Smooth spring to 0 or 100 %', 'b'], ['Light leak', 0, 460, 'opacity .35 → 1 between 80 and 99 %', 'c'], ['Scene dims', 0, 460, 'brightness × (1 − shade)', 'd'], ['Detent tick', 0, 0, 'at 50 %', 'e']],
+      [SMOOTH, 'Smooth spring', 'height 460 ms var(--spring-smooth) on release'],
+      [['Trigger', 'Drag the handle, click it, or focus it and press ↑ ↓ (10 %), Space (toggle).'], ['Duration', '460 ms after release'], ['Haptic', 'Alignment tick crossing 50 %.'], ['Sound', 'None. Optional cabin “shade” whoosh is a UI sound.'], ['Reduce Motion', 'The shade opens and closes with a 200 ms cross-fade.'], ['Native', 'DragGesture on a Rectangle mask; the scene is a MapKit satellite view in a window-shaped clip.']]);
+
+    // M15: mini window snap (screen rect 8..182 × 8..112, window 70×42, 4 px edge margin)
+    const snap = (x, y, ghost, sh, at, cap) => P(190, 120, [q(8, 8, 174, 104, 'border-radius:8px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)'), q(108, 66, 70, 42, 'border-radius:6px;border:1px dashed rgba(106,183,255,.7);box-sizing:border-box;opacity:' + (ghost ? 1 : .3)), q(x, y, 70, 42, 'border-radius:8px;background:#233456;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),0 ' + sh + 'px ' + (sh * 2) + 'px rgba(0,0,0,.5)')], at, cap);
+    all.m15 = M('15', 'Mini window snap', 'Release the mini map near a corner · M02', [snap(56, 24, true, 14, '0 ms', 'Dragging. Corner target appears within 120 pt.'), snap(112, 70, true, 8, '200 ms', 'Release. The spring overshoots by about 4 pt.'), snap(108, 66, false, 3, '380 ms', 'Settled 16 pt from the screen edges.')], 400,
+      [['Corner ghost appears', 0, 120, 'fade, 120 ms', 'b'], ['Spring to corner', 0, 380, 'Smooth spring, left and top', 'a'], ['Shadow lowers', 0, 380, '14 → 3 pt', 'd'], ['Corner ghost fades', 260, 380, 'fade out', 'c']],
+      [SMOOTH, 'Smooth spring', 'response 0.5 · damping 0.86 on window left and top'],
+      [['Trigger', 'Release the title area within 120 pt of a corner; Option disables snapping.'], ['Duration', '380 ms'], ['Haptic', 'Alignment tick when the window lands.'], ['Sound', 'None.'], ['Reduce Motion', 'The window jumps to the corner with a 200 ms opacity dip.'], ['Native', 'NSWindow.setFrame(animate:) with a custom NSAnimationContext timing function from the Smooth spring.']]);
+
+    // M16: sheet present
+    const sheet = (sc, bl, scrim, bg, at, cap) => P(220, 130, [q(0, 0, 220, 130, 'background:#121A2E;transform:scale(' + bg + ');transform-origin:50% 50%'), q(24, 18, 80, 8, 'border-radius:4px;background:rgba(255,255,255,.2)'), q(24, 34, 140, 6, 'border-radius:3px;background:rgba(255,255,255,.12)'), q(0, 0, 220, 130, 'background:rgba(6,8,13,' + scrim + ')'), q(44, 22, 132, 92, 'border-radius:14px;background:#1C2438;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 12px 30px rgba(0,0,0,.5);transform:scale(' + sc + ');transform-origin:50% 50%;filter:blur(' + bl + 'px);opacity:' + (sc < .97 ? .7 : 1)), q(60, 36, 70, 8, 'border-radius:4px;background:rgba(255,255,255,.4);transform:scale(' + sc + ')')], at, cap, .86);
+    all.m16 = M('16', 'Sheet present', 'Any sheet: Settings, Pro, Plan details', [sheet(.96, 8, 0, 1, '0 ms', 'Sheet 96 %, blurred, content behind at 100 %.'), sheet(.985, 3, .35, .99, '120 ms', 'Scrim rises, background eases to 99 %.'), sheet(1, 0, .55, .98, '240 ms', 'Sheet sharp at 100 %; scrim 55 %, background 98 %.')], 320,
+      [['Sheet scale 0.96 → 1', 0, 320, 'Smooth spring', 'a'], ['Blur-in 8 → 0 pt', 0, 240, 'standard ease', 'b'], ['Scrim 0 → 55 %', 0, 200, 'standard ease', 'c'], ['Background to 98 %', 0, 320, 'Smooth spring', 'd']],
+      [SMOOTH, 'Smooth spring', 'Dismiss runs the reverse in 200 ms with the accelerate curve'],
+      [['Trigger', 'Opening any sheet; Esc closes it.'], ['Duration', '240 ms blur-in, 320 ms settle'], ['Haptic', 'None.'], ['Sound', 'None.'], ['Reduce Motion', 'A 200 ms cross-fade with no scaling.'], ['Native', '.sheet with presentationBackground(.thinMaterial) and a custom transition: .scale(0.96).combined(with: .opacity).']]);
+
+    const sets = {
+      a: { code: 'T01', title: 'Motion specs · printing, tear, card, ruler, tag', lede: 'Sixteen signature motions, designed as storyboards with a timeline to scale. This sheet covers the ticket ritual and the planning interactions.', ids: ['m1', 'm2', 'm3', 'm4', 'm5'] },
+      b: { code: 'T02', title: 'Motion specs · seat, take-off, phases, landing, wallet', lede: 'Seat select through the wallet flight: the part of the product that moves the most, and the part that has to stay calm.', ids: ['m6', 'm7', 'm8', 'm9', 'm10'] },
+      c: { code: 'T03', title: 'Motion specs · unlock, stamp, flap, shade, mini, sheet', lede: 'Rewards and objects that behave like objects: the stamp, the split-flap, the window shade, the mini window, the sheet.', ids: ['m11', 'm12', 'm13', 'm14', 'm15', 'm16'] }
+    }[set];
+    const nat = [{ h: 'Tokens', t: 'Durations 120 / 200 / 320 / 520 / 900–1,400 ms. Easing standard [.2 0 0 1], accelerate [.3 0 .8 .15]. Springs: Snappy (0.32, 0.82), Smooth (0.5, 0.86), Bouncy (0.55, 0.68), Heavy (0.7, 0.9). Nothing in the product animates for longer than 1.4 s except take-off, the unlock and the printer.' }, { h: 'Reduce Motion', t: 'Every spec lists its own alternative; the rule is the same everywhere: replace all movement with a 200 ms cross-fade, keep sound and haptics. Reduce Transparency and Increase Contrast do not change timing.' }];
+    return { code: sets.code, title: sets.title, lede: sets.lede, motions: sets.ids.map(i => all[i]), nat, screenLabel: sets.code + ' ' + sets.title };
+  }
+}
+</script>
+</body>
+</html>

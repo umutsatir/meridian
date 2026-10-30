@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C07 Flight HUD</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c7-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c7-frame{position:relative;overflow:hidden;border-radius:18px;box-shadow:inset 0 0 0 1px var(--stroke-hair),0 18px 40px rgba(0,0,0,.35)}
+.c7-cell .k{font:500 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-3)}
+.c7-cell .v{font:500 15px/20px var(--font-mono);margin-top:3px}
+.c7-pt{font:500 11px/1.4 var(--font-mono);color:var(--text-3)}
+.c7-tab{width:100%;border-collapse:collapse;font:400 13px/1.45 var(--font-ui)}
+.c7-tab th{text-align:left;font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding:0 14px 10px 0;border-bottom:1px solid var(--stroke-hair)}
+.c7-tab td{padding:9px 14px 9px 0;border-bottom:1px solid var(--stroke-hair);color:var(--text-2)}
+.c7-tab td:first-child{color:var(--text-1);font-weight:600}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C07 · §2.9 and §2.10</div>
+<h1 class="t-display" style="margin:0">Flight HUD, route line and plane</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">While you fly, the screen should feel like a quiet instrument. One huge number, one thin line, five small facts. The map does the talking; the controls wait at the edges.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>In context</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:32px">
+<div class="c7-st"><div class="c7-frame" style="width:563px;height:352px"><div style="transform:scale(.44);transform-origin:0 0;width:1280px;height:800px"><dc-import name="Flight" from="LHR" to="CDG" total="42" p=".45" hint-size="1280px,800px"></dc-import></div></div><div class="sh-cap">Cruise · 23 min left</div></div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}"><div class="c7-st"><div class="c7-frame" style="width:563px;height:352px"><div style="transform:scale(.44);transform-origin:0 0;width:1280px;height:800px"><dc-import name="Flight" from="LHR" to="CDG" total="42" p=".965" toast="true" hint-size="1280px,800px"></dc-import></div></div><div class="sh-cap">Last minute · amber, pulsing, “Prepare for landing”</div></div></sc-if>
+</div>
+<div class="sh-title"><h2>Parts</h2></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:44px 40px">
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Primary readout</div>
+<div class="glass" style="border-radius:28px;padding:20px 24px;width:100%"><div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">Time remaining</div><div class="mono" style="font-size:72px;line-height:72px;font-weight:500;letter-spacing:-.04em;margin-top:4px">23:18</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-bottom:6px"><span class="pill ok"><span class="dotp"></span>On time +0 min</span><span class="mono c2" style="font-size:12px">ETA 10:42 · Paris</span></div></div></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap"><span class="pill ok"><span class="dotp"></span>On time +0 min</span><span class="pill warn"><span class="dotp pulse"></span>Last minute</span><span class="pill"><span class="dotp"></span>Paused</span><span class="pill accent"><span class="dotp"></span>Together · 3 aboard</span></div>
+<div class="sh-note" style="max-width:420px">72 pt SF Mono Medium, tracking −4%. Pill states are info only, no red for “late” because there is no late. Reduce Motion stops the pulse.</div></div>
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Phase timeline</div>
+<sc-for list="{{phaseRows}}" as="r" hint-placeholder-count="3">
+<div style="width:100%"><div class="phase" style="--p:{{r.p}}"><i></i><b></b></div><div class="fl-phase"><sc-for list="{{r.ph}}" as="s" hint-placeholder-count="7"><span class="{{s.cls}}">{{s.t}}</span></sc-for></div></div>
+</sc-for>
+<div class="sh-note" style="max-width:420px">Boarding, Taxi, Take-off, Climb, Cruise, Descent, Landing. Completed phases dim to 70%; the current one is 600 weight, white.</div></div>
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Secondary data</div>
+<div class="glass" style="border-radius:22px;padding:16px 18px;width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 20px">
+<div class="c7-cell"><div class="k">Distance left</div><div class="v">187 km</div></div><div class="c7-cell"><div class="k">Ground speed</div><div class="v">812 km/h</div></div><div class="c7-cell"><div class="k">Altitude</div><div class="v">10,668 m</div></div><div class="c7-cell"><div class="k">Local CDG</div><div class="v">11:42</div></div><div class="c7-cell"><div class="k">Tailwind</div><div class="v">+36 km/h</div></div><div class="c7-cell"><div class="k">Heading</div><div class="v">142°</div></div></div>
+<div class="sh-note" style="max-width:420px">SF Mono 13/15 pt, plausible numbers derived from the route so they agree with each other. Labels are 11 pt caps in the third text tone.</div></div>
+</div>
+<div class="sh-row" style="gap:44px;align-items:flex-start">
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Side stacks · left and right</div>
+<div style="display:flex;gap:44px;align-items:flex-start">
+<div style="display:flex;flex-direction:column;gap:12px"><span class="btn-round glass glass-ctl"><svg class="ic ic18"><use href="./icons.svg#pause"></use></svg></span><span class="btn-round glass glass-ctl is-hover"><svg class="ic ic18"><use href="./icons.svg#sound"></use></svg></span><span class="btn-round glass glass-ctl on"><svg class="ic ic18"><use href="./icons.svg#lock"></use></svg></span></div>
+<div style="display:flex;flex-direction:column;gap:12px"><span class="btn-round glass glass-ctl on"><svg class="ic ic18"><use href="./icons.svg#navigate"></use></svg></span><span class="btn-round glass glass-ctl"><svg class="ic ic18"><use href="./icons.svg#route"></use></svg></span><span class="btn-round glass glass-ctl is-focus"><svg class="ic ic18"><use href="./icons.svg#layers"></use></svg></span><span class="btn-round glass glass-ctl is-disabled"><svg class="ic ic18"><use href="./icons.svg#window"></use></svg></span></div>
+<div style="display:flex;flex-direction:column;gap:12px;padding-top:44px"><span class="tip">Pause <span class="kbd">Space</span></span><span class="tip">Sound</span><span class="tip">Lock</span></div></div>
+<div class="sh-note" style="max-width:420px">40 pt round glass. Left: pause (becomes play), sound mixer, lock screen. Right: follow plane, route, map style, window view. States left to right in each stack: default, hover, on, focus, disabled. Tooltips appear after 600 ms.</div></div>
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Zoom slider</div><div style="display:flex;gap:30px;align-items:flex-start">
+<div class="glass" style="width:38px;height:150px;border-radius:19px;display:flex;flex-direction:column;align-items:center;padding:10px 0"><svg class="ic ic14 c2"><use href="./icons.svg#plus"></use></svg><div style="position:relative;width:4px;flex:1;border-radius:2px;background:var(--fill-3);margin:10px 0"><i style="position:absolute;left:0;right:0;bottom:0;height:35%;border-radius:2px;background:var(--accent-grad)"></i><b style="position:absolute;left:50%;bottom:35%;width:16px;height:16px;margin:0 0 -8px -8px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.45)"></b></div><svg class="ic ic14 c2"><use href="./icons.svg#minus"></use></svg></div>
+<div class="glass" style="width:38px;height:150px;border-radius:19px;display:flex;flex-direction:column;align-items:center;padding:10px 0;outline:2px solid var(--accent-1);outline-offset:2px"><svg class="ic ic14 c2"><use href="./icons.svg#plus"></use></svg><div style="position:relative;width:4px;flex:1;border-radius:2px;background:var(--fill-3);margin:10px 0"><i style="position:absolute;left:0;right:0;bottom:0;height:72%;border-radius:2px;background:var(--accent-grad)"></i><b style="position:absolute;left:50%;bottom:72%;width:16px;height:16px;margin:0 0 -8px -8px;border-radius:50%;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.45)"></b></div><svg class="ic ic14 c2"><use href="./icons.svg#minus"></use></svg></div></div>
+<div class="sh-note" style="max-width:300px">Only while following the plane. Pinch and ⌘ + / ⌘ − do the same.</div></div>
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Hold to land early</div>
+<sc-for list="{{holds}}" as="h" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:16px"><div class="glass" style="height:46px;border-radius:23px;padding:0 20px 0 8px;display:flex;align-items:center;gap:10px"><svg width="30" height="30" viewBox="0 0 30 30" style="transform:rotate(-90deg)"><circle cx="15" cy="15" r="12" fill="none" style="stroke:var(--fill-3)" stroke-width="3"/><circle cx="15" cy="15" r="12" fill="none" stroke="{{h.c}}" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{h.d}}"/></svg><span style="font:500 14px/1 var(--font-ui)">{{h.l}}</span></div><span class="sh-note">{{h.n}}</span></div></sc-for>
+<div class="sh-note" style="max-width:420px">1.5 s ring so it can’t happen by accident. Releasing early fills back in 200 ms. Sound: a rising tick; at 100% a short chime.</div></div>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Route line and plane marker</h2></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c7-st" style="gap:12px"><div class="c5-stage" style="position:relative;width:640px;height:300px;overflow:hidden;border-radius:22px;box-shadow:inset 0 0 0 1px var(--stroke-hair)"><dc-import name="MapLayer" w="640" h="300" map-style="terra" zoom="3.1" lat="50.2" lon="1" labels="true" hint-size="640px,300px"></dc-import>
+<svg width="640" height="300" style="position:absolute;left:0;top:0"><defs><linearGradient id="c7-tr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient><filter id="c7-bl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+<path d="M120 238 Q 250 120 380 130" fill="none" stroke="#6AB7FF" stroke-opacity=".3" stroke-width="8" stroke-linecap="round" filter="url(#c7-bl)"/><path d="M120 238 Q 250 120 380 130" fill="none" stroke="url(#c7-tr)" stroke-width="3" stroke-linecap="round"/>
+<path d="M380 130 Q 470 128 540 66" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5" stroke-dasharray="1 6" stroke-linecap="round"/></svg>
+<div class="origin" style="left:120px;top:238px"></div>
+<span class="tag" style="position:absolute;left:540px;top:66px;transform:translate(-50%,-50%)"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span>
+<div style="position:absolute;left:380px;top:130px;transform:translate(-50%,-50%)"><div style="position:absolute;left:-6px;top:4px;width:36px;height:36px;opacity:.35;filter:blur(3px);transform:rotate(80deg)"><dc-import name="Plane" variant="twin" size="36" color="#000" hint-size="64px,64px"></dc-import></div><div style="transform:rotate(80deg)"><dc-import name="Plane" variant="twin" size="36" hint-size="64px,64px"></dc-import></div></div>
+<div class="annot" style="position:absolute;left:150px;top:40px">trail 3 pt · glow 8 px at 30%</div><div class="annot" style="position:absolute;left:408px;top:150px">future path · dashed 1.5 pt</div><div class="annot" style="position:absolute;left:112px;top:262px">origin dot</div>
+</div><div class="sh-note" style="max-width:640px">Great-circle arc with an accent-gradient trail behind the plane and a thin dashed future path ahead. On satellite maps the glow rises to 40% so the line never gets lost in the imagery.</div></div>
+<div class="c7-st" style="gap:18px"><div class="sh-sub">Plane marker · 3 variants</div>
+<div style="display:flex;gap:34px;align-items:flex-end">
+<sc-for list="{{planes}}" as="p" hint-placeholder-count="3"><div class="c7-st" style="align-items:center"><div style="width:96px;height:96px;border-radius:20px;background:var(--m-sea);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px var(--stroke-hair)"><div style="transform:rotate(-30deg)"><dc-import name="Plane" variant="{{p.k}}" size="64" hint-size="64px,64px"></dc-import></div></div><dc-import name="Plane" variant="{{p.k}}" size="28" hint-size="28px,28px"></dc-import><div class="sh-cap">{{p.t}}</div></div></sc-for>
+</div>
+<div class="sh-note" style="max-width:380px">Drawn in-house, top-down, 28 pt on the map with a soft shadow. Navigation lights: red left, green right, white tail, blinking 1.8 s, off under Reduce Motion.</div></div>
+<div class="c7-st" style="gap:14px"><div class="sh-sub">Completed routes</div><dc-import name="Globe" size="300" lon="20" lat="35" routes="{{routes}}" pins="{{pins}}" visited="false" hint-size="300px,300px"></dc-import><div class="sh-note" style="max-width:300px">1.5 pt arcs in the scenario color at 60%, brighter and 3 pt on hover.</div></div>
+</div>
+<div class="sh-native"><b>Native</b><span>Map is MapKit with <span style="color:var(--text-1)">MapPolyline</span> for the trail and a Metal overlay for the glow; the plane is a <span style="color:var(--text-1)">MapAnnotation</span> rotated by the great-circle bearing, updated by a 1 Hz <span style="color:var(--text-1)">TimelineView</span>. The big number uses <span style="color:var(--text-1)">.monospacedDigit()</span> and <span style="color:var(--text-1)">.contentTransition(.numericText(countsDown: true))</span>.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const PN = ['Boarding', 'Taxi', 'Take-off', 'Climb', 'Cruise', 'Descent', 'Landing'];
+    const row = (p, pi) => ({ p, ph: PN.map((t, i) => ({ t, cls: i < pi ? 'done' : (i === pi ? 'cur' : '') })) });
+    const circ = 2 * Math.PI * 12;
+    const holds = [{ l: 'Hold to land early', d: '0 ' + circ.toFixed(1), c: 'var(--accent-1)', n: 'Idle' }, { l: 'Hold to land early', d: (circ * .45).toFixed(1) + ' ' + circ.toFixed(1), c: 'var(--accent-1)', n: 'Holding · 0.7 s' }, { l: 'Landing…', d: circ.toFixed(1) + ' ' + circ.toFixed(1), c: 'var(--ok)', n: 'Done · confirm sheet follows' }];
+    const planes = [{ k: 'twin', t: 'Twin-jet' }, { k: 'wide', t: 'Wide-body' }, { k: 'prop', t: 'Turboprop' }];
+    const routes = [{ a: 'LHR', b: 'CDG', c: '#B49CFF', w: 1.6 }, { a: 'LHR', b: 'AMS', c: '#FFB86B', w: 1.6 }, { a: 'CDG', b: 'FCO', c: '#7ADDB2', w: 1.6 }, { a: 'LHR', b: 'IST', c: '#FF8FB1', w: 3, o: .95 }, { a: 'AMS', b: 'ATH', c: '#7AA2FF', w: 1.6 }];
+    const pins = ['LHR', 'CDG', 'AMS', 'FCO', 'IST', 'ATH'].map(c => ({ code: c, label: false, r: 2.6 }));
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], phaseRows: [row(8, 0), row(55, 4), row(97, 6)], holds, planes, routes, pins };
+  }
+}
+</script>
+</body>
+</html>

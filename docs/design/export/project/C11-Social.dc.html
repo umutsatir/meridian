@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C11 Social components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c11-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c11-pax{display:flex;align-items:center;gap:8px;padding:0 12px 0 4px}
+.c11-line{position:relative;height:6px;border-radius:3px;background:var(--fill-3);width:100%}
+.c11-line i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--accent-grad)}
+.c11-line b{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--avc);box-shadow:0 0 0 2px var(--bg-1)}
+.c11-brd{border-radius:22px;background:#0B1020;padding:8px 22px;display:flex;flex-direction:column;gap:0}
+.c11-brow{display:flex;align-items:center;gap:22px;height:58px;border-bottom:1px solid rgba(255,255,255,.07)}
+.c11-brow:last-child{border-bottom:0}
+.c11-brow.is-hover{background:rgba(255,255,255,.04);margin:0 -22px;padding:0 22px}
+.c11-qr{width:112px;height:112px;border-radius:14px;background:#F3F5FA;padding:8px;box-sizing:border-box;position:relative}
+.c11-code{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 6px 0 12px;border-radius:12px;background:var(--fill-2);font:500 12px/1 var(--font-mono);color:var(--text-2)}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C11 · §2.15</div>
+<h1 class="t-display" style="margin:0">Social components</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">Flying together is quiet company, not a feed. Presence is a coloured dot, the passenger strip is one line, and the only public thing is a departures board. No likes, no ranking of people, nothing to perform.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Avatar and presence</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:36px;align-items:flex-end">
+<sc-for list="{{avs}}" as="a" hint-placeholder-count="6"><div class="c11-st" style="align-items:center"><span class="av {{a.sz}}" style="--avc:{{a.c}}">{{a.i}}<span class="pr {{a.pr}}"></span></span><div class="sh-cap">{{a.t}}</div><div class="sh-note" style="max-width:150px;text-align:center">{{a.n}}</div></div></sc-for>
+</div>
+<div class="sh-title"><h2>Passenger strip</h2></div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<sc-for list="{{strips}}" as="s" hint-placeholder-count="3"><div class="c11-st"><div class="glass e2" style="border-radius:26px;height:52px;padding:0 6px;display:flex;align-items:center"><sc-for list="{{s.pax}}" as="p" hint-placeholder-count="4"><div class="c11-pax"><span class="av" style="--avc:{{p.c}}">{{p.i}}<span class="pr {{p.pr}}"></span></span><div><div style="font:600 12px/14px var(--font-ui)">{{p.n}}</div><div class="mono c3" style="font-size:10px;line-height:12px">{{p.seat}} · {{p.st}}</div></div></div></sc-for></div><div class="sh-cap">{{s.t}}</div><div class="sh-note" style="max-width:420px">{{s.n}}</div></div></sc-for>
+</div>
+<div class="sh-title"><h2>Shared progress and landing toast</h2></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c11-st"><div class="glass e1" style="width:520px;border-radius:22px;padding:20px 22px;box-sizing:border-box;display:flex;flex-direction:column;gap:20px"><div class="eyebrow">Together · LHR to CDG</div><sc-for list="{{lines}}" as="l" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px"><span class="av sm" style="--avc:{{l.c}}">{{l.i}}</span><div class="c11-line" style="--avc:{{l.c}}"><i style="width:{{l.p}}%"></i><b style="left:{{l.p}}%"></b></div><span class="mono c2" style="font-size:11px;width:56px;text-align:right">{{l.st}}</span></div></sc-for></div><div class="sh-cap">Progress lines · every plane on the same route</div></div>
+<div class="c11-st"><div class="glass e3 toast"><span class="av" style="--avc:#FF8FB1">A</span><div><div style="font:600 14px/18px var(--font-ui)">Anna landed</div><div class="t-callout c2">Paris CDG · 42 min focused</div></div></div><div class="glass e3 toast"><span class="av" style="--avc:#7ADDB2">M</span><div><div style="font:600 14px/18px var(--font-ui)">Anna joined your flight</div><div class="t-callout c2">Seat 1B</div></div></div><div class="sh-note" style="max-width:360px">Toasts slide in at the top right, stay for 4 s, and never take focus. Landings are the only “event” that is announced to the group.</div></div>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Invite card</h2></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c11-st"><div class="glass e3" style="width:440px;border-radius:26px;padding:22px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="eyebrow">Shared flight</div><div class="cond" style="font-size:40px;line-height:44px;margin-top:6px">LHR <span style="opacity:.5">→</span> CDG</div><div class="mono c2" style="font-size:12px;margin-top:4px">MR 0142 · 42 min · 348 km</div></div><div class="c11-qr"><svg width="96" height="96" viewBox="0 0 96 96"><path d="{{qr}}" fill="#0B1020"/></svg></div></div><div style="display:flex;gap:10px;align-items:center"><span class="c11-code">meridian.fly/MR0142-x7q<span class="btn-round glass-ctl" style="width:26px;height:26px"><svg class="ic ic14"><use href="./icons.svg#link"></use></svg></span></span><span class="btn btn-primary btn-sm"><svg class="ic ic14"><use href="./icons.svg#copy"></use></svg>Copy link</span></div><div style="display:flex;align-items:center;gap:10px"><span class="pill accent"><span class="dotp pulse"></span>Boarding opens in 04:12</span><span class="mono c2" style="font-size:12px">2 of 6 seats taken</span></div></div><div class="sh-cap">Default</div></div>
+<div class="c11-st"><div class="glass e3" style="width:440px;border-radius:26px;padding:22px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px"><div class="eyebrow">Link copied</div><div style="display:flex;gap:10px;align-items:center"><span class="c11-code">meridian.fly/MR0142-x7q</span><span class="btn btn-secondary btn-sm" style="color:var(--ok)"><svg class="ic ic14"><use href="./icons.svg#check"></use></svg>Copied</span></div><div class="sh-note" style="max-width:380px">The button changes to “Copied” for 2 s, then returns. Anyone with the link can ask for a seat; you approve them in the lobby. Links expire when the flight lands.</div></div><div class="sh-cap">After copy</div></div>
+</div>
+<div class="sh-title"><h2>Public departures board</h2></div>
+<div class="c11-st" style="width:100%"><div class="c11-brd" style="width:1180px"><sc-for list="{{board}}" as="b" hint-placeholder-count="4"><div class="c11-brow {{b.cls}}"><dc-import name="SplitFlap" text="{{b.fl}}" size="xs" hint-size="140px,30px"></dc-import><dc-import name="SplitFlap" text="{{b.rt}}" size="xs" tone="white" hint-size="200px,30px"></dc-import><dc-import name="SplitFlap" text="{{b.mn}}" size="xs" tone="white" hint-size="120px,30px"></dc-import><span class="mono" style="color:var(--text-2);font-size:13px;width:90px">{{b.n}} aboard</span><span style="flex:1"></span><dc-import name="SplitFlap" text="{{b.st}}" len="17" size="xs" hint-size="360px,30px"></dc-import></div></sc-for></div><div class="sh-cap">Departures · hover row highlighted</div><div class="sh-note" style="max-width:900px">Rows are public flights anyone can join, sorted by departure. The status cell flips when it changes: BOARDING IN 06:12, BOARDING, DEPARTED. A row is a button; Return joins the lobby. Names are never shown, only the number aboard.</div></div>
+<div class="sh-native"><b>Native</b><span>The board is a <span style="color:var(--text-1)">LazyVStack</span> of rows; each cell is a <span style="color:var(--text-1)">Canvas</span> with a Metal flap shader, flipping through the alphabet like a real split-flap. Presence uses <span style="color:var(--text-1)">TimelineView</span>; strips use <span style="color:var(--text-1)">matchedGeometryEffect</span> to animate a passenger into the map.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = window.MeridianKit, r = K.rng(9);
+    let qr = ''; const N = 21, c = 96 / N;
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const fin = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13); let on; if (fin) { const lx = x % 14 % 7 , ly = y % 14 % 7; on = (lx === 0 || lx === 6 || ly === 0 || ly === 6) || (lx >= 2 && lx <= 4 && ly >= 2 && ly <= 4); if (x > 13) { const q = x - 14; on = (q === 0 || q === 6 || y === 0 || y === 6) || (q >= 2 && q <= 4 && y >= 2 && y <= 4); } if (y > 13) { const q = y - 14; on = (x === 0 || x === 6 || q === 0 || q === 6) || (x >= 2 && x <= 4 && q >= 2 && q <= 4); } } else on = r() > .5; if (on) qr += 'M' + (x * c).toFixed(1) + ' ' + (y * c).toFixed(1) + 'h' + c.toFixed(1) + 'v' + c.toFixed(1) + 'h-' + c.toFixed(1) + 'z'; }
+    const avs = [{ i: 'A', c: '#FF8FB1', t: 'Focusing', n: 'Solid accent dot. In flight, seat taken.', pr: '', sz: 'lg' }, { i: 'M', c: '#7ADDB2', t: 'Idle', n: 'Gray dot. In the lobby, not yet checked in.', pr: 'idle', sz: 'lg' }, { i: 'J', c: '#FFB86B', t: 'Left early', n: 'Amber dot. Landed before the group.', pr: 'left', sz: 'lg' }, { i: 'E', c: '#7AA2FF', t: 'Default', n: '32 pt, initial on a tint, 10 pt dot.', pr: '', sz: '' }, { i: 'S', c: '#B49CFF', t: 'Small', n: '22 pt for seats and lists.', pr: '', sz: 'sm' }];
+    const P = (i, c, n, seat, st, pr) => ({ i, c, n, seat, st, pr: pr || '' });
+    const strips = [{ t: 'Two aboard', n: 'The usual: you and a friend. Name, seat and one word of status.', pax: [P('E', '#7AA2FF', 'Elif', '1A', 'Focusing'), P('A', '#FF8FB1', 'Anna', '1B', 'Focusing')] }, { t: 'Four aboard, one idle', n: 'Idle is gray and reads “Away”. The strip scrolls past five.', pax: [P('E', '#7AA2FF', 'Elif', '1A', 'Focusing'), P('A', '#FF8FB1', 'Anna', '1B', 'Focusing'), P('M', '#7ADDB2', 'Mert', '2A', 'Away', 'idle'), P('J', '#FFB86B', 'Jo', '2B', 'Focusing')] }, { t: 'One landed', n: 'The landed passenger keeps a seat with an amber dot and the word “Landed”.', pax: [P('E', '#7AA2FF', 'Elif', '1A', 'Focusing'), P('A', '#FF8FB1', 'Anna', '1B', 'Landed', 'left')] }];
+    const lines = [{ i: 'E', c: '#7AA2FF', p: 62, st: '16 min' }, { i: 'A', c: '#FF8FB1', p: 62, st: '16 min' }, { i: 'J', c: '#FFB86B', p: 100, st: 'Landed' }];
+    const board = [{ fl: 'TK 0900', rt: 'IST → NRT', mn: '50 MIN', n: 128, st: 'BOARDING IN 06:12', cls: 'is-hover' }, { fl: 'MR 0211', rt: 'LHR → CDG', mn: '42 MIN', n: 64, st: 'BOARDING', cls: '' }, { fl: 'MR 0304', rt: 'JFK → LAX', mn: '25 MIN', n: 37, st: 'BOARDING IN 12:40', cls: '' }, { fl: 'MR 0077', rt: 'HEL → ARN', mn: '25 MIN', n: 9, st: 'DEPARTED', cls: '' }];
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], avs, strips, lines, board, qr };
+  }
+}
+</script>
+</body>
+</html>

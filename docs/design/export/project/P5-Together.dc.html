@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P5 Together</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.p5-bar{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:10px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair);font:500 12px/1 var(--font-ui);color:var(--text-2)}
+.p5-bar b{color:var(--text-1);font-weight:600;margin-right:4px}
+.p5-hint{display:inline-flex;align-items:center;gap:6px;padding:0 10px;height:26px;border-radius:13px;background:var(--fill-1)}
+.p5-step{display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-ui);color:var(--text-3);white-space:nowrap}
+.p5-step i{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font:600 11px/1 var(--font-mono);font-style:normal;background:var(--fill-2);color:var(--text-2)}
+.p5-step.cur{color:var(--text-1);font-weight:600}.p5-step.cur i{background:var(--accent-grad);color:#04101A}
+.p5-step.done i{background:rgba(91,227,160,.18);color:var(--ok)}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:884px">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;border-radius:22px 22px 0 0;overflow:hidden">
+<sc-if value="{{isCreate}}" hint-placeholder-val="{{ true }}"><dc-import name="Together" screen="create" live="true" on-create="{{onCreate}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isLobby}}" hint-placeholder-val="{{ false }}"><dc-import name="Together" screen="lobby" live="true" on-board="{{onBoard}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isFly}}" hint-placeholder-val="{{ false }}"><dc-import name="Flight" from="LHR" to="CDG" total="42" p=".55" km="348" social="true" live="true" speed="36" on-land="{{onLand}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isLanded}}" hint-placeholder-val="{{ false }}"><dc-import name="Together" screen="landing" live="true" on-again="{{restart}}" hint-size="1280px,800px"></dc-import></sc-if>
+</div>
+<div class="p5-bar"><b>Prototype</b><sc-for list="{{steps}}" as="s" hint-placeholder-count="4"><span class="p5-step {{s.cls}}"><i>{{s.n}}</i>{{s.t}}</span></sc-for><span style="flex:1"></span><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{restart}}"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Restart</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":884}}'>
+class Component extends DCLogic {
+  state = { phase: 'create', n: 0 };
+  renderVals() {
+    const st = this.state, ph = st.phase, idx = ph === 'create' ? 0 : ph === 'lobby' ? 1 : ph === 'fly' ? 2 : 3;
+    const steps = ['Create', 'Lobby and tear', 'Fly together', 'Land together'].map((t, i) => ({ t, n: i + 1, cls: i < idx ? 'done' : i === idx ? 'cur' : '' }));
+    return {
+      isCreate: ph === 'create', isLobby: ph === 'lobby', isFly: ph === 'fly', isLanded: ph === 'landed', steps,
+      onCreate: () => this.setState({ phase: 'lobby' }), onBoard: () => this.setState({ phase: 'fly' }), onLand: () => this.setState({ phase: 'landed' }),
+      restart: () => this.setState({ phase: 'create', n: st.n + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

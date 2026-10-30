@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Meridian Pro paywall</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.pw-h{font:500 36px/40px var(--font-serif);letter-spacing:-.02em;margin:0}
+.pw-plan{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);cursor:pointer;transition:background var(--d2) var(--ease),box-shadow var(--d2) var(--ease)}
+.pw-plan:is(:hover,.is-hover){background:var(--fill-2)}
+.pw-plan:active{transform:scale(.99)}
+.pw-plan:focus-visible,.pw-plan.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.pw-plan.is-selected{background:var(--fill-2);box-shadow:inset 0 0 0 2px var(--accent-1)}
+.pw-plan.is-disabled{opacity:.4;pointer-events:none}
+.pw-rad{width:20px;height:20px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1.5px var(--text-3);display:flex;align-items:center;justify-content:center}
+.pw-plan.is-selected .pw-rad{box-shadow:inset 0 0 0 1.5px var(--accent-1)}
+.pw-plan.is-selected .pw-rad::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent-1)}
+.pw-price{font:500 24px/26px var(--font-serif);letter-spacing:-.01em;text-align:right;white-space:nowrap}
+.pw-price small{display:block;font:400 11px/14px var(--font-ui);color:var(--text-2);letter-spacing:0;margin-top:2px}
+.pw-free{display:flex;gap:10px;align-items:flex-start;font:400 13px/18px var(--font-ui);color:var(--text-1)}
+.pw-free .ck{width:18px;height:18px;border-radius:50%;background:var(--fill-2);color:var(--ok);display:flex;align-items:center;justify-content:center;flex:none;margin-top:0}
+.pw-link{color:var(--accent-1);font:500 12px/16px var(--font-ui);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-decoration-color:color-mix(in srgb,var(--accent-1) 40%,transparent)}
+.pw-link:is(:hover,.is-hover){text-decoration-color:var(--accent-1)}
+.pw-link:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px;border-radius:3px}
+[data-theme="light"] .pw-link{color:#1450C8}
+.pw-step{position:relative;flex:1;padding-top:20px}
+.pw-step i{position:absolute;left:0;top:0;width:12px;height:12px;border-radius:50%;background:var(--bg-2);box-shadow:inset 0 0 0 2px var(--text-3)}
+.pw-step.now i{background:var(--accent-1);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent-1) 25%,transparent)}
+.pw-step.end i{box-shadow:inset 0 0 0 2px var(--amber)}
+.pw-line{position:absolute;left:6px;right:40px;top:5px;height:2px;background:var(--stroke-glow);opacity:.6}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)">
+<!-- the app behind the sheet -->
+<div style="position:absolute;inset:0"><dc-import name="Settings" pane="account" hint-size="1280px,800px"></dc-import></div>
+<div style="position:absolute;inset:0;background:var(--scrim);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)"></div>
+
+<!-- sheet -->
+<div class="glass e3" style="position:absolute;left:120px;top:50px;width:1040px;height:700px;border-radius:30px;overflow:hidden;display:flex" role="dialog" aria-modal="true" aria-label="Meridian Pro">
+<!-- left: hero + what stays free -->
+<div style="position:relative;width:432px;flex:none;display:flex;flex-direction:column">
+<div style="position:relative;height:300px;overflow:hidden;background:radial-gradient(90% 100% at 72% 38%,#1B1E27,#07080B)">
+<dc-import name="WindowView" scene="sunset" w="432" h="300" shade="0" cx="92" fit=".7" bare="true" hint-size="432px,300px"></dc-import>
+<div style="position:absolute;left:0;right:0;bottom:0;height:170px;background:linear-gradient(180deg,rgba(6,8,13,0),rgba(6,8,13,.9))"></div>
+<div style="position:absolute;left:28px;bottom:14px;right:28px;color:#F3F5FA"><div class="eyebrow" style="color:#F3F5FA;opacity:.85">Meridian Pro</div><h1 class="pw-h" style="margin-top:4px">Pay once.<br>Fly on every device.</h1></div>
+</div>
+<div style="padding:18px 28px 0;flex:1">
+<div class="eyebrow" style="margin-bottom:10px;color:var(--text-1)">What stays free</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<sc-for list="{{free}}" as="f" hint-placeholder-count="6"><div class="pw-free"><span class="ck"><svg class="ic ic12"><use href="./icons.svg#check"></use></svg></span><span>{{f}}</span></div></sc-for>
+</div>
+<div class="t-callout c2" style="margin-top:14px">Pro never takes these away, and Pro never adds a timer to them.</div>
+</div>
+</div>
+
+<!-- right: plans -->
+<div style="flex:1;padding:30px 32px 22px 28px;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,0))">
+<div style="display:flex;align-items:flex-start;justify-content:space-between"><div><div class="eyebrow" style="color:var(--text-1)">Meridian Pro adds</div></div><div style="display:flex;align-items:center;gap:6px;margin:-6px -4px 0 0"><button class="btn btn-tertiary btn-sm" style="color:var(--text-2)">Not now</button><button class="btn-round glass-ctl sm" style="position:relative" aria-label="Close"><svg class="ic ic16 c2"><use href="./icons.svg#x"></use></svg></button></div></div>
+<div style="display:flex;flex-direction:column;gap:8px;margin:10px 0 18px">
+<sc-for list="{{adds}}" as="a" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:center;font:500 13px/18px var(--font-ui)"><svg class="ic ic16 cA"><use href="{{a.ic}}"></use></svg><span>{{a.t}}</span></div></sc-for>
+</div>
+<div role="radiogroup" aria-label="Plan" style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{plans}}" as="p" hint-placeholder-count="3">
+<div class="pw-plan {{p.cls}}" role="radio" aria-checked="{{p.checked}}" tabindex="0" onClick="{{p.pick}}">
+<span class="pw-rad"></span>
+<div style="flex:1;min-width:0"><div style="font:600 15px/20px var(--font-ui)">{{p.t}}</div><div class="c2" style="font:400 12px/16px var(--font-ui);margin-top:2px">{{p.sub}}</div></div>
+<div class="pw-price">{{p.price}}<small>{{p.per}}</small></div>
+</div>
+</sc-for>
+</div>
+<!-- timeline or one-time -->
+<div style="margin-top:16px;padding:14px 16px 12px;border-radius:16px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<sc-if value="{{trial}}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;display:flex;gap:8px"><div class="pw-line"></div>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3"><div class="pw-step {{s.cls}}"><i></i><div style="font:600 12px/16px var(--font-ui)">{{s.t}}</div><div class="c2" style="font:400 12px/16px var(--font-ui)">{{s.sub}}</div></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{once}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;align-items:center"><svg class="ic ic18 cOk"><use href="./icons.svg#check"></use></svg><div><div style="font:600 13px/17px var(--font-ui)">No trial, no renewal</div><div class="c2" style="font:400 12px/16px var(--font-ui)">You pay once. It unlocks on every Mac, iPhone and iPad you own, and with Family Sharing.</div></div></div>
+</sc-if>
+</div>
+<div style="flex:1"></div>
+<button class="btn btn-primary btn-lg" style="width:100%" aria-label="{{cta}}">{{cta}}</button>
+<div class="c2" style="font:400 12px/16px var(--font-ui);text-align:center;margin-top:10px">{{charge}}</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;flex-wrap:wrap">
+<span class="c2" style="font:400 12px/16px var(--font-ui)">Cancel anytime in</span><span class="pw-link" role="link" tabindex="0">System Settings</span>
+<span class="c3">·</span><span class="pw-link" role="link" tabindex="0">Restore purchases</span><span class="c3">·</span><span class="pw-link" role="link" tabindex="0">Terms</span><span class="c3">·</span><span class="pw-link" role="link" tabindex="0">Privacy</span>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"plan":{"editor":"enum","options":["lifetime","annual","monthly"],"default":"lifetime"},"annotate":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { plan: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : (v === true || v === 'true'); }
+  renderVals() {
+    const p = this.props, st = this.state, sel = st.plan || (['lifetime', 'annual', 'monthly'].includes(p.plan) ? p.plan : 'lifetime');
+    const defs = [
+      ['lifetime', 'Lifetime', 'One purchase · all Apple devices · Family Sharing', '$XX', 'once'],
+      ['annual', 'Annual', '7 days free, then billed yearly', '$X', 'per year'],
+      ['monthly', 'Monthly', '7 days free, then billed monthly', '$X', 'per month']];
+    const plans = defs.map(d => ({ t: d[1], sub: d[2], price: d[3], per: d[4], cls: sel === d[0] ? 'is-selected' : '', checked: String(sel === d[0]), pick: () => this.setState({ plan: d[0] }) }));
+    const trial = sel !== 'lifetime';
+    const steps = [{ cls: 'now', t: 'Today', sub: 'Free access to everything in Pro' }, { cls: '', t: 'Day 5', sub: 'We send you a reminder' }, { cls: 'end', t: 'Day 7', sub: 'Charge of $X unless canceled' }];
+    return {
+      free: ['Unlimited flights, any length', 'Every scenario, tag and cabin class', 'Tickets, wallet, passport and stats', 'Terra, Mono and Standard maps', 'Window view, cabin sound and announcements', 'Friend flights with up to 4 people', 'Menu bar, mini map and widgets'],
+      adds: [{ ic: './icons.svg#globe', t: 'Satellite map and flyover views' }, { ic: './icons.svg#users', t: 'Friend flights with up to 12 people' }, { ic: './icons.svg#sound', t: 'Twelve more cabin soundscapes' }],
+      plans, trial, once: !trial, steps,
+      cta: trial ? 'Start 7-day free trial' : 'Buy Lifetime',
+      charge: trial ? 'No surprises: you’ll be charged $X on Nov 6 unless you cancel.' : 'You’ll be charged $XX once. Nothing renews.',
+      annotate: this.flag(p.annotate, false)
+    };
+  }
+}
+</script>
+</body>
+</html>

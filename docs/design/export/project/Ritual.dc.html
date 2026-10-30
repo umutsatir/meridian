@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ticket ritual stage</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rt-slot{position:absolute;border-radius:28px 28px 0 0;background:linear-gradient(180deg,#3A4258 0,#222839 9%,#161B29 38%,#0F131E 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 1px rgba(255,255,255,.07),0 -18px 50px rgba(0,0,0,.5);z-index:9}
+.rt-slit{position:absolute;height:12px;border-radius:6px;background:linear-gradient(180deg,#010208,#0A0D18);box-shadow:inset 0 3px 7px rgba(0,0,0,.95),0 1px 0 rgba(255,255,255,.16);z-index:9}
+.rt-lip{position:absolute;height:10px;border-radius:0 0 9px 9px;background:linear-gradient(180deg,#434B63,#252C3F);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 5px 12px rgba(0,0,0,.5);z-index:11}
+.rt-led{position:absolute;width:7px;height:7px;border-radius:50%}
+.rt-vent{position:absolute;width:44px;height:3px;border-radius:2px;background:rgba(0,0,0,.55);box-shadow:0 1px 0 rgba(255,255,255,.08)}
+.rt-anno{position:absolute;width:268px;padding:12px 14px;border-radius:14px;background:rgba(6,8,13,.72);border:1px dashed rgba(106,183,255,.55);font:500 11px/1.4 var(--font-mono);color:var(--text-2);z-index:30}
+.rt-anno b{display:block;font:600 10px/12px var(--font-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--accent-1);margin-bottom:4px}
+.rt-anno .row{margin-bottom:10px}
+.rt-hap{display:flex;gap:3px;margin-top:6px}.rt-hap i{display:block;width:12px;height:12px;border-radius:50%;background:var(--fill-3);transition:background 90ms,box-shadow 90ms}
+.rt-hap i.on{background:var(--accent-1);box-shadow:0 0 8px var(--accent-1)}
+@keyframes rt-chev{0%,100%{opacity:.35;transform:translateX(0)}50%{opacity:1;transform:translateX(5px)}}
+@keyframes rt-perf{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes rt-pop{from{opacity:0;transform:translate(-50%,10px) scale(.97)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+.rt-grab{cursor:grab}.rt-grab:active,.rt-grab.dragging{cursor:grabbing}
+.rt-hint .chev{display:inline-block;animation:rt-chev 1.1s ease-in-out infinite}
+.rt-btn-skip{opacity:.8}
+</style>
+</helmet>
+<div style="{{outerStyle}}">
+<div class="win" style="{{rootStyle}}" tabindex="0" onKeyDown="{{onKey}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onUp}}">
+<sc-if value="{{bg}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;inset:0;filter:blur(14px) brightness(1.05) saturate(.9);transform:scale(1.06)"><dc-import name="MapLayer" w="1280" h="800" map-style="terra" zoom="1.1" lat="49.6" lon="2.6" labels="false" hint-size="1280px,800px"></dc-import></div>
+<div style="position:absolute;inset:0;background:rgba(5,7,13,.30)"></div>
+</sc-if>
+<sc-if value="{{sidebar}}" hint-placeholder-val="{{ true }}"><dc-import name="Sidebar" active="plan" badge="{{badge}}" hint-size="220px,784px"></dc-import><div class="tl"><i></i><i></i><i></i></div></sc-if>
+
+<!-- printer slot -->
+<div style="{{glowStyle}}"></div>
+<div class="rt-slot" style="{{slotStyle}}"><span class="rt-led" style="{{ledStyle}}"></span><i class="rt-vent" style="{{vent1}}"></i><i class="rt-vent" style="{{vent2}}"></i><i class="rt-vent" style="{{vent3}}"></i></div>
+<div class="rt-slit" style="{{slitStyle}}"></div>
+
+<!-- ticket -->
+<div style="{{stackStyle}}">
+<div style="{{bodyWrap}}">
+<div style="{{bodyClipWrap}}">
+<sc-if value="{{showFull}}" hint-placeholder-val="{{ true }}"><dc-import name="Ticket" from="{{from}}" to="{{to}}" scenario="{{scenario}}" state="{{tState}}" print="{{printV}}" flat="true" topic="{{topic}}" seat="{{seat}}" gate="{{gate}}" flight="{{flight}}" km="{{km}}" minutes="{{minutes}}" hint-size="360px,600px"></dc-import></sc-if>
+<sc-if value="{{showTorn}}" hint-placeholder-val="{{ false }}"><dc-import name="Ticket" from="{{from}}" to="{{to}}" scenario="{{scenario}}" state="torn" flat="true" topic="{{topic}}" seat="{{seat}}" gate="{{gate}}" flight="{{flight}}" km="{{km}}" minutes="{{minutes}}" hint-size="360px,452px"></dc-import></sc-if>
+</div>
+<sc-if value="{{showRim}}" hint-placeholder-val="{{ false }}"><svg width="360" height="600" viewBox="0 0 360 600" style="position:absolute;left:0;top:0;pointer-events:none"><polyline points="{{rimBody}}" fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="1.1" stroke-linejoin="round"/></svg></sc-if>
+</div>
+<sc-if value="{{showPiece}}" hint-placeholder-val="{{ false }}">
+<div style="{{pieceWrap}}">
+<div style="{{pieceClipWrap}}"><dc-import name="Ticket" from="{{from}}" to="{{to}}" scenario="{{scenario}}" state="printed" flat="true" topic="{{topic}}" seat="{{seat}}" gate="{{gate}}" flight="{{flight}}" km="{{km}}" minutes="{{minutes}}" hint-size="360px,600px"></dc-import><div style="{{curlStyle}}"></div></div>
+<svg width="360" height="600" viewBox="0 0 360 600" style="position:absolute;left:0;top:0;pointer-events:none"><polyline points="{{rimPiece}}" fill="none" stroke="#FFFFFF" stroke-opacity=".9" stroke-width="1.1" stroke-linejoin="round"/></svg>
+</div>
+</sc-if>
+<sc-if value="{{showVeil}}" hint-placeholder-val="{{ true }}"><div style="{{veilStyle}}"></div></sc-if>
+<sc-if value="{{canGrab}}" hint-placeholder-val="{{ false }}"><div class="rt-grab {{dragCls}}" style="{{grabStyle}}" onPointerDown="{{onDown}}" role="button" aria-label="Boarding pass printed. Activate to tear off the stub." tabindex="-1"></div></sc-if>
+</div>
+
+<div class="rt-lip" style="{{lipStyle}}"></div>
+<!-- tear-here hint along the perforation -->
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ true }}">
+<div style="{{perfGlow}}"></div>
+<div class="glass e2 rt-hint" style="{{hintStyle}}"><span style="font:600 14px/1 var(--font-ui)">Tear here</span><span class="chev"><svg class="ic ic14"><use href="./icons.svg#chev-r"></use></svg></span><span class="chev" style="animation-delay:.15s;margin-left:-8px"><svg class="ic ic14"><use href="./icons.svg#chev-r"></use></svg></span></div>
+</sc-if>
+
+<!-- particles -->
+<sc-for list="{{parts}}" as="q" hint-placeholder-count="0"><i style="{{q.s}}"></i></sc-for>
+
+<!-- caption + actions -->
+<div style="{{capStyle}}">
+<sc-if value="{{isPrinting}}" hint-placeholder-val="{{ true }}"><span class="t-callout c2">Printing your boarding pass</span><span class="mono c3" style="font-size:11px">Space to skip</span></sc-if>
+<sc-if value="{{isReady}}" hint-placeholder-val="{{ false }}"><button class="btn btn-secondary {{btnCls}}" onClick="{{tearBtn}}"><svg class="ic ic16"><use href="./icons.svg#scissors"></use></svg>Tear <span class="kbd">Space</span></button></sc-if>
+</div>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="glass e3 toast" style="{{toastStyle}}"><span style="width:34px;height:34px;border-radius:50%;background:rgba(91,227,160,.16);color:var(--ok);display:flex;align-items:center;justify-content:center;flex:none"><svg class="ic ic18"><use href="./icons.svg#check"></use></svg></span><div style="font:600 15px/20px var(--font-ui)">Boarding complete. Have a calm flight.</div></div></sc-if>
+
+<!-- annotation -->
+<sc-if value="{{annotate}}" hint-placeholder-val="{{ false }}">
+<div class="rt-anno" style="{{annoStyle}}">
+<div class="row"><b>Sound</b>{{sndText}}</div>
+<div class="row"><b>Haptic</b>{{hapText}}<div class="rt-hap"><sc-for list="{{hapDots}}" as="d" hint-placeholder-count="14"><i class="{{d}}"></i></sc-for></div></div>
+<div><b>Native</b>NSHapticFeedbackManager .alignment per step; AVAudioEngine buffers synthesized offline.</div>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"scenario":{"editor":"text","default":"code"},"live":{"editor":"boolean","default":false},"t":{"editor":"int","default":2400},"tear":{"editor":"float","default":0},"grab":{"editor":"enum","options":["R","L"],"default":"R"},"fly":{"editor":"float","default":0},"w":{"editor":"int","default":1280},"h":{"editor":"int","default":800},"zoom":{"editor":"float","default":1},"sidebar":{"editor":"boolean","default":true},"bg":{"editor":"boolean","default":true},"annotate":{"editor":"boolean","default":false},"reduce":{"editor":"boolean","default":false},"onPrinted":{"editor":null},"onTorn":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { t: 0, tear: 0, grab: null, drag: false, dy: 0, vel: 0, parts: [], fly: 0, slide: 0, phase: 'print', badge: '', toast: false, hap: '', snd: '', hapN: 0, started: false };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  live() { return this.flag(this.props.live, false); }
+  componentDidMount() { if (this.live()) this.begin(); }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); clearTimeout(this._to1); clearTimeout(this._to2); const A = window.MeridianAudio; if (A && A.rip.on) A.rip.stop(); }
+  componentDidUpdate(prev) { if (this.live() && !prev.live && !this.state.started) this.begin(); }
+  begin() {
+    this._t0 = performance.now(); this._lastStep = -1; this._lastHap = -1; const rd = this.flag(this.props.reduce, false); this._settled = rd; this.setState({ started: true, phase: rd ? 'ready' : 'print', t: rd ? 2400 : 0, tear: 0, fly: 0, slide: 0, toast: false, badge: '', parts: [], grab: null, hap: rd ? 'None (Reduce Motion)' : '', snd: rd ? 'Soft tick only (Reduce Motion)' : '' }); if (rd) { const cb0 = this.props.onPrinted; if (typeof cb0 === 'function') cb0(); }
+    const A = window.MeridianAudio; if (A && A.enabled) { A.init(); A.paperSlide(1.6); }
+    const loop = now => { this.frame(now); this._raf = requestAnimationFrame(loop); }; this._raf = requestAnimationFrame(loop);
+  }
+  note(k, v) { this.setState({ [k]: v }); }
+  frame(now) {
+    const st = this.state, A = window.MeridianAudio, dt = Math.min(48, now - (this._pn || now)); this._pn = now;
+    const up = {};
+    if (st.phase === 'print') {
+      const t = Math.min(2400, now - this._t0); up.t = t;
+      const k = t < 200 ? -1 : Math.min(13, Math.floor((t - 200) / 114)); if (k > this._lastStep) { for (let i = this._lastStep + 1; i <= k; i++) { if (A && A.enabled) A.printerStep(i); } this._lastStep = k; up.hapN = k + 1; up.hap = 'Trackpad tick · step ' + (k + 1) + ' / 14'; up.snd = 'Stepper chirp ' + (k + 1) + ' / 14 + paper slide bed'; }
+      if (t >= 1800 && !this._settled) { this._settled = true; if (A && A.enabled) A.tick(true); up.hap = 'Heavier tick · settle'; up.snd = 'Soft tick · printer done'; }
+      if (t >= 2100) { up.phase = 'ready'; const cb = this.props.onPrinted; if (typeof cb === 'function') cb(); }
+    }
+    if (st.drag) { const idle = now - (this._lm || now); this._v = (this._v || 0) * (idle > 70 ? .82 : 1); if (A && A.rip.on) A.rip.set(this._v); up.vel = this._v; }
+    if (st.parts.length) { up.parts = st.parts.map(q => ({ ...q, x: q.x + q.vx * dt / 1000, y: q.y + q.vy * dt / 1000, vy: q.vy + 900 * dt / 1000, r: q.r + q.vr * dt / 1000, a: q.a - dt / 900 })).filter(q => q.a > 0); }
+    if (st.phase === 'fly') { const f = Math.min(1, st.fly + dt / 720); up.fly = f; if (f >= 1) { up.phase = 'slide'; up.badge = 'tickets'; up.toast = true; if (A && A.enabled) A.thump(); up.snd = 'Wallet thud'; up.hap = 'Release tick'; this._to1 = setTimeout(() => this.setState({ phase: 'slide2' }), 420); } }
+    if (st.phase === 'slide2') { const s = Math.min(1, st.slide + dt / 700); up.slide = s; if (s >= 1) { up.phase = 'done'; const cb = this.props.onTorn; if (typeof cb === 'function') cb(); } }
+    if (Object.keys(up).length) this.setState(up);
+  }
+  skip() { const st = this.state; if (st.phase === 'print') { const A = window.MeridianAudio; if (A && A.enabled) A.tick(true); this._t0 = performance.now() - 2400; this._settled = true; this.setState({ t: 2400, phase: 'ready', hap: 'Skipped to end', snd: '—' }); const cb = this.props.onPrinted; if (typeof cb === 'function') cb(); } }
+  autoTear() {
+    const st = this.state; if (st.phase !== 'ready' && st.phase !== 'tear') return; const A = window.MeridianAudio;
+    if (this.flag(this.props.reduce, false)) { if (A && A.enabled) A.rip.finish(); this.setState({ phase: 'fly', tear: 1, grab: st.grab || 'R', fly: .999, snd: 'Rip sound only (Reduce Motion)', hap: 'Release tick' }); return; }
+    const g = st.grab || 'R'; this.setState({ grab: g, phase: 'tear', drag: false }); const t0 = performance.now(), p0 = st.tear;
+    if (A && A.enabled) { A.rip.start(); }
+    const step = now => { const u = Math.min(1, (now - t0) / 650), p = p0 + (1 - p0) * (u * u * .6 + u * .4); this.setState({ tear: p, vel: .6 + u * .4 }); if (A && A.rip.on) A.rip.set(.5 + u * .5); if (p > .12 && Math.random() < .5) this.spawn(g, p); if (u < 1) requestAnimationFrame(step); else this.complete(1); }; requestAnimationFrame(step);
+  }
+  complete(dir) {
+    const A = window.MeridianAudio; if (A && A.enabled) A.rip.finish();
+    this.setState({ tear: 1, drag: false, phase: 'fly', fly: 0, vel: 0, snd: 'Rip accelerates · 150 Hz thump', hap: 'Heavy release tick', spin: dir || 1 });
+  }
+  spawn(g, p) {
+    const n = 3 + Math.floor(Math.random() * 4), xf = g === 'R' ? 360 * (1 - p) : 360 * p, out = [];
+    for (let i = 0; i < n; i++) out.push({ x: xf, y: 450, vx: (Math.random() - .5) * 90 + (g === 'R' ? 30 : -30), vy: -40 - Math.random() * 90, r: Math.random() * 360, vr: (Math.random() - .5) * 600, s: 1 + Math.random() * 2, a: 1 });
+    this.setState({ parts: this.state.parts.concat(out).slice(-28) });
+  }
+  geom() { const K = window.MeridianKit, p = this.props, from = p.from || 'LHR', to = p.to || 'CDG', seed = +(p.seed || K.hash(from + to + (p.flight || 'MR 0142'))), r = K.rng(seed), amp = 1.5 + r() * 1.0, pts = []; let x = 360; while (x > -4) { const y = 450 - amp + r() * amp * 2; pts.push([Math.max(0, x), y]); x -= 2.2 + r() * 3.4; } if (pts[pts.length - 1][0] > 0) pts.push([0, 450]); return pts; }
+  yAt(pts, x) { for (let i = 0; i < pts.length - 1; i++) { const a = pts[i], b = pts[i + 1]; if (x <= a[0] && x >= b[0]) { const f = a[0] === b[0] ? 0 : (a[0] - x) / (a[0] - b[0]); return a[1] + (b[1] - a[1]) * f; } } return 450; }
+  down(e) {
+    const st = this.state; if (st.phase !== 'ready' && st.phase !== 'tear') return; const A = window.MeridianAudio; if (A && A.enabled) { A.init(); A.rip.start(); }
+    const r = this._root.getBoundingClientRect(), sc = r.width / (+(this.props.w || 1280)); const x = (e.clientX - r.left) / sc, y = (e.clientY - r.top) / sc;
+    const cx = this._cx, g = st.tear > 0.001 ? st.grab : ((x - (cx - 180)) < 180 ? 'L' : 'R');
+    this._drag = { sx: x, sy: y, p0: st.tear, g }; this._lm = performance.now(); this._v = 0; this._lx = x; this._lt = performance.now(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (z) {}
+    this.setState({ drag: true, grab: g, phase: 'tear', hap: 'Grab', snd: 'Rip armed (gated at 0 until you move)' });
+  }
+  move(e) {
+    const d = this._drag; if (!d || !this.state.drag) return; const st = this.state, A = window.MeridianAudio;
+    const r = this._root.getBoundingClientRect(), sc = r.width / (+(this.props.w || 1280)); const x = (e.clientX - r.left) / sc, y = (e.clientY - r.top) / sc;
+    const now = performance.now(), dtm = Math.max(8, now - this._lt), vx = Math.abs(x - this._lx) / dtm; this._v = Math.min(1, vx / 1.6) * .6 + (this._v || 0) * .4; this._lm = now; this._lx = x; this._lt = now;
+    const raw = d.p0 + ((d.g === 'L' ? (x - d.sx) : (d.sx - x)) / 360);
+    let p = Math.max(0, Math.min(1, raw)); if (p < .1) p = .1 * Math.pow(p / .1, 3);
+    const dy = Math.max(-6, Math.min(46, (y - d.sy) * .6));
+    const hb = Math.floor(p / .06); let hap = st.hap, n = st.hapN;
+    if (hb !== this._hb) { this._hb = hb; if (A && A.enabled && hb > 0) A.tick(false); hap = 'Light tick · ' + Math.round(p * 100) + '%'; n = hb; }
+    if (A && A.rip.on) A.rip.set(this._v);
+    if (Math.floor(p * 33) !== Math.floor(st.tear * 33) && p > .1) this.spawn(d.g, p);
+    this.setState({ tear: p, dy, vel: this._v, hap, hapN: n, snd: 'Paper rip · velocity ' + this._v.toFixed(2) + ' · band-pass ' + (1.5 + this._v * 2.5).toFixed(1) + ' kHz' });
+    if (p >= .72) { this._drag = null; this.setState({ drag: false }); const A2 = window.MeridianAudio; if (A2 && A2.rip.on) A2.rip.stop(); this.autoFinish(d.g, p); }
+  }
+  autoFinish(g, p0) { const A = window.MeridianAudio; if (A && A.enabled) A.rip.start(); const t0 = performance.now(); const step = now => { const u = Math.min(1, (now - t0) / 260), p = p0 + (1 - p0) * u * u; this.setState({ tear: p, vel: 1 }); if (A && A.rip.on) A.rip.set(.6 + u * .4); if (Math.random() < .6) this.spawn(g, p); if (u < 1) requestAnimationFrame(step); else this.complete(g === 'R' ? 1 : -1); }; requestAnimationFrame(step); }
+  up() { const d = this._drag; if (!d) return; this._drag = null; const A = window.MeridianAudio; if (A && A.rip.on) A.rip.stop(); this.setState({ drag: false, vel: 0, dy: 0, snd: 'Rip gated to 0 · partial tear stays', hap: 'Released at ' + Math.round(this.state.tear * 100) + '% · stays attached' }); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state, flag = (v, d) => this.flag(v, d), live = this.live();
+    const W = +(p.w || 1280), H = +(p.h || 800), sidebar = flag(p.sidebar, true), bg = flag(p.bg, true), zoom = +(p.zoom || 1);
+    const cx = p.cx ? +p.cx : (sidebar ? Math.round(236 + (W - 256) / 2) : Math.round(W / 2)); this._cx = cx;
+    const slotTop = +(p.slotTop || 56), ty0 = slotTop + 14 + 6, tx0 = cx - 180, slotY = ty0 + 600;
+    const from = p.from || 'LHR', to = p.to || 'CDG';
+    // clocks
+    const redP = this.flag(p.reduce, false), t = redP ? 2400 : (live ? st.t : +(p.t === undefined ? 2400 : p.t)); // Reduce Motion: no printer, the pass simply fades in at rest
+    let phase = live ? st.phase : (+(p.tear || 0) > 0 || p.phase === 'tear' ? 'tear' : (t >= 2100 ? 'ready' : 'print'));
+    if (!live && +(p.fly || 0) > 0) phase = 'fly'; if (!live && p.phase === 'torn') phase = 'done';
+    const tear = live ? st.tear : +(p.tear || 0), grab = (live ? st.grab : null) || p.grab || 'R';
+    const flyU = live ? st.fly : +(p.fly || 0);
+    // print function
+    const N = 14, T0 = 200, STEP = 114, D = 84, ease = u => 1 - Math.pow(1 - u, 3);
+    let pf = 0; if (t >= T0) { const k = Math.floor((t - T0) / STEP); if (k >= N) pf = 1; else { const local = t - T0 - k * STEP, e = local < D ? ease(local / D) : 1; pf = (k + e) / N; } }
+    const u2 = Math.max(0, Math.min(1, (t - 1800) / 300)), seed = K.hash(from + to), sgn = seed % 2 ? 1 : -1;
+    const settleY = 6 * Math.sin(Math.PI * u2) * (1 - .4 * u2), rot = sgn * 1.5 * ease(u2);
+    const printing = phase === 'print', feedY = ty0 + 600 * (1 - pf) + settleY;
+    const printV = Math.min(1, pf);
+    // tear geometry
+    const pts = this.geom(), pr = Math.max(0, Math.min(1, tear));
+    const xf = grab === 'R' ? 360 * (1 - pr) : 360 * pr, yf = this.yAt(pts, xf);
+    const zone = pts.filter(q => grab === 'R' ? q[0] >= xf : q[0] <= xf);
+    const f2 = q => q[0].toFixed(1) + 'px ' + q[1].toFixed(2) + 'px';
+    let bodyPoly, piecePoly, rimStr;
+    if (grab === 'R') { bodyPoly = [[0, 0], [360, 0]].concat(zone, [[xf, yf], [xf, 600], [0, 600]]); piecePoly = [[xf, yf]].concat(zone.slice().reverse(), [[360, 600], [xf, 600]]); }
+    else { bodyPoly = [[0, 0], [360, 0], [360, 600], [xf, 600], [xf, yf]].concat(zone, []); piecePoly = [[0, 0]].concat(zone.slice().reverse(), [[xf, yf], [xf, 600], [0, 600]]); }
+    const rimPts = [[xf, yf]].concat(zone).map(q => q[0].toFixed(1) + ',' + (q[1] + .6).toFixed(2)).join(' ');
+    const tearing = (phase === 'tear' || phase === 'fly' || phase === 'slide' || phase === 'slide2' || phase === 'done') && pr > .002;
+    const bodyDone = pr >= .999 && (phase === 'slide' || phase === 'slide2' || phase === 'done' || (!live && (p.phase === 'torn')));
+    const dy = live ? st.dy : (pr > 0 ? 6 + pr * 10 : 0);
+    // tension on body
+    const tens = st.drag ? (grab === 'R' ? -1 : 1) * 1.5 * Math.min(1, pr * 4) : 0;
+    // pose of detached piece
+    const theta = (grab === 'R' ? 1 : -1) * 25 * (1 - Math.pow(1 - pr, 1.6)), px = (grab === 'R' ? 1 : -1) * pr * 14, py = 4 + pr * 22 + dy * .5;
+    let pieceTf = 'translate(' + px.toFixed(1) + 'px,' + py.toFixed(1) + 'px) rotate(' + theta.toFixed(2) + 'deg)', pieceOrg = xf.toFixed(1) + 'px 450px', pieceOp = 1;
+    if (phase === 'fly' || phase === 'slide' || phase === 'slide2' || phase === 'done') {
+      const th = (grab === 'R' ? 1 : -1) * 25, c = [180 - (grab === 'R' ? 0 : 360) * 0 , 525], h = [grab === 'R' ? 0 : 360, 450], rc = [(c[0] - h[0]) * Math.cos(th * Math.PI / 180) - (c[1] - h[1]) * Math.sin(th * Math.PI / 180) + h[0], (c[0] - h[0]) * Math.sin(th * Math.PI / 180) + (c[1] - h[1]) * Math.cos(th * Math.PI / 180) + h[1]];
+      const d0 = [rc[0] - c[0] + (grab === 'R' ? 14 : -14), rc[1] - c[1] + 26], P0 = [tx0 + rc[0] + d0[0] * 0 + (grab === 'R' ? 14 : -14), feedY + rc[1] + 26], Wt = [38, 240], Pc = [(P0[0] + Wt[0]) / 2 + 40, Math.min(P0[1], Wt[1]) - 150];
+      const u = Math.max(0, Math.min(1, flyU)), B = [(1 - u) * (1 - u) * P0[0] + 2 * (1 - u) * u * Pc[0] + u * u * Wt[0], (1 - u) * (1 - u) * P0[1] + 2 * (1 - u) * u * Pc[1] + u * u * Wt[1]];
+      const e = u * u * (3 - 2 * u), sc = 1 - .9 * Math.pow(u, 1.1), spin = (grab === 'R' ? 1 : -1) * 320 * e;
+      pieceTf = 'translate(' + (d0[0] + B[0] - P0[0]).toFixed(1) + 'px,' + (d0[1] + B[1] - P0[1]).toFixed(1) + 'px) rotate(' + (th + spin).toFixed(1) + 'deg) scale(' + sc.toFixed(3) + ')'; pieceOrg = '180px 525px'; pieceOp = u > .86 ? Math.max(0, 1 - (u - .86) / .14) : 1;
+    }
+    const slideU = live ? (phase === 'slide2' || phase === 'done' ? st.slide : 0) : +(p.pinned || 0), se = slideU * slideU * (3 - 2 * slideU);
+    const pinX = +(p.pinX || 262), pinY = +(p.pinY || 76), pinS = +(p.pinS || .56);
+    const stackTf = slideU > 0 ? 'translate(' + ((pinX - tx0) * se).toFixed(1) + 'px,' + ((pinY - feedY) * se).toFixed(1) + 'px) scale(' + (1 - (1 - pinS) * se).toFixed(3) + ')' : '';
+    const showTornFull = bodyDone;
+    const perfY = feedY + 450, ready = phase === 'ready' || phase === 'tear';
+    const canGrab = live && ready || (!live && false);
+    const hapDots = []; for (let i = 0; i < 14; i++) hapDots.push((live ? st.hapN : Math.min(14, Math.round(pf * 14))) > i ? 'on' : '');
+    const stateT = 'printed';
+    this._root = this._root || null;
+    const sp = !live && pr > .05 && pr < .99 ? [0, 1, 2, 3, 4].map(i => ({ x: xf + (i - 2) * 9 + (grab === 'R' ? 6 : -6), y: 462 + (i % 3) * 11 + i * 3, r: i * 47 + 12, s: 1.4 + (i % 3) * .7, a: .9 })) : [];
+    const parts = (live ? (st.parts || []) : sp).map(q => ({ s: 'position:absolute;left:' + (tx0 + q.x).toFixed(1) + 'px;top:' + (feedY + q.y).toFixed(1) + 'px;width:' + q.s.toFixed(1) + 'px;height:' + (q.s * .7).toFixed(1) + 'px;background:#EFE7D4;transform:rotate(' + q.r.toFixed(0) + 'deg);opacity:' + Math.max(0, q.a).toFixed(2) + ';z-index:25;pointer-events:none' }));
+    const blink = t < 60 || (t >= 110 && t < 2100) ? 1 : 0, ledOn = (t < 200 ? (t < 60 || (t >= 110 && t < 170)) : t < 2100);
+    const glow = t < 2100 ? .5 + .5 * pf : 0;
+    const staticPart = !live ? '' : '';
+    return {
+      outerStyle: 'position:relative;width:' + W * zoom + 'px;height:' + H * zoom + 'px;overflow:hidden;border-radius:' + (22 * zoom) + 'px',
+      rootStyle: 'position:absolute;left:0;top:0;width:' + W + 'px;height:' + H + 'px;transform:scale(' + zoom + ');transform-origin:0 0;' + (bg ? '' : 'background:transparent;box-shadow:none'),
+      bg, sidebar, badge: (live ? st.badge : (p.badge || (phase === 'slide' || phase === 'slide2' || phase === 'done' ? 'tickets' : ''))),
+      glowStyle: 'position:absolute;left:' + (cx - 260) + 'px;top:' + (slotY - 62) + 'px;width:520px;height:110px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,181,71,' + (.30 * glow).toFixed(2) + '),transparent);z-index:8;pointer-events:none',
+      slotStyle: 'left:' + (cx - 250) + 'px;top:' + (slotY - 16) + 'px;width:500px;height:' + Math.max(70, H - (slotY - 16)) + 'px;opacity:' + (redP ? 0 : 1 - se).toFixed(2),
+      slitStyle: 'left:' + (cx - 214) + 'px;top:' + (slotY - 8) + 'px;width:428px;opacity:' + (redP ? 0 : 1 - se).toFixed(2),
+      lipStyle: 'left:' + (cx - 214) + 'px;top:' + slotY + 'px;width:428px;opacity:' + (redP ? 0 : 1 - se).toFixed(2),
+      vent1: 'right:26px;top:44px', vent2: 'right:26px;top:52px', vent3: 'right:26px;top:60px',
+      showVeil: printing && pf < 1.001, veilStyle: 'position:absolute;left:0;right:0;top:' + Math.max(0, 600 * pf - 120).toFixed(1) + 'px;height:120px;background:linear-gradient(180deg,rgba(245,240,230,0),rgba(247,226,190,.9));opacity:' + (t < 1800 ? 1 : Math.max(0, 1 - (t - 1800) / 260)).toFixed(2) + ';pointer-events:none;z-index:6',
+      ledStyle: 'left:28px;top:44px;background:' + (ledOn ? '#FFB547' : '#4A3A1E') + ';box-shadow:' + (ledOn ? '0 0 8px 2px rgba(255,181,71,.8)' : 'none'),
+      stackStyle: 'position:absolute;left:' + tx0 + 'px;top:' + feedY.toFixed(2) + 'px;width:360px;height:600px;z-index:10;' + (printing ? 'clip-path:inset(-60px -60px ' + Math.max(0, feedY + 600 - slotY).toFixed(1) + 'px -60px);' : '') + 'transform-origin:0 0;transform:' + stackTf + ' translate(180px,600px) rotate(' + rot.toFixed(2) + 'deg) translate(-180px,-600px);transition:' + (live && phase === 'slide2' ? 'none' : 'none'),
+      bodyWrap: 'position:absolute;left:0;top:0;width:360px;height:600px;filter:drop-shadow(0 ' + (10 + 14 * pf) + 'px ' + (12 + 12 * pf) + 'px rgba(0,0,0,.42));transform:translateX(' + tens.toFixed(1) + 'px);transition:transform 360ms var(--spring-snappy)',
+      bodyClipWrap: 'position:absolute;left:0;top:0;width:360px;height:600px;' + (tearing && !bodyDone ? 'clip-path:polygon(' + bodyPoly.map(f2).join(',') + ')' : ''),
+      showFull: !showTornFull, showTorn: showTornFull, tState: stateT, printV: printV,
+      showRim: tearing && !bodyDone, rimBody: rimPts,
+      showPiece: tearing && !bodyDone, rimPiece: rimPts,
+      pieceWrap: 'position:absolute;left:0;top:0;width:360px;height:600px;z-index:12;filter:drop-shadow(0 ' + (6 + pr * 12) + 'px ' + (8 + pr * 10) + 'px rgba(0,0,0,.45));transform-origin:' + pieceOrg + ';transform:' + pieceTf + ';opacity:' + pieceOp + (phase === 'fly' ? '' : ';transition:transform 90ms linear'),
+      pieceClipWrap: 'position:absolute;left:0;top:0;width:360px;height:600px;clip-path:polygon(' + piecePoly.map(f2).join(',') + ')',
+      curlStyle: 'position:absolute;top:' + 450 + 'px;height:150px;width:46px;' + (grab === 'R' ? 'left:' + xf.toFixed(1) + 'px;background:linear-gradient(90deg,rgba(60,48,30,.26),rgba(60,48,30,0))' : 'left:' + (xf - 46).toFixed(1) + 'px;background:linear-gradient(270deg,rgba(60,48,30,.26),rgba(60,48,30,0))'),
+      canGrab, dragCls: st.drag ? 'dragging' : '', grabStyle: 'position:absolute;left:0;top:450px;width:360px;height:150px;z-index:14;touch-action:none' + (bodyDone ? ';display:none' : ''),
+      showHint: phase === 'ready' && !(live && st.drag), hintStyle: 'position:absolute;left:' + (W < 900 ? Math.max(6, tx0 - 112) : tx0 - 150) + 'px;top:' + (perfY - 17).toFixed(1) + 'px;height:34px;padding:0 ' + (W < 900 ? 10 : 14) + 'px;border-radius:17px;display:flex;align-items:center;gap:4px;z-index:11;' + (W < 900 ? 'font-size:12px;' : '') + (live ? 'animation:fl-toast 420ms var(--spring-smooth) both' : ''),
+      perfGlow: 'position:absolute;left:' + (tx0 + 14) + 'px;top:' + (perfY - 1).toFixed(1) + 'px;width:332px;height:2px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--accent-1),transparent);box-shadow:0 0 12px 1px rgba(106,183,255,.55);animation:rt-perf 1.6s ease-in-out infinite;z-index:11;pointer-events:none',
+      parts,
+      capStyle: 'position:absolute;left:' + (cx - 180) + 'px;width:360px;top:' + Math.min(ty0 + 634, H - 54) + 'px;display:flex;align-items:center;justify-content:center;gap:12px;height:44px;z-index:12',
+      isPrinting: phase === 'print' || (!live && phase === 'print'), isReady: live && ready && !st.drag && tear < .001, btnCls: '',
+      toast: live ? st.toast && phase !== 'done' : (phase === 'slide' || phase === 'slide2' || (!live && +(p.fly || 0) >= 1)), toastStyle: 'position:absolute;left:' + cx + 'px;top:22px;transform:translateX(-50%);padding:12px 20px 12px 14px;border-radius:22px;z-index:40;animation:fl-toast 420ms var(--spring-smooth) both',
+      annotate: flag(p.annotate, false), annoStyle: 'left:' + (cx + 220) + 'px;top:' + (ty0 + 60) + 'px', sndText: live ? (st.snd || '—') : (p.snd || 'Stepper chirp ×14 (≈60 Hz gate, square) + 3–5 kHz noise tick'), hapText: live ? (st.hap || '—') : (p.hap || 'Trackpad tick ×14, heavier on settle'), hapDots,
+      onKey: e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (st.phase === 'print') this.skip(); else if (st.phase === 'ready') this.autoTear(); } },
+      onMove: e => { this.move(e); }, onUp: () => this.up(), onDown: e => { if (!this._root) this._root = e.currentTarget.closest('.win'); this.down(e); },
+      tearBtn: () => { this._root = this._root || document.querySelector('.win'); this.autoTear(); },
+      from, to, scenario: p.scenario || 'code', topic: p.topic === undefined ? 'Auth module refactor' : p.topic, seat: p.seat || '1A', gate: p.gate || 'A12', flight: p.flight || 'MR 0142', km: p.km || '', minutes: p.minutes || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

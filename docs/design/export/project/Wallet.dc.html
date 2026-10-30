@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wallet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.wl-h{font:500 42px/46px var(--font-serif);letter-spacing:-.02em;margin:0}
+.wl-cell{position:absolute;width:180px;height:252px;cursor:pointer;transition:transform var(--d3) var(--spring-snappy)}
+.wl-cell:hover,.wl-cell.is-hover{transform:translateY(-6px)}
+.wl-cell:focus-visible,.wl-cell.is-focus{outline:2px solid var(--accent-1);outline-offset:6px;border-radius:12px}
+.wl-cell.sel::after{content:"";position:absolute;inset:-6px;border-radius:16px;box-shadow:0 0 0 2px var(--accent-1),0 0 30px rgba(106,183,255,.3);pointer-events:none}
+.wl-st{position:absolute;width:252px;height:316px;transition:transform var(--d4) var(--spring-smooth)}
+.wl-cap{position:absolute;left:0;top:234px;width:180px;display:flex;align-items:center;gap:7px;font:500 12px/14px var(--font-ui);color:var(--text-2);white-space:nowrap}
+.wl-cap i{width:8px;height:8px;border-radius:50%;flex:none}
+.wl-cap span:last-child{margin-left:auto;font:500 11px/14px var(--font-mono);color:var(--text-3)}
+.wl-sw{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--font-ui);color:var(--text-2);white-space:nowrap}
+.wl-sw i{width:10px;height:10px;border-radius:50%;display:block;flex:none}
+.wl-dd{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px 0 12px;border-radius:10px;background:var(--fill-1);border:1px solid var(--stroke-hair);font:500 13px/1 var(--font-ui);color:var(--text-1);cursor:pointer;white-space:nowrap}
+.wl-dd:hover,.wl-dd.is-hover{background:var(--fill-2)}
+.wl-dd.on{background:rgba(106,183,255,.14);border-color:rgba(106,183,255,.4);color:var(--accent-1)}
+.wl-dd:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)" tabindex="0" onWheel="{{onWheel}}">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 70% 0%,rgba(106,183,255,.10),transparent 70%)"></div>
+<dc-import name="Sidebar" active="tickets" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- grid -->
+<sc-if value="{{isGrid}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="15"><div class="wl-cell {{c.cls}}" style="{{c.s}}" role="button" tabindex="0" aria-label="{{c.aria}}" onClick="{{c.pick}}"><dc-import name="Ticket" from="{{c.from}}" to="{{c.to}}" scenario="{{c.sc}}" state="landed" tile="true" scale=".5" color-by="{{colorBy}}" month="{{c.month}}" flight="{{c.flight}}" date="{{c.date}}" topic="{{c.topic}}" hover="{{c.hov}}" live="{{live}}" hint-size="180px,226px"></dc-import><div class="wl-cap"><i style="{{c.dot}}"></i><span>{{c.lbl}}</span><span>{{c.km}} km</span></div></div></sc-for>
+<div style="position:absolute;left:236px;right:0;bottom:0;height:120px;background:linear-gradient(180deg,transparent,var(--bg-1) 86%);pointer-events:none"></div>
+</sc-if>
+
+<!-- stack -->
+<sc-if value="{{isStack}}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{stack}}" as="c" hint-placeholder-count="9"><div class="wl-st" style="{{c.s}}"><dc-import name="Ticket" from="{{c.from}}" to="{{c.to}}" scenario="{{c.sc}}" state="landed" tile="true" scale=".7" color-by="{{colorBy}}" month="{{c.month}}" flight="{{c.flight}}" date="{{c.date}}" topic="{{c.topic}}" hint-size="252px,316px"></dc-import></div></sc-for>
+<div style="position:absolute;left:236px;right:0;top:0;height:214px;background:linear-gradient(180deg,var(--bg-1) 62%,transparent);pointer-events:none"></div>
+</sc-if>
+
+<!-- empty -->
+<sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:236px;right:0;top:170px;display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:216px;height:272px;opacity:.9"><dc-import name="Ticket" state="locked" scale=".6" label="Your first flight prints here" hint-size="216px,271px"></dc-import></div>
+<div class="serif" style="font-size:34px;line-height:40px;letter-spacing:-.015em;margin-top:30px">No tickets yet.</div>
+<div class="t-body c2" style="margin-top:6px">Your first flight will print here.</div>
+<button class="btn btn-primary btn-lg" style="margin-top:26px"><svg class="ic ic18"><use href="./icons.svg#plane"></use></svg>Plan a flight</button>
+</div>
+</sc-if>
+
+<!-- header -->
+<div style="position:absolute;left:264px;top:48px;right:28px;display:flex;align-items:flex-end;justify-content:space-between">
+<div><div class="eyebrow">Wallet</div><h1 class="wl-h" style="margin-top:6px">Tickets</h1><div class="t-callout c2" style="margin-top:4px">{{summary}}</div></div>
+<div style="display:flex;gap:12px;align-items:center">
+<div class="field {{searchCls}}" style="width:236px"><svg class="ic ic14 c3"><use href="./icons.svg#search"></use></svg><input placeholder="Search tickets" value="{{query}}" aria-label="Search tickets"><span class="kbd">⌘F</span></div>
+<div class="seg" role="tablist"><span class="{{gridOn}}" role="tab" aria-label="Grid" onClick="{{setGrid}}"><svg class="ic ic14"><use href="./icons.svg#grid"></use></svg>Grid</span><span class="{{stackOn}}" role="tab" aria-label="Stack" onClick="{{setStack}}"><svg class="ic ic14"><use href="./icons.svg#layers"></use></svg>Stack</span></div>
+</div></div>
+<sc-if value="{{hasFilters}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:264px;top:134px;right:28px;display:flex;align-items:center;gap:12px">
+<span class="eyebrow" style="margin-right:2px;white-space:nowrap">Color by</span>
+<div class="seg"><sc-for list="{{colorOpts}}" as="o" hint-placeholder-count="4"><span class="{{o.cls}}" onClick="{{o.pick}}">{{o.t}}</span></sc-for></div>
+<span style="width:1px;height:20px;background:var(--stroke-hair);margin:0 6px"></span>
+<span class="wl-dd {{yearCls}}">{{yearLbl}}<svg class="ic ic12 c3"><use href="./icons.svg#chev-d"></use></svg></span>
+<span class="wl-dd {{scCls}}">{{scLbl}}<svg class="ic ic12 c3"><use href="./icons.svg#chev-d"></use></svg></span>
+<span class="wl-dd">All classes<svg class="ic ic12 c3"><use href="./icons.svg#chev-d"></use></svg></span>
+</div>
+<div style="position:absolute;left:264px;top:174px;display:flex;gap:14px;align-items:center;flex-wrap:nowrap"><sc-for list="{{legend}}" as="l" hint-placeholder-count="8"><span class="wl-sw"><i style="{{l.s}}"></i>{{l.t}}</span></sc-for></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"colorBy":{"editor":"enum","options":["scenario","class","continent","month"],"default":"scenario"},"view":{"editor":"enum","options":["grid","stack"],"default":"grid"},"empty":{"editor":"boolean","default":false},"fan":{"editor":"float","default":0.15},"sel":{"editor":"int","default":-1},"hoverIdx":{"editor":"int","default":-1},"year":{"editor":"text","default":"All years"},"scenarioFilter":{"editor":"text","default":"All scenarios"},"live":{"editor":"boolean","default":false},"onOpen":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { colorBy: null, view: null, fan: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  DATA() {
+    return [
+      ['LHR', 'CDG', 'code', 9, 'THU 29 OCT', 'MR 0142', 'Auth module refactor'], ['CDG', 'LHR', 'work', 9, 'WED 28 OCT', 'MR 0141', 'Q4 planning deck'], ['LHR', 'AMS', 'study', 9, 'TUE 27 OCT', 'MR 0139', 'Organic chemistry'], ['AMS', 'FRA', 'read', 8, 'MON 21 SEP', 'MR 0131', 'The Overstory'],
+      ['FRA', 'IST', 'work', 8, 'FRI 18 SEP', 'MR 0128', 'Vendor review'], ['IST', 'ESB', 'create', 8, 'THU 10 SEP', 'MR 0124', 'Brand sketches'], ['ESB', 'ADB', 'meditate', 7, 'SUN 30 AUG', 'MR 0119', 'Morning sit'], ['LHR', 'DUB', 'read', 7, 'SAT 22 AUG', 'MR 0114', 'Essays'],
+      ['JFK', 'BOS', 'work', 6, 'FRI 17 JUL', 'MR 0108', 'Inbox zero'], ['BOS', 'YYZ', 'study', 6, 'WED 08 JUL', 'MR 0102', 'Statistics'], ['YYZ', 'SFO', 'create', 5, 'TUE 23 JUN', 'MR 0097', 'Album notes'], ['LHR', 'CAI', 'read', 5, 'SAT 13 JUN', 'MR 0093', 'Field guide'],
+      ['DXB', 'DOH', 'fitness', 4, 'MON 18 MAY', 'MR 0088', 'Mobility'], ['SIN', 'SYD', 'study', 3, 'SUN 12 APR', 'MR 0079', 'Thesis chapter 2'], ['LHR', 'MAD', 'code', 2, 'THU 05 MAR', 'MR 0071', 'API cleanup']
+    ].map((r, i) => ({ from: r[0], to: r[1], sc: r[2], month: r[3], date: r[4], flight: r[5], topic: r[6], i }));
+  }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state, live = this.flag(p.live, false);
+    const colorBy = st.colorBy || (typeof p.colorBy === 'string' ? p.colorBy : 'scenario');
+    const view = st.view || (typeof p.view === 'string' ? p.view : 'grid');
+    const empty = this.flag(p.empty, false);
+    const sel = typeof p.sel === 'number' || typeof p.sel === 'string' ? +p.sel : -1, hov = typeof p.hoverIdx === 'number' || typeof p.hoverIdx === 'string' ? +p.hoverIdx : -1;
+    const fan = st.fan !== null ? st.fan : (typeof p.fan === 'number' || typeof p.fan === 'string' ? +p.fan : .15);
+    const D = this.DATA();
+    const yr = typeof p.year === 'string' ? p.year : 'All years', scf = typeof p.scenarioFilter === 'string' ? p.scenarioFilter : 'All scenarios';
+    const scKey = Object.keys(K.scenarios).find(k => K.scenarios[k][0] === scf);
+    const list = D.filter(d => !scKey || d.sc === scKey);
+    const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], CN = { eu: 'Europe', na: 'N. America', sa: 'S. America', as: 'Asia', af: 'Africa', oc: 'Oceania' };
+    const cap = d => { const km = Math.round(K.gc(d.from, d.to)), mins = K.minutes(km), cab = K.cabin(mins), ct = K.continent(d.to);
+      if (colorBy === 'class') return { lbl: K.cabinName[cab], dot: 'background:var(--foil-' + cab + ')', km };
+      if (colorBy === 'continent') return { lbl: CN[ct], dot: 'background:var(--ct-' + ct + ')', km };
+      if (colorBy === 'month') return { lbl: MN[d.month], dot: 'background:hsl(' + (d.month * 30) + ' 62% 74%)', km };
+      return { lbl: K.scenarios[d.sc][0], dot: 'background:' + K.scenarios[d.sc][1], km }; };
+    const cells = list.map((d, i) => { const col = i % 5, row = Math.floor(i / 5); return Object.assign({}, d, cap(d), { s: 'left:' + (264 + col * 196) + 'px;top:' + (212 + row * 262) + 'px', cls: (i === sel ? 'sel' : '') + (i === hov ? ' is-hover' : ''), hov: i === hov, aria: 'Ticket ' + d.from + ' to ' + d.to + ', ' + d.date + ', ' + K.scenarios[d.sc][0], pick: () => { const cb = this.props.onOpen; if (typeof cb === 'function') cb(d); } }); });
+    // stack: newest at the front (bottom), older ones peek above
+    const off = 14 + fan * 44, base = 462, n = Math.max(1, Math.min(6, list.length, Math.floor((base - 214) / off) + 1));
+    const stack = [];
+    for (let k = n - 1; k >= 0; k--) { const d = list[k]; const y = base - k * off, rot = (k % 2 ? 1 : -1) * Math.min(1.6, k * .5) * (1 - fan * .6); stack.push(Object.assign({}, d, { s: 'left:624px;top:' + y.toFixed(1) + 'px;z-index:' + (20 - k) + ';transform:rotate(' + rot.toFixed(2) + 'deg);transform-origin:50% 100%;filter:drop-shadow(0 ' + (6 + 8 * (k === 0 ? 1 : 0)) + 'px 14px rgba(0,0,0,.35))' })); }
+    const legend = colorBy === 'scenario' ? Object.keys(K.scenarios).map(k => ({ t: K.scenarios[k][0], s: 'background:' + K.scenarios[k][1] }))
+      : colorBy === 'class' ? [['Economy', '--foil-economy'], ['Premium', '--foil-premium'], ['Business', '--foil-business'], ['First', '--foil-first'], ['Long-haul', '--foil-long']].map(a => ({ t: a[0], s: 'background:var(' + a[1] + ')' }))
+      : colorBy === 'continent' ? [['Europe', 'eu'], ['N. America', 'na'], ['S. America', 'sa'], ['Asia', 'as'], ['Africa', 'af'], ['Oceania', 'oc']].map(a => ({ t: a[0], s: 'background:var(--ct-' + a[1] + ')' }))
+      : ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'].map((m, i) => ({ t: '', s: 'width:14px;height:10px;border-radius:3px;background:hsl(' + (i * 30) + ' 62% 74%)' }));
+    const opts = [['scenario', 'Scenario'], ['class', 'Class'], ['continent', 'Continent'], ['month', 'Month']].map(o => ({ t: o[1], cls: colorBy === o[0] ? 'on' : '', pick: () => this.setState({ colorBy: o[0] }) }));
+    return {
+      cells, stack, legend, colorOpts: opts, colorBy, live, isGrid: view === 'grid' && !empty, isStack: view === 'stack' && !empty, isEmpty: empty, hasFilters: !empty,
+      summary: empty ? '0 flights' : (scKey ? list.length + ' flights · ' + K.scenarios[scKey][0] : '87 flights · 94.5 hours · 12,022 km'),
+      query: '', searchCls: '', gridOn: view === 'grid' ? 'on' : '', stackOn: view === 'stack' ? 'on' : '', setGrid: () => this.setState({ view: 'grid' }), setStack: () => this.setState({ view: 'stack' }),
+      yearLbl: yr, yearCls: yr !== 'All years' ? 'on' : '', scLbl: scf, scCls: scf !== 'All scenarios' ? 'on' : '',
+      onWheel: e => { if (view !== 'stack' || !live) return; const f = Math.max(0, Math.min(1, fan + e.deltaY * .002)); this.setState({ fan: f }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

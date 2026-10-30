@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sound spec sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.sd{width:1440px;padding:56px 56px 64px;box-sizing:border-box;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);display:flex;flex-direction:column;gap:24px;-webkit-font-smoothing:antialiased}
+.sd h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:6px 0 0}
+.sd-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sd-box{border-radius:20px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);padding:18px 20px}
+.sd-sw{display:flex;align-items:center;gap:14px}
+.sd-sw .l{flex:1}
+.sd-lbl{font:600 15px/20px var(--font-ui)}
+.sd-sub{font:400 12.5px/18px var(--font-ui);color:var(--text-2);margin-top:2px}
+.sd-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.sd-card{border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);padding:20px 22px 22px;display:flex;flex-direction:column;gap:14px}
+.sd-hd{display:flex;align-items:center;gap:12px}
+.sd-no{font:700 11px/16px var(--font-mono);letter-spacing:.1em;color:var(--accent-1)}
+.sd-nm{font:600 20px/26px var(--font-ui);letter-spacing:-.01em;flex:1}
+.sd-chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:11px;font:600 10px/1 var(--font-ui);letter-spacing:.08em;text-transform:uppercase;background:var(--fill-2);color:var(--text-2)}
+.sd-chip.ann{background:rgba(255,181,71,.16);color:#FFC27A}
+.sd-tr{font:400 12px/17px var(--font-mono);color:var(--text-2)}
+.sd-btns{display:flex;gap:8px;flex-wrap:wrap}
+.sd-play{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px 0 11px;border-radius:17px;background:var(--fill-2);color:var(--text-1);font:600 13px/1 var(--font-ui);cursor:pointer;user-select:none;transition:background var(--d1) var(--ease),transform var(--d1) var(--ease);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.sd-play:hover,.sd-play.is-hover{background:var(--fill-3)}
+.sd-play:active,.sd-play.is-pressed{transform:scale(.97);background:var(--fill-3)}
+.sd-play:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+.sd-play.on{background:var(--accent-grad);color:#04101A;box-shadow:none}
+.sd-play.is-muted{opacity:.45}
+.sd-msg{font:500 12px/16px var(--font-ui);color:#FFC27A;min-height:16px}
+.sd-dg{border-radius:14px;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:block}
+.sd-lg{display:flex;gap:16px;flex-wrap:wrap;font:500 11px/14px var(--font-mono);color:var(--text-2)}
+.sd-lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.sd-rows{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+.sd-r{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:6px 0;border-top:1px solid var(--stroke-hair)}
+.sd-k{font:600 10px/16px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.sd-v{font:400 12px/16px var(--font-ui);color:var(--text-1)}
+.sd-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.sd-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.sd .toggle:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+</style>
+</helmet>
+<div class="sd" data-theme="dark" data-screen-label="A01 Sound spec">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px"><div><div class="eyebrow">A01 · Sound specs</div><h1>Nine synthesized sounds</h1><div class="t-callout c2" style="margin-top:6px;max-width:800px">Nothing is sampled. Every effect is a few oscillators and filtered noise, so the whole set weighs a few kilobytes, can be tuned in code and always agrees with the animation it belongs to. Press a play button to hear the exact recipe from the prototypes.</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:340px">Envelopes are drawn from the real recipe values. Frequency bars use a log axis, 20 Hz to 20 kHz.</div></div>
+
+<div class="sd-top">
+<div class="sd-box"><div class="sd-sw"><div class="l"><div class="sd-lbl">UI sounds</div><div class="sd-sub">Taps, tears and stamps. Off silences every effect except announcements.</div></div><span class="toggle {{uiCls}}" role="switch" aria-checked="{{uiChecked}}" aria-label="UI sounds" tabindex="0" onClick="{{uiFlip}}"></span></div></div>
+<div class="sd-box"><div class="sd-sw"><div class="l"><div class="sd-lbl">Announcements</div><div class="sd-sub">Seatbelt, boarding and landing chimes. Always paired with a banner or a label, never sound-only.</div></div><span class="toggle {{annCls}}" role="switch" aria-checked="{{annChecked}}" aria-label="Announcements" tabindex="0" onClick="{{annFlip}}"></span></div></div>
+<div class="sd-box"><div class="sd-lbl">Mix bus</div><div class="sd-sub">Master 0.85 into a compressor (threshold −16 dB, 3 : 1). One shared 1.3 s room: decaying stereo noise impulse, per-sound send 0.35–0.55. The stamp thump is the loudest effect (peak .55); the printer is the softest texture (.045).</div></div>
+</div>
+
+<div class="sd-grid">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="9">
+<section class="sd-card">
+<div class="sd-hd"><span class="sd-no">{{c.no}}</span><span class="sd-nm">{{c.name}}</span><span class="sd-chip {{c.chipCls}}">{{c.cat}}</span></div>
+<div class="sd-tr">{{c.trigger}}</div>
+<div class="sd-btns"><sc-for list="{{c.btns}}" as="b" hint-placeholder-count="2"><span class="sd-play {{b.cls}}" role="button" tabindex="0" aria-label="{{b.aria}}" onClick="{{b.go}}"><svg class="ic ic14"><use href="./icons.svg#play"></use></svg>{{b.label}}</span></sc-for></div>
+<div class="sd-msg" role="status" aria-live="polite">{{c.msg}}</div>
+<svg class="sd-dg" width="{{c.W}}" height="{{c.H}}" viewBox="0 0 {{c.W}} {{c.H}}" role="img" aria-label="{{c.alt}}">
+<sc-for list="{{c.grid}}" as="g" hint-placeholder-count="8"><line x1="{{g.x}}" y1="10" x2="{{g.x}}" y2="{{g.y2}}" stroke="rgba(255,255,255,.1)" stroke-width="1"/></sc-for>
+<line x1="8" y1="{{c.base}}" x2="{{c.xr}}" y2="{{c.base}}" stroke="rgba(255,255,255,.28)" stroke-width="1"/>
+<sc-for list="{{c.shapes}}" as="s" hint-placeholder-count="4"><path d="{{s.d}}" fill="{{s.fill}}" stroke="{{s.stroke}}" stroke-width="{{s.sw}}" stroke-dasharray="{{s.dash}}" stroke-linejoin="round" stroke-linecap="round"/></sc-for>
+</svg>
+<div class="sd-tl" style="position:relative;height:14px;margin-top:-8px"><sc-for list="{{c.ticks}}" as="k" hint-placeholder-count="6"><span style="position:absolute;left:{{k.x}}px;top:0;transform:translateX(-50%);font:400 10px/14px var(--font-mono);color:var(--text-3);white-space:nowrap">{{k.t}}</span></sc-for></div>
+<div class="sd-lg"><sc-for list="{{c.legend}}" as="l" hint-placeholder-count="3"><span><i style="background:{{l.c}}"></i>{{l.t}}</span></sc-for></div>
+<svg class="sd-dg" width="{{c.W}}" height="34" viewBox="0 0 {{c.W}} 34" role="img" aria-label="{{c.bandAlt}}">
+<sc-for list="{{c.fgrid}}" as="g" hint-placeholder-count="7"><line x1="{{g.x}}" y1="4" x2="{{g.x}}" y2="30" stroke="rgba(255,255,255,.1)" stroke-width="1"/></sc-for>
+<sc-for list="{{c.bands}}" as="b" hint-placeholder-count="3"><rect x="{{b.x}}" y="{{b.y}}" width="{{b.w}}" height="{{b.h}}" rx="3" fill="{{b.c}}" opacity=".85"/></sc-for>
+</svg>
+<div style="position:relative;height:14px;margin-top:-8px"><sc-for list="{{c.fgrid}}" as="g" hint-placeholder-count="7"><span style="position:absolute;left:{{g.x}}px;top:0;transform:translateX(-50%);font:400 10px/14px var(--font-mono);color:var(--text-3);white-space:nowrap">{{g.t}}</span></sc-for></div>
+<div class="sd-rows"><sc-for list="{{c.rows}}" as="r" hint-placeholder-count="8"><div class="sd-r"><span class="sd-k">{{r.k}}</span><span class="sd-v">{{r.v}}</span></div></sc-for></div>
+</section></sc-for>
+<section class="sd-card" style="gap:12px">
+<div class="sd-hd"><span class="sd-no">A</span><span class="sd-nm">How the set was tuned</span></div>
+<div class="sd-rows" style="grid-template-columns:1fr">
+<div class="sd-r"><span class="sd-k">Short and low</span><span class="sd-v">Effects are under 400 ms except the printer and the chimes. Most of their energy sits below 4 kHz, so nothing is shrill after an hour of use.</span></div>
+<div class="sd-r"><span class="sd-k">One room</span><span class="sd-v">Every sound that has a tail shares the same 1.3 s room, so the set sounds like one cabin and not a sound pack.</span></div>
+<div class="sd-r"><span class="sd-k">A visual twin</span><span class="sd-v">Each sound lines up with a motion on T01 to T03 and with a haptic. Nothing is announced by sound alone.</span></div>
+<div class="sd-r"><span class="sd-k">No loops</span><span class="sd-v">Only the ambient mixer layers (C10) loop. Effects never repeat on their own and never play in the background.</span></div>
+<div class="sd-r"><span class="sd-k">Tunable</span><span class="sd-v">Every number on this sheet is a constant in one file, so a sound designer can change the set without touching the UI.</span></div>
+</div>
+</section>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="sd-nat"><b>Native</b><span>One AVAudioEngine for the app. Each effect is rendered once at launch into an AVAudioPCMBuffer from the same recipes (oscillators, filtered noise, exponential envelopes) and played from AVAudioPlayerNodes, so latency stays low. The room is an AVAudioUnitReverb (small room) on a send bus; the master bus ends in an AVAudioUnitDynamicsProcessor. Announcement chimes are also bundled as 1.2 s .caf files for notifications.</span></div>
+<div class="sd-nat"><b>Rules</b><span>Effects follow the “UI sounds” toggle and the macOS setting “Play user interface sound effects”. Announcements follow their own toggle and Focus. Sound is never the only signal: every sound here has a visual twin and, on a trackpad, a haptic from NSHapticFeedbackManager (alignment, level change or generic). Everything follows the system output volume and mute.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3000}}'>
+class Component extends DCLogic {
+  state = { ui: true, ann: true, busy: '', msg: {} };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentDidMount() { try { const A = window.MeridianAudio; if (A) A.enabled = true; } catch (e) {} }
+  say(card, text) { const m = Object.assign({}, this.state.msg); m[card] = text; this.setState({ msg: m }); clearTimeout(this._mt); this._mt = setTimeout(() => this.setState({ msg: {} }), 2600); }
+  play(card, key, ann, label) {
+    const st = this.state, A = window.MeridianAudio;
+    if (ann ? !st.ann : !st.ui) { this.say(card, (ann ? 'Announcements' : 'UI sounds') + ' are off. Turn the switch on to hear this.'); return; }
+    if (!A) { this.say(card, 'Audio is not available in this preview.'); return; }
+    try { A.enabled = true; A.init(); } catch (e) { this.say(card, 'The browser blocked audio until you interact with the page.'); return; }
+    const run = {
+      printer: () => { A.paperSlide(1.6); for (let i = 0; i < 14; i++) setTimeout(() => A.printerStep(i), 200 + i * 114); setTimeout(() => A.tick(true), 1800); },
+      rip: () => { A.rip.start(); let v = 0; const iv = setInterval(() => { v += .06; A.rip.set(Math.min(1, v)); if (v >= .85) { clearInterval(iv); A.rip.finish(); } }, 40); },
+      stamp: () => A.stamp(), thump: () => A.thump(), whoosh: () => A.whoosh(),
+      flap: () => [0, 40, 80].forEach(d => setTimeout(() => A.flap(), d)),
+      click: () => A.click(), tick: () => A.tick(false), tickh: () => A.tick(true),
+      seat: () => A.seatbelt(), board: () => A.chime('board'), land: () => A.chime('land')
+    }[key];
+    if (run) run();
+    this.setState({ busy: card + ':' + key }); clearTimeout(this._bt); this._bt = setTimeout(() => this.setState({ busy: '' }), key === 'printer' ? 2200 : key === 'board' || key === 'land' ? 1500 : key === 'stamp' ? 800 : 500);
+  }
+  renderVals() {
+    const st = this.state, f1 = v => Math.round(v * 10) / 10;
+    const W = 600, H = 124, X0 = 10, XR = W - 10, BASE = H - 12, TOPY = 14;
+    const COL = { a: '#6AB7FF', b: '#8BF3D8', c: '#FFB547', d: '#B49CFF', e: '#FF8FB1' };
+    // exponential-decay envelope exactly as env() in meridian-audio.js: linear attack to peak, then exponential to 0.0001 over d + rel
+    const envAt = (t, t0, a, pk, d, rel) => { const u = t - t0; if (u < 0) return 0; if (u < a) return pk * u / a; return pk * Math.pow(1e-4 / pk, (u - a) / (d + rel)); };
+    const mkPath = (total, maxAmp, fn, step, close) => { const pts = []; const n = Math.max(40, Math.round(total / (step || 4))); for (let i = 0; i <= n; i++) { const t = total * i / n, y = BASE - Math.min(1, fn(t) / maxAmp) * (BASE - TOPY); pts.push([X0 + (XR - X0) * i / n, y]); } let d = 'M' + pts.map(p => f1(p[0]) + ' ' + f1(p[1])).join('L'); if (close) d += 'L' + f1(XR) + ' ' + BASE + 'L' + X0 + ' ' + BASE + 'Z'; return d; };
+    const shape = (d, color, filled, dash) => ({ d, fill: filled ? color : 'none', stroke: color, sw: filled ? 1.2 : 1.6, dash: dash || '0' });
+    const fillA = c => c + '55';
+    const axis = (total, step, unit) => { const t = [], g = []; for (let v = 0; v <= total + 1; v += step) { const x = X0 + (XR - X0) * v / total; t.push({ x: f1(x), t: unit === 's' ? (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' s' : v + ' ms' }); g.push({ x: f1(x), y2: BASE }); } return { ticks: t, grid: g }; };
+    const FL = 20, FH = 20000, fx = f => X0 + (XR - X0) * Math.log(f / FL) / Math.log(FH / FL);
+    const fgrid = [[50, '50'], [100, '100'], [500, '500'], [1000, '1 k'], [5000, '5 k'], [10000, '10 k']].map(a => ({ x: f1(fx(a[0])), t: a[1] + (a[0] < 1000 ? ' Hz' : '') }));
+    const band = (lo, hi, c, row) => ({ x: f1(fx(lo)), y: 4 + (row || 0) * 10, w: Math.max(3, f1(fx(hi) - fx(lo))), h: 8, c });
+    const line = (f, c, row) => band(f * .985, f * 1.015, c, row);
+
+    const defs = [];
+    // 1 Printer
+    { const T = 2100, A = axis(T, 500, 's'); const chirp = t => { for (let i = 0; i < 14; i++) { const s = 200 + i * 114; if (t >= s && t < s + 84) return .045; } return 0; };
+      const tickN = t => { let m = 0; for (let i = 0; i < 14; i++) m = Math.max(m, envAt(t, 200 + i * 114, 2, .09, 12, 10)); return m; };
+      const bed = t => t < 200 ? 0 : t < 450 ? .05 * (t - 200) / 250 : t < 1600 ? .05 : t < 1800 ? .05 * (1800 - t) / 200 : 0;
+      defs.push({ no: '01', name: 'Printer', cat: 'Effect', ann: false, trigger: 'Check in · 14 steps over 1.6 s · T01 Ticket printing', btns: [['printer', 'Play printer', 'Play the ticket printer sound']], total: T, max: .13, step: 4,
+        layers: [[bed, COL.d, true, 'Paper slide bed (noise, 900 → 1,500 Hz)'], [chirp, COL.a, true, 'Stepper chirp ×14 (square, gated at 60 Hz)'], [tickN, COL.b, false, 'Noise tick, 20 ms per step'], [t => envAt(t, 1800, 1, .12, 20, 30), COL.c, false, 'Settle tick']],
+        bands: [band(170, 1400, COL.a, 0), band(900, 1500, COL.d, 1), band(3200, 4400, COL.b, 2)], bandAlt: 'Chirp 170 to 1,400 hertz, paper bed 900 to 1,500, noise tick 3,200 to 4,400.', axis: A,
+        rows: [['Source', 'Square oscillator 170 → 240 Hz (+5 Hz per step), gated on and off at 60 Hz, 84 ms per step'], ['Filter', 'Low-pass 1,400 Hz on the chirp; band-pass 3.6–4.4 kHz, Q 1.4 on the tick'], ['Envelope', 'Chirp .045 flat; tick attack 2 ms, peak .09, decay 22 ms; bed fades in over 250 ms and out over 200 ms'], ['Level', 'A quiet constant texture: chirp .045, bed .05, tick .09'], ['Paired with', 'The printer feed and the head glow; 14 trackpad ticks. Skipping with Space cuts all sound at once'], ['Mute rule', 'UI sounds. Reduce Motion keeps only the settle tick']] });
+    }
+    // 2 Paper rip
+    { const T = 1150, A = axis(T, 250); const v = t => Math.min(1, t / 700); const drag = t => t < 700 ? Math.pow(v(t), 1.15) * .42 : 0;
+      const fin = t => { const u = t - 700; if (u < 0) return 0; if (u < 180) return .12 + .38 * u / 180; if (u < 240) return .5 * (240 - u) / 60; return 0; };
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647; const crack = []; for (let k = 0; k < 46; k++) { const t = 40 + rnd() * 660, vv = v(t); if (rnd() < vv * .95 + .1) crack.push([t, .06 + vv * .12]); } for (let k = 0; k < 18; k++) crack.push([700 + k * 12, .18]);
+      const crk = t => { let m = 0; crack.forEach(c => { m = Math.max(m, envAt(t, c[0], .6, c[1], 3, 2)); }); return m; };
+      defs.push({ no: '02', name: 'Paper rip', cat: 'Effect', ann: false, trigger: 'Drag the stub · velocity driven · T01 Ticket tear', btns: [['rip', 'Play tear', 'Play the paper tear sound']], total: T, max: .52, step: 3,
+        layers: [[drag, COL.a, true, 'Rip noise, follows drag velocity'], [fin, COL.c, false, 'Completion burst'], [crk, COL.e, false, 'Crackles, 2–8 ms'], [t => envAt(t, 900, 4, .3, 80, 100), COL.d, false, '150 Hz thump']],
+        bands: [band(1500, 4000, COL.a, 0), band(1800, 4200, COL.e, 1), line(150, COL.d, 2)], bandAlt: 'Rip noise 1,500 to 4,000 hertz, crackles 1,800 to 4,200, thump at 150.', axis: A,
+        rows: [['Source', 'White noise through a band-pass, plus random high-passed noise clicks'], ['Filter', 'Band-pass 1.5 → 4 kHz, Q 0.8; centre follows velocity. Clicks high-passed at 1.8–4.2 kHz'], ['Envelope', 'Gain = velocity^1.15 × .42, smoothed 20 ms. Release: .12 → .5 in 180 ms → 0 in 60 ms'], ['Crackle', 'Up to 9 clicks per 16 ms at full speed, peak .06–.18'], ['Paired with', 'Stub drag, light tick every 10 %, the +1 badge thud at the end'], ['Mute rule', 'UI sounds. Gate closes to zero the instant the pointer stops']] });
+    }
+    // 3 Stamp
+    { const T = 900, A = axis(T, 200);
+      defs.push({ no: '03', name: 'Stamp', cat: 'Effect', ann: false, trigger: 'Landing and passport · 180 ms visual · T02 Landing stamp', btns: [['stamp', 'Play stamp', 'Play the stamp thump']], total: T, max: .6, step: 3,
+        layers: [[t => envAt(t, 0, 2, .55, 100, 220), COL.a, true, 'Thump, sine 80 → 45 Hz over 120 ms'], [t => envAt(t, 0, .6, .22, 3, 4), COL.e, false, 'Noise click, 3 ms'], [t => envAt(t, 0, 2, .55 * .35, 700, 600) * .9, COL.d, false, 'Room tail (send .35)']],
+        bands: [band(45, 80, COL.a, 0), band(1000, 2000, COL.e, 1)], bandAlt: 'Thump 45 to 80 hertz, click around 1 to 2 kilohertz.', axis: A,
+        rows: [['Source', 'Sine, exponential drop 80 → 45 Hz in 120 ms; short band-passed noise burst for the click'], ['Filter', 'Click band-pass 1.4 kHz, Q 0.9'], ['Envelope', 'Thump attack 2 ms, peak .55, decay 100 ms, release 220 ms. Click peak .22'], ['Space', 'Room send .35 on the thump, .40 on the click'], ['Paired with', 'The 60 ms drop and the 120 ms ink bleed; heavy haptic tick at 60 ms'], ['Mute rule', 'UI sounds. Reduce Motion keeps the thump']] });
+    }
+    // 4 Wallet thud
+    { const T = 400, A = axis(T, 100);
+      defs.push({ no: '04', name: 'Wallet thud', cat: 'Effect', ann: false, trigger: 'Ticket reaches the Wallet · T02 Wallet-in', btns: [['thump', 'Play thud', 'Play the wallet thud']], total: T, max: .34, step: 2,
+        layers: [[t => envAt(t, 0, 3, .3, 80, 120), COL.a, true, 'Sine 110 → 60 Hz over 120 ms']],
+        bands: [band(60, 110, COL.a, 0)], bandAlt: 'Sine sweep 60 to 110 hertz.', axis: A,
+        rows: [['Source', 'Sine, exponential drop 110 → 60 Hz in 120 ms'], ['Envelope', 'Attack 3 ms, peak .3, decay 80 ms, release 120 ms; stops at 300 ms'], ['Space', 'None. Dry, so it reads as an object landing, not a room'], ['Paired with', 'The “+1” badge pop and a level-change tick'], ['Mute rule', 'UI sounds']] });
+    }
+    // 5 Whoosh
+    { const T = 400, A = axis(T, 100);
+      defs.push({ no: '05', name: 'Flip whoosh', cat: 'Effect', ann: false, trigger: 'Card flip · 250 ms · T01 Card tilt and flip', btns: [['whoosh', 'Play whoosh', 'Play the card flip whoosh']], total: T, max: .14, step: 3,
+        layers: [[t => envAt(t, 0, 60, .12, 100, 120), COL.a, true, 'Noise, band-pass sweeping 400 → 1,200 Hz']],
+        bands: [band(400, 1200, COL.a, 0)], bandAlt: 'Band-pass sweep 400 to 1,200 hertz.', axis: A,
+        rows: [['Source', 'White noise through a band-pass, exponential sweep 400 → 1,200 Hz in 250 ms'], ['Filter', 'Band-pass, Q 1.1'], ['Envelope', 'Attack 60 ms, peak .12, decay 100 ms, release 120 ms'], ['Space', 'None'], ['Paired with', 'The 180° flip; a light tick when it lands'], ['Mute rule', 'UI sounds']] });
+    }
+    // 6 Flap
+    { const T = 140, A = axis(T, 20);
+      const fl = t => Math.max(envAt(t, 0, .8, .07, 6, 8), envAt(t, 40, .8, .07, 6, 8), envAt(t, 80, .8, .07, 6, 8));
+      defs.push({ no: '06', name: 'Split-flap clack', cat: 'Effect', ann: false, trigger: 'Any flap flips · 40 ms stagger · T03 Split-flap cascade', btns: [['flap', 'Play cascade', 'Play three split-flap clacks']], total: T, max: .08, step: .6,
+        layers: [[fl, COL.a, true, 'Band-passed noise click, 15 ms, ×3 at 40 ms']],
+        bands: [band(2200, 3100, COL.a, 0)], bandAlt: 'Band-pass around 2,600 hertz.', axis: A,
+        rows: [['Source', 'White noise through a narrow band-pass'], ['Filter', 'Band-pass 2.6 kHz, Q 2.2'], ['Envelope', 'Attack 0.8 ms, peak .07, decay 6 ms, release 8 ms'], ['Rate limit', 'At most 25 clacks per second, so a long row never turns into a buzz'], ['Paired with', 'The second half of each flap. Never haptic'], ['Mute rule', 'UI sounds']] });
+    }
+    // 7 UI tap and tick
+    { const T = 60, A = axis(T, 10);
+      defs.push({ no: '07', name: 'UI tap and tick', cat: 'Effect', ann: false, trigger: 'Buttons, selection, detents · 12 ms', btns: [['click', 'Click', 'Play the UI tap'], ['tick', 'Tick', 'Play the light tick'], ['tickh', 'Heavy tick', 'Play the heavy tick']], total: T, max: .13, step: .4,
+        layers: [[t => envAt(t, 0, 1, .035, 6, 5), COL.a, true, 'Click: high-passed noise, 12 ms'], [t => envAt(t, 0, 1, .06, 20, 30), COL.b, false, 'Tick: sine 2,400 → 1,400 Hz, 30 ms'], [t => envAt(t, 0, 1, .12, 20, 30), COL.c, false, 'Heavy tick: sine 1,500 → 700 Hz']],
+        bands: [band(2200, 12000, COL.a, 0), band(1400, 2400, COL.b, 1), band(700, 1500, COL.c, 2)], bandAlt: 'Click above 2.2 kilohertz, tick 1.4 to 2.4, heavy tick 0.7 to 1.5.', axis: A,
+        rows: [['Click', 'Noise, high-pass 2.2 kHz; attack 1 ms, peak .035, 12 ms in all'], ['Tick', 'Sine falling 2,400 → 1,400 Hz in 30 ms; peak .06'], ['Heavy tick', 'Sine falling 1,500 → 700 Hz in 30 ms; peak .12; used for settle and landing moments'], ['Paired with', 'Always a haptic of the same weight: alignment for tick, level change for heavy tick'], ['Mute rule', 'UI sounds. Not played on key repeat']] });
+    }
+    // 8 Seatbelt
+    { const T = 800, A = axis(T, 200);
+      const s1 = t => envAt(t, 0, 12, .13, 120, 140), s2 = t => envAt(t, 200, 12, .13, 120, 140);
+      defs.push({ no: '08', name: 'Seatbelt chime', cat: 'Announcement', ann: true, trigger: 'Descent begins at 85 % of the flight · M05 Notifications', btns: [['seat', 'Play seatbelt', 'Play the seatbelt chime']], total: T, max: .15, step: 3,
+        layers: [[s1, COL.a, true, '880 Hz, 180 ms'], [s2, COL.b, true, '660 Hz, 180 ms']],
+        bands: [line(880, COL.a, 0), line(660, COL.b, 1)], bandAlt: 'Two pure tones at 880 and 660 hertz.', axis: A,
+        rows: [['Source', 'Two sine tones, 880 Hz then 660 Hz, starting 200 ms apart'], ['Envelope', 'Attack 12 ms, peak .13, decay 120 ms, release 140 ms each'], ['Space', 'Room send .55'], ['Paired with', 'The phase dot moving to Descent and the banner text, so it never depends on sound'], ['Mute rule', 'Announcements. Respects Focus; only the landing heads-up is Time Sensitive']] });
+    }
+    // 9 Chimes
+    { const T = 2500, A = axis(T, 500, 's');
+      const note = (f0, t0) => t => envAt(t, t0, 6, .16, 1900, 100);
+      defs.push({ no: '09', name: 'Boarding and landing chimes', cat: 'Announcement', ann: true, trigger: 'Boarding call · landing · tier-up · M05, T03 Tier-up unbox', btns: [['board', 'Boarding', 'Play the boarding chime'], ['land', 'Landing', 'Play the landing chime']], total: T, max: .17, step: 6,
+        layers: [[note(0, 0), COL.a, true, 'Note 1 (C5 up, G5 down)'], [note(0, 220), COL.b, true, 'Note 2 (E5)'], [note(0, 440), COL.c, true, 'Note 3 (G5 up, C5 down)']],
+        bands: [line(523.25, COL.a, 0), line(659.25, COL.b, 0), line(783.99, COL.c, 0), band(1400, 1500, COL.a, 1), band(1800, 1900, COL.b, 1), band(2150, 2250, COL.c, 1), band(2800, 4300, COL.d, 2)], bandAlt: 'Notes at 523, 659 and 784 hertz with bell partials up to 4.3 kilohertz.', axis: A,
+        rows: [['Source', 'Three bell notes 220 ms apart. Boarding: C5 E5 G5 (rising). Landing: G5 E5 C5 (reversed)'], ['Partials', 'Each note is three sines: ×1, ×2.76 (level .28) and ×5.4 (level .10)'], ['Envelope', 'Attack 6 ms, peak .16, decay 1.9 s (partials 55 % of it), release 100 ms'], ['Space', 'Room send .5, so the notes bloom into one soft bell'], ['Paired with', 'Banner and ticket state; the tier-up unbox reuses the boarding chime'], ['Mute rule', 'Announcements. Notification versions are bundled 1.2 s .caf files']] });
+    }
+    const cards = defs.map(d => {
+      const ax = d.axis;
+      const shapes = d.layers.map((L, i) => shape(mkPath(d.total, d.max, L[0], d.step, L[2]), L[1], L[2], L[2] ? '0' : '0'));
+      shapes.forEach((s, i) => { if (d.layers[i][2]) s.fill = d.layers[i][1] + '40'; });
+      const legend = d.layers.map(L => ({ c: L[1], t: L[3] }));
+      const btns = d.btns.map(b => {
+        const key = b[0], on = st.busy === d.no + ':' + key, muted = d.ann ? !st.ann : !st.ui;
+        return { label: b[1], aria: b[2] + (muted ? ', switched off' : ''), cls: (on ? 'on ' : '') + (muted ? 'is-muted' : ''), go: () => this.play(d.no, key, d.ann, b[1]) };
+      });
+      return { no: d.no, name: d.name, cat: d.cat, chipCls: d.ann ? 'ann' : '', trigger: d.trigger, btns, msg: st.msg[d.no] || '', W, H, base: BASE, xr: XR, grid: ax.grid, ticks: ax.ticks, shapes, legend, bands: d.bands, fgrid, bandAlt: d.bandAlt, rows: d.rows.map(r => ({ k: r[0], v: r[1] })), alt: d.name + ' amplitude envelope over ' + (d.total >= 1000 ? (d.total / 1000) + ' seconds' : d.total + ' milliseconds') };
+    });
+    return { cards, uiCls: st.ui ? 'on' : '', uiChecked: st.ui ? 'true' : 'false', annCls: st.ann ? 'on' : '', annChecked: st.ann ? 'true' : 'false', uiFlip: () => this.setState({ ui: !this.state.ui }), annFlip: () => this.setState({ ann: !this.state.ann }) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ticket detail</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.td-stage{position:absolute;left:244px;right:0;top:0;bottom:0;perspective:1600px}
+.td-card{position:absolute;left:50%;top:84px;width:432px;height:542px;margin-left:-216px;cursor:pointer;transform-style:preserve-3d}
+.td-nav{position:absolute;top:310px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.td-nav:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+.td-key{position:absolute;bottom:34px;left:0;right:0;display:flex;justify-content:center;gap:10px}
+.td-pill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:20px;font:500 13px/1 var(--font-ui);cursor:pointer;color:var(--text-1)}
+.td-pill:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+.td-pill.danger{color:var(--danger)}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)" tabindex="0" onKeyDown="{{onKey}}">
+<div style="position:absolute;inset:0;filter:blur(14px) saturate(.9);transform:scale(1.04);opacity:.65"><dc-import name="Wallet" hint-size="1280px,800px"></dc-import></div>
+<div style="position:absolute;inset:0;background:var(--scrim)"></div>
+<dc-import name="Sidebar" active="tickets" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<div class="td-stage">
+<div style="position:absolute;left:0;right:0;top:34px;text-align:center"><div class="eyebrow">Ticket {{idx}} of 87 · {{dateLbl}}</div></div>
+<div class="td-card" style="{{cardStyle}}" role="button" tabindex="0" aria-label="{{aria}}" onClick="{{flip}}" onPointerMove="{{pm}}" onPointerLeave="{{pl}}"><dc-import name="Ticket" from="{{from}}" to="{{to}}" scenario="{{sc}}" state="landed" side="{{side}}" scale="1.2" date="{{dateLbl}}" flight="{{flight}}" topic="{{topic}}" notes="{{notes}}" hover="{{hov}}" hint-size="432px,542px"></dc-import></div>
+<div class="td-nav glass glass-ctl" style="left:70px" role="button" tabindex="0" aria-label="Previous ticket"><svg class="ic ic18"><use href="./icons.svg#chev-l"></use></svg></div>
+<div class="td-nav glass glass-ctl" style="right:70px" role="button" tabindex="0" aria-label="Next ticket"><svg class="ic ic18"><use href="./icons.svg#chev-r"></use></svg></div>
+<div class="td-key"><span class="td-pill glass e2 glass-ctl" role="button" tabindex="0" onClick="{{flip}}"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>{{flipLbl}}<span class="kbd">Space</span></span><span class="td-pill glass e2 glass-ctl" role="button" tabindex="0"><svg class="ic ic14"><use href="./icons.svg#pencil"></use></svg>Edit</span><span class="td-pill glass e2 glass-ctl" role="button" tabindex="0"><svg class="ic ic14"><use href="./icons.svg#share"></use></svg>Share</span><span class="td-pill glass e2 glass-ctl danger" role="button" tabindex="0"><svg class="ic ic14"><use href="./icons.svg#trash"></use></svg>Delete</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"scenario":{"editor":"text","default":"code"},"side":{"editor":"enum","options":["front","back"],"default":"front"},"tilt":{"editor":"boolean","default":false},"live":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { side: null, rx: 0, ry: 0, ang: 0, anim: false };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentWillUnmount() { clearTimeout(this._t1); clearTimeout(this._t2); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state, live = this.flag(p.live, false);
+    const S = (v, d) => typeof v === 'string' && v ? v : d;
+    const from = S(p.from, 'LHR'), to = S(p.to, 'CDG'), sc = S(p.scenario, 'code'), side = st.side || S(p.side, 'front');
+    const tilt = this.flag(p.tilt, false);
+    const rx = live ? st.rx : (tilt ? -5 : 0), ry = live ? st.ry : (tilt ? 7 : 0);
+    const flip = () => {
+      if (st.anim) return; const A = window.MeridianAudio; if (A && A.enabled) A.flap();
+      this.setState({ anim: true, ang: 90 }); this._t1 = setTimeout(() => { this.setState({ side: side === 'front' ? 'back' : 'front', ang: -90 }); this._t2 = setTimeout(() => this.setState({ ang: 0 }), 30); }, 260); setTimeout(() => this.setState({ anim: false }), 620);
+    };
+    const ang = st.ang;
+    return {
+      from, to, sc, side, flight: 'MR 0142', dateLbl: 'THU 29 OCT', topic: 'Auth module refactor', notes: 'Finished the token refresh path and wrote the migration. Review tomorrow.', idx: 1, hov: tilt || (live && (st.rx !== 0 || st.ry !== 0)),
+      flipLbl: side === 'front' ? 'Flip to notes' : 'Flip to front', aria: 'Ticket ' + from + ' to ' + to + '. Press to flip.',
+      cardStyle: 'transform:rotateX(' + rx + 'deg) rotateY(' + (ry + ang) + 'deg);transition:transform ' + (st.anim ? '260ms var(--ease-accel)' : '200ms var(--ease)') + ';filter:drop-shadow(0 40px 50px rgba(0,0,0,.45))',
+      flip, pm: e => { if (!live || st.anim) return; const r = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5; this.setState({ ry: +(x * 14).toFixed(2), rx: +(-y * 12).toFixed(2) }); }, pl: () => this.setState({ rx: 0, ry: 0 }),
+      onKey: e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

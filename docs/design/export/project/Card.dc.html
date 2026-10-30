@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Membership card</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.cd-face{position:absolute;inset:0;border-radius:20px;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d}
+.cd-face>*{position:absolute}
+.cd-l{will-change:transform}
+@keyframes cd-idle{0%,62%{background-position:140% 0}100%{background-position:-40% 0}}
+</style>
+</helmet>
+<div style="{{hostStyle}}" onPointerMove="{{onMove}}" onPointerLeave="{{onLeave}}" onClick="{{onClick}}" onKeyDown="{{onKey}}" tabindex="{{tabIdx}}" role="img" aria-label="{{aria}}">
+<div style="{{persp}}">
+<div style="{{shadowStyle}}"></div>
+<div style="{{cardStyle}}">
+
+<!-- FRONT -->
+<div class="cd-face" style="{{frontStyle}}">
+<div style="{{patStyle}}" class="cd-l"></div>
+<div style="{{patStyle2}}" class="cd-l"></div>
+<svg width="340" height="214" viewBox="0 0 340 214" style="left:0;top:0" class="cd-l" aria-hidden="true">
+<defs><linearGradient id="{{gid}}" x1="0" y1="0" x2="1" y2="1" gradientTransform="{{gRot}}"><sc-for list="{{stops}}" as="s" hint-placeholder-count="5"><stop offset="{{s.o}}" stop-color="{{s.c}}"/></sc-for></linearGradient></defs>
+<g style="{{engrStyle}}"><sc-for list="{{paths}}" as="d" hint-placeholder-count="3"><path d="{{d.d}}" fill="none" stroke="{{d.stroke}}" stroke-width="{{d.w}}" stroke-opacity="{{d.op}}" stroke-linecap="round"/></sc-for></g>
+<sc-if value="{{hasDots}}" hint-placeholder-val="{{ false }}"><g style="{{engrStyle}}"><sc-for list="{{dots}}" as="d" hint-placeholder-count="4"><circle cx="{{d.x}}" cy="{{d.y}}" r="{{d.r}}" fill="{{d.f}}"/></sc-for></g></sc-if>
+</svg>
+<div style="{{holoStyle}}" class="cd-l"></div>
+<!-- emblem z=12 -->
+<div style="{{emblemStyle}}" class="cd-l">
+<svg width="26" height="26" viewBox="0 0 24 24" style="display:block;color:{{ink}}"><use href="./icons.svg#mark"></use></svg>
+<span style="font:600 9px/1 var(--font-ui);letter-spacing:.3em;color:{{ink}}">MERIDIAN</span>
+</div>
+<div style="{{noStyle}}" class="cd-l"><span class="mono" style="font:500 9.5px/1 var(--font-mono);letter-spacing:.12em;color:{{inkSoft}}">NO. {{member}}</span></div>
+<!-- chip z=36 -->
+<div style="{{chipStyle}}" class="cd-l">
+<svg width="40" height="30" viewBox="0 0 40 30" style="display:block"><defs><linearGradient id="{{gid}}c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{chipA}}"/><stop offset=".5" stop-color="{{chipB}}"/><stop offset="1" stop-color="{{chipA}}"/></linearGradient></defs><rect x=".5" y=".5" width="39" height="29" rx="6" fill="url(#{{gid}}c)" stroke="rgba(0,0,0,.35)"/><path d="M13 .5V29.5M27 .5V29.5M.5 10H39.5M.5 20H39.5" stroke="rgba(0,0,0,.32)" stroke-width="1" fill="none"/><rect x="13" y="10" width="14" height="10" rx="2" fill="none" stroke="rgba(0,0,0,.32)"/></svg>
+</div>
+<!-- text z=24 -->
+<div style="{{textStyle}}" class="cd-l">
+<div class="serif" style="{{nameStyle}}">{{name}}</div>
+<div class="serif it" style="font-size:12.5px;line-height:16px;color:{{inkSoft}};margin-top:2px">{{tagline}}</div>
+</div>
+<div style="{{sinceStyle}}" class="cd-l"><span class="mono" style="font:500 9.5px/1 var(--font-mono);letter-spacing:.1em;color:{{inkSoft}}">MEMBER SINCE {{since}}</span><span class="mono" style="font:500 9.5px/1 var(--font-mono);letter-spacing:.1em;color:{{inkSoft}}">{{thr}} KM</span></div>
+<!-- bend shading, glare, glint, shimmer -->
+<div style="{{bendStyle}}"></div>
+<div style="{{glareStyle}}"></div>
+<div style="{{glintStyle}}"></div>
+<div style="{{idleStyle}}"></div>
+<div style="{{rimStyle}}"></div>
+<!-- locked overlay -->
+<sc-if value="{{locked}}" hint-placeholder-val="{{ false }}">
+<div style="{{frostStyle}}"></div>
+<div style="position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#F3F5FA">
+<div style="position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center">
+<svg width="58" height="58" viewBox="0 0 58 58" style="position:absolute;left:0;top:0;transform:rotate(-90deg)"><circle cx="29" cy="29" r="25" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"/><circle cx="29" cy="29" r="25" fill="none" stroke="{{ringColor}}" stroke-width="3" stroke-linecap="round" stroke-dasharray="{{ringDash}}"/></svg>
+<svg class="ic ic20" style="color:#F3F5FA"><use href="./icons.svg#lock"></use></svg>
+</div>
+<div class="mono" style="font-size:13px;font-weight:600;letter-spacing:.02em">{{toGo}} km to unlock</div>
+</div>
+</sc-if>
+</div>
+
+<!-- BACK -->
+<div class="cd-face" style="{{backStyle}}">
+<div style="{{backBase}}" class="cd-l"></div>
+<div style="left:0;right:0;top:22px;height:34px;background:linear-gradient(180deg,#07080B,#171A20 60%,#0A0B0E);box-shadow:0 1px 0 rgba(255,255,255,.14)"></div>
+<div style="left:22px;top:70px;right:22px">
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+<div><div class="eyebrow" style="color:{{inkSoft}};font-size:9px;letter-spacing:.12em">Distance</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:5px;color:{{ink}}">{{meKm}} km</div></div>
+<div><div class="eyebrow" style="color:{{inkSoft}};font-size:9px;letter-spacing:.12em">Flights</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:5px;color:{{ink}}">{{meFlights}}</div></div>
+<div><div class="eyebrow" style="color:{{inkSoft}};font-size:9px;letter-spacing:.12em">Hours</div><div class="mono" style="font-size:15px;font-weight:600;margin-top:5px;color:{{ink}}">{{meHours}}</div></div>
+</div>
+</div>
+<div style="left:22px;right:22px;top:128px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="serif" style="font-size:13px;color:{{ink}}">Next card: {{nextName}}</span><span class="mono" style="font-size:10.5px;color:{{inkSoft}}">{{nextGo}} km</span></div>
+<div style="height:5px;border-radius:3px;background:rgba(0,0,0,.28);margin-top:8px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"><div style="{{nextBar}}"></div></div>
+</div>
+<div style="left:22px;right:22px;bottom:16px;display:flex;align-items:center;justify-content:space-between">
+<div style="height:24px;width:150px;border-radius:5px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 3px,rgba(255,255,255,.25) 3px 6px);display:flex;align-items:center;padding-left:8px"><span class="serif it" style="font-size:11px;color:#14110F">{{memberName}}</span></div>
+<span class="mono" style="display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border-radius:13px;font-size:11px;color:{{ink}};box-shadow:inset 0 0 0 1px {{inkSoft}}"><svg class="ic ic12"><use href="./icons.svg#share"></use></svg>Share</span>
+</div>
+<div style="{{glareStyle}}"></div>
+<div style="{{rimStyle}}"></div>
+</div>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tier":{"editor":"enum","options":["departure","cruise","jetstream","gold","equator","obsidian"],"default":"gold"},"size":{"editor":"enum","options":["list","hero"],"default":"list"},"locked":{"editor":"boolean","default":false},"live":{"editor":"boolean","default":false},"flipped":{"editor":"boolean","default":false},"px":{"editor":"float","default":0},"py":{"editor":"float","default":0},"$preview":{"width":340,"height":214}}'>
+class Component extends DCLogic {
+  state = { px: 0, py: 0, over: false, flip: null, hold: false };
+  uid = 'c' + Math.random().toString(36).slice(2, 7);
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state;
+    const flag = (v, d) => v === undefined || v === null || v === '' ? d : !(v === false || v === 'false');
+    const tierKey = p.tier || 'gold';
+    const T = K.tiers.find(t => t.k === tierKey) || K.tiers[3];
+    const ti = K.tiers.indexOf(T), next = K.tiers[ti + 1];
+    const live = flag(p.live, false), locked = flag(p.locked, false);
+    const scale = (p.size === 'hero' ? 480 : 340) / 340;
+    const px = live ? st.px : +(p.px || 0), py = live ? st.py : +(p.py || 0);
+    const over = live ? st.over : (Math.abs(px) + Math.abs(py) > 0.001);
+    const flipped = st.flip !== null ? st.flip : flag(p.flipped, false);
+    const ry = px * 28, rx = -py * 28; // ±14° at the card edge (px,py ∈ [-.5,.5])
+    const lift = over ? 10 : 0;
+    const me = K.me, km = p.km !== undefined ? +p.km : me.km;
+    const ang = 135 + px * 120, hue = px * 120 + py * 60;
+    // ---------- tier recipes ----------
+    const R = {
+      departure: { ink: '#14161C', soft: 'rgba(20,22,28,.85)', back: 'rgba(255,255,255,.42)', base: 'linear-gradient(135deg,#8A94A6 0%,#CCD3DE 38%,#9AA4B5 62%,#C3CAD6 100%)', edge: 'rgba(191,226,255,.9)', foil: .25, chipA: '#C8CFD9', chipB: '#F2F5F9', emboss: '0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(20,22,28,.2)', glare: .34, tint: '#6AB7FF' },
+      cruise: { ink: '#F3F5FA', soft: 'rgba(243,245,250,.9)', back: 'rgba(6,8,13,.42)', base: 'linear-gradient(135deg,#0A1D4A 0%,#1B55CC 46%,#0B2A6B 100%)', edge: 'rgba(160,200,255,.7)', foil: .3, chipA: '#8FB4F5', chipB: '#DCE9FF', emboss: '0 1px 0 rgba(255,255,255,.25),0 -1px 0 rgba(0,0,30,.4)', glare: .38, tint: '#6AB7FF' },
+      jetstream: { ink: '#F3F5FA', soft: 'rgba(243,245,250,.78)', back: 'rgba(6,8,13,.42)', base: 'linear-gradient(135deg,#0B1020 0%,#16224A 50%,#0B1020 100%)', edge: 'rgba(139,243,216,.7)', foil: 1, chipA: '#8BF3D8', chipB: '#E6FFF8', emboss: '0 0 14px rgba(139,243,216,.45)', glare: .3, tint: '#8BF3D8' },
+      gold: { ink: '#2B1C04', soft: 'rgba(43,28,4,.9)', back: 'rgba(255,255,255,.42)', base: 'linear-gradient(135deg,#A07A28 0%,#E8C46A 36%,#B58B35 62%,#F0D58C 100%)', edge: 'rgba(255,236,170,.95)', foil: .35, chipA: '#C29A52', chipB: '#F7E6B5', emboss: '0 1px 0 rgba(255,244,205,.75),0 -1px 0 rgba(60,40,5,.4)', glare: .4, tint: '#FFE9A8' },
+      equator: { ink: '#3A2E15', soft: 'rgba(58,46,21,.85)', back: 'rgba(255,255,255,.42)', base: 'linear-gradient(135deg,#E9DEC0 0%,#FFFFFF 40%,#E7D9B1 70%,#FBF4E0 100%)', edge: 'rgba(255,255,255,1)', foil: .4, chipA: '#D5C49A', chipB: '#FFFCF2', emboss: '0 1px 0 rgba(255,255,255,.9),0 -1px 0 rgba(58,46,21,.18)', glare: .45, tint: '#FFFFFF' },
+      obsidian: { ink: '#F3F5FA', soft: 'rgba(243,245,250,.78)', back: 'rgba(6,8,13,.42)', base: 'linear-gradient(135deg,#050608 0%,#14161C 48%,#08090C 100%)', edge: 'rgba(255,255,255,.75)', foil: .9, chipA: '#555B68', chipB: '#B8BECC', emboss: '0 1px 0 rgba(255,255,255,.12),0 -1px 0 rgba(0,0,0,.6)', glare: .3, tint: '#B49CFF' }
+    }[T.k];
+    // ---------- engraved / foil paths ----------
+    const rnd = K.rng(K.hash(T.k)), paths = [], dots = [];
+    const f2 = v => Math.round(v * 10) / 10;
+    if (T.k === 'cruise') { // meridian lines: longitudes (ellipses) + latitudes
+      const cx = 238, cy = 107, Rg = 118;
+      for (let i = -4; i <= 4; i++) { const rx_ = Math.abs(i) / 4 * Rg; paths.push({ d: 'M' + cx + ' ' + (cy - Rg) + 'A' + f2(Math.max(rx_, .01)) + ' ' + Rg + ' 0 0 ' + (i < 0 ? 0 : 1) + ' ' + cx + ' ' + (cy + Rg), stroke: '#CFE0FF', w: .8, op: .22 }); }
+      for (let j = -3; j <= 3; j++) { const y = cy + j * Rg / 3.4, hw = Math.sqrt(Math.max(0, Rg * Rg - (j * Rg / 3.4) ** 2)); paths.push({ d: 'M' + f2(cx - hw) + ' ' + f2(y) + 'Q' + cx + ' ' + f2(y + j * 6) + ' ' + f2(cx + hw) + ' ' + f2(y), stroke: '#CFE0FF', w: .8, op: .22 }); }
+    }
+    if (T.k === 'equator') { // guilloche rosettes inside a world circle
+      const ros = (cx, cy, Rr, r, d, steps, op) => { let s = ''; const n = steps; for (let i = 0; i <= n; i++) { const t = i / n * Math.PI * 2 * r; const x = (Rr - r) * Math.cos(t) + d * Math.cos((Rr - r) / r * t), y = (Rr - r) * Math.sin(t) - d * Math.sin((Rr - r) / r * t); s += (i ? 'L' : 'M') + f2(cx + x * 1.0) + ' ' + f2(cy + y * 1.0); } paths.push({ d: s, stroke: '#B8995A', w: .55, op }); };
+      ros(236, 107, 100, 13, 62, 560, .55); ros(236, 107, 84, 11, 50, 460, .4); ros(236, 107, 66, 7, 40, 300, .45);
+      paths.push({ d: 'M' + 336 + ' ' + 107 + 'A100 100 0 1 0 136 107A100 100 0 1 0 336 107', stroke: '#B8995A', w: 1, op: .7 });
+    }
+    if (T.k === 'obsidian') { // constellation
+      const pts = []; for (let i = 0; i < 26; i++) pts.push([150 + rnd() * 180, 14 + rnd() * 120, .7 + rnd() * 1.5]);
+      pts.sort((a, b) => a[0] - b[0]);
+      for (let i = 0; i < pts.length - 1; i += 2) paths.push({ d: 'M' + f2(pts[i][0]) + ' ' + f2(pts[i][1]) + 'L' + f2(pts[i + 1][0]) + ' ' + f2(pts[i + 1][1]), stroke: 'url(#' + this.uid + ')', w: .7, op: .75 });
+      pts.forEach(q => dots.push({ x: f2(q[0]), y: f2(q[1]), r: f2(q[2]), f: 'url(#' + this.uid + ')' }));
+    }
+    if (T.k === 'jetstream') { // flowing current lines
+      for (let i = 0; i < 9; i++) { const y0 = 20 + i * 14; paths.push({ d: 'M-10 ' + y0 + 'C90 ' + (y0 - 30 + rnd() * 20) + ' 190 ' + (y0 + 40 - rnd() * 20) + ' 350 ' + (y0 - 10), stroke: 'url(#' + this.uid + ')', w: 1, op: .55 }); }
+    }
+    // sheen/foil stops
+    const hs = [150, 205, 265, 330, 30, 150].map(h => 'hsl(' + ((h + hue + 360) % 360).toFixed(0) + ' 60% 72%)');
+    const stops = hs.map((c, i) => ({ o: (i / (hs.length - 1)).toFixed(2), c }));
+    // sunburst + patterns
+    const gx = (px + .5) * 100, gy = (py + .5) * 100;
+    let pat = '', pat2 = '';
+    if (T.k === 'departure') { pat = 'repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,rgba(20,22,28,.05) 1px 2px)'; pat2 = 'radial-gradient(120% 90% at 20% 0%,rgba(255,255,255,.35),transparent 60%)'; }
+    if (T.k === 'cruise') { pat = 'radial-gradient(90% 80% at 80% 0%,rgba(150,200,255,.35),transparent 60%)'; pat2 = 'linear-gradient(180deg,rgba(255,255,255,.12),transparent 40%)'; }
+    if (T.k === 'jetstream') { pat = 'radial-gradient(60% 70% at 78% 20%,rgba(139,243,216,.22),transparent 70%),radial-gradient(50% 60% at 18% 90%,rgba(180,156,255,.22),transparent 70%)'; }
+    if (T.k === 'gold') { const a0 = Math.atan2(py, px) * 180 / Math.PI; pat = 'repeating-conic-gradient(from 0deg at 76% 46%,rgba(255,255,255,.12) 0 .7deg,rgba(60,35,0,.12) .7deg 1.5deg)'; pat2 = 'conic-gradient(from ' + (a0 + 90).toFixed(0) + 'deg at 76% 46%,rgba(255,250,220,.0),rgba(255,250,220,' + (.22 + Math.min(.3, Math.hypot(px, py))).toFixed(2) + ') 12%,rgba(255,250,220,0) 26%,rgba(255,250,220,0) 50%,rgba(255,250,220,.2) 62%,rgba(255,250,220,0) 76%)'; }
+    if (T.k === 'equator') { pat2 = 'radial-gradient(70% 90% at 80% 20%,rgba(255,255,255,.7),transparent 70%)'; }
+    if (T.k === 'obsidian') { pat = 'radial-gradient(80% 60% at 30% 0%,rgba(255,255,255,.07),transparent 70%)'; }
+    const frost = locked ? 'filter:grayscale(.75) brightness(.78) saturate(.6);' : '';
+    const sh = Math.hypot(px, py);
+    const glareOp = locked ? .12 : (over ? 1 : 0);
+    const holoOp = locked ? 0 : (R.foil >= .9 ? (.16 + sh * .7) : (R.foil * (.1 + sh * .5)));
+    const nxt = next ? next.km : T.km;
+    const toGoV = Math.max(0, T.km - km), ringFrac = Math.min(1, km / Math.max(1, T.km));
+    const circ = 2 * Math.PI * 25;
+    const nextGo = next ? Math.max(0, next.km - km) : 0;
+    const nextFrac = next ? Math.min(1, (km - T.km) / (next.km - T.km)) : 1;
+    const par = f => 'transform:translate3d(' + (-px * 12 * f).toFixed(2) + 'px,' + (-py * 12 * f).toFixed(2) + 'px,0)';
+    const trans = over && live ? 'transform 90ms linear' : 'transform 650ms var(--spring-smooth)';
+    const flipTrans = 'transform 700ms var(--spring-bouncy)';
+    return {
+      hostStyle: 'position:relative;width:' + (340 * scale) + 'px;height:' + (214 * scale) + 'px;' + (live ? 'cursor:pointer;outline:none;' : ''),
+      persp: 'position:absolute;left:0;top:0;width:340px;height:214px;transform:scale(' + scale + ');transform-origin:0 0;perspective:900px',
+      cardStyle: 'position:absolute;inset:0;transform-style:preserve-3d;border-radius:20px;transform:translateY(' + (-lift) + 'px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + (ry + (flipped ? 180 : 0)).toFixed(2) + 'deg);transition:' + (Date.now() < (this._flipUntil || 0) ? flipTrans : trans),
+      frontStyle: 'background:' + R.base + ';' + frost + 'box-shadow:inset 0 0 0 1px ' + R.edge.replace(/[\d.]+\)$/, '.55)'),
+      backStyle: 'transform:rotateY(180deg);background:' + R.base + ';' + frost,
+      backBase: 'inset:0;background:' + R.back,
+      patStyle: 'inset:0;background:' + (pat || 'none') + ';' + par(0),
+      patStyle2: 'inset:0;background:' + (pat2 || 'none') + ';' + par(0),
+      engrStyle: par(.33),
+      holoStyle: 'inset:0;opacity:' + holoOp.toFixed(2) + ';mix-blend-mode:' + (R.foil >= .9 ? 'screen' : 'overlay') + ';background:conic-gradient(from ' + (ang - 90).toFixed(0) + 'deg at ' + (30 + gx * .4).toFixed(0) + '% ' + (30 + gy * .4).toFixed(0) + '%,hsl(' + ((160 + hue + 360) % 360).toFixed(0) + ' 62% 70%),hsl(' + ((220 + hue + 360) % 360).toFixed(0) + ' 62% 70%),hsl(' + ((290 + hue + 360) % 360).toFixed(0) + ' 62% 74%),hsl(' + ((345 + hue + 360) % 360).toFixed(0) + ' 62% 72%),hsl(' + ((35 + hue + 360) % 360).toFixed(0) + ' 62% 72%),hsl(' + ((160 + hue + 360) % 360).toFixed(0) + ' 62% 70%));-webkit-mask-image:repeating-linear-gradient(115deg,#000 0 1px,rgba(0,0,0,.18) 1px 4px);mask-image:repeating-linear-gradient(115deg,#000 0 1px,rgba(0,0,0,.18) 1px 4px)',
+      emblemStyle: 'left:22px;top:18px;display:flex;align-items:center;gap:8px;' + par(.33),
+      noStyle: 'right:22px;top:24px;' + par(.67),
+      chipStyle: 'left:22px;top:66px;' + par(1),
+      textStyle: 'left:22px;bottom:42px;' + par(.67),
+      sinceStyle: 'left:22px;right:22px;bottom:16px;display:flex;justify-content:space-between;' + par(.67),
+      nameStyle: 'font-size:32px;line-height:36px;font-weight:600;letter-spacing:-.005em;color:' + R.ink + ';text-shadow:' + R.emboss,
+      bendStyle: 'inset:0;background:linear-gradient(' + (Math.atan2(py, px) * 180 / Math.PI + 90).toFixed(0) + 'deg,rgba(0,0,0,0) 40%,rgba(0,0,0,' + (Math.min(.26, sh * .55)).toFixed(2) + ') 100%);pointer-events:none',
+      glareStyle: 'inset:0;opacity:' + glareOp + ';transition:opacity 420ms var(--ease);mix-blend-mode:soft-light;background:radial-gradient(circle at ' + gx.toFixed(1) + '% ' + gy.toFixed(1) + '%,rgba(255,255,255,' + R.glare + '),rgba(255,255,255,0) 60%);pointer-events:none',
+      glintStyle: 'inset:0;opacity:' + (over && !locked ? .9 : 0) + ';pointer-events:none;background:' + (Math.abs(px) >= Math.abs(py) ? 'linear-gradient(' + (px > 0 ? 270 : 90) + 'deg,rgba(255,255,255,.55),rgba(255,255,255,0) 3%)' : 'linear-gradient(' + (py > 0 ? 0 : 180) + 'deg,rgba(255,255,255,.55),rgba(255,255,255,0) 4%)'),
+      idleStyle: 'inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.3) 48%,rgba(255,255,255,.06) 52%,transparent 62%);background-size:260% 100%;background-position:140% 0;' + (over || locked ? 'opacity:0' : 'animation:cd-idle 6s ease-in-out infinite'),
+      rimStyle: 'inset:0;border-radius:20px;pointer-events:none;box-shadow:inset 0 1px 0 ' + R.edge + ',inset 0 0 0 1px rgba(255,255,255,.12)',
+      frostStyle: 'inset:0;background:rgba(18,26,46,.42);-webkit-backdrop-filter:blur(3px) saturate(.4);backdrop-filter:blur(3px) saturate(.4)',
+      ringColor: R.tint, ringDash: (ringFrac * circ).toFixed(1) + ' ' + circ.toFixed(1), toGo: K.fmtKm(toGoV), locked,
+      paths, dots, hasDots: dots.length > 0, stops, gid: 'fg' + this.uid, gRot: 'rotate(' + ang.toFixed(0) + ' .5 .5)',
+      ink: R.ink, inkSoft: R.soft, chipA: R.chipA, chipB: R.chipB,
+      name: T.name, tagline: T.tag, thr: K.fmtKm(T.km), member: me.member, since: me.since.toUpperCase(), memberName: me.name,
+      meKm: K.fmtKm(km), meFlights: me.flights, meHours: me.hours + ' h',
+      nextName: next ? next.name : 'Top tier', nextGo: next ? K.fmtKm(nextGo) : '0',
+      nextBar: 'height:100%;border-radius:3px;width:' + (nextFrac * 100).toFixed(1) + '%;background:' + R.tint + ';box-shadow:0 0 8px ' + R.tint,
+      shadowStyle: 'position:absolute;inset:0;border-radius:20px;background:rgba(0,0,0,.01);box-shadow:' + (-px * 60).toFixed(1) + 'px ' + (30 + lift * 1.6 - py * 30).toFixed(1) + 'px ' + (40 + lift * 2) + 'px rgba(0,0,0,' + (over ? .4 : .45) + ');transition:box-shadow 650ms var(--spring-smooth)',
+      aria: T.name + ' membership card' + (locked ? ', locked, ' + K.fmtKm(toGoV) + ' kilometers to unlock' : ', unlocked') + '. Press Return to flip.',
+      tabIdx: live ? 0 : -1,
+      onMove: e => { if (!live) return; const b = e.currentTarget.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5; this.setState({ px: Math.max(-.5, Math.min(.5, x)), py: Math.max(-.5, Math.min(.5, y)), over: true }); },
+      onLeave: () => { if (live) this.setState({ px: 0, py: 0, over: false }); },
+      onClick: () => { if (live) { this._flipUntil = Date.now() + 800; this.setState({ flip: !flipped }); } },
+      onKey: e => { if (live && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); this._flipUntil = Date.now() + 800; this.setState({ flip: !flipped }); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

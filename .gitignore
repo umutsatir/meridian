@@ -42,3 +42,7 @@ node_modules/
 # Competitor reference material (do not commit)
 design-reference/
 docs/research/reference-images/
+
+# local tooling venv (Scripts/compare.py)
+.venv-tools/
+.build-app/

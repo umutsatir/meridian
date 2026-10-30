@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C01 Boarding pass</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C01 · §2.1</div>
+<h1 class="t-display" style="margin:0">Boarding pass</h1>
+<p class="t-body c2" style="margin:0;max-width:820px">The hero artifact. 360 × 600 pt of warm thermal paper, radius 22, perforation at y = 450 with 14 pt notches. The paper is the only light object in the dark product, so it always reads as the thing you are holding. Thermal ink <span class="mono">#14110F</span> at 92%, a 0.3 px bleed copy at 20%, 3% grain, 6% top sheen.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>States</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{states}}" as="s" hint-placeholder-count="10">
+<div class="sh-cell" style="width:216px"><dc-import name="Ticket" from="LHR" to="CDG" scenario="code" state="{{s.state}}" side="{{s.side}}" print="{{s.print}}" progress="{{s.progress}}" scale=".6" flown="31" landTime="10:42" hint-size="216px,360px"></dc-import>
+<div class="sh-cap">{{s.name}}</div><div class="sh-note" style="max-width:216px">{{s.note}}</div></div>
+</sc-for>
+</div>
+<div><div class="sh-sub">Wallet tile · 0.5× · every torn edge is different</div>
+<div class="sh-note" style="margin-top:4px;max-width:760px">Seeded jagged line, amplitude 1.5–2.5 pt, seed = hash(route + flight). The same ticket always tears the same way, no two tickets match.</div></div>
+<div class="sh-row" style="gap:24px">
+<sc-for list="{{tiles}}" as="a" hint-placeholder-count="6">
+<div class="sh-cell" style="width:180px"><dc-import name="Ticket" from="{{a.f}}" to="{{a.t}}" scenario="{{a.sc}}" state="printed" tile="true" hover="{{a.hover}}" scale=".5" hint-size="180px,226px"></dc-import><div class="sh-cap">{{a.cap}}</div></div>
+</sc-for>
+</div>
+<div><div class="sh-sub">Color by · Scenario, Class, Continent, Month</div>
+<div class="sh-note" style="margin-top:4px;max-width:760px">Band, code underline and stamp tint follow the chosen key; Class switches to a foil edge. Color is never the only signal: the scenario chip, cabin label and month stay printed on the paper.</div></div>
+<div style="display:flex;flex-direction:column;gap:22px">
+<sc-for list="{{views}}" as="v" hint-placeholder-count="4">
+<div style="display:flex;gap:20px;align-items:center"><div style="width:150px"><div class="sh-cap">{{v.name}}</div><div class="sh-note">{{v.note}}</div></div>
+<div class="sh-row" style="gap:14px;flex-wrap:nowrap">
+<sc-for list="{{v.items}}" as="a" hint-placeholder-count="6"><dc-import name="Ticket" from="{{a.f}}" to="{{a.t}}" scenario="{{a.sc}}" state="printed" tile="true" color-by="{{v.k}}" month="{{a.m}}" scale=".4" hint-size="144px,181px"></dc-import></sc-for>
+</div></div>
+</sc-for>
+</div>
+<div class="sh-native"><b>Native</b><span>Paper = SwiftUI <span style="color:var(--text-1)">Shape</span> with seeded torn path + <span style="color:var(--text-1)">.drawingGroup()</span>; grain via a 128 px tiling Metal noise at 3%; contact shadow as <span style="color:var(--text-1)">.shadow(radius: 24, y: 24)</span> on a compositing group. Perforation dots are a dashed stroke (2 pt on, 6 pt gap).</span></div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const states = [
+      { name: 'Printed', state: 'printed', side: 'front', note: 'Stub attached, perforation dots, barcode complete.' },
+      { name: 'Printing', state: 'printing', side: 'front', print: .55, note: 'Revealed top-down; ink fades from pale gray to black.' },
+      { name: 'Boarding', state: 'boarding', side: 'front', note: 'Pulsing amber BOARDING pill replaces the date.' },
+      { name: 'Torn', state: 'torn', side: 'front', note: 'Stub gone, 1 pt lighter fibrous rim on the edge.' },
+      { name: 'In flight', state: 'inflight', side: 'front', progress: .6, note: 'Accent line fills along the torn edge as the flight advances.' },
+      { name: 'Landed', state: 'landed', side: 'front', note: 'Green ink-stamp, −6°, slight bleed. Thumps on in 60 ms.' },
+      { name: 'Diverted', state: 'diverted', side: 'front', note: 'Amber stamp with the flown fraction, 31 / 42 min.' },
+      { name: 'Group', state: 'group', side: 'front', note: 'Up to six passenger avatars replace the name.' },
+      { name: 'Locked', state: 'locked', side: 'front', note: 'Wallet placeholder: dashed outline, no ink.' },
+      { name: 'Back side', state: 'landed', side: 'back', note: 'Click flips it: notes, route, stats, edit, share, delete.' }
+    ].map(s => Object.assign({ print: .5, progress: .5 }, s));
+    const R = [['LHR', 'CDG', 'code', 0], ['LHR', 'DUB', 'read', 3], ['LHR', 'MAD', 'study', 5], ['LHR', 'CAI', 'work', 7], ['LHR', 'JFK', 'create', 9], ['LHR', 'DXB', 'meditate', 11]];
+    const tiles = [['LHR', 'CDG', 'code', 'Default'], ['AMS', 'BER', 'study', 'Default'], ['IST', 'ADB', 'create', 'Default'], ['EDI', 'DUB', 'read', 'Default'], ['MAN', 'FRA', 'work', 'Default'], ['BCN', 'LIS', 'meditate', 'Hover: lift 8, tilt 6°']].map((a, i) => ({ f: a[0], t: a[1], sc: a[2], cap: a[3], hover: i === 5 }));
+    const mk = k => R.map(r => ({ f: r[0], t: r[1], sc: r[2], m: r[3] }));
+    const views = [{ k: 'scenario', name: 'Scenario', note: 'Coding, Read, Study, Work, Create, Meditate' }, { k: 'class', name: 'Class', note: 'Economy to Long-haul, foil edge' }, { k: 'continent', name: 'Continent', note: 'Europe, Africa, N. America, Asia' }, { k: 'month', name: 'Month', note: 'One hue per month, 30° steps' }].map(v => Object.assign(v, { items: mk() }));
+    return { themes: [{ k: 'dark', label: 'Dark' }, { k: 'light', label: 'Light — Daybreak' }], states, tiles, views };
+  }
+}
+</script>
+</body>
+</html>

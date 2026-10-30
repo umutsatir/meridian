@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Globe</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.gl-root{position:relative;touch-action:none}
+.gl-root.drag{cursor:grab}.gl-root.drag:active{cursor:grabbing}
+.gl-lbl{position:absolute;font:700 11px/1 var(--font-cond);letter-spacing:.08em;color:var(--text-1);text-shadow:0 0 3px var(--bg-0),0 0 3px var(--bg-0),0 1px 6px var(--bg-0);pointer-events:none;white-space:nowrap}
+</style>
+</helmet>
+<div class="gl-root {{dragCls}}" style="{{rootStyle}}" onPointerDown="{{pd}}" onPointerMove="{{pm}}" onPointerUp="{{pu}}" onPointerCancel="{{pu}}">
+<div style="{{glowStyle}}"></div>
+<svg width="{{S}}" height="{{S}}" viewBox="0 0 {{S}} {{S}}" style="position:absolute;left:0;top:0;overflow:visible">
+<defs>
+<radialGradient id="gl-sea-{{uid}}" cx="38%" cy="32%" r="80%"><stop offset="0" style="stop-color:var(--gl-sea-a)"/><stop offset="1" style="stop-color:var(--gl-sea-b)"/></radialGradient>
+<radialGradient id="gl-shade-{{uid}}" cx="34%" cy="30%" r="86%"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" style="stop-opacity:var(--gl-shade)"/></radialGradient>
+<radialGradient id="gl-rim-{{uid}}" cx="50%" cy="50%" r="50%"><stop offset=".86" stop-color="#9FB6FF" stop-opacity="0"/><stop offset=".985" stop-color="#9FB6FF" style="stop-opacity:var(--gl-rim)"/><stop offset="1" stop-color="#C9D6FF" stop-opacity="0"/></radialGradient>
+<clipPath id="gl-clip-{{uid}}"><circle cx="{{c}}" cy="{{c}}" r="{{R}}"/></clipPath>
+<linearGradient id="gl-arcg-{{uid}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient>
+<filter id="gl-blur-{{uid}}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+<circle cx="{{c}}" cy="{{c}}" r="{{R}}" fill="url(#gl-sea-{{uid}})"/>
+<g clip-path="url(#gl-clip-{{uid}})">
+<sc-if value="{{grat}}" hint-placeholder-val="{{ true }}"><path d="{{gratD}}" fill="none" style="stroke:var(--m-grat)" stroke-width="1" opacity="1.6"/></sc-if>
+<path d="{{landD}}" style="fill:var(--gl-land)"/>
+<sc-if value="{{visited}}" hint-placeholder-val="{{ true }}"><path d="{{loD}}" style="fill:var(--accent-1)" opacity=".22"/><path d="{{midD}}" style="fill:var(--accent-1)" opacity=".42"/><path d="{{hiD}}" style="fill:var(--accent-1)" opacity=".74"/></sc-if>
+<path d="{{borderD}}" fill="none" style="stroke:var(--m-line)" stroke-width=".6"/>
+<sc-for list="{{routes}}" as="r" hint-placeholder-count="6">
+<path d="{{r.d}}" fill="none" stroke="{{r.c}}" stroke-width="{{r.gw}}" opacity="{{r.go}}" stroke-linecap="round" filter="url(#gl-blur-{{uid}})"/>
+<path d="{{r.d}}" fill="none" stroke="{{r.c}}" stroke-width="{{r.w}}" opacity="{{r.o}}" stroke-linecap="round"/>
+</sc-for>
+<sc-if value="{{hasPlane}}" hint-placeholder-val="{{ false }}">
+<path d="{{planeFuture}}" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" stroke-dasharray="1 5" stroke-linecap="round"/>
+<path d="{{planeTrail}}" fill="none" stroke="url(#gl-arcg-{{uid}})" stroke-width="3" stroke-linecap="round"/>
+<circle cx="{{planeX}}" cy="{{planeY}}" r="9" fill="#fff" opacity=".18"/><circle cx="{{planeX}}" cy="{{planeY}}" r="4" fill="#fff"/>
+</sc-if>
+<sc-for list="{{pins}}" as="p" hint-placeholder-count="6">
+<circle cx="{{p.x}}" cy="{{p.y}}" r="{{p.r}}" fill="{{p.c}}" opacity="{{p.o}}" style="stroke:var(--bg-0)" stroke-width="1.5"/>
+</sc-for>
+<circle cx="{{c}}" cy="{{c}}" r="{{R}}" fill="url(#gl-shade-{{uid}})"/>
+<circle cx="{{c}}" cy="{{c}}" r="{{R}}" fill="url(#gl-rim-{{uid}})"/>
+</g>
+<circle cx="{{c}}" cy="{{c}}" r="{{R}}" fill="none" style="stroke:var(--gl-edge)" stroke-width="1"/>
+</svg>
+<sc-for list="{{lbls}}" as="l" hint-placeholder-count="6"><span class="gl-lbl" style="{{l.s}}">{{l.code}}</span></sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"size":{"editor":"int","default":560},"lon":{"editor":"float","default":10},"lat":{"editor":"float","default":28},"live":{"editor":"boolean","default":false},"speed":{"editor":"float","default":6},"grat":{"editor":"boolean","default":true},"visited":{"editor":"boolean","default":false},"atmo":{"editor":"boolean","default":true},"drag":{"editor":"boolean","default":false},"labels":{"editor":"boolean","default":true},"$preview":{"width":560,"height":560}}'>
+class Component extends DCLogic {
+  state = { lon: null, lat: null, t: 0 };
+  uid = Math.random().toString(36).slice(2, 8);
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentDidMount() { if (this.flag(this.props.live, false)) { this._t0 = performance.now(); this._l0 = null; const L = now => { const dt = (now - (this._last || now)) / 1000; this._last = now; if (!this._drag) this.setState(s => ({ lon: (s.lon === null ? +(this.props.lon || 10) : s.lon) + dt * +(this.props.speed === undefined ? 6 : this.props.speed), t: s.t + dt })); this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); } }
+  componentWillUnmount() { this._gone = true; cancelAnimationFrame(this._raf); }
+  // The world geometry can arrive after the first render (late script injection, cached boards). Never crash: draw an empty sphere, load the data once, repaint.
+  world() {
+    if (window.MeridianWorld && window.MeridianWorld.fillPath) return window.MeridianWorld;
+    if (!window.__mrdWorldP) {
+      window.__mrdWorldP = new Promise(res => {
+        try {
+          const k = document.querySelector('script[src*="meridian-kit"]'), s = document.createElement('script');
+          s.src = k && k.src ? k.src.replace(/meridian-kit[^\/]*$/, 'meridian-world.js') : './meridian-world.js';
+          s.onload = res; s.onerror = res; (document.head || document.documentElement).appendChild(s);
+        } catch (e) { res(); }
+      });
+    }
+    window.__mrdWorldP.then(() => { if (!this._gone && window.MeridianWorld) this.forceUpdate(); });
+    return null;
+  }
+  renderVals() {
+    const W = this.world() || { land: [], borders: [], hi: [], mid: [], lo: [], fillPath: () => '', linePath: () => '', grat: () => '', arcPath: () => ({ d: '', end: null }), point: () => ({ x: 0, y: 0, vis: false, c: 0 }) };
+    const p = this.props, K = window.MeridianKit, st = this.state;
+    const S = +(p.size || 560), c = S / 2, R = S * .43, pad = S * .035;
+    const lon = st.lon !== null ? st.lon : +(p.lon === undefined ? 10 : p.lon), lat = st.lat !== null ? st.lat : +(p.lat === undefined ? 28 : p.lat);
+    const l0 = ((lon + 180) % 360 + 360) % 360 - 180;
+    const grat = this.flag(p.grat, true), visited = this.flag(p.visited, false), atmo = this.flag(p.atmo, true), labels = this.flag(p.labels, true);
+    const landD = W.fillPath(W.land, l0, lat, R, c, c), borderD = W.linePath(W.borders, l0, lat, R, c, c);
+    const hiD = visited ? W.fillPath(W.hi, l0, lat, R, c, c) : '', midD = visited ? W.fillPath(W.mid, l0, lat, R, c, c) : '', loD = visited ? W.fillPath(W.lo, l0, lat, R, c, c) : '';
+    const gratD = grat ? W.grat(l0, lat, R, c, c, 30) : '';
+    const rs = Array.isArray(p.routes) ? p.routes : [];
+    const routes = rs.map(r => { const A = K.ap(r.a), B = K.ap(r.b); if (!A || !B) return null; const o = W.arcPath([A.lat, A.lon], [B.lat, B.lon], l0, lat, R, c, c, r.h === undefined ? .07 : r.h); return { d: o.d, c: r.c || '#6AB7FF', w: r.w || 1.5, o: r.o === undefined ? .7 : r.o, gw: (r.w || 1.5) * 4, go: (r.o === undefined ? .7 : r.o) * .35 }; }).filter(Boolean).filter(r => r.d);
+    const ps = Array.isArray(p.pins) ? p.pins : [];
+    const pins = ps.map(q => { const A = K.ap(q.code); if (!A) return null; const pt = W.point(A.lat, A.lon, l0, lat, R, c, c); if (!pt.vis) return null; return { x: pt.x.toFixed(1), y: pt.y.toFixed(1), r: q.r || 3.2, c: q.c || '#FFB547', o: (.35 + .65 * Math.min(1, pt.c * 2.4)).toFixed(2), lbl: labels && q.label !== false, code: q.code, tx: (pt.x + 7).toFixed(1), ty: (pt.y - 6).toFixed(1) }; }).filter(Boolean);
+    const lbls = pins.filter(q => q.lbl).map(q => ({ code: q.code, s: 'left:' + (parseFloat(q.x) + 7) + 'px;top:' + (parseFloat(q.y) - 14) + 'px;opacity:' + q.o }));
+    let hasPlane = false, planeTrail = '', planeFuture = '', planeX = 0, planeY = 0;
+    const pl = p.plane;
+    if (pl && pl.a && pl.b) { const A = K.ap(pl.a), B = K.ap(pl.b), t = pl.t === undefined ? .5 : pl.t; const tr = W.arcPath([A.lat, A.lon], [B.lat, B.lon], l0, lat, R, c, c, .09, 0, t), fu = W.arcPath([A.lat, A.lon], [B.lat, B.lon], l0, lat, R, c, c, .09, t, 1); planeTrail = tr.d; planeFuture = fu.d; if (tr.end) { hasPlane = true; planeX = tr.end[0].toFixed(1); planeY = tr.end[1].toFixed(1); } }
+    const dark = true;
+    return {
+      uid: this.uid, lbls, S, c, R, grat, gratD, landD, borderD, hiD, midD, loD, visited, routes, pins, hasPlane, planeTrail, planeFuture, planeX, planeY,
+      
+      rootStyle: 'width:' + S + 'px;height:' + S + 'px',
+      glowStyle: atmo ? 'position:absolute;left:' + (c - R) + 'px;top:' + (c - R) + 'px;width:' + (R * 2) + 'px;height:' + (R * 2) + 'px;border-radius:50%;box-shadow:0 0 ' + Math.round(S * .12) + 'px rgba(120,150,255,.38),0 0 ' + Math.round(S * .02) + 'px rgba(160,190,255,.5)' : 'display:none',
+      dragCls: this.flag(p.drag, false) ? 'drag' : '',
+      pd: e => { if (!this.flag(this.props.drag, false)) return; this._drag = { x: e.clientX, y: e.clientY, lon, lat }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} },
+      pm: e => { const d = this._drag; if (!d) return; this.setState({ lon: d.lon - (e.clientX - d.x) * .4, lat: Math.max(-70, Math.min(70, d.lat + (e.clientY - d.y) * .3)) }); },
+      pu: () => { this._drag = null; }
+    };
+  }
+}
+</script>
+</body>
+</html>

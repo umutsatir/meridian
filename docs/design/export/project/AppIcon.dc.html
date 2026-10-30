@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App icon (3 concepts × 4 variants)</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div style="{{boxStyle}}" role="img" aria-label="{{aria}}">
+<svg width="{{size}}" height="{{size}}" viewBox="0 0 1024 1024" style="display:block;position:absolute;left:0;top:0" aria-hidden="true">
+<defs>
+<linearGradient id="ai-bg-{{uid}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{p.bgA}}"/><stop offset="1" stop-color="{{p.bgB}}"/></linearGradient>
+<radialGradient id="ai-gl-{{uid}}" cx="{{p.glx}}" cy="{{p.gly}}" r=".62"><stop offset="0" stop-color="{{p.glow}}" stop-opacity="{{p.glowO}}"/><stop offset="1" stop-color="{{p.glow}}" stop-opacity="0"/></radialGradient>
+<radialGradient id="ai-sea-{{uid}}" cx=".38" cy=".3" r=".9"><stop offset="0" stop-color="{{p.sea1}}"/><stop offset="1" stop-color="{{p.sea2}}"/></radialGradient>
+<linearGradient id="ai-tr-{{uid}}" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="{{p.tr1}}" stop-opacity="0"/><stop offset=".55" stop-color="{{p.tr1}}" stop-opacity=".9"/><stop offset="1" stop-color="{{p.tr2}}"/></linearGradient>
+<linearGradient id="ai-sky-{{uid}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{p.sky1}}"/><stop offset=".62" stop-color="{{p.sky2}}"/><stop offset="1" stop-color="{{p.sky3}}"/></linearGradient>
+<radialGradient id="ai-sun-{{uid}}" cx=".5" cy=".92" r=".7"><stop offset="0" stop-color="{{p.sun}}" stop-opacity="{{p.sunO}}"/><stop offset="1" stop-color="{{p.sun}}" stop-opacity="0"/></radialGradient>
+<linearGradient id="ai-bz-{{uid}}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{{p.bz1}}"/><stop offset="1" stop-color="{{p.bz2}}"/></linearGradient>
+<linearGradient id="ai-pp-{{uid}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{p.paper1}}"/><stop offset="1" stop-color="{{p.paper2}}"/></linearGradient>
+<linearGradient id="ai-ac-{{uid}}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{{p.tr1}}"/><stop offset="1" stop-color="{{p.tr2}}"/></linearGradient>
+<clipPath id="ai-cg-{{uid}}"><circle cx="470" cy="574" r="300"/></clipPath>
+<clipPath id="ai-cw-{{uid}}"><rect x="296" y="196" width="432" height="632" rx="216"/></clipPath>
+<clipPath id="ai-ct-{{uid}}"><rect x="262" y="132" width="500" height="760" rx="60"/></clipPath>
+<mask id="ai-mk-{{uid}}"><rect x="0" y="0" width="1024" height="1024" fill="#fff"/><circle cx="262" cy="650" r="46" fill="#000"/><circle cx="762" cy="650" r="46" fill="#000"/></mask>
+<filter id="ai-bl-{{uid}}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="22"/></filter>
+<filter id="ai-bs-{{uid}}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="60"/></filter>
+<filter id="ai-bt-{{uid}}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+</defs>
+<!-- background / wallpaper -->
+<rect width="1024" height="1024" fill="url(#ai-bg-{{uid}})"/>
+<sc-if value="{{isClear}}" hint-placeholder-val="{{ false }}">
+<g filter="url(#ai-bs-{{uid}})"><circle cx="220" cy="240" r="260" fill="#FF8FB1" opacity=".7"/><circle cx="820" cy="300" r="280" fill="#6AB7FF" opacity=".75"/><circle cx="520" cy="880" r="300" fill="#8BF3D8" opacity=".55"/></g>
+<rect width="1024" height="1024" fill="rgba(255,255,255,.10)"/>
+</sc-if>
+<rect width="1024" height="1024" fill="url(#ai-gl-{{uid}})"/>
+
+<!-- Concept A: meridian globe with plane trail -->
+<sc-if value="{{isA}}" hint-placeholder-val="{{ true }}">
+<g>
+<circle cx="470" cy="574" r="306" fill="none" stroke="{{p.rim}}" stroke-width="3" opacity=".7"/>
+<circle cx="470" cy="574" r="300" fill="url(#ai-sea-{{uid}})" stroke="{{p.rim}}" stroke-width="5"/>
+<g clip-path="url(#ai-cg-{{uid}})" fill="none" stroke="{{p.gline}}" stroke-width="5">
+<ellipse cx="470" cy="574" rx="216" ry="300"/><ellipse cx="470" cy="574" rx="112" ry="300"/><line x1="470" y1="274" x2="470" y2="874"/>
+<ellipse cx="470" cy="574" rx="300" ry="34"/><ellipse cx="470" cy="454" rx="262" ry="26"/><ellipse cx="470" cy="694" rx="262" ry="26"/><ellipse cx="470" cy="352" rx="168" ry="16"/><ellipse cx="470" cy="796" rx="168" ry="16"/>
+<path d="M118 590 C 220 520, 310 560, 392 520 C 470 480, 530 520, 596 470" stroke-width="0"/>
+</g>
+<g clip-path="url(#ai-cg-{{uid}})"><path d="M 250 330 C 330 300, 410 340, 440 400 C 470 460, 420 500, 360 520 C 300 540, 230 470, 220 410 Z" fill="{{p.land}}" opacity="{{p.landO}}"/><path d="M 520 560 C 600 520, 700 560, 720 640 C 735 700, 660 760, 590 760 C 540 740, 500 660, 520 560 Z" fill="{{p.land}}" opacity="{{p.landO}}"/></g>
+<path d="M 170 840 C 330 600, 560 340, 790 262" fill="none" stroke="url(#ai-tr-{{uid}})" stroke-width="30" stroke-linecap="round" filter="url(#ai-bl-{{uid}})" opacity=".55"/>
+<path d="M 170 840 C 330 600, 560 340, 790 262" fill="none" stroke="url(#ai-tr-{{uid}})" stroke-width="16" stroke-linecap="round"/>
+<path d="M 214 790 C 360 580, 570 360, 760 288" fill="none" stroke="{{p.dash}}" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 22" opacity=".85"/>
+<g transform="rotate(-17 826 250)"><circle cx="826" cy="250" r="96" fill="{{p.tr2}}" opacity=".22" filter="url(#ai-bl-{{uid}})"/><svg x="730" y="154" width="192" height="192" viewBox="0 0 24 24" color="{{p.plane}}"><use href="./icons.svg#plane"></use></svg></g>
+</g>
+</sc-if>
+
+<!-- Concept B: boarding-pass stub -->
+<sc-if value="{{isB}}" hint-placeholder-val="{{ false }}">
+<g transform="rotate(-7 512 512)">
+<ellipse cx="520" cy="930" rx="250" ry="34" fill="#000" opacity="{{p.shO}}" filter="url(#ai-bl-{{uid}})"/>
+<g mask="url(#ai-mk-{{uid}})">
+<rect x="262" y="132" width="500" height="760" rx="60" fill="url(#ai-pp-{{uid}})" stroke="{{p.paperLine}}" stroke-width="{{p.paperLW}}"/>
+<g clip-path="url(#ai-ct-{{uid}})"><rect x="262" y="132" width="500" height="34" fill="url(#ai-ac-{{uid}})"/></g>
+<g transform="rotate(-45 512 384)"><svg x="342" y="214" width="340" height="340" viewBox="0 0 24 24" color="{{p.ink}}"><use href="./icons.svg#plane"></use></svg></g>
+<path d="M 310 650 L 714 650" stroke="{{p.ink}}" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 20" opacity=".5"/>
+<path d="{{bars}}" fill="{{p.ink}}" opacity=".85"/>
+</g>
+</g>
+</sc-if>
+
+<!-- Concept C: oval window glow -->
+<sc-if value="{{isC}}" hint-placeholder-val="{{ false }}">
+<g transform="translate(512 512) scale(1.13) translate(-512 -512)">
+<rect x="258" y="158" width="508" height="708" rx="254" fill="url(#ai-bz-{{uid}})" stroke="{{p.bzLine}}" stroke-width="4"/>
+<rect x="282" y="182" width="460" height="660" rx="230" fill="{{p.bzIn}}" opacity=".55"/>
+<g clip-path="url(#ai-cw-{{uid}})">
+<rect x="296" y="196" width="432" height="632" fill="url(#ai-sky-{{uid}})"/>
+<rect x="296" y="196" width="432" height="632" fill="url(#ai-sun-{{uid}})"/>
+<g filter="url(#ai-bt-{{uid}})" opacity="{{p.cloudO}}"><ellipse cx="420" cy="690" rx="190" ry="34" fill="{{p.cloud}}"/><ellipse cx="640" cy="730" rx="220" ry="40" fill="{{p.cloud}}"/><ellipse cx="520" cy="780" rx="260" ry="46" fill="{{p.cloud}}"/></g>
+<path d="M296 640 L 728 640" stroke="{{p.horizon}}" stroke-width="3" opacity=".7"/>
+<circle cx="{{p.bodyX}}" cy="{{p.bodyY}}" r="{{p.bodyR}}" fill="{{p.body}}" opacity="{{p.bodyO}}"/>
+<path d="M 330 250 C 420 210, 560 210, 690 260" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity="{{p.spec}}"/>
+<rect x="296" y="196" width="432" height="{{p.shade}}" fill="{{p.shadeC}}"/>
+<rect x="296" y="{{p.shadeEdge}}" width="432" height="10" fill="rgba(0,0,0,.18)"/>
+</g>
+<rect x="296" y="196" width="432" height="632" rx="216" fill="none" stroke="{{p.glassLine}}" stroke-width="5"/>
+</g>
+</sc-if>
+</svg>
+<div style="{{edgeStyle}}"></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"concept":{"editor":"enum","options":["a","b","c"],"default":"a"},"variant":{"editor":"enum","options":["default","dark","tinted","clear"],"default":"default"},"size":{"editor":"int","default":256},"tint":{"editor":"color","default":"#6AB7FF"},"$preview":{"width":256,"height":256}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 8);
+  num(v, d) { const n = typeof v === 'number' ? v : parseFloat(v); return isFinite(n) ? n : d; }
+  pal(c, v, T) {
+    const P = { bgA: '#0F1B3C', bgB: '#05070D', glx: .72, gly: .2, glow: '#6AB7FF', glowO: .4, sea1: '#1F3470', sea2: '#070B1A', rim: 'rgba(190,215,255,.7)', gline: 'rgba(190,215,255,.34)', land: '#2B4690', landO: .55, tr1: '#6AB7FF', tr2: '#8BF3D8', dash: '#F3F5FA', plane: '#F3F5FA',
+      paper1: '#FBF8F0', paper2: '#E9E2D2', paperLine: 'rgba(0,0,0,.1)', paperLW: 2, ink: '#14110F', shO: .42,
+      bz1: '#E7E3DA', bz2: '#9FA6B8', bzLine: 'rgba(255,255,255,.55)', bzIn: '#0B1020', sky1: '#2B2A5C', sky2: '#FF8A5B', sky3: '#FFD9A0', sun: '#FFE7B3', sunO: .85, cloud: '#FFF1DC', cloudO: .8, horizon: '#FFE7B3', body: '#FFF4D6', bodyX: 512, bodyY: 560, bodyR: 0, bodyO: 0, spec: .35, shade: 74, shadeC: '#D9D3C6', glassLine: 'rgba(0,0,0,.35)' };
+    if (c === 'b') Object.assign(P, { bgA: '#6AB7FF', bgB: '#8BF3D8', glow: '#FFFFFF', glowO: .35, glx: .3, gly: .1 });
+    if (c === 'c') Object.assign(P, { bgA: '#1B2238', bgB: '#080B16', glow: '#FFB547', glowO: .22, glx: .5, gly: .8 });
+    if (v === 'dark') {
+      if (c === 'a') Object.assign(P, { bgA: '#0A0D16', bgB: '#03050A', glow: '#6AB7FF', glowO: .16, sea1: '#142042', sea2: '#04060C', rim: 'rgba(160,185,235,.5)', gline: 'rgba(160,185,235,.22)', land: '#1F3166', landO: .6, tr1: '#8BF3D8', tr2: '#6AB7FF', plane: '#E6EBF7', dash: '#BFD3F2' });
+      if (c === 'b') Object.assign(P, { bgA: '#10162A', bgB: '#05070E', glow: '#6AB7FF', glowO: .22, paper1: '#E8E3D6', paper2: '#C9C2B1', ink: '#14110F', shO: .6 });
+      if (c === 'c') Object.assign(P, { bgA: '#0B0F1C', bgB: '#030409', glow: '#6AB7FF', glowO: .14, bz1: '#7C849A', bz2: '#383E52', bzLine: 'rgba(255,255,255,.3)', bzIn: '#04060C', sky1: '#04060F', sky2: '#0E1B44', sky3: '#2C4E8F', sun: '#6AB7FF', sunO: .35, cloud: '#8FB2E8', cloudO: .22, horizon: '#6AB7FF', body: '#F3F5FA', bodyX: 600, bodyY: 330, bodyR: 40, bodyO: .95, spec: .22, shade: 74, shadeC: '#2A3042' });
+    }
+    if (v === 'tinted') {
+      const t = T, m = (a) => 'color-mix(in srgb,' + t + ' ' + a + '%,#111317)';
+      Object.assign(P, { bgA: m(26), bgB: m(10), glow: t, glowO: .22, sea1: m(30), sea2: m(10), rim: t, gline: 'color-mix(in srgb,' + t + ' 55%,transparent)', land: t, landO: .22, tr1: t, tr2: '#FFFFFF', dash: '#FFFFFF', plane: '#FFFFFF',
+        paper1: m(88), paper2: m(70), paperLine: 'transparent', ink: m(10), shO: .5, bz1: m(70), bz2: m(40), bzLine: 'color-mix(in srgb,' + t + ' 70%,transparent)', bzIn: '#07080A', sky1: m(8), sky2: m(34), sky3: m(70), sun: t, sunO: .5, cloud: t, cloudO: .3, horizon: t, body: '#fff', bodyO: 0, spec: .25, shadeC: m(50) });
+    }
+    if (v === 'clear') {
+      Object.assign(P, { bgA: 'rgba(255,255,255,0)', bgB: 'rgba(255,255,255,0)', glow: '#FFFFFF', glowO: .18, sea1: 'rgba(255,255,255,.22)', sea2: 'rgba(255,255,255,.05)', rim: 'rgba(255,255,255,.9)', gline: 'rgba(255,255,255,.55)', land: '#FFFFFF', landO: .25, tr1: '#FFFFFF', tr2: '#FFFFFF', dash: '#FFFFFF', plane: '#FFFFFF',
+        paper1: 'rgba(255,255,255,.34)', paper2: 'rgba(255,255,255,.14)', paperLine: 'rgba(255,255,255,.9)', paperLW: 5, ink: '#FFFFFF', shO: .12, bz1: 'rgba(255,255,255,.34)', bz2: 'rgba(255,255,255,.10)', bzLine: 'rgba(255,255,255,.9)', bzIn: 'rgba(255,255,255,0)', sky1: 'rgba(255,255,255,.10)', sky2: 'rgba(255,255,255,.28)', sky3: 'rgba(255,255,255,.62)', sun: '#FFFFFF', sunO: .6, cloud: '#FFFFFF', cloudO: .5, horizon: '#FFFFFF', spec: .6, shade: 0, shadeC: 'rgba(255,255,255,0)', glassLine: 'rgba(255,255,255,.9)' });
+    }
+    P.shadeEdge = 196 + P.shade;
+    if (P.shade === 0) P.shadeEdge = -40;
+    return P;
+  }
+  renderVals() {
+    const p = this.props, c = ['a', 'b', 'c'].includes(p.concept) ? p.concept : 'a', v = ['default', 'dark', 'tinted', 'clear'].includes(p.variant) ? p.variant : 'default';
+    const size = this.num(p.size, 256), T = typeof p.tint === 'string' && /^#|^rgb/.test(p.tint) ? p.tint : '#6AB7FF';
+    const pal = this.pal(c, v, T);
+    let bars = ''; let x = 322; const seq = [7, 3, 10, 4, 4, 9, 3, 6, 11, 3, 5, 8, 4, 10, 3, 7, 4, 9, 5, 3, 8];
+    for (let i = 0; i < seq.length && x < 700; i++) { const w = seq[i] * 1.5; if (i % 2 === 0) bars += 'M' + x.toFixed(1) + ' 696h' + w.toFixed(1) + 'v150h-' + w.toFixed(1) + 'z'; x += w + 5; }
+    const names = { a: 'Meridian globe with plane trail', b: 'Boarding pass stub', c: 'Oval window glow' }, vn = { default: 'default', dark: 'dark', tinted: 'tinted', clear: 'clear' };
+    const r = size * .2237;
+    const edge = v === 'clear' ? 'inset 0 0 0 ' + Math.max(1, size / 170).toFixed(1) + 'px rgba(255,255,255,.55),inset 0 ' + Math.max(1, size / 120).toFixed(1) + 'px 0 rgba(255,255,255,.5)' : 'inset 0 0 0 ' + Math.max(.5, size / 300).toFixed(2) + 'px rgba(255,255,255,.16),inset 0 ' + Math.max(1, size / 200).toFixed(1) + 'px 0 rgba(255,255,255,.18)';
+    return {
+      uid: this.uid, size, p: pal, isA: c === 'a', isB: c === 'b', isC: c === 'c', isClear: v === 'clear', bars,
+      aria: 'App icon, ' + names[c] + ', ' + vn[v] + ' appearance',
+      boxStyle: 'position:relative;width:' + size + 'px;height:' + size + 'px;border-radius:' + r.toFixed(1) + 'px;overflow:hidden;background:' + (v === 'clear' ? '#8DA2CF' : '#0B1020') + ';isolation:isolate', edgeStyle: 'position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:' + edge
+    };
+  }
+}
+</script>
+</body>
+</html>

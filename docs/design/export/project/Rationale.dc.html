@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Designer's rationale and open questions</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rt{width:1440px;padding:56px 56px 64px;box-sizing:border-box;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);display:flex;flex-direction:column;gap:28px;-webkit-font-smoothing:antialiased}
+.rt h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:6px 0 0}
+.rt-cols{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;align-items:start}
+.rt-col{display:flex;flex-direction:column;gap:12px}
+.rt-hd{display:flex;align-items:baseline;gap:12px;margin-bottom:2px}
+.rt-hd h2{font:500 26px/32px var(--font-serif);letter-spacing:-.01em;margin:0}
+.rt-hd span{font:400 12px/16px var(--font-mono);color:var(--text-2)}
+.rt-it{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:14px 16px 15px;border-radius:18px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.rt-n{font:700 11px/20px var(--font-mono);letter-spacing:.08em;color:var(--accent-1)}
+.rt-t{font:600 15px/20px var(--font-ui)}
+.rt-x{font:400 13px/19px var(--font-ui);color:var(--text-2);margin-top:3px}
+.rt-w{display:inline-flex;margin-top:7px;height:20px;align-items:center;padding:0 8px;border-radius:10px;background:var(--fill-2);font:500 10.5px/1 var(--font-mono);color:var(--text-2)}
+.rt-q{border-radius:18px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);padding:14px 16px 16px}
+.rt-qt{font:600 15px/20px var(--font-ui)}
+.rt-qx{font:400 13px/19px var(--font-ui);color:var(--text-2);margin-top:3px}
+.rt-rec{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--fill-1);font:400 12.5px/18px var(--font-ui);color:var(--text-1)}
+.rt-rec b{font:700 10px/16px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--accent-1);margin-right:8px}
+.rt-pl{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rt-pb{border-radius:16px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);padding:14px 16px}
+.rt-pb b{display:block;font:600 14px/20px var(--font-ui)}
+.rt-pb>span{display:block;margin-top:3px;font:400 12.5px/18px var(--font-ui);color:var(--text-2)}
+</style>
+</helmet>
+<div class="rt" data-theme="dark" data-screen-label="Z01 Designer's rationale and open questions">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px"><div><div class="eyebrow">Z01 · Closing note</div><h1>Designer’s rationale and open questions</h1><div class="t-callout c2" style="margin-top:6px;max-width:860px">Where this file departs from the brief, what is a stand-in for a native effect, and the decisions I need from you before the SwiftUI build. Nothing here is hidden elsewhere: if a screen does something the brief did not ask for, it is on this page.</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:320px">Foundations F1–F3, Components C01–C10, Screens S01–S54, System surfaces M01–M06, Redlines R01–R05, Motion T01–T03, Sound A01.</div></div>
+
+<div class="rt-cols">
+<div class="rt-col">
+<div class="rt-hd"><h2>Decisions that go past the brief</h2><span>why, and where to see it</span></div>
+<sc-for list="{{decisions}}" as="d" hint-placeholder-count="9"><div class="rt-it"><span class="rt-n">{{d.n}}</span><div><div class="rt-t">{{d.t}}</div><div class="rt-x">{{d.x}}</div><span class="rt-w">{{d.w}}</span></div></div></sc-for>
+</div>
+<div class="rt-col">
+<div class="rt-hd"><h2>Open questions</h2><span>each with the default I used</span></div>
+<sc-for list="{{questions}}" as="q" hint-placeholder-count="9"><div class="rt-q"><div class="rt-qt">{{q.t}}</div><div class="rt-qx">{{q.x}}</div><div class="rt-rec"><b>Used</b>{{q.d}}</div></div></sc-for>
+</div>
+</div>
+
+<div>
+<div class="rt-hd" style="margin-bottom:12px"><h2>Stand-ins to replace in the native build</h2><span>these look right here, and are not the final implementation</span></div>
+<div class="rt-pl"><sc-for list="{{standins}}" as="s" hint-placeholder-count="8"><div class="rt-pb"><b>{{s.t}}</b><span>{{s.x}}</span></div></sc-for></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1947}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const decisions = [
+      ['Printing runs 84 + 30 ms per step', 'Each of the 14 steps is an 84 ms ease-out followed by a 30 ms hold, a little tighter than the brief’s roughly 100 ms plus a 30–40 ms hold. The feed takes 1.6 s instead of 1.8–2.0 s and the whole ritual, with LED and settle, is 2.1 s.', 'T01 · S13'],
+      ['The printer sits at the bottom of the stage', 'The brief sketches a 420 × 14 glass pill at the top. I used a 500 × 140 housing with a 428 × 12 slit at the bottom and feed the paper upward, so it reads as something being made and the finished pass ends centred in the stage.', 'R03 · S13'],
+      ['One distance for a 45 minute flight: 348 km', 'The brief quotes 347 km and 348 km in different places. Every screen uses 348 km, and 12,022 km as the example member’s total, so the card, Stats and the passport agree.', 'S10 · S32 · S36'],
+      ['Breaks put the flight on hold', 'When the app is closed or the Mac sleeps the plane keeps flying, as the brief says, and S54 reports it: “Flight resumed. Your plane kept flying while you were away.” A meal break is different. S20 pauses the clock, offers a timer, a chosen length or “until I’m back”, and slides the ETA by the break length, so a break is never counted as focus.', 'S20–S20D'],
+      ['Passport pages turn by dragging', 'You can hold the page edge and turn it with the pointer. The stamps are round, oval, octagonal and rosette shapes; the square stamp is gone.', 'S34 · T03'],
+      ['“Strict overlay” is a window, not a lock', 'S51 blocks with an overlay on our own window and a Focus filter. Nothing in the design closes or hides other apps, because that needs system permissions and an explicit opt-in.', 'S51'],
+      ['The app icon defaults to concept B, “Stub”', 'A is a globe, C is a window. B is the boarding pass with its notch and perforation, the object the whole product is built around, and it is the one that survives at 16 pt.', 'M06'],
+      ['Text tertiary was made lighter', '--text-3 is now #96A0BA on dark and #565E70 on light so footnotes and disabled labels clear 4.5 : 1 on every surface. Card small text and the card backs were re-inked for the same reason.', 'F1 · S32'],
+      ['Reduce Motion removes the printer, keeps the sound', 'With Reduce Motion the pass is simply there after a 200 ms cross-fade. Haptics and sound stay, because they carry the ritual when movement does not.', 'T01 · S15']
+    ].map((a, i) => ({ n: String(i + 1).padStart(2, '0'), t: a[0], x: a[1], w: a[2] }));
+    const questions = [
+      ['What is the product called?', 'Meridian and “Meridian Air” on the pass are working names. The brief did not give one, and the icon, the pass header and the Pro plan name all depend on it.', 'Meridian, everywhere, in one string constant.'],
+      ['Should Pro lead with Lifetime?', 'The deck line “Pay once. Fly on every device.” suggests so. Lifetime is selected on the main paywall and Annual shows the trial timeline.', 'Lifetime selected, prices left as $XX.'],
+      ['Do you want real app blocking?', 'It would make Focus stronger, and it needs a system permission, a clear opt-in and a plan for the case where someone’s work needs the blocked app.', 'No. Overlay, nudge or off.'],
+      ['Which rules apply to friends and public flights?', 'S40–S45 assume friends see your flight status, never your task or location, and that public flights carry no chat and no names. Reporting and moderation are not designed.', 'Private by default, public flights anonymous.'],
+      ['How should disputed map labels behave?', 'S50 shows both names where a dispute exists (Falkland Islands / Islas Malvinas), ordered by device region, with disputed borders drawn as dashed lines. This is a policy call, not a design one.', 'Both names, dashed borders.'],
+      ['Which app icon concept ships?', 'A (Meridian), B (Stub) or C (Window). The tinted and clear variants are drawn for all three.', 'B.'],
+      ['Who reviews the new copy?', 'S54 banners, Settings, Paywall, notification bodies and the Pro list contain strings the deck does not define. They follow its voice: no exclamation marks, no countdown pressure.', 'Treated as drafts for your sign-off.'],
+      ['Should a break ever count toward distance?', 'S20 holds the flight during any break, timed or open, and the ETA slides by its length. Counting break minutes would make a long lunch look like focus.', 'No. Only focused minutes become kilometres.'],
+      ['Is the Turkish copy final?', 'Only the four deck strings are final. Everything else in Turkish on S01T and M05 is a length test.', 'Placeholders until a native review.']
+    ].map(a => ({ t: a[0], x: a[1], d: a[2] }));
+    const standins = [
+      ['Satellite textures', 'Take-off, the window view and Satellite map style use procedural imagery. Native uses MapKit satellite imagery with the same framing and speed.'],
+      ['Card bend and tear curl', 'A 3D tilt, shading and a seeded torn edge. A true bend and a paper curl are native effects (rotation3DEffect, a Metal distortion).'],
+      ['Stamp ink', 'An SVG displacement and noise mask. Native uses a Metal mask with the same four shapes and a seeded wear pattern per stamp.'],
+      ['Globe and country masks', 'An orthographic SVG globe with simplified country outlines. Native uses MapKit’s globe or Natural Earth outlines.'],
+      ['Seat map', 'A shortened cabin. The real map follows the aircraft type and the number of friends aboard.'],
+      ['Sound', 'Web Audio recipes. Native renders the same recipes once into AVAudioPCMBuffers (A01).'],
+      ['Glass', 'backdrop-filter with a fixed gradient. Native uses Liquid Glass materials, so tint and blur follow the system.'],
+      ['Example data', 'Elif Kaya, 12,022 km, 87 flights, 94.5 h, a 12-day streak. All of it is invented for the layouts.']
+    ].map(a => ({ t: a[0], x: a[1] }));
+    return { decisions, questions, standins };
+  }
+}
+</script>
+</body>
+</html>
