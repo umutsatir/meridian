@@ -1,0 +1,1097 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Fly into": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odağa"
+          }
+        }
+      }
+    },
+    "focus.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "uç."
+          }
+        }
+      }
+    },
+    "Pick a destination. Land your work.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir varış noktası seç. İşini yere indir."
+          }
+        }
+      }
+    },
+    "Let’s get started": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hadi başlayalım"
+          }
+        }
+      }
+    },
+    "Skip setup": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kurulumu atla"
+          }
+        }
+      }
+    },
+    "Free to start · No account needed": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ücretsiz başla · Hesap gerekmez"
+          }
+        }
+      }
+    },
+    "Step %lld of %lld": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adım %lld / %lld"
+          }
+        }
+      }
+    },
+    "Back": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geri"
+          }
+        }
+      }
+    },
+    "Continue": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devam"
+          }
+        }
+      }
+    },
+    "Where do you\ntake off?": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Nereden\nkalkıyorsun?"
+          }
+        }
+      }
+    },
+    "Your home airport is where every flight starts by default.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ana havalimanın, her uçuşun varsayılan olarak başladığı yerdir."
+          }
+        }
+      }
+    },
+    "Detected from your Mac": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mac’inden algılandı"
+          }
+        }
+      }
+    },
+    "We think you're in %@. ": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%@ şehrinde olduğunu düşünüyoruz. "
+          }
+        }
+      }
+    },
+    "Change?": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Değiştir?"
+          }
+        }
+      }
+    },
+    "You can change this anytime.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bunu istediğin zaman değiştirebilirsin."
+          }
+        }
+      }
+    },
+    "Search airports, cities, countries": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Havalimanı, şehir, ülke ara"
+          }
+        }
+      }
+    },
+    "Search airports": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Havalimanı ara"
+          }
+        }
+      }
+    },
+    "Near you": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Yakınında"
+          }
+        }
+      }
+    },
+    "Results": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sonuçlar"
+          }
+        }
+      }
+    },
+    "No airports found.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Havalimanı bulunamadı."
+          }
+        }
+      }
+    },
+    "What do you focus on?": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Neye odaklanıyorsun?"
+          }
+        }
+      }
+    },
+    "Pick the kinds of work you'll fly. Drag them around. Change this any time.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçacağın iş türlerini seç. Sürükleyip oynatabilirsin. İstediğin zaman değiştir."
+          }
+        }
+      }
+    },
+    "%lld selected": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "%lld seçili"
+          }
+        }
+      }
+    },
+    "Scenarios": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Senaryolar"
+          }
+        }
+      }
+    },
+    "Add your own": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kendininkini ekle"
+          }
+        }
+      }
+    },
+    "Name your scenario": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Senaryonun adı"
+          }
+        }
+      }
+    },
+    "Add": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ekle"
+          }
+        }
+      }
+    },
+    "Choose your map.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Haritanı seç."
+          }
+        }
+      }
+    },
+    "Four ways to watch the flight. You can switch while flying.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçuşu izlemenin dört yolu. Uçarken değiştirebilirsin."
+          }
+        }
+      }
+    },
+    "Terra": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Terra"
+          }
+        }
+      }
+    },
+    "Monochrome": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tek renk"
+          }
+        }
+      }
+    },
+    "Standard": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Standart"
+          }
+        }
+      }
+    },
+    "Satellite": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uydu"
+          }
+        }
+      }
+    },
+    "Day and night shading on a quiet globe": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sakin bir küre üzerinde gece-gündüz gölgesi"
+          }
+        }
+      }
+    },
+    "Paper and ink. The calmest option": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kâğıt ve mürekkep. En sakin seçenek"
+          }
+        }
+      }
+    },
+    "Familiar coastlines and borders": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Tanıdık kıyılar ve sınırlar"
+          }
+        }
+      }
+    },
+    "Terrain seen from above": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Yukarıdan görünen arazi"
+          }
+        }
+      }
+    },
+    "Selected": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seçili"
+          }
+        }
+      }
+    },
+    "Place names": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Yer adları"
+          }
+        }
+      }
+    },
+    "Show city and sea names on the map": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Haritada şehir ve deniz adlarını göster"
+          }
+        }
+      }
+    },
+    "Satellite is part of Meridian Pro.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uydu, Meridian Pro’nun bir parçasıdır."
+          }
+        }
+      }
+    },
+    "Part of Meridian Pro": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meridian Pro’nun parçası"
+          }
+        }
+      }
+    },
+    "Stay in the moment.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ana odaklan."
+          }
+        }
+      }
+    },
+    "Three quick asks. Each one is optional, and you can change them later.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Üç kısa istek. Hepsi isteğe bağlı ve sonra değiştirebilirsin."
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bildirimler"
+          }
+        }
+      }
+    },
+    "Boarding call, landing soon": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Biniş çağrısı, yakında iniş"
+          }
+        }
+      }
+    },
+    "Step 1 of 3 · Notifications": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adım 1 / 3 · Bildirimler"
+          }
+        }
+      }
+    },
+    "Boarding calls and landing alerts": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Biniş çağrıları ve iniş uyarıları"
+          }
+        }
+      }
+    },
+    "We tell you when boarding opens and when you are five minutes out. Nothing else, no marketing, and you can mute any of it.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Biniş açıldığında ve inişe beş dakika kala haber veririz. Başka bir şey yok, pazarlama yok; istediğini sessize alabilirsin."
+          }
+        }
+      }
+    },
+    "Turn on notifications": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bildirimleri aç"
+          }
+        }
+      }
+    },
+    "Not now": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Şimdi değil"
+          }
+        }
+      }
+    },
+    "“Meridian” would like to send you notifications": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "“Meridian” sana bildirim göndermek istiyor"
+          }
+        }
+      }
+    },
+    "Notifications may include alerts and sounds.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bildirimler uyarı ve ses içerebilir."
+          }
+        }
+      }
+    },
+    "Don’t Allow": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İzin Verme"
+          }
+        }
+      }
+    },
+    "Allow": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İzin Ver"
+          }
+        }
+      }
+    },
+    "Boarding call": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Biniş çağrısı"
+          }
+        }
+      }
+    },
+    "Prepare for landing": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İnişe hazırlan"
+          }
+        }
+      }
+    },
+    "Friends joining": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Katılan arkadaşlar"
+          }
+        }
+      }
+    },
+    "Focus filter": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Odak filtresi"
+          }
+        }
+      }
+    },
+    "Do Not Disturb in flight": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçuşta Rahatsız Etme"
+          }
+        }
+      }
+    },
+    "Step 2 of 3 · Focus filter": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adım 2 / 3 · Odak filtresi"
+          }
+        }
+      }
+    },
+    "Quiet while you fly": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçarken sessizlik"
+          }
+        }
+      }
+    },
+    "Meridian can switch on a Focus when you take off and switch it off when you land. You choose which Focus, and you can turn it off per flight.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meridian kalkışta bir Odak’ı açıp inişte kapatabilir. Hangi Odak olacağını sen seçersin ve uçuş başına kapatabilirsin."
+          }
+        }
+      }
+    },
+    "Choose a Focus": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Bir Odak seç"
+          }
+        }
+      }
+    },
+    "Allow Meridian to use Focus filters": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meridian’ın Odak filtrelerini kullanmasına izin ver"
+          }
+        }
+      }
+    },
+    "Meridian can turn a Focus on and off.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meridian bir Odak’ı açıp kapatabilir."
+          }
+        }
+      }
+    },
+    "On at take-off": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kalkışta açık"
+          }
+        }
+      }
+    },
+    "Off at landing": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İnişte kapalı"
+          }
+        }
+      }
+    },
+    "Pick your Focus": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Odak’ını seç"
+          }
+        }
+      }
+    },
+    "Soft blocking": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Yumuşak engelleme"
+          }
+        }
+      }
+    },
+    "Accessibility access": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Erişilebilirlik izni"
+          }
+        }
+      }
+    },
+    "Step 3 of 3 · Accessibility": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Adım 3 / 3 · Erişilebilirlik"
+          }
+        }
+      }
+    },
+    "A gentle nudge back to focus": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Odağa nazik bir dürtme"
+          }
+        }
+      }
+    },
+    "To nudge you back, Meridian needs to know which app is in front. That is all this access is used for.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Seni geri çağırmak için Meridian’ın hangi uygulamanın önde olduğunu bilmesi gerekir. Bu erişim yalnızca bunun için kullanılır."
+          }
+        }
+      }
+    },
+    "Open System Settings": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sistem Ayarları’nı aç"
+          }
+        }
+      }
+    },
+    "Use Nudge only": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Yalnızca Dürtme kullan"
+          }
+        }
+      }
+    },
+    "Privacy & Security › Accessibility": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Gizlilik ve Güvenlik › Erişilebilirlik"
+          }
+        }
+      }
+    },
+    "Allow Meridian to control this computer.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Meridian’ın bu bilgisayarı denetlemesine izin ver."
+          }
+        }
+      }
+    },
+    "Deny": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Reddet"
+          }
+        }
+      }
+    },
+    "Reads": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Okur"
+          }
+        }
+      }
+    },
+    "Never reads": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Asla okumaz"
+          }
+        }
+      }
+    },
+    "The name of the app in front. Nothing else.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Öndeki uygulamanın adı. Başka bir şey değil."
+          }
+        }
+      }
+    },
+    "Window contents, keystrokes or your screen.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Pencere içeriği, tuş vuruşları veya ekranın."
+          }
+        }
+      }
+    },
+    "You'll see next": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Sıradaki ekran"
+          }
+        }
+      }
+    },
+    "Take your flights\nwith you.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Uçuşlarını\nyanında taşı."
+          }
+        }
+      }
+    },
+    "Sign in to fly with friends and keep your wallet, passport and cards in sync across your Apple devices. It's optional.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Arkadaşlarınla uçmak ve cüzdanını, pasaportunu ve kartlarını Apple cihazların arasında eşitlemek için giriş yap. İsteğe bağlı."
+          }
+        }
+      }
+    },
+    "Sign in with Apple": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Apple ile giriş yap"
+          }
+        }
+      }
+    },
+    "Friends see your flight status, never your task or location. Hide My Email works.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Arkadaşların uçuş durumunu görür; görevini veya konumunu asla. E-postamı Gizle çalışır."
+          }
+        }
+      }
+    },
+    "Together": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Birlikte"
+          }
+        }
+      }
+    },
+    "Needs sign in": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Giriş gerekir"
+          }
+        }
+      }
+    },
+    "At the gate · IST → NRT": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kapıda · IST → NRT"
+          }
+        }
+      }
+    },
+    "Idle": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Boşta"
+          }
+        }
+      }
+    },
+    "iCloud sync": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "iCloud eşitleme"
+          }
+        }
+      }
+    },
+    "Mac · iPhone · iPad": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Mac · iPhone · iPad"
+          }
+        }
+      }
+    },
+    "87 tickets, 19 stamps and your cards, everywhere you sign in.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "87 bilet, 19 damga ve kartların, giriş yaptığın her yerde."
+          }
+        }
+      }
+    },
+    "Skipping keeps everything on this Mac. You can sign in later from Settings.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Atlarsan her şey bu Mac’te kalır. Daha sonra Ayarlar’dan giriş yapabilirsin."
+          }
+        }
+      }
+    },
+    "Your first flight prints here": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İlk uçuşun burada basılır"
+          }
+        }
+      }
+    },
+    "Ready for take-off.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Kalkışa hazır."
+          }
+        }
+      }
+    },
+    "Home airport %@. Soft blocking is set to Nudge. Your first ticket is one tap away.": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "Ana havalimanı %@. Yumuşak engelleme Dürtme’ye ayarlı. İlk biletin tek dokunuş uzakta."
+          }
+        }
+      }
+    },
+    "Plan my first flight": {
+      "comment": "review needed (PRD Q9): Turkish is a length test until native review",
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "needs_review",
+            "value": "İlk uçuşumu planla"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

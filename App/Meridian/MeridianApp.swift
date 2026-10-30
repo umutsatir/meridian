@@ -9,7 +9,7 @@ struct MeridianApp: App {
             if let launch = DebugLaunch.current {
                 DebugHost(launch: launch)   // screenshot harness (App/Meridian/Debug)
             } else {
-                RootView()
+                LaunchGate()
                     .environment(model)
                     .frame(minWidth: 960, minHeight: 640)
             }
