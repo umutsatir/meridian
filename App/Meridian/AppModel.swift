@@ -35,6 +35,8 @@ enum AppSection: String, CaseIterable, Identifiable {
 @Observable
 final class AppModel {
     var section: AppSection = .fly
+    /// First-run onboarding done (or skipped). Written by `completeOnboarding` (Features/Onboarding).
+    var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "onboarding.completed")
     var plan: PlanState {
         didSet { savePreferences() }
     }
