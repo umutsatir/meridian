@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C12 System UI kit</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c12-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c12-grid{display:grid;grid-template-columns:150px repeat(5,minmax(0,1fr));gap:18px 16px;align-items:center}
+.c12-grid .toggle{display:block}
+.c12-hd{font:600 10px/12px var(--font-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.c12-rn{font:500 13px/1.2 var(--font-ui);color:var(--text-2)}
+.c12-step{display:inline-flex;align-items:center;height:32px;border-radius:10px;background:var(--fill-1);border:1px solid var(--stroke-hair);overflow:hidden}
+.c12-step>span{width:30px;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-2);cursor:pointer}
+.c12-step>span:is(:hover,.is-hover){background:var(--fill-2);color:var(--text-1)}
+.c12-step>span.is-pressed{background:var(--fill-3)}
+.c12-step>b{min-width:46px;text-align:center;font:500 14px/1 var(--font-mono);color:var(--text-1);border-left:1px solid var(--stroke-hair);border-right:1px solid var(--stroke-hair);height:100%;display:flex;align-items:center;justify-content:center}
+.c12-step.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.c12-step.is-disabled{opacity:.38}
+.c12-err{border-color:rgba(255,107,107,.7)!important;background:rgba(255,107,107,.08)!important}
+.c12-sheet{border-radius:26px;padding:24px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.c12-alert{border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;box-sizing:border-box}
+.c12-ill{border-radius:20px;background:var(--fill-1);padding:18px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;box-sizing:border-box}
+.c12-ring{width:104px;height:56px;border-radius:14px;background:var(--fill-2);display:flex;align-items:center;justify-content:center}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C12 · §2.16</div>
+<h1 class="t-display" style="margin:0">System UI kit</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">The ordinary parts, each with the five states it needs: default, hover, pressed, focus and disabled. They look like macOS 26 controls, in Meridian’s own glass, so nothing in the app feels borrowed.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Buttons</h2><span class="th">{{t.label}}</span></div>
+<div class="c12-grid">
+<span></span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span class="c12-hd">{{s.t}}</span></sc-for>
+<span class="c12-rn">Primary</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-primary {{s.c}}" role="button">Check in</span></span></sc-for>
+<span class="c12-rn">Secondary</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-secondary {{s.c}}" role="button">Cancel</span></span></sc-for>
+<span class="c12-rn">Tertiary</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-tertiary {{s.c}}" role="button">Skip for now</span></span></sc-for>
+<span class="c12-rn">Danger</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-danger {{s.c}}" role="button">End flight</span></span></sc-for>
+<span class="c12-rn">Small</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-secondary btn-sm {{s.c}}" role="button">Export CSV</span></span></sc-for>
+<span class="c12-rn">Round glass</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn-round glass glass-ctl {{s.c}}" role="button"><svg class="ic ic18"><use href="./icons.svg#sound"></use></svg></span></span></sc-for>
+<span class="c12-rn">Large</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="btn btn-primary btn-lg {{s.c}}" role="button">Board</span></span></sc-for>
+</div>
+<div class="sh-title"><h2>Segmented control, toggle, slider, stepper</h2></div>
+<div class="c12-grid">
+<span></span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span class="c12-hd">{{s.t}}</span></sc-for>
+<span class="c12-rn">Segmented</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="seg {{s.c}}"><span class="on">Map</span><span class="{{s.c}}">Window</span><span>Dash</span></span></span></sc-for>
+<span class="c12-rn">Toggle · off</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="toggle {{s.c}}" role="switch"></span></span></sc-for>
+<span class="c12-rn">Toggle · on</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="toggle on {{s.c}}" role="switch"></span></span></sc-for>
+<span class="c12-rn">Slider</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span style="display:flex;width:120px;opacity:{{s.o}}"><span class="slider {{s.c}}" style="--v:58"><i></i><b></b></span></span></sc-for>
+<span class="c12-rn">Stepper</span><sc-for list="{{states}}" as="s" hint-placeholder-count="5"><span><span class="c12-step {{s.c}}"><span class="{{s.c}}"><svg class="ic ic14"><use href="./icons.svg#minus"></use></svg></span><b>25</b><span><svg class="ic ic14"><use href="./icons.svg#plus"></use></svg></span></span></span></sc-for>
+</div>
+<div class="sh-title"><h2>Text and search fields</h2></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{fields}}" as="f" hint-placeholder-count="6"><div class="c12-st"><div class="field {{f.c}}" style="width:230px"><svg class="ic ic14 c3"><use href="./icons.svg#{{f.ic}}"></use></svg><input value="{{f.v}}" placeholder="{{f.ph}}" aria-label="{{f.t}}"></div><div class="sh-cap">{{f.t}}</div><div class="sh-note" style="max-width:230px">{{f.n}}</div></div></sc-for>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Popover, context menu, sheet, alert</h2></div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<div class="c12-st"><div class="glass e3" style="width:260px;border-radius:20px;padding:16px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px"><div class="eyebrow">Time</div><div style="display:flex;align-items:center;gap:10px"><span class="c12-step"><span><svg class="ic ic14"><use href="./icons.svg#minus"></use></svg></span><b>42</b><span><svg class="ic ic14"><use href="./icons.svg#plus"></use></svg></span></span><span class="c2" style="font-size:13px">minutes</span></div><div class="seg" style="width:100%"><span class="on" style="flex:1">25</span><span style="flex:1">42</span><span style="flex:1">60</span><span style="flex:1">90</span></div></div><div class="sh-cap">Popover · glass e3, 20 pt radius, arrow 10 pt</div></div>
+<div class="c12-st"><div class="glass e3 menu"><span><svg class="ic ic14"><use href="./icons.svg#share"></use></svg>Share card<span class="kbd">⌘S</span></span><span class="is-hover"><svg class="ic ic14"><use href="./icons.svg#pencil"></use></svg>Edit note<span class="kbd">⌘E</span></span><span><svg class="ic ic14"><use href="./icons.svg#copy"></use></svg>Copy flight number</span><hr><span style="color:var(--danger)"><svg class="ic ic14"><use href="./icons.svg#trash"></use></svg>Delete ticket<span class="kbd">⌫</span></span></div><div class="sh-cap">Context menu · hover = accent fill</div></div>
+<div class="c12-st"><div class="glass e3 c12-sheet" style="width:360px"><div class="t-title2">Add a note</div><div class="field" style="height:84px;align-items:flex-start;padding-top:12px"><input placeholder="What did you get done?" style="height:20px"></div><div style="display:flex;gap:10px;justify-content:flex-end"><span class="btn btn-secondary btn-sm">Cancel</span><span class="btn btn-primary btn-sm">Save</span></div></div><div class="sh-cap">Sheet · slides from the title bar</div></div>
+<div class="c12-st"><div class="glass e3 c12-alert" style="width:300px"><svg class="ic ic24" style="color:var(--warn)"><use href="./icons.svg#alert"></use></svg><div style="font:600 15px/20px var(--font-ui)">Land early?</div><div class="t-callout c2">You flew 31 of 42 minutes. 248 km will be counted.</div><div style="display:flex;gap:10px;margin-top:8px"><span class="btn btn-secondary btn-sm">Keep flying</span><span class="btn btn-danger btn-sm">Land now</span></div></div><div class="sh-cap">Alert · destructive on the right</div></div>
+</div>
+<div class="sh-title"><h2>Tooltip, toast, badge, progress, skeleton</h2></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c12-st"><span class="tip" style="position:static">Follow plane <span class="kbd">F</span></span><div class="sh-cap">Tooltip · 600 ms delay</div></div>
+<div class="c12-st"><div class="glass e3 toast"><span style="width:34px;height:34px;border-radius:50%;background:rgba(91,227,160,.16);color:var(--ok);display:flex;align-items:center;justify-content:center"><svg class="ic ic18"><use href="./icons.svg#check"></use></svg></span><div><div style="font:600 14px/18px var(--font-ui)">Added to your wallet</div><div class="t-callout c2">+348 km</div></div></div><div class="sh-cap">Toast · 4 s</div></div>
+<div class="c12-st"><div style="display:flex;gap:10px;align-items:center"><span class="badge">3</span><span class="badge">12</span><span class="pill ok"><span class="dotp"></span>On time</span><span class="pill warn">Last minute</span><span class="pill danger">Offline</span></div><div class="sh-cap">Badge and status pills</div></div>
+<div class="c12-st" style="width:240px"><div class="bar" style="--p:62;width:240px"><i></i></div><div class="bar" style="--p:18;width:240px"><i></i></div><div class="sh-cap">Progress · 4 pt, accent gradient</div></div>
+<div class="c12-st" style="width:240px"><div class="skel" style="height:16px;width:200px"></div><div class="skel" style="height:16px;width:140px"></div><div class="skel" style="height:56px;width:240px;border-radius:14px"></div><div class="sh-cap">Skeleton · shimmer 1.4 s</div></div>
+</div>
+<div class="sh-title"><h2>Empty-state illustration style</h2></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{empties}}" as="e" hint-placeholder-count="4"><div class="c12-st"><div class="c12-ill" style="width:280px;height:230px"><svg width="150" height="100" viewBox="0 0 150 100" fill="none" stroke="var(--accent-1)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="{{e.d1}}" stroke-dasharray="{{e.dash}}"/><path d="{{e.d2}}" opacity=".6"/></svg><div style="font:600 15px/20px var(--font-ui)">{{e.t}}</div><div class="t-callout c2">{{e.n}}</div></div><div class="sh-cap">{{e.c}}</div></div></sc-for>
+</div>
+<div class="sh-note" style="max-width:900px">One line weight (1.5 pt), the accent colour, round caps, a dashed outline for “not yet” and a solid detail for “here is the one thing”. No fills, no people, no clip-art planes. The ghost ticket has the same notches as the real one so the first flight clearly goes there.</div>
+<div class="sh-title"><h2>Focus ring</h2></div>
+<div class="sh-row" style="gap:28px;align-items:center">
+<span class="c12-ring" style="outline:2px solid var(--accent-1);outline-offset:2px"><span class="btn btn-secondary btn-sm">Button</span></span>
+<span class="c12-ring" style="outline:2px solid var(--accent-1);outline-offset:2px;border-radius:999px"><span class="chip"><svg class="ic ic14"><use href="./icons.svg#code"></use></svg>Coding</span></span>
+<div class="sh-note" style="max-width:520px">2 pt accent outline, 2 pt offset, same corner radius as the control plus the offset. Keyboard focus only; clicks never show it. In Increase Contrast the ring becomes 3 pt and white on dark, black on light.</div>
+</div>
+<div class="sh-native"><b>Native</b><span>All of these are <span style="color:var(--text-1)">ButtonStyle</span>, <span style="color:var(--text-1)">ToggleStyle</span> and <span style="color:var(--text-1)">LabelStyle</span> over system controls, so keyboard navigation, VoiceOver and Dynamic Type come free. Glass is <span style="color:var(--text-1)">glassEffect(_:in:)</span>; the focus ring is the system <span style="color:var(--text-1)">focusEffect</span> tinted with the accent.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const states = [{ t: 'Default', c: '', o: 1 }, { t: 'Hover', c: 'is-hover', o: 1 }, { t: 'Pressed', c: 'is-pressed', o: 1 }, { t: 'Focus', c: 'is-focus', o: 1 }, { t: 'Disabled', c: 'is-disabled', o: .38 }];
+    const fields = [{ t: 'Default', c: '', ic: 'search', v: '', ph: 'Search airports', n: 'Placeholder in the third tone.' }, { t: 'Hover', c: 'is-hover', ic: 'search', v: '', ph: 'Search airports', n: 'Fill steps up one level.' }, { t: 'Focus', c: 'is-focus', ic: 'search', v: 'Lis', ph: '', n: 'Accent ring; the match is highlighted.' }, { t: 'Filled', c: '', ic: 'pencil', v: 'Auth module refactor', ph: '', n: 'Topic field, max 60 characters.' }, { t: 'Error', c: 'c12-err', ic: 'alert', v: 'LHRX', ph: '', n: 'Red border and one line of help.' }, { t: 'Disabled', c: 'is-disabled', ic: 'search', v: '', ph: 'Search airports', n: '38% opacity, not focusable.' }];
+    const empties = [{ t: 'No tickets yet.', n: 'Your first flight will print here.', c: 'Ghost ticket', d1: 'M20 18h110a8 8 0 0 1 8 8v12a6 6 0 0 0 0 12v12a8 8 0 0 1-8 8H20a8 8 0 0 1-8-8V26a8 8 0 0 1 8-8z', dash: '4 5', d2: 'M96 18v52M36 40h40M36 54h28' }, { t: 'No stamps yet.', n: 'Land somewhere new to fill this page.', c: 'Empty passport', d1: 'M30 10h90a6 6 0 0 1 6 6v68a6 6 0 0 1-6 6H30a6 6 0 0 1-6-6V16a6 6 0 0 1 6-6z', dash: '4 5', d2: 'M75 36a16 16 0 1 0 .1 0M59 44h32M75 28v32' }, { t: 'No friends aboard.', n: 'Invite someone to share a flight.', c: 'No friends', d1: 'M30 70c0-14 10-22 22-22s22 8 22 22', dash: '4 5', d2: 'M52 36a10 10 0 1 0 .1 0M96 64c0-10 8-16 18-16M104 36a8 8 0 1 0 .1 0' }, { t: 'You’re offline.', n: 'Your plane keeps flying. We’ll sync when you’re back.', c: 'Offline', d1: 'M20 66c0-14 11-24 25-24 3-12 14-20 28-20 17 0 31 13 31 30 11 0 20 6 20 14', dash: '4 5', d2: 'M48 84l60-62' }];
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], states, fields, empties };
+  }
+}
+</script>
+</body>
+</html>

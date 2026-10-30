@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C05 Destination picker parts</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c5-state{display:flex;flex-direction:column;gap:12px;align-items:flex-start;min-width:132px}
+.c5-stage{position:relative;overflow:hidden;border-radius:22px;box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.c5-sw{width:22px;height:22px;border-radius:50%;display:inline-block;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.c5-sw.on{box-shadow:0 0 0 2px var(--bg-2),0 0 0 4px var(--c)}
+.c5-ib{width:30px;height:30px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:var(--fill-1);color:var(--text-2);cursor:pointer}
+.c5-ib.on{background:color-mix(in srgb,var(--c) 22%,transparent);color:var(--c);box-shadow:0 0 0 1px var(--c)}
+.c5-row{display:flex;align-items:center;gap:12px;height:46px;padding:0 12px;border-radius:12px}
+.c5-row.is-hover{background:var(--fill-2)}
+.c5-tag{position:absolute;transform:translate(-50%,-50%)}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C05 · §2.5 and §2.6</div>
+<h1 class="t-display" style="margin:0">Destination picker, tags and chips</h1>
+<p class="t-body c2" style="margin:0;max-width:880px">The planning heart. A range ring grows with the ruler, airports inside it become amber tags, the selected tag lifts 1.15× and joins the origin with a luminous great-circle arc. Every part below is the live component, not a picture of one.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Airport tag</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:36px 44px;align-items:flex-end">
+<div class="c5-state"><span class="tag"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span><div class="sh-cap">Default</div><div class="sh-note">Amber, radius 8, SF Pro Condensed Bold 13, inner glow</div></div>
+<div class="c5-state" style="min-width:190px;padding-top:44px;position:relative"><span class="tip" style="position:absolute;left:0;top:0"><b>Charles de Gaulle</b><span class="mono c2" style="font-size:11px">348 km · 42 min</span></span><span class="tag is-hover"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span><div class="sh-cap">Hover</div><div class="sh-note">Lifts 2 pt, tooltip with name, distance, time</div></div>
+<div class="c5-state"><span class="tag is-selected"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span><div class="sh-cap">Selected</div><div class="sh-note">1.15×, white ring, glow, joined to origin by the arc</div></div>
+<div class="c5-state"><span class="tag is-visited" style="--vc:#B49CFF"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span><div class="sh-cap">Visited</div><div class="sh-note">Dot in your most frequent scenario there (Coding)</div></div>
+<div class="c5-state"><span class="tag is-disabled"><svg class="ic"><use href="./icons.svg#plane"></use></svg>ZRH</span><div class="sh-cap">Outside ring</div><div class="sh-note">Fill 10%, no shadow, not focusable</div></div>
+<div class="c5-state"><span class="tag is-focus"><svg class="ic"><use href="./icons.svg#plane"></use></svg>BRU</span><div class="sh-cap">Keyboard focus</div><div class="sh-note">2 pt accent ring, 3 pt offset</div></div>
+<div class="c5-state"><span class="tag is-selected is-visited" style="--vc:#7ADDB2"><svg class="ic"><use href="./icons.svg#plane"></use></svg>DUB</span><div class="sh-cap">Selected and visited</div><div class="sh-note">Dot stays on top of the ring</div></div>
+</div>
+<div class="c5-stage" style="width:1200px;height:300px">
+<dc-import name="MapLayer" w="1200" h="300" map-style="terra" zoom="2.3" lat="50.4" lon="1.4" labels="true" hint-size="1200px,300px"></dc-import>
+<div class="ring" style="left:520px;top:210px;width:380px;height:380px"></div>
+<svg width="1200" height="300" style="position:absolute;left:0;top:0;pointer-events:none"><defs><linearGradient id="c5g-{{t.k}}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs><path d="M520 210 Q 585 120 650 98" fill="none" stroke="#6AB7FF" stroke-opacity=".3" stroke-width="7" stroke-linecap="round"/><path d="M520 210 Q 585 120 650 98" fill="none" stroke="url(#c5g-{{t.k}})" stroke-width="3" stroke-linecap="round"/></svg>
+<div class="origin" style="left:520px;top:210px"></div><div class="eyebrow" style="position:absolute;left:520px;top:232px;transform:translateX(-50%);color:var(--text-1);font-size:10px">LHR · you are here</div>
+<span class="tag c5-tag is-selected" style="left:650px;top:98px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span>
+<span class="tag c5-tag" style="left:742px;top:162px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>BRU</span>
+<span class="tag c5-tag is-visited" style="left:690px;top:70px;--vc:#B49CFF"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span>
+<span class="tag c5-tag" style="left:596px;top:122px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>LGW</span>
+<span class="tag c5-tag" style="left:820px;top:236px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>LUX</span>
+<span class="tag c5-tag is-disabled" style="left:900px;top:90px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>HAM</span>
+<span class="tag c5-tag is-disabled" style="left:960px;top:200px"><svg class="ic"><use href="./icons.svg#plane"></use></svg>ZRH</span>
+<div class="annot" style="position:absolute;left:24px;bottom:16px">Range ring = selected duration · translucent indigo, 1.5 pt edge · arc 3 pt accent gradient with 8 px glow at 30%</div>
+</div>
+</section>
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Scenario chip</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:36px 40px">
+<sc-for list="{{chipStates}}" as="s" hint-placeholder-count="7">
+<div class="c5-state"><span class="chip {{s.cls}}" style="--sc:#B49CFF"><svg class="ic ic14"><use href="./icons.svg#code"></use></svg>Coding</span><div class="sh-cap">{{s.t}}</div><div class="sh-note">{{s.n}}</div></div>
+</sc-for>
+</div>
+<div class="sh-row" style="gap:14px"><sc-for list="{{allChips}}" as="c" hint-placeholder-count="8"><span class="chip {{c.cls}}" style="--sc:{{c.c}}"><svg class="ic ic14"><use href="{{c.icon}}"></use></svg>{{c.l}}</span></sc-for></div>
+<div class="sh-row" style="gap:48px;align-items:flex-start">
+<div class="c5-state" style="min-width:330px"><span class="chip is-selected" style="--sc:#FF8FB1"><svg class="ic ic14"><use href="./icons.svg#spark"></use></svg>Sketching</span>
+<div class="glass e3" style="width:320px;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px">
+<div class="field is-focus" style="height:36px"><input value="Sketching" aria-label="Scenario name"></div>
+<div><div class="eyebrow" style="margin-bottom:8px">Color</div><div style="display:flex;gap:9px"><sc-for list="{{swatches}}" as="w" hint-placeholder-count="8"><i class="c5-sw {{w.cls}}" style="background:{{w.c}};--c:{{w.c}}"></i></sc-for></div></div>
+<div><div class="eyebrow" style="margin-bottom:8px">Icon</div><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{icons}}" as="w" hint-placeholder-count="8"><i class="c5-ib {{w.cls}}" style="--c:#FF8FB1"><svg class="ic ic18"><use href="{{w.icon}}"></use></svg></i></sc-for></div></div>
+<div style="display:flex;gap:8px;justify-content:flex-end"><span class="btn btn-tertiary btn-sm">Cancel</span><span class="btn btn-primary btn-sm">Save</span></div></div>
+<div class="sh-cap">Editing</div><div class="sh-note" style="max-width:320px">Small popover on the chip: name, 8 colors at equal perceived lightness, 16 icons.</div></div>
+<div class="c5-state" style="gap:14px"><div class="sh-cap">Onboarding physics playground · S03</div>
+<div class="c5-stage" style="width:560px;height:250px;background:var(--bg-2)">
+<div class="annot" style="position:absolute;left:18px;top:14px">gravity 1400 pt/s² · restitution 0.38 · friction 0.4</div>
+<sc-for list="{{fall}}" as="c" hint-placeholder-count="8"><span class="chip {{c.cls}}" style="{{c.s}}"><svg class="ic ic14"><use href="{{c.icon}}"></use></svg>{{c.l}}</span></sc-for>
+<div style="position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(0deg,var(--fill-2),transparent)"></div>
+</div>
+<div class="sh-note" style="max-width:560px">Chips fall from above, collide and settle. Selected chips lift 6 pt and glow in their color; the footer counts “3 selected”. Native: SpriteKit or a small RealityKit physics scene, mirrored by VoiceOver as a plain list.</div></div>
+</div>
+</section>
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Origin chip and popover</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c5-state"><div class="glass e2" style="height:48px;padding:0 16px 0 12px;border-radius:24px;display:flex;align-items:center;gap:8px"><span class="t-callout c2" style="padding-left:4px">From</span><span class="cond" style="font-size:24px;line-height:1;letter-spacing:.02em">LHR</span><span class="t-callout c2">· London</span><svg class="ic ic14 c2" style="margin-left:4px"><use href="./icons.svg#chev-d"></use></svg></div><div class="sh-cap">Default</div></div>
+<div class="c5-state"><div class="glass e2 glass-ctl is-hover" style="height:48px;padding:0 16px 0 12px;border-radius:24px;display:flex;align-items:center;gap:8px"><span class="t-callout c2" style="padding-left:4px">From</span><span class="cond" style="font-size:24px;line-height:1">LHR</span><span class="t-callout c2">· London</span><svg class="ic ic14 c2" style="margin-left:4px"><use href="./icons.svg#chev-d"></use></svg></div><div class="sh-cap">Hover</div></div>
+<div class="c5-state"><div class="glass e2" style="height:48px;padding:0 16px 0 12px;border-radius:24px;display:flex;align-items:center;gap:8px;outline:2px solid var(--accent-1);outline-offset:2px"><span class="t-callout c2" style="padding-left:4px">From</span><span class="cond" style="font-size:24px;line-height:1">LHR</span><span class="t-callout c2">· London</span><svg class="ic ic14 c2" style="margin-left:4px;transform:rotate(180deg)"><use href="./icons.svg#chev-d"></use></svg></div><div class="sh-cap">Open · focused</div></div>
+<div class="glass e3" style="width:360px;border-radius:24px;padding:10px;display:flex;flex-direction:column;gap:1px">
+<div class="field" style="margin:2px 2px 8px;height:38px"><svg class="ic ic14 c3"><use href="./icons.svg#search"></use></svg><input placeholder="Airport, city or code" aria-label="Search airports"></div>
+<div class="c5-row"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#target"></use></svg><div style="flex:1"><div style="font:500 14px/18px var(--font-ui)">Use my location</div><div class="t-callout c3">Nearest: LHR · 24 km</div></div></div>
+<div class="c5-row is-hover"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#history"></use></svg><div style="flex:1"><div style="font:500 14px/18px var(--font-ui)">Continue from last landing</div><div class="t-callout c3">CDG · Paris, landed 2 days ago</div></div><span class="tag">CDG</span></div>
+<div class="eyebrow" style="padding:10px 12px 4px">Favorites and nearby</div>
+<sc-for list="{{opts}}" as="o" hint-placeholder-count="4"><div class="c5-row"><span class="tag">{{o.code}}</span><div style="flex:1"><div style="font:500 14px/18px var(--font-ui)">{{o.city}}</div><div class="t-callout c3">{{o.name}}</div></div><span class="mono c2" style="font-size:11px">{{o.dist}}</span><sc-if value="{{o.fav}}" hint-placeholder-val="{{ false }}"><svg class="ic ic14" style="color:var(--amber)"><use href="./icons.svg#star"></use></svg></sc-if></div></sc-for>
+</div>
+</div>
+</section>
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Duration ruler, quick-set, round buttons, CTA</h2><span class="th">{{t.label}}</span></div>
+<div style="display:flex;flex-direction:column;gap:26px">
+<sc-for list="{{rulers}}" as="r" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:30px"><div style="width:230px"><div class="sh-cap">{{r.t}}</div><div class="sh-note" style="margin-top:4px">{{r.n}}</div></div>
+<div class="glass e2" style="position:relative;width:784px;height:72px;border-radius:36px;padding:8px 12px"><div class="ruler" style="width:760px;height:56px;margin-top:6px"><div style="{{r.track}}"><div class="ticks" style="{{r.ticks}}"></div><div class="ticks big" style="{{r.big}}"></div><sc-for list="{{r.labels}}" as="l" hint-placeholder-count="12"><span class="lbl" style="left:{{l.x}}px">{{l.t}}</span></sc-for></div></div>
+<div style="position:absolute;left:392px;top:-18px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center"><div class="glass mono" style="height:26px;padding:0 12px;border-radius:13px;display:flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap">{{r.flag}}</div><div style="width:2px;height:24px;background:var(--accent-grad);border-radius:1px;box-shadow:0 0 10px rgba(106,183,255,.7)"></div></div>
+<div class="annot" style="position:absolute;right:20px;top:-26px;white-space:nowrap">{{r.hap}}</div></div></div>
+</sc-for>
+</div>
+<div class="sh-row" style="gap:40px;align-items:flex-start">
+<div class="c5-state" style="min-width:300px"><div class="seg glass" style="padding:3px"><span>15</span><span>25</span><span class="on">50</span><span>90</span><span>2h</span></div><div class="sh-cap">Quick-set segmented</div><div class="seg glass" style="padding:3px"><span class="is-hover">15</span><span class="on">25</span><span class="is-focus" style="outline:2px solid var(--accent-1);outline-offset:1px">50</span><span>90</span><span>2h</span></div><div class="sh-note">Second row shows hover, selected and focused. Tapping jumps the ruler with a Smooth spring.</div></div>
+<div class="c5-state"><div style="display:flex;gap:12px"><span class="btn-round glass glass-ctl"><svg class="ic ic18"><use href="./icons.svg#shuffle"></use></svg></span><span class="btn-round glass glass-ctl is-hover"><svg class="ic ic18"><use href="./icons.svg#search"></use></svg></span><span class="btn-round glass glass-ctl is-pressed" style="transform:scale(.94)"><svg class="ic ic18"><use href="./icons.svg#layers"></use></svg></span><span class="btn-round glass glass-ctl is-focus"><svg class="ic ic18"><use href="./icons.svg#info"></use></svg></span><span class="btn-round glass glass-ctl is-disabled"><svg class="ic ic18"><use href="./icons.svg#shuffle"></use></svg></span></div><div class="sh-cap">Round glass buttons: default · hover · pressed · focus · disabled</div><div class="sh-note" style="max-width:360px">Shuffle (random destination), Search ⌘K, Map style, Info. 40 pt, tooltip after 600 ms.</div></div>
+</div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<sc-for list="{{ctas}}" as="c" hint-placeholder-count="5">
+<div class="c5-state" style="min-width:230px"><div class="glass e3" style="height:64px;border-radius:34px;padding:0 14px;display:flex;align-items:center;gap:12px"><span class="btn btn-primary btn-lg {{c.cls}}">{{c.l}}</span><span class="btn btn-secondary btn-lg {{c.cls2}}" style="padding:0 18px">Quick start <span class="kbd">⌘⏎</span></span></div><div class="sh-cap">{{c.t}}</div><div class="sh-note">{{c.n}}</div></div>
+</sc-for>
+</div>
+</section>
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Destination dock</h2><span class="th">{{t.label}}</span></div>
+<div style="display:flex;gap:16px;padding:10px 0 8px;overflow:hidden">
+<sc-for list="{{docks}}" as="d" hint-placeholder-count="6">
+<div class="dest {{d.cls}}" style="margin:0;{{d.s}}"><div style="display:flex;align-items:center;justify-content:space-between"><span class="tag" style="box-shadow:none"><svg class="ic"><use href="./icons.svg#plane"></use></svg>{{d.code}}</span><span class="mono" style="{{d.ts}}">{{d.min}}</span></div><div style="font:600 17px/20px var(--font-ui);margin-top:2px">{{d.city}}</div><div style="display:flex;align-items:center;gap:7px"><span style="{{d.flag}}"></span><span style="{{d.cs}}">{{d.country}}</span><svg width="50" height="18" viewBox="0 0 50 18" style="margin-left:auto"><path d="M2 15Q25 -4 48 15" fill="none" stroke="{{d.arc}}" stroke-width="1.5" stroke-dasharray="1 3.2" stroke-linecap="round"/><circle cx="2" cy="15" r="2" fill="{{d.arc}}"/><circle cx="48" cy="15" r="2.4" fill="{{d.arc}}"/></svg></div></div>
+</sc-for>
+</div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<div class="c5-state"><div class="dest glass e2" style="margin:0;transform:none"><div style="display:flex;justify-content:space-between"><span class="tag" style="box-shadow:none"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span><span class="mono c2" style="font-size:12px;font-weight:600">51 min</span></div><div style="font:600 17px/20px var(--font-ui)">Amsterdam</div><div class="c2" style="font:500 12px/1 var(--font-ui)">Netherlands</div></div><div class="sh-cap">Default · dark glass</div></div>
+<div class="c5-state"><div class="dest glass e2 is-hover" style="margin:0"><div style="display:flex;justify-content:space-between"><span class="tag" style="box-shadow:none"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span><span class="mono c2" style="font-size:12px;font-weight:600">51 min</span></div><div style="font:600 17px/20px var(--font-ui)">Amsterdam</div><div class="c2" style="font:500 12px/1 var(--font-ui)">Netherlands</div></div><div class="sh-cap">Hover · lifts 3 pt</div></div>
+<div class="c5-state"><div class="dest glass e2 is-focus" style="margin:0"><div style="display:flex;justify-content:space-between"><span class="tag" style="box-shadow:none"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span><span class="mono c2" style="font-size:12px;font-weight:600">51 min</span></div><div style="font:600 17px/20px var(--font-ui)">Amsterdam</div><div class="c2" style="font:500 12px/1 var(--font-ui)">Netherlands</div></div><div class="sh-cap">Keyboard focus · ← → cycle, ⏎ confirm</div></div>
+<div class="glass" style="height:96px;border-radius:20px;display:flex;align-items:center;gap:16px;padding:0 24px;width:480px"><svg class="ic ic24 c2"><use href="./icons.svg#map"></use></svg><div><div class="t-headline">Nothing this close</div><div class="t-callout c2">No airports fit inside 12 min from LHR. Try 20 min or more.</div></div></div>
+</div>
+<div class="sh-native"><b>Native</b><span><span style="color:var(--text-1)">ScrollView(.horizontal)</span> with <span style="color:var(--text-1)">.scrollTargetBehavior(.viewAligned)</span>; the selected card is a <span style="color:var(--text-1)">PaperCard</span> (layered shapes + Metal grain), the rest use <span style="color:var(--text-1)">.glassEffect(.regular.interactive())</span>. Ruler is a custom <span style="color:var(--text-1)">Canvas</span> with <span style="color:var(--text-1)">NSHapticFeedbackManager</span> detents every 5 minutes.</span></div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":6000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = window.MeridianKit, SC = K.scenarios;
+    const chipStates = [{ t: 'Default', cls: '', n: 'Glass pill, scenario-colored label' }, { t: 'Hover', cls: 'is-hover', n: 'Lifts 1 pt, 12% tint' }, { t: 'Pressed', cls: 'is-pressed', n: 'Scale 0.97' }, { t: 'Selected', cls: 'is-selected', n: '20% tint, 1 pt ring, soft glow' }, { t: 'Focus', cls: 'is-focus', n: '2 pt accent ring' }, { t: 'Disabled', cls: 'is-disabled', n: '38% opacity' }];
+    const allChips = Object.keys(SC).map((k, i) => ({ l: SC[k][0], c: SC[k][1], icon: './icons.svg#' + SC[k][2], cls: i === 4 ? 'is-selected' : '' }));
+    const swatches = Object.keys(SC).map((k, i) => ({ c: SC[k][1], cls: i === 3 ? 'on' : '' }));
+    const icons = ['cap', 'case', 'book', 'spark', 'code', 'lotus', 'dumbbell', 'dot'].map((n, i) => ({ icon: './icons.svg#' + n, cls: i === 3 ? 'on' : '' }));
+    const fl = [['Study', 'study', 40, 150, -8], ['Coding', 'code', 128, 186, 5], ['Reading', 'read', 244, 190, -3], ['Create', 'create', 340, 196, 6], ['Work', 'work', 66, 80, -12], ['Meditate', 'meditate', 300, 112, 10], ['Fitness', 'fitness', 180, 120, -5], ['Other', 'other', 420, 150, 4]];
+    const fall = fl.map((f, i) => ({ l: f[0], icon: './icons.svg#' + SC[f[1]][2], cls: [2, 3, 5].includes(i) ? 'is-selected' : '', s: 'position:absolute;left:' + f[2] + 'px;top:' + (f[3] + 12) + 'px;--sc:' + SC[f[1]][1] + ';transform:rotate(' + f[4] + 'deg)' + ([2, 3, 5].includes(i) ? ' translateY(-6px)' : '') }));
+    const fav = ['IST', 'AMS', 'KCO'];
+    const opts = fav.map((c, i) => ({ code: c, city: K.ap(c).city, name: K.ap(c).name, dist: K.fmtKm(K.gc('LHR', c)) + ' km', fav: true })).slice(0, 3).concat([{ code: 'CDG', city: 'Paris', name: 'Charles de Gaulle', dist: '348 km', fav: false }]);
+    const mkRuler = (min, t, n, flag, hap) => { const PX = 3.6, left = 760 / 2 - (Math.min(min, 380) - 10) * PX; const lab = []; for (let m = 30; m <= 360; m += 30) lab.push({ x: ((m - 10) * PX).toFixed(0), t: m < 60 ? m + 'm' : (m % 60 ? Math.floor(m / 60) + 'h 30' : m / 60 + 'h') }); lab.push({ x: ((376 - 10) * PX).toFixed(0), t: '∞' }); const total = 370 * PX; return { t, n, flag, hap, labels: lab, track: 'position:absolute;top:0;height:56px;width:' + (total + 40) + 'px;left:' + left.toFixed(1) + 'px', ticks: 'width:' + total + 'px', big: 'width:' + total + 'px;background-position-x:72px' }; };
+    const rulers = [mkRuler(42, 'Resting at 42 min', 'Flag in SF Mono, snaps to 5-min ticks', '42 min', ''), mkRuler(85, 'Dragging', 'Range ring resizes live; trackpad tick at each 5 min', '1h 25', 'Trackpad tick · detent 85 min'), mkRuler(372, 'End stop', 'Past 6 h the flag becomes “∞ Free flight”, no destination needed', '∞ Free flight', 'Trackpad tick · detent ∞')];
+    const ctas = [{ t: 'Default', n: 'Primary gradient, 52 pt, radius 26', cls: '', cls2: '', l: 'Check in' }, { t: 'Hover', n: 'Brightness +7%, glow 32 px', cls: 'is-hover', cls2: 'is-hover', l: 'Check in' }, { t: 'Pressed', n: 'Scale 0.97, brightness −7%', cls: 'is-pressed', cls2: 'is-pressed', l: 'Check in' }, { t: 'Focus', n: '2 pt ring, 2 pt offset', cls: 'is-focus', cls2: '', l: 'Check in' }, { t: 'Disabled · Quick mode', n: 'Label becomes “Take off” in Quick', cls: 'is-disabled', cls2: 'is-disabled', l: 'Take off' }];
+    const D = [['CDG', 'Paris', 'FR', 42, true], ['AMS', 'Amsterdam', 'NL', 51], ['BRU', 'Brussels', 'BE', 45], ['DUB', 'Dublin', 'IE', 46], ['LUX', 'Luxembourg', 'LU', 56], ['MAN', 'Manchester', 'GB', 36]];
+    const docks = D.map(d => { const on = d[4] === true; return { code: d[0], city: d[1], country: K.countries[d[2]], min: d[3] + ' min', cls: on ? 'is-selected' : 'glass e2', s: on ? '' : '', ts: 'font-size:12px;font-weight:600;color:' + (on ? 'rgba(20,17,15,.8)' : 'var(--text-2)'), flag: 'width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.28);background:' + K.flagBg(d[2]), cs: 'font:500 12px/1 var(--font-ui);color:' + (on ? 'rgba(20,17,15,.66)' : 'var(--text-2)'), arc: on ? '#14110F' : 'var(--accent-1)' }; });
+    return { themes: [{ k: 'dark', label: 'Dark' }, { k: 'light', label: 'Light — Daybreak' }], chipStates, allChips, swatches, icons, fall, opts, rulers, ctas, docks };
+  }
+}
+</script>
+</body>
+</html>

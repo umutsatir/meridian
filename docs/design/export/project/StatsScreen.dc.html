@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stats screen</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ss-h{font:500 42px/46px var(--font-serif);letter-spacing:-.02em;margin:0}
+.ss-card{position:absolute;border-radius:24px;overflow:hidden}
+.ss-t{font:500 32px/36px var(--font-serif);letter-spacing:-.015em;margin-top:2px;white-space:nowrap}
+.ss-t small{font:500 12px/1 var(--font-ui);color:var(--text-2);margin-left:5px;letter-spacing:0}
+.ss-big{font:500 44px/44px var(--font-serif);letter-spacing:-.02em}
+.ss-big small{font:500 14px/1 var(--font-ui);color:var(--text-2);margin-left:6px;letter-spacing:0}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 80% 0%,rgba(106,183,255,.10),transparent 70%)"></div>
+<dc-import name="Sidebar" active="stats" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<div style="position:absolute;left:264px;top:46px;right:36px;display:flex;align-items:flex-end;justify-content:space-between">
+<div><div class="eyebrow">Explore</div><h1 class="ss-h" style="margin-top:6px">Stats</h1></div>
+<div style="display:flex;gap:12px;align-items:center"><div class="seg"><sc-for list="{{periods}}" as="o" hint-placeholder-count="4"><span class="{{o.cls}}" onClick="{{o.pick}}">{{o.t}}</span></sc-for></div><button class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#share"></use></svg>Share</button></div>
+</div>
+
+<div class="glass e2 ss-card" style="left:264px;top:128px;width:548px;height:236px;padding:18px 22px 0"><dc-import name="Stats" kind="bars" period="{{period}}" w="504" h="176" hover="{{hover}}" hint-size="504px,176px"></dc-import></div>
+<div class="glass e2 ss-card" style="left:826px;top:128px;width:206px;height:236px;padding:18px 20px 0"><dc-import name="Stats" kind="ring" progress=".56" w="166" h="196" label="Daily goal" value="1 h 52" unit="of 3 h" hint-size="166px,196px"></dc-import></div>
+<div class="glass e2 ss-card" style="left:1046px;top:128px;width:198px;height:236px;padding:18px 20px 0"><dc-import name="Stats" kind="streak" w="158" h="196" label="Streak" value="12" unit="days" sub="Best 31 days" hint-size="158px,196px"></dc-import><div style="position:absolute;left:20px;right:20px;bottom:20px"><div style="display:flex;justify-content:space-between"><sc-for list="{{week}}" as="d" hint-placeholder-count="7"><div style="text-align:center"><span style="display:block;width:16px;height:16px;border-radius:50%;margin:0 auto 6px;{{d.s}}"></span><span class="c3" style="font:500 11px/1 var(--font-ui)">{{d.t}}</span></div></sc-for></div></div></div>
+<div class="glass e2 ss-card" style="left:264px;top:378px;width:548px;height:188px;padding:16px 22px 0"><dc-import name="Stats" kind="heat" weeks="26" w="504" h="120" hint-size="504px,120px"></dc-import></div>
+<div class="glass e2 ss-card" style="left:826px;top:378px;width:202px;height:87px;padding:10px 16px 0"><div class="eyebrow" style="font-size:10px;line-height:12px">Total time</div><div class="ss-t">94.5<small>h</small></div><div class="t-callout c2" style="font-size:11px;line-height:14px;white-space:nowrap">+6.2 h vs last month</div></div>
+<div class="glass e2 ss-card" style="left:1042px;top:378px;width:202px;height:87px;padding:10px 16px 0"><div class="eyebrow" style="font-size:10px;line-height:12px">Flights</div><div class="ss-t">87<small></small></div><div class="t-callout c2" style="font-size:11px;line-height:14px;white-space:nowrap">5 this week</div></div>
+<div class="glass e2 ss-card" style="left:826px;top:479px;width:202px;height:87px;padding:10px 16px 0"><div class="eyebrow" style="font-size:10px;line-height:12px">Distance</div><div class="ss-t">12,022<small>km</small></div><div class="t-callout c2" style="font-size:11px;line-height:14px;white-space:nowrap">0.3× around the world</div></div>
+<div class="glass e2 ss-card" style="left:1042px;top:479px;width:202px;height:87px;padding:10px 16px 0"><div class="eyebrow" style="font-size:10px;line-height:12px">Countries</div><div class="ss-t">19<small></small></div><div class="t-callout c2" style="font-size:11px;line-height:14px;white-space:nowrap">41 airports</div></div>
+<div class="glass e2 ss-card" style="left:264px;top:580px;width:360px;height:184px;padding:14px 20px 0"><dc-import name="Stats" kind="top" w="320" h="156" hint-size="320px,156px"></dc-import></div>
+
+<div class="glass e2 ss-card" style="left:638px;top:580px;width:300px;height:184px">
+<div style="position:absolute;left:22px;top:18px"><div class="eyebrow">Longest route</div><div class="ss-big" style="margin-top:12px">1,838<small>km</small></div><div class="mono" style="font-size:13px;margin-top:12px">FRA → IST</div><div class="t-callout c3" style="margin-top:2px;white-space:nowrap">2 h 37 min · 18 Sep</div></div>
+<div style="position:absolute;left:164px;top:-2px;width:200px;height:200px;opacity:.95"><dc-import name="Globe" size="200" lon="22" lat="44" grat="false" atmo="false" routes="{{longRoute}}" pins="{{longPins}}" hint-size="200px,200px"></dc-import></div>
+</div>
+
+<div class="glass e2 ss-card" style="left:952px;top:580px;width:292px;height:184px">
+<div style="position:absolute;left:22px;top:18px"><div class="eyebrow">Around Earth</div><div class="ss-big" style="margin-top:12px">0.3<small>×</small></div><div class="t-callout c2" style="margin-top:12px;max-width:120px">12,022 of 40,075 km. Equator tier is next.</div></div>
+<svg width="150" height="150" viewBox="0 0 150 150" style="position:absolute;left:128px;top:17px;overflow:visible"><defs><linearGradient id="ss-ar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs>
+<circle cx="75" cy="75" r="60" fill="none" style="stroke:var(--fill-3)" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/>
+<circle cx="75" cy="75" r="60" fill="none" stroke="url(#ss-ar)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="{{orbit}}" transform="rotate(-90 75 75)"/>
+<circle cx="75" cy="75" r="40" style="fill:var(--gl-sea-a)"/><path d="M52 62q10-14 26-10t14 16q-4 12-18 18t-24-8z" style="fill:var(--gl-land)"/>
+<circle cx="{{px}}" cy="{{py}}" r="5" fill="#fff"/><circle cx="{{px}}" cy="{{py}}" r="10" fill="#fff" opacity=".18"/></svg>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"period":{"editor":"enum","options":["day","week","month","year"],"default":"week"},"hover":{"editor":"int","default":-1},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { period: null };
+  renderVals() {
+    const p = this.props, st = this.state;
+    const period = st.period || (['day', 'week', 'month', 'year'].indexOf(p.period) >= 0 ? p.period : 'week');
+    const hv = typeof p.hover === 'string' || typeof p.hover === 'number' ? +p.hover : -1;
+    const circ = 2 * Math.PI * 60, f = 12022 / 40075, ang = f * 2 * Math.PI - Math.PI / 2;
+    return {
+      period, hover: hv, periods: [['day', 'Day'], ['week', 'Week'], ['month', 'Month'], ['year', 'Year']].map(o => ({ t: o[1], cls: period === o[0] ? 'on' : '', pick: () => this.setState({ period: o[0] }) })),
+      longRoute: [{ a: 'FRA', b: 'IST', c: '#8BF3D8', w: 2, o: .95, h: .12 }], longPins: [{ code: 'FRA', c: '#FFB547', r: 3.4, lbl: true }, { code: 'IST', c: '#FFB547', r: 3.4, lbl: true }],
+      week: ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((t, i) => ({ t, s: i < 4 ? 'background:var(--accent-grad);box-shadow:0 0 10px rgba(106,183,255,.45)' : (i === 4 ? 'box-shadow:inset 0 0 0 1.5px var(--accent-1)' : 'background:var(--fill-2)') })), orbit: (circ * f).toFixed(1) + ' ' + circ.toFixed(1), px: (75 + 60 * Math.cos(ang)).toFixed(1), py: (75 + 60 * Math.sin(ang)).toFixed(1)
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plan — destination picker</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.pl-ruler{cursor:grab;touch-action:none}.pl-ruler:active{cursor:grabbing}
+.pl-pop>*{cursor:pointer}
+.pl-row{display:flex;align-items:center;gap:12px;height:46px;padding:0 12px;border-radius:12px;cursor:pointer}
+.pl-row:is(:hover,.is-hover){background:var(--fill-2)}
+@keyframes pl-arc1{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+@keyframes pl-arc2{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+@keyframes pl-hap1{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-8px)}}
+@keyframes pl-hap2{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-8px)}}
+@keyframes pl-coach{0%,100%{box-shadow:0 0 0 0 rgba(106,183,255,.55)}50%{box-shadow:0 0 0 12px rgba(106,183,255,0)}}
+.pl-dock{transition:transform 520ms var(--spring-smooth)}
+.ph-globe{--gl-sea-a:#34678F;--gl-sea-b:#12304F;--gl-land:#6B7A4E;--gl-shade:.62;--gl-rim:.5}
+[data-theme="light"] .ph-globe{--gl-sea-a:#DCE8F3;--gl-sea-b:#A8C2DB;--gl-land:#FBF9F4;--gl-shade:.2;--gl-rim:.25}
+.ph-greet{font:500 20px/24px var(--font-ui);color:var(--text-2)}
+.ph-city{font:700 34px/40px var(--font-ui);letter-spacing:-.02em;color:var(--text-1);margin-top:2px}
+.ph-sub{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font:500 13px/16px var(--font-ui);color:var(--text-2)}
+.ph-who{cursor:pointer;display:inline-block;border-radius:14px;padding:6px 10px 6px 0;margin-left:0}
+.ph-who:focus-visible,.ph-start:focus-visible,.ph-item:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+.ph-start{display:flex;align-items:center;justify-content:center;gap:8px;width:252px;height:46px;border-radius:23px;background:var(--text-1);color:var(--bg-0);font:600 15px/1 var(--font-ui);cursor:pointer;box-shadow:0 6px 22px rgba(0,0,0,.35);transition:transform var(--d2) var(--ease)}
+.ph-start:is(:hover,.is-hover){transform:translateY(-1px)}.ph-start:is(:active,.is-pressed){transform:scale(.98)}
+.ph-list{width:276px;border-radius:22px;padding:3px 0;display:flex;flex-direction:column}
+.ph-item{display:flex;align-items:center;gap:12px;height:42px;padding:0 16px;font:600 16px/1 var(--font-ui);color:var(--text-1);cursor:pointer;border-radius:18px;margin:0 3px}
+.ph-item:is(:hover,.is-hover){background:var(--fill-2)}
+.ph-item+.ph-item{position:relative}
+.ph-item+.ph-item::before{content:"";position:absolute;left:16px;right:16px;top:-1px;height:1px;background:var(--stroke-hair)}
+.ph-ring{position:absolute;left:0;top:0;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;background:rgba(255,255,255,.28);animation:ph-pulse 3.6s ease-in-out infinite}
+[data-theme="light"] .ph-ring{background:rgba(20,30,50,.14)}
+.ph-dot{position:absolute;left:0;top:0;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#0B0F19;box-shadow:0 0 0 2.5px #fff}
+[data-theme="light"] .ph-stars{display:none}
+@keyframes ph-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@media (prefers-reduced-motion:reduce){.ph-pin{animation:none!important}}
+.pl-tagwrap{position:absolute;transform:translate(-50%,-50%);transition:left 520ms var(--ease),top 520ms var(--ease)}
+</style>
+</helmet>
+<div class="win" style="{{winStyle}}" tabindex="0">
+<sc-if value="{{isPlan}}" hint-placeholder-val="{{ true }}">
+<dc-import name="MapLayer" w="{{W}}" h="{{H}}" map-style="{{mapStyle}}" zoom="{{zoom}}" lat="{{oLat}}" lon="{{oLon}}" dx="{{dx}}" dy="{{dy}}" labels="{{labels}}" smooth="true" hint-size="1280px,800px"></dc-import>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(6,8,13,.0) 55%,rgba(6,8,13,.45) 100%)" class="shade"></div>
+
+<!-- range ring, arc, tags -->
+<div style="position:absolute;inset:0;overflow:hidden">
+<div class="ring" style="{{ringStyle}}"></div>
+<svg width="{{W}}" height="{{H}}" style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none"><defs><linearGradient id="plg" gradientUnits="userSpaceOnUse" x1="{{ox}}" y1="{{oy}}" x2="{{sx2}}" y2="{{sy2}}"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient><filter id="plglow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="4"/></filter></defs>
+<sc-if value="{{hasArc}}" hint-placeholder-val="{{ true }}"><path d="{{arcD}}" fill="none" stroke="#6AB7FF" stroke-opacity=".3" stroke-width="7" stroke-linecap="round" filter="url(#plglow)"/><path d="{{arcD}}" fill="none" stroke="url(#plg)" stroke-width="3" stroke-linecap="round" style="{{arcStyle}}"/></sc-if></svg>
+<sc-for list="{{tags}}" as="t" hint-placeholder-count="8">
+<div class="pl-tagwrap" style="{{t.ws}}" onPointerEnter="{{t.enter}}" onPointerLeave="{{t.leave}}" onClick="{{t.pick}}">
+<span class="{{t.cls}}"><svg class="ic"><use href="./icons.svg#plane"></use></svg>{{t.code}}</span>
+<sc-if value="{{t.tip}}" hint-placeholder-val="{{ false }}"><span class="tip" style="position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:5"><b>{{t.name}}</b><span class="mono c2" style="font-size:11px">{{t.km}} km · {{t.min}}</span></span></sc-if>
+</div>
+</sc-for>
+<div class="origin" style="{{originStyle}}"></div>
+<div class="eyebrow" style="{{originLblStyle}}">{{oCode}} · you are here</div>
+</div>
+
+
+<!-- back to home -->
+<span class="btn-round glass glass-ctl" style="position:absolute;left:20px;top:18px;z-index:30" role="button" tabindex="0" aria-label="Back" onClick="{{toHome}}"><svg class="ic ic18"><use href="./icons.svg#chev-l"></use></svg></span>
+<!-- origin chip -->
+<div class="glass e2" style="{{chipStyle}}" onClick="{{togglePop}}" role="button" tabindex="0" aria-label="Departure airport {{oCode}} {{oCity}}. Activate to change.">
+<span class="t-callout c2" style="padding-left:4px">From</span><span class="cond" style="font-size:24px;line-height:1;letter-spacing:.02em">{{oCode}}</span><span class="t-callout c2">· {{oCity}}</span><svg class="ic ic14 c2" style="margin-left:4px"><use href="./icons.svg#chev-d"></use></svg>
+</div>
+<div style="{{tbStyle}}">
+<span class="btn-round glass glass-ctl" role="button" aria-label="Random destination" onClick="{{shuffle}}"><svg class="ic ic18"><use href="./icons.svg#shuffle"></use></svg></span>
+<span class="btn-round glass glass-ctl" role="button" aria-label="Search airports ⌘K"><svg class="ic ic18"><use href="./icons.svg#search"></use></svg></span>
+<span class="btn-round glass glass-ctl" role="button" aria-label="Map style: {{mapStyle}}" onClick="{{cycleStyle}}"><svg class="ic ic18"><use href="./icons.svg#layers"></use></svg></span>
+</div>
+
+<!-- scenario row -->
+<div style="{{rowStyle}}">
+<span class="chip is-selected" style="--sc:{{scColor}}" role="button" aria-label="Scenario {{scLabel}}"><svg class="ic ic14"><use href="{{scIcon}}"></use></svg>{{scLabel}}<svg class="ic ic12 c2"><use href="./icons.svg#chev-d"></use></svg></span>
+<div class="seg glass" style="padding:3px"><span class="{{soloOn}}" onClick="{{setSolo}}">Solo</span><span class="{{togOn}}" onClick="{{setTog}}"><svg class="ic ic12"><use href="./icons.svg#users"></use></svg>Together</span></div>
+</div>
+
+<!-- ruler -->
+<div class="glass e2" style="{{rulerBox}}">
+<div class="pl-ruler ruler" style="{{rulerStyle}}" tabindex="0" role="slider" aria-label="Flight duration" aria-valuemin="10" aria-valuemax="360" aria-valuenow="{{minRound}}" aria-valuetext="{{flagText}}" onPointerDown="{{rDown}}" onPointerMove="{{rMove}}" onPointerUp="{{rUp}}" onPointerCancel="{{rUp}}" onKeyDown="{{rKey}}">
+<div style="{{trackStyle}}">
+<div class="ticks" style="{{ticksStyle}}"></div><div class="ticks big" style="{{bigStyle}}"></div>
+<sc-for list="{{labelsR}}" as="l" hint-placeholder-count="12"><span class="lbl" style="left:{{l.x}}px">{{l.t}}</span></sc-for>
+</div>
+</div>
+<div style="{{flagStyle}}"><div class="glass mono" style="height:26px;padding:0 12px;border-radius:13px;display:flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap">{{flagText}}</div><div style="width:2px;height:24px;background:var(--accent-grad);border-radius:1px;box-shadow:0 0 10px rgba(106,183,255,.7)"></div></div>
+<div style="{{hapStyle}}" class="annot">{{hapText}}</div>
+</div>
+
+<!-- dock -->
+<div style="{{dockBox}}">
+<sc-if value="{{hasDest}}" hint-placeholder-val="{{ true }}">
+<div class="pl-dock" style="{{dockTrack}}">
+<sc-for list="{{dests}}" as="d" hint-placeholder-count="6">
+<div class="{{d.cls}}" style="{{d.s}}" onClick="{{d.pick}}" tabindex="0" role="button" aria-label="{{d.aria}}">
+<div style="display:flex;align-items:center;justify-content:space-between"><span class="tag" style="cursor:inherit;box-shadow:none"><svg class="ic"><use href="./icons.svg#plane"></use></svg>{{d.code}}</span><span class="mono" style="{{d.ts}}">{{d.min}}</span></div>
+<div style="font:600 17px/20px var(--font-ui);letter-spacing:-.005em;margin-top:2px">{{d.city}}</div>
+<div style="display:flex;align-items:center;gap:7px"><span style="{{d.flag}}"></span><span style="{{d.cs}}">{{d.country}}</span>
+<svg width="50" height="18" viewBox="0 0 50 18" style="margin-left:auto;overflow:visible"><path d="M2 15Q25 -4 48 15" fill="none" stroke="{{d.arc}}" stroke-width="1.5" stroke-dasharray="1 3.2" stroke-linecap="round"/><circle cx="2" cy="15" r="2" fill="{{d.arc}}"/><circle cx="48" cy="15" r="2.4" fill="{{d.arc}}"/></svg></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{noDest}}" hint-placeholder-val="{{ false }}">
+<div class="glass" style="height:96px;border-radius:20px;display:flex;align-items:center;gap:16px;padding:0 24px;max-width:640px;margin:0 auto"><svg class="ic ic24 c2"><use href="./icons.svg#map"></use></svg><div><div class="t-headline">{{emptyTitle}}</div><div class="t-callout c2">{{emptySub}}</div></div></div>
+</sc-if>
+</div>
+
+<!-- CTA -->
+<div class="glass e3" style="{{ctaStyle}}">
+<button class="btn btn-primary btn-lg {{ctaDis}}" onClick="{{checkin}}">{{ctaLabel}}</button>
+<button class="btn btn-secondary btn-lg {{ctaDis}}" onClick="{{quickGo}}" style="padding:0 22px">Quick start <span class="kbd">⌘⏎</span></button>
+</div>
+
+<!-- first-run coach mark -->
+<sc-if value="{{coach}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:0;right:0;top:0;height:{{coachH}}px;background:var(--scrim);pointer-events:none"></div>
+<div class="glass e3" style="{{coachStyle}}"><div style="font:600 15px/20px var(--font-ui)">Drag the ruler to set your focus time</div><div class="t-callout c2" style="margin-top:4px">The ring shows how far you can fly. Airports inside it match your time.</div><div style="display:flex;gap:10px;margin-top:12px;align-items:center"><button class="btn btn-primary btn-sm" onClick="{{dismissCoach}}">Got it</button><span class="t-callout c3">Arrow keys also work</span></div><div style="position:absolute;left:70px;bottom:-7px;width:14px;height:14px;transform:translateX(-50%) rotate(45deg);background:var(--bg-2);border-right:1px solid var(--stroke-hair);border-bottom:1px solid var(--stroke-hair)"></div></div>
+</sc-if>
+</sc-if>
+
+<!-- ===== HOME: before the flight ===== -->
+<sc-if value="{{isHome}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--bg-0)"></div>
+<div class="ph-stars" style="{{starsStyle}}"></div>
+<div style="{{atmoStyle}}"></div>
+<div class="ph-globe" style="{{globeBox}}"><dc-import name="Globe" size="2200" lon="{{gLon}}" lat="{{gLat}}" grat="false" labels="false" atmo="false" hint-size="2200px,2200px"></dc-import></div>
+<div style="{{pinStyle}}"><span class="ph-ring ph-pin"></span><span class="ph-dot"></span></div>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 62%,color-mix(in srgb,var(--bg-0) 55%,transparent) 100%)"></div>
+<div style="position:absolute;left:28px;top:22px;z-index:20">
+<div class="ph-greet">{{greeting}}</div>
+<div class="ph-who" role="button" tabindex="0" aria-label="You are in {{oCity}}. Activate to change your departure airport." onClick="{{togglePop}}"><div class="ph-city">{{oCity}}</div><div class="ph-sub"><svg class="ic ic12"><use href="./icons.svg#plane"></use></svg>{{oName}} · {{oCode}}<svg class="ic ic12"><use href="./icons.svg#chev-d"></use></svg></div></div>
+</div>
+<div style="position:absolute;left:28px;bottom:28px;display:flex;flex-direction:column;gap:12px;z-index:20">
+<div class="ph-start" role="button" tabindex="0" onClick="{{toPlan}}" aria-label="Start flight">Start flight</div>
+<div class="glass ph-list">
+<div class="ph-item" role="button" tabindex="0"><svg class="ic ic18 c2"><use href="./icons.svg#ticket"></use></svg>Wallet</div>
+<div class="ph-item" role="button" tabindex="0"><svg class="ic ic18 c2"><use href="./icons.svg#chart"></use></svg>Stats</div>
+<div class="ph-item" role="button" tabindex="0"><svg class="ic ic18 c2"><use href="./icons.svg#users"></use></svg>Together</div>
+</div>
+</div>
+</sc-if>
+
+<!-- origin popover -->
+<sc-if value="{{pop}}" hint-placeholder-val="{{ false }}">
+<div class="glass" style="{{popStyle}}">
+<div class="field" style="margin:2px 2px 8px;height:38px"><svg class="ic ic14 c3"><use href="./icons.svg#search"></use></svg><input placeholder="Airport, city or code" value="{{q}}" onInput="{{onQ}}" aria-label="Search airports"></div>
+<div class="pl-row" onClick="{{useLoc}}"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#target"></use></svg><div style="flex:1"><div style="font:500 14px/18px var(--font-ui)">Use my location</div><div class="t-callout c3">Nearest: LHR · 24 km</div></div></div>
+<div class="pl-row" onClick="{{lastLand}}"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#history"></use></svg><div style="flex:1"><div style="font:500 14px/18px var(--font-ui)">Continue from last landing</div><div class="t-callout c3">CDG · Paris, landed 2 days ago</div></div><span class="tag" style="cursor:pointer">CDG</span></div>
+<div class="eyebrow" style="padding:10px 12px 4px">Favorites and nearby</div>
+<sc-for list="{{opts}}" as="o" hint-placeholder-count="5">
+<div class="{{o.cls}}" onClick="{{o.pick}}"><span class="tag" style="cursor:pointer">{{o.code}}</span><div style="flex:1;min-width:0"><div style="font:500 14px/18px var(--font-ui)">{{o.city}}</div><div class="t-callout c3" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{o.name}}</div></div><span class="mono c2" style="font-size:11px">{{o.dist}}</span><sc-if value="{{o.fav}}" hint-placeholder-val="{{ false }}"><svg class="ic ic14" style="color:var(--amber)"><use href="./icons.svg#star"></use></svg></sc-if></div>
+</sc-for>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stage":{"editor":"enum","options":["home","plan"],"default":"home"},"hour":{"editor":"int","default":15},"origin":{"editor":"text","default":"LHR"},"minutes":{"editor":"int","default":42},"mapStyle":{"editor":"enum","options":["terra","mono","standard","satellite"],"default":"terra"},"firstRun":{"editor":"boolean","default":false},"popover":{"editor":"boolean","default":false},"hoverTag":{"editor":"text","default":""},"selected":{"editor":"text","default":""},"live":{"editor":"boolean","default":false},"scenario":{"editor":"enum","options":["study","work","read","create","code","meditate","fitness","other"],"default":"code"},"onCheckin":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { stage: null, minutes: null, origin: null, sel: null, pop: null, q: '', coachDone: false, mapStyle: null, tick: 0, hap: '', together: null, ritual: null, hover: null, drag: false, arcN: 0, dockPick: null };
+  componentDidUpdate(prev) { const n = this.props.selected; if (n && prev.selected !== n) { const K = window.MeridianKit, o = this.state.origin || this.props.origin || 'LHR'; const mn = Math.max(10, Math.min(360, K.minutes(K.gc(o, n)))); this.setState({ minutes: mn, sel: n, dockPick: n, arcN: this.state.arcN + 1 }); } }
+  componentDidMount() {
+    this._key = e => {
+      if (!(this.props.live === true || this.props.live === 'true')) return;
+      if (e.metaKey && e.key === 'Enter') { e.preventDefault(); this.go(true); return; }
+      if (e.target && e.target.tagName === 'INPUT') return;
+      const ae = document.activeElement;
+      if (ae && ae.getAttribute && ae.getAttribute('role') === 'slider') return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); this.cycle(e.key === 'ArrowRight' ? 1 : -1); }
+      if (e.key === 'Enter') { e.preventDefault(); this.go(false); }
+    };
+    window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this._key); }
+  model() {
+    const K = window.MeridianKit, EU = K.eu, p = this.props, st = this.state;
+    const flag = (v, d) => v === undefined || v === null || v === '' ? d : !(v === false || v === 'false');
+    const W = +(p.w || 1280), H = +(p.h || 800);
+    const code = st.origin || p.origin || 'LHR', O = K.ap(code) || K.ap('LHR');
+    let minutes = st.minutes !== null ? st.minutes : +(p.minutes || 42);
+    const free = minutes > 366;
+    const target = free ? 360 : Math.max(10, Math.min(360, minutes));
+    const kmR = K.kmFor(target);
+    const br = target <= 20 ? 2.6 : target <= 30 ? 1.8 : target <= 45 ? 1.25 : target <= 60 ? .95 : target <= 90 ? .7 : target <= 120 ? .56 : .45;
+    const z = br, kppx = EU.kmPerPx(O.lat) / z;
+    const Rpx = kmR / kppx;
+    const cxW = W / 2, cy = Math.round(H * .34);
+    const Oxy = EU.xy(O.lat, O.lon), tx = cxW - Oxy[0] * z, ty = cy - Oxy[1] * z;
+    const scr = (lat, lon) => { const q = EU.xy(lat, lon); return [q[0] * z + tx, q[1] * z + ty]; };
+    // candidates
+    const tr = Math.round(target);
+    const MINOR = ['BLK','VLY','NQY','MME','EXT','NWI','JER','GCI','DNR','RNS','BVA','ORY','CRL','LTN','LCY','STN','SOU','EMA','EIN','ANR','LIL','NTE','SNN','SAW','KCO'];
+    const all = Object.keys(K.airports).filter(c => c !== code && (!MINOR.includes(c) || code === 'KCO' || code === 'SAW')).map(c => { const a = K.ap(c); const km = K.gc(code, c); return { c, a, km, min: K.minutes(km), s: scr(a.lat, a.lon) }; });
+    const inMap = r => r.s[0] > 40 && r.s[0] < W - 40 && r.s[1] > 76 && r.s[1] < H * .6;
+    const inRange = all.filter(r => r.km <= kmR + 1);
+    let cands = inRange.filter(r => r.min >= Math.max(15, tr * .5) && r.a.city !== O.city).sort((a, b) => Math.abs(a.min - tr) - Math.abs(b.min - tr));
+    const seen = {}; cands = cands.filter(r => { if (seen[r.a.city]) return false; seen[r.a.city] = 1; return true; }).slice(0, 12);
+    let sel = st.sel && cands.find(r => r.c === st.sel) ? st.sel : (p.selected && cands.find(r => r.c === p.selected) ? p.selected : (cands[0] ? cands[0].c : null));
+    if (st.dockPick && cands.find(r => r.c === st.dockPick)) sel = st.dockPick;
+    // tags: greedy non overlap
+    const placed = [], tags = [];
+    const tryPlace = (r, kind) => { if (!inMap(r)) return; const bx = r.s[0], by = r.s[1]; if (placed.some(q => Math.abs(q[0] - bx) < 52 && Math.abs(q[1] - by) < 26)) return; placed.push([bx, by]); tags.push(Object.assign({ kind }, r)); };
+    const selR = cands.find(r => r.c === sel); if (selR) tryPlace(selR, 'sel');
+    cands.forEach(r => { if (tags.length < 18) tryPlace(r, 'in'); });
+    inRange.forEach(r => { if (tags.length < 22 && !cands.includes(r) && r.km > 40) tryPlace(r, 'in'); });
+    all.filter(r => r.km > kmR && r.km < kmR * 1.28).sort((a, b) => a.km - b.km).forEach(r => { if (tags.length < 26) tryPlace(r, 'out'); });
+    const visited = { CDG: 'code', AMS: 'work', DUB: 'read', BRU: 'study', MAN: 'create', EDI: 'meditate', BCN: 'code', LIS: 'read' };
+    const hover = st.hover !== null ? st.hover : (p.hoverTag || '');
+    const tagList = tags.map(t => {
+      const selected = t.c === sel, out = t.kind === 'out';
+      return { code: t.c, name: t.a.name, km: Math.round(t.km), min: K.fmtShort(t.min), tip: hover === t.c,
+        cls: 'tag' + (selected ? ' is-selected' : '') + (out ? ' is-disabled' : '') + (visited[t.c] ? ' is-visited' : ''),
+        ws: 'left:' + t.s[0].toFixed(1) + 'px;top:' + t.s[1].toFixed(1) + 'px;z-index:' + (selected ? 4 : 2) + ';' + (visited[t.c] ? '--vc:' + K.scenarios[visited[t.c]][1] : ''),
+        enter: () => this.setState({ hover: t.c }), leave: () => this.setState({ hover: '' }),
+        pick: () => { if (!out) this.setState({ sel: t.c, dockPick: t.c, arcN: this.state.arcN + 1 }); } };
+    });
+    return { K, EU, p, st, W, H, code, O, minutes, free, target, kmR, z, Rpx, cxW, cy, scr, cands, sel, tagList, tr, flag, selR };
+  }
+  go(quick) {
+    const m = this.model(); if (!m.selR && !m.free) return;
+    const cb = this.props.onCheckin; const sc = this.props.scenario || 'code';
+    if (typeof cb === 'function') cb({ from: m.code, to: m.selR ? m.selR.c : m.code, minutes: m.selR ? m.selR.min : 0, km: m.selR ? Math.round(m.selR.km) : 0, scenario: sc, quick: !!quick || (m.st.ritual === false), together: !!m.st.together });
+  }
+  cycle(d) { const m = this.model(); if (!m.cands.length) return; const i = Math.max(0, m.cands.findIndex(r => r.c === m.sel)); const n = m.cands[(i + d + m.cands.length) % m.cands.length]; this.setState({ sel: n.c, dockPick: n.c, arcN: this.state.arcN + 1 }); }
+  setMin(v, haptic) { const nv = Math.max(10, Math.min(372, v)); const old = this.state.minutes !== null ? this.state.minutes : +(this.props.minutes || 42); const crossed = Math.round(nv / 5) !== Math.round(old / 5); this.setState({ minutes: nv, sel: null, dockPick: null, tick: crossed ? this.state.tick + 1 : this.state.tick, hap: crossed && haptic ? 'Trackpad tick · detent ' + (nv > 366 ? '∞' : Math.round(nv / 5) * 5 + ' min') : this.state.hap, coachDone: true }); }
+  renderVals() {
+    const M = this.model(), { K, EU, p, st, W, H, code, O, minutes, free, target, kmR, z, Rpx, cxW, cy, scr, cands, sel, tagList, tr, flag, selR } = M;
+    const PX = 3.6, x0 = 0;
+    const snapMin = free ? 999 : Math.round(minutes / 5) * 5;
+    const mapStyle = st.mapStyle || p.mapStyle || 'terra';
+    const sc = K.scenarios[p.scenario || 'code'];
+    const ritual = st.ritual === null ? true : st.ritual, together = st.together === true;
+    const popOpen = st.pop !== null ? st.pop : flag(p.popover, false);
+    const rail = W < 1100;
+    const stage = st.stage || (p.stage === 'plan' || (p.firstRun === true || p.firstRun === 'true') || p.selected ? 'plan' : 'home');
+    const hr = +(p.hour === undefined || p.hour === '' ? 15 : p.hour);
+    const greeting = (hr < 5 ? 'Good night' : hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening') + '!';
+    const GS = 2200, GR = GS * .43, GC = GS / 2, gLat = Math.max(-60, Math.min(60, O.lat - 38)), gLon = O.lon;
+    const WD = window.MeridianWorld, gl0 = ((gLon + 180) % 360 + 360) % 360 - 180;
+    const gpt = WD ? WD.point(O.lat, O.lon, gl0, gLat, GR, GC, GC) : { x: GC, y: GC - GR * Math.sin((O.lat - gLat) * Math.PI / 180) };
+    const gx = W / 2 - GS / 2, gy = 190 - (GC - GR);
+    const srnd = K.rng(11), shadows = []; for (let i = 0; i < 170; i++) { const sx = srnd() * W, sy = srnd() * H * .62, so = .25 + srnd() * .6, sr = srnd() < .12 ? 1 : 0; shadows.push(sx.toFixed(0) + 'px ' + sy.toFixed(0) + 'px 0 ' + sr + 'px rgba(255,255,255,' + so.toFixed(2) + ')'); }
+    // ring + arc + origin
+    const ringR = Math.max(24, Rpx);
+    let arcD = '', sx2 = cxW + 1, sy2 = cy;
+    if (selR) { const pts = K.arc(code, selR.c, 56); arcD = K.pathFrom(pts, scr, Math.min(70, selR.km * 0.12 / (EU.kmPerPx(O.lat) / z) * 1)); sx2 = selR.s[0]; sy2 = selR.s[1]; }
+    // ruler
+    const total = (380 - 10) * PX;
+    const rulerW = 760, left = rulerW / 2 - (Math.min(minutes, 380) - 10) * PX;
+    const lab = []; for (let m = 30; m <= 360; m += 30) lab.push({ x: ((m - 10) * PX).toFixed(0), t: m < 60 ? m + 'm' : (m % 60 ? Math.floor(m / 60) + 'h 30' : m / 60 + 'h') });
+    lab.push({ x: ((376 - 10) * PX).toFixed(0), t: '∞' });
+    const dragging = st.drag;
+    const flagText = free ? '∞ Free flight' : K.fmtDur(dragging ? snapMin : Math.round(minutes));
+    // dock
+    const dests = cands.map(r => {
+      const on = r.c === sel;
+      return { code: r.c, city: r.a.city, country: K.countries[r.a.cc] || r.a.cc, min: r.min + ' min', cls: 'dest' + (on ? ' is-selected' : ' glass e2'),
+        s: 'width:176px;height:96px;margin-right:12px;' + (on ? 'transform:translateY(-6px)' : ''), ts: 'font-size:12px;font-weight:600;color:' + (on ? 'rgba(20,17,15,.8)' : 'var(--text-2)'),
+        flag: 'width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.28);background:' + K.flagBg(r.a.cc), cs: 'font:500 12px/1 var(--font-ui);white-space:nowrap;color:' + (on ? 'rgba(20,17,15,.66)' : 'var(--text-2)'), arc: on ? '#14110F' : 'var(--accent-1)',
+        aria: r.a.city + ', ' + r.c + ', ' + r.min + ' minutes' + (on ? ', selected' : ''), pick: () => this.setState({ sel: r.c, dockPick: r.c, arcN: this.state.arcN + 1 }) };
+    });
+    const selIdx = Math.max(0, cands.findIndex(r => r.c === sel));
+    const dockW = W - 56, maxOff = Math.max(0, dests.length * 188 - dockW);
+    const off = Math.max(0, Math.min(maxOff, selIdx * 188 - 188 * 1.6));
+    const opts = Object.keys(K.airports).filter(c => c !== code).map(c => ({ c, a: K.ap(c), km: K.gc(code, c) }));
+    const fav = ['LHR', 'IST', 'AMS', 'KCO'];
+    const qq = (st.q || '').toLowerCase();
+    let list = opts.filter(o => !qq || o.c.toLowerCase().includes(qq) || o.a.city.toLowerCase().includes(qq) || o.a.name.toLowerCase().includes(qq));
+    list = list.sort((a, b) => (fav.includes(b.c) ? 1 : 0) - (fav.includes(a.c) ? 1 : 0) || a.km - b.km).slice(0, qq ? 6 : 4);
+    const optList = list.map(o => ({ code: o.c, city: o.a.city, name: o.a.name, dist: K.fmtKm(o.km) + ' km', fav: fav.includes(o.c), cls: 'pl-row', pick: () => this.setState({ origin: o.c, pop: false, sel: null, dockPick: null, q: '', arcN: this.state.arcN + 1 }) }));
+    const quick = [[15, '15'], [25, '25'], [50, '50'], [90, '90'], [120, '2h']].map(q => ({ t: q[1], cls: snapMin === q[0] ? 'on' : '', set: () => this.setMin(q[0], false) }));
+    const arcN = st.arcN % 2;
+    const noDest = !free && cands.length === 0;
+    const hapOn = st.hap && st.tick > 0;
+    return {
+      isHome: stage === 'home', isPlan: stage === 'plan', greeting, oName: O.name,
+      gLon, gLat, globeBox: 'position:absolute;left:' + gx.toFixed(0) + 'px;top:' + gy.toFixed(0) + 'px;width:' + GS + 'px;height:' + GS + 'px;pointer-events:none',
+      pinStyle: 'position:absolute;left:' + (gx + gpt.x).toFixed(1) + 'px;top:' + (gy + gpt.y).toFixed(1) + 'px;width:0;height:0;pointer-events:none;z-index:10',
+      atmoStyle: 'position:absolute;left:' + (gx + GC - GR * 1.16).toFixed(0) + 'px;top:' + (gy + GC - GR * 1.16).toFixed(0) + 'px;width:' + (GR * 2.32).toFixed(0) + 'px;height:' + (GR * 2.32).toFixed(0) + 'px;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,rgba(130,160,255,0) 84%,rgba(130,165,255,.32) 90%,rgba(130,165,255,0) 100%)',
+      starsStyle: 'position:absolute;left:0;top:0;width:1px;height:1px;border-radius:50%;box-shadow:' + shadows.join(','),
+      toPlan: () => this.setState({ stage: 'plan' }), toHome: () => this.setState({ stage: 'home' }),
+      W, H, rail, mapStyle, zoom: z, oLat: O.lat, oLon: O.lon, dx: cxW - W / 2, dy: cy - H / 2, labels: true,
+      winStyle: 'width:' + W + 'px;height:' + H + 'px',
+      ringStyle: 'left:' + cxW + 'px;top:' + cy + 'px;width:' + (ringR * 2).toFixed(1) + 'px;height:' + (ringR * 2).toFixed(1) + 'px;transition:' + (dragging ? 'none' : 'width 420ms var(--spring-snappy),height 420ms var(--spring-snappy)'),
+      ox: cxW, oy: cy, sx2, sy2, hasArc: !!arcD, arcD, arcStyle: '--len:2400;stroke-dasharray:2400;animation:pl-arc' + (arcN + 1) + ' 420ms var(--ease) both',
+      tags: tagList, originStyle: 'left:' + cxW + 'px;top:' + cy + 'px', originLblStyle: 'position:absolute;left:' + cxW + 'px;top:' + (cy + 24) + 'px;transform:translateX(-50%);color:var(--text-1);text-shadow:0 1px 8px rgba(0,0,0,.6);font-size:10px;white-space:nowrap', oCode: code, oCity: O.city,
+      chipStyle: 'position:absolute;left:74px;top:14px;height:48px;padding:0 16px 0 12px;border-radius:24px;display:flex;align-items:center;gap:8px;cursor:pointer;z-index:30',
+      tbStyle: 'position:absolute;right:20px;top:18px;display:flex;gap:10px;z-index:30',
+      popStyle: 'position:absolute;left:' + (stage === 'home' ? 28 : 74) + 'px;top:' + (stage === 'home' ? 140 : 70) + 'px;width:360px;max-height:520px;border-radius:24px;padding:10px;z-index:60;display:flex;flex-direction:column;gap:1px;overflow:hidden', pop: popOpen, q: st.q,
+      opts: optList,
+      rowStyle: 'position:absolute;left:28px;right:28px;top:' + (H - 332) + 'px;height:40px;display:flex;align-items:center;gap:10px;z-index:20',
+      scColor: sc[1], scLabel: sc[0], scIcon: './icons.svg#' + (sc[2] === 'dot' ? 'dot' : sc[2]),
+      soloOn: together ? '' : 'on', togOn: together ? 'on' : '', ritOn: ritual ? 'on' : '', quickOn: ritual ? '' : 'on', quick,
+      rulerBox: 'position:absolute;left:' + (cxW - rulerW / 2 - 12) + 'px;top:' + (H - 282) + 'px;width:' + (rulerW + 24) + 'px;height:72px;border-radius:36px;z-index:20;padding:8px 12px',
+      rulerStyle: 'width:' + rulerW + 'px;height:56px;margin-top:6px',
+      trackStyle: 'position:absolute;top:0;height:56px;width:' + (total + 40) + 'px;left:' + left.toFixed(1) + 'px;transition:' + (dragging ? 'none' : 'left 420ms var(--spring-snappy)'),
+      ticksStyle: 'width:' + total + 'px', bigStyle: 'width:' + total + 'px;background-position-x:72px', labelsR: lab,
+      flagStyle: 'position:absolute;left:' + (rulerW / 2 + 12) + 'px;top:-18px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;z-index:2',
+      flagText, minRound: free ? 372 : Math.round(minutes),
+      hapStyle: 'position:absolute;right:20px;top:-26px;white-space:nowrap;pointer-events:none;animation:pl-hap' + ((st.tick % 2) + 1) + ' 900ms ease-out both;' + (hapOn ? '' : 'opacity:0;animation:none'), hapText: st.hap,
+      dockBox: 'position:absolute;left:28px;right:28px;top:' + (H - 200) + 'px;height:108px;overflow:hidden;padding-top:8px;z-index:20',
+      dockTrack: 'display:flex;transform:translateX(' + (-off) + 'px);width:' + (dests.length * 188) + 'px', dests, hasDest: !noDest, noDest,
+      emptyTitle: 'Nothing this close', emptySub: 'No airports fit inside ' + K.fmtDur(Math.round(target)) + ' from ' + code + '. Try 20 min or more.',
+      ctaStyle: 'position:absolute;left:' + (cxW - 240) + 'px;top:' + (H - 82) + 'px;width:480px;height:64px;border-radius:34px;display:flex;align-items:center;justify-content:center;gap:12px;z-index:25',
+      ctaLabel: ritual ? 'Check in' : 'Take off', ctaDis: (noDest ? 'is-disabled' : ''),
+      coach: flag(p.firstRun, false) && !st.coachDone, coachH: H - 292,
+      coachStyle: 'position:absolute;left:' + (cxW - 70) + 'px;top:' + (H - 282 - 172) + 'px;width:340px;padding:16px 18px;border-radius:22px;z-index:70',
+      togglePop: () => this.setState({ pop: !popOpen }), shuffle: () => { const c = cands.filter(r => r.c !== sel); if (c.length) { const n = c[Math.floor(Math.random() * c.length)]; this.setState({ sel: n.c, dockPick: n.c, arcN: st.arcN + 1 }); } },
+      cycleStyle: () => { const o = ['terra', 'mono', 'standard', 'satellite']; this.setState({ mapStyle: o[(o.indexOf(mapStyle) + 1) % 4] }); },
+      onQ: e => this.setState({ q: e.target.value }), useLoc: () => this.setState({ origin: 'LHR', pop: false, sel: null, dockPick: null }), lastLand: () => this.setState({ origin: 'CDG', pop: false, sel: null, dockPick: null, arcN: st.arcN + 1 }),
+      setSolo: () => this.setState({ together: false }), setTog: () => this.setState({ together: true }), setRit: () => this.setState({ ritual: true }), setQuick: () => this.setState({ ritual: false }),
+      checkin: () => this.go(!ritual), quickGo: () => this.go(true), dismissCoach: () => this.setState({ coachDone: true }),
+      rDown: e => { if (e.currentTarget.setPointerCapture) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} } this._d = { x: e.clientX, m: Math.min(minutes, 372) }; this.setState({ drag: true, coachDone: true }); },
+      rMove: e => { if (!this._d) return; this.setMin(this._d.m - (e.clientX - this._d.x) / PX, true); },
+      rUp: () => { if (!this._d) return; this._d = null; const m = this.state.minutes; this.setState({ drag: false, minutes: m > 366 ? 372 : Math.round(m / 5) * 5, hap: 'Trackpad tick · release' }); },
+      rKey: e => { const m = Math.min(minutes, 372); const step = e.shiftKey ? 30 : 5; if (e.key === 'ArrowRight') { e.preventDefault(); this.setMin(Math.round(m / 5) * 5 + step, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); this.setMin(Math.round(m / 5) * 5 - step, true); } }
+    };
+  }
+}
+</script>
+</body>
+</html>

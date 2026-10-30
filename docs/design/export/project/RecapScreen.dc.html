@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Year in flight screen</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rs-h{font:500 42px/46px var(--font-serif);letter-spacing:-.02em;margin:0}
+.rs-ch{display:flex;align-items:center;gap:12px;height:54px;padding:0 14px;border-radius:16px;cursor:pointer;transition:background var(--d2) var(--ease)}
+.rs-ch:hover,.rs-ch.is-hover{background:var(--fill-1)}
+.rs-ch.on{background:linear-gradient(135deg,rgba(106,183,255,.2),rgba(139,243,216,.08));box-shadow:0 0 0 1px rgba(106,183,255,.34)}
+[data-theme="light"] .rs-ch.on{background:rgba(30,107,255,.08);box-shadow:0 0 0 1px rgba(30,107,255,.3)}
+.rs-ch:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+.rs-ch .n{width:24px;font:500 11px/1 var(--font-mono);color:var(--text-3)}
+.rs-seg{position:absolute;left:0;right:0;top:-18px;display:flex;gap:4px}
+.rs-seg i{flex:1;height:3px;border-radius:2px;background:var(--fill-3)}
+.rs-seg i.on{background:var(--accent-grad)}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)" tabindex="0" onKeyDown="{{onKey}}">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 80% 0%,rgba(106,183,255,.10),transparent 70%)"></div>
+<dc-import name="Sidebar" active="stats" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+<div style="position:absolute;left:264px;top:46px"><div class="eyebrow">Stats · 2026</div><h1 class="rs-h" style="margin-top:6px">Year in flight</h1></div>
+<div style="position:absolute;left:264px;top:150px;width:260px;display:flex;flex-direction:column;gap:4px">
+<sc-for list="{{chapters}}" as="c" hint-placeholder-count="8"><div class="rs-ch {{c.cls}}" role="button" tabindex="0" aria-label="{{c.aria}}" onClick="{{c.pick}}"><span class="n">{{c.n}}</span><div style="flex:1"><div style="font:600 14px/17px var(--font-ui)">{{c.t}}</div><div class="t-callout c2" style="font-size:12px;line-height:15px">{{c.d}}</div></div></div></sc-for>
+</div>
+<div style="position:absolute;left:560px;top:96px;width:360px;height:640px">
+<div class="rs-seg"><sc-for list="{{segs}}" as="s" hint-placeholder-count="8"><i class="{{s.cls}}"></i></sc-for></div>
+<div style="filter:drop-shadow(0 30px 50px rgba(0,0,0,.45))"><dc-import name="Recap" frame="{{frame}}" hint-size="360px,640px"></dc-import></div>
+<div class="btn-round glass glass-ctl" style="position:absolute;left:-60px;top:298px;width:44px;height:44px" role="button" tabindex="0" aria-label="Previous" onClick="{{prev}}"><svg class="ic ic18"><use href="./icons.svg#chev-l"></use></svg></div>
+<div class="btn-round glass glass-ctl" style="position:absolute;right:-60px;top:298px;width:44px;height:44px" role="button" tabindex="0" aria-label="Next" onClick="{{next}}"><svg class="ic ic18"><use href="./icons.svg#chev-r"></use></svg></div>
+</div>
+<div class="glass e3" style="position:absolute;left:984px;top:96px;width:260px;border-radius:26px;padding:20px">
+<div style="font:600 15px/18px var(--font-ui)">Share your year</div><div class="t-callout c2" style="margin-top:4px">Shares an image. Never your tasks, notes or exact times.</div>
+<div style="display:flex;gap:10px;margin-top:16px"><div style="flex:1;border-radius:14px;padding:10px 0;text-align:center;background:var(--fill-2);box-shadow:0 0 0 1.5px var(--accent-1)"><div style="width:26px;height:46px;margin:0 auto 6px;border-radius:6px;background:var(--fill-3)"></div><div style="font:500 11px/1 var(--font-ui)">Story 9:16</div></div><div style="flex:1;border-radius:14px;padding:10px 0;text-align:center;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)"><div style="width:36px;height:36px;margin:5px auto 11px;border-radius:6px;background:var(--fill-3)"></div><div style="font:500 11px/1 var(--font-ui);color:var(--text-2)">Square 1:1</div></div></div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px"><button class="btn btn-primary" style="width:100%"><svg class="ic ic18"><use href="./icons.svg#share"></use></svg>Share image</button><button class="btn btn-secondary" style="width:100%"><svg class="ic ic18"><use href="./icons.svg#copy"></use></svg>Copy image</button><button class="btn btn-secondary" style="width:100%"><svg class="ic ic18"><use href="./icons.svg#download"></use></svg>Save as PNG</button></div>
+<div class="mono c3" style="font-size:11px;margin-top:14px;line-height:16px">Exports at 1080 × 1920</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"frame":{"editor":"int","default":0},"live":{"editor":"boolean","default":false},"hover":{"editor":"int","default":-1},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { f: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const p = this.props, st = this.state;
+    const f = st.f !== null ? st.f : ((typeof p.frame === 'string' || typeof p.frame === 'number') ? +p.frame : 0);
+    const hv = (typeof p.hover === 'string' || typeof p.hover === 'number') ? +p.hover : -1;
+    const T = [['Cover', 'Your 2026, in flight'], ['Hours', '94.5 hours of focus'], ['Distance', '12,022 km, 0.3× around the world'], ['Favourite scenario', 'Coding, 31 flights'], ['Longest flight', 'FRA to IST, 2 h 37 min'], ['Busiest day', 'Tuesday 14 April'], ['Every route', '41 airports, 19 countries'], ['Card reached', 'Jetstream']];
+    const go = n => this.setState({ f: (n + 8) % 8 });
+    return {
+      frame: f, chapters: T.map((t, i) => ({ n: String(i + 1).padStart(2, '0'), t: t[0], d: t[1], cls: (i === f ? 'on' : '') + (i === hv ? ' is-hover' : ''), aria: 'Chapter ' + (i + 1) + ': ' + t[0], pick: () => go(i) })),
+      segs: T.map((t, i) => ({ cls: i <= f ? 'on' : '' })), prev: () => go(f - 1), next: () => go(f + 1),
+      onKey: e => { if (e.key === 'ArrowRight') go(f + 1); if (e.key === 'ArrowLeft') go(f - 1); }
+    };
+  }
+}
+</script>
+</body>
+</html>

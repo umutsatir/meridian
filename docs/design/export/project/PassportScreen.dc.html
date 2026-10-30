@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passport screen</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ps-h{font:500 42px/46px var(--font-serif);letter-spacing:-.02em;margin:0}
+.ps-num{font:500 34px/34px var(--font-serif);letter-spacing:-.01em}
+.ps-num small{font:500 12px/1 var(--font-ui);color:var(--text-2);margin-left:6px;letter-spacing:.02em;text-transform:uppercase}
+.ps-chip{--sc:var(--sc-other);height:30px;padding:0 12px 0 10px;font-size:12px;gap:6px;cursor:pointer}
+.ps-nav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ps-nav.is-disabled{opacity:.38;pointer-events:none}
+.ps-nav:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)" tabindex="0" onKeyDown="{{onKey}}">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 80% 0%,rgba(106,183,255,.10),transparent 70%)"></div>
+<dc-import name="Sidebar" active="passport" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<div style="position:absolute;left:264px;top:46px;right:28px;display:flex;align-items:flex-end;justify-content:space-between">
+<div><div class="eyebrow">Wallet</div><h1 class="ps-h" style="margin-top:6px">Passport</h1></div>
+<div style="display:flex;gap:30px;align-items:flex-end">
+<div><div class="ps-num">{{countries}}<small>countries</small></div></div>
+<div><div class="ps-num">{{airports}}<small>airports</small></div></div>
+<div><div class="ps-num">{{stampN}}<small>stamps</small></div></div>
+</div></div>
+
+<div style="position:absolute;left:264px;top:116px;right:28px;display:flex;align-items:center;gap:14px">
+<div class="seg"><sc-for list="{{years}}" as="y" hint-placeholder-count="3"><span class="{{y.cls}}" onClick="{{y.pick}}">{{y.t}}</span></sc-for></div>
+<span style="width:1px;height:20px;background:var(--stroke-hair)"></span>
+<div style="display:flex;gap:6px;flex-wrap:nowrap"><sc-for list="{{chips}}" as="c" hint-placeholder-count="9"><span class="chip ps-chip {{c.cls}}" style="{{c.s}}" role="button" tabindex="0" aria-pressed="{{c.on}}" onClick="{{c.pick}}">{{c.t}}</span></sc-for></div>
+<span style="flex:1"></span>
+<span class="ps-nav glass glass-ctl {{prevCls}}" role="button" tabindex="0" aria-label="Previous spread" onClick="{{prev}}"><svg class="ic ic14"><use href="./icons.svg#chev-l"></use></svg></span>
+<span class="mono c2" style="font-size:12px">{{spreadLbl}}</span>
+<span class="ps-nav glass glass-ctl {{nextCls}}" role="button" tabindex="0" aria-label="Next spread" onClick="{{next}}"><svg class="ic ic14"><use href="./icons.svg#chev-r"></use></svg></span>
+</div>
+
+<div style="position:absolute;left:262px;top:166px;width:982px;height:600px"><dc-import name="Passport" year="{{year}}" scenario="{{sc}}" spread="{{spread}}" anim-index="{{animIdx}}" on-spread="{{setSpread}}" hint-size="982px,600px"></dc-import></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"year":{"editor":"text","default":"all"},"scenario":{"editor":"text","default":"all"},"spread":{"editor":"int","default":0},"animIndex":{"editor":"int","default":-1},"live":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { year: null, sc: null, spread: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state;
+    const year = st.year || (typeof p.year === 'string' && p.year ? p.year : 'all'), sc = st.sc || (typeof p.scenario === 'string' && p.scenario ? p.scenario : 'all');
+    let spread = st.spread !== null ? st.spread : (typeof p.spread === 'string' || typeof p.spread === 'number' ? +p.spread : 0);
+    const ai = typeof p.animIndex === 'string' || typeof p.animIndex === 'number' ? +p.animIndex : -1;
+    const filtered = !(year === 'all' && sc === 'all');
+    const total = filtered ? 12 : 24, nSp = filtered ? 1 : 2; spread = Math.max(0, Math.min(nSp - 1, spread));
+    const years = [['all', 'All years'], ['2026', '2026'], ['2025', '2025']].map(y => ({ t: y[1], cls: year === y[0] ? 'on' : '', pick: () => this.setState({ year: y[0], spread: 0 }) }));
+    const chips = [['all', 'All', '#C7CCDA', null]].concat(Object.keys(K.scenarios).filter(k => k !== 'other').map(k => [k, K.scenarios[k][0], K.scenarios[k][1], K.scenarios[k][2]])).map(c => ({ t: c[1], on: sc === c[0], cls: sc === c[0] ? 'is-selected' : '', s: '--sc:' + c[2], pick: () => this.setState({ sc: c[0], spread: 0 }) }));
+    return {
+      year, sc, spread, animIdx: ai, years, chips, countries: '19', airports: '41', stampN: '87',
+      spreadLbl: 'Spread ' + (spread + 1) + ' of ' + nSp, prevCls: spread <= 0 ? 'is-disabled' : '', nextCls: spread >= nSp - 1 ? 'is-disabled' : '',
+      setSpread: n => this.setState({ spread: n }), prev: () => this.setState({ spread: Math.max(0, spread - 1) }), next: () => this.setState({ spread: Math.min(nSp - 1, spread + 1) }),
+      onKey: e => { if (e.key === 'ArrowRight') this.setState({ spread: Math.min(nSp - 1, spread + 1) }); if (e.key === 'ArrowLeft') this.setState({ spread: Math.max(0, spread - 1) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

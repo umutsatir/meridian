@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M06 — App icon and Dock</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.m6{width:1280px;height:1990px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:32px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.m6 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.m6-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.m6-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.m6-grid{display:grid;grid-template-columns:150px repeat(4,1fr);gap:22px 20px;align-items:center;padding:30px 34px;border-radius:28px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.m6-hd{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);text-align:center}
+.m6-nm{font:600 15px/20px var(--font-ui)}
+.m6-ds{font:400 12px/16px var(--font-ui);color:var(--text-2);margin-top:3px}
+.m6-pad{display:flex;justify-content:center}
+.m6-dk{position:relative;border-radius:30px;padding:60px 40px 26px;background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F);box-shadow:inset 0 0 0 1px var(--stroke-hair);overflow:hidden}
+.m6-dock{display:inline-flex;gap:14px;align-items:flex-end;padding:12px 16px;border-radius:30px;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 40%,rgba(255,255,255,.07)),rgba(22,30,52,.5);-webkit-backdrop-filter:blur(40px) saturate(1.6);backdrop-filter:blur(40px) saturate(1.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.1),0 18px 44px rgba(0,0,0,.4)}
+.m6-di{position:relative;width:64px;height:64px;border-radius:14.3px;flex:none;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.9)}
+.m6-run{position:absolute;left:50%;bottom:-8px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:rgba(255,255,255,.85)}
+.m6-bd{position:absolute;right:-8px;top:-8px;min-width:24px;height:24px;border-radius:12px;padding:0 7px;background:#FF3B30;color:#fff;font:700 14px/24px var(--font-ui);text-align:center;box-shadow:0 0 0 2px rgba(10,14,28,.35)}
+.m6-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.m6-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.m6-lad{display:flex;align-items:flex-end;gap:36px;padding:34px 40px;border-radius:28px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.m6-lad .c{display:flex;flex-direction:column;align-items:center;gap:10px;font:500 11px/14px var(--font-mono);color:var(--text-2)}
+.m6-tile{border-radius:20px;padding:14px 18px 16px}
+</style>
+</helmet>
+<div class="m6" data-screen-label="M06 App icon and Dock">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">M06</div><h1 style="margin-top:6px">App icon and Dock</h1><div class="t-callout c2" style="margin-top:6px;max-width:680px">Three original concepts, each drawn for macOS Tahoe’s four icon appearances. None of them uses a clip-art plane: the plane is the same top-down silhouette used everywhere in the app.</div></div><div class="t-callout c3" style="text-align:right;max-width:340px">1024 × 1024 canvas, corner radius 22.37 %. Shown here at 168 pt.</div></div>
+
+<div class="m6-grid" role="group" aria-label="Icon concepts and appearances">
+<div></div><div class="m6-hd">Default</div><div class="m6-hd">Dark</div><div class="m6-hd">Tinted</div><div class="m6-hd">Clear</div>
+<sc-for list="{{concepts}}" as="c" hint-placeholder-count="3">
+<div><div class="m6-nm">{{c.name}}</div><div class="m6-ds">{{c.desc}}</div></div>
+<div class="m6-pad"><dc-import name="AppIcon" concept="{{c.k}}" variant="default" size="168" hint-size="168px,168px"></dc-import></div>
+<div class="m6-pad"><dc-import name="AppIcon" concept="{{c.k}}" variant="dark" size="168" hint-size="168px,168px"></dc-import></div>
+<div class="m6-pad"><dc-import name="AppIcon" concept="{{c.k}}" variant="tinted" size="168" hint-size="168px,168px"></dc-import></div>
+<div class="m6-pad"><dc-import name="AppIcon" concept="{{c.k}}" variant="clear" size="168" hint-size="168px,168px"></dc-import></div>
+</sc-for>
+</div>
+
+<div><div class="m6-cap">Legibility ladder · concept B<span>16, 32, 64, 128, 256 pt</span></div>
+<div class="m6-lad">
+<sc-for list="{{ladder}}" as="s" hint-placeholder-count="5"><div class="c"><dc-import name="AppIcon" concept="b" variant="default" size="{{s}}" hint-size="{{s}}px,{{s}}px"></dc-import><span>{{s}}</span></div></sc-for>
+<div style="flex:1"></div>
+<div class="t-callout c2" style="max-width:340px">At 16 pt the notch and the plane survive, the barcode becomes a texture. The same is true of the globe (A) and the window (C), which reads least well below 32 pt.</div>
+</div></div>
+
+<div><div class="m6-cap">Dock states<span>icon 64 pt in a Tahoe floating Dock</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+<sc-for list="{{docks}}" as="d" hint-placeholder-count="4">
+<div><div class="m6-dk"><div style="display:flex;justify-content:center"><div class="m6-dock">
+<div class="m6-di" style="background:linear-gradient(160deg,#4C97E8,#2B5FB0)"><svg class="ic ic24"><use href="./icons.svg#globe"></use></svg></div>
+<div class="m6-di" style="background:linear-gradient(160deg,#7ADDB2,#2E8F6B)"><svg class="ic ic24"><use href="./icons.svg#chart"></use></svg></div>
+<div class="m6-di" style="width:64px"><dc-import name="AppIcon" concept="b" variant="default" size="64" hint-size="64px,64px"></dc-import>
+<sc-if value="{{d.ring}}" hint-placeholder-val="{{ false }}"><svg width="84" height="84" viewBox="-10 -10 84 84" style="position:absolute;left:-10px;top:-10px;overflow:visible" aria-hidden="true"><defs><linearGradient id="m6r-{{d.id}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs><path d="M32 -5 H50 A19 19 0 0 1 69 14 V50 A19 19 0 0 1 50 69 H14 A19 19 0 0 1 -5 50 V14 A19 19 0 0 1 14 -5 Z" pathLength="100" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3.5"/><path d="M32 -5 H50 A19 19 0 0 1 69 14 V50 A19 19 0 0 1 50 69 H14 A19 19 0 0 1 -5 50 V14 A19 19 0 0 1 14 -5 Z" pathLength="100" fill="none" stroke="url(#m6r-{{d.id}})" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="{{d.dash}} 100"/></svg></sc-if>
+<sc-if value="{{d.pill}}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);height:20px;padding:0 8px;border-radius:10px;background:rgba(10,14,28,.82);color:#F3F5FA;font:500 12px/20px var(--font-mono);letter-spacing:-.02em;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)">{{d.pill}}</span></sc-if>
+<sc-if value="{{d.badge}}" hint-placeholder-val="{{ false }}"><span class="m6-bd">{{d.badge}}</span></sc-if>
+<sc-if value="{{d.run}}" hint-placeholder-val="{{ false }}"><span class="m6-run"></span></sc-if></div>
+<div class="m6-di" style="background:linear-gradient(160deg,#FF8FB1,#C2527A)"><svg class="ic ic24"><use href="./icons.svg#book"></use></svg></div>
+</div></div></div>
+<div style="padding:12px 4px 0"><div class="m6-nm">{{d.t}}</div><div class="m6-ds">{{d.s}}</div></div></div>
+</sc-for>
+</div></div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="m6-nat"><b>Native</b><span>The icon is an Icon Composer document (.icon) with a background group and a glyph group, so macOS can render Default, Dark, Tinted and Clear itself and add the Liquid Glass specular edge. Layer names: bg, globe, trail, plane (A), pass, notch, bars (B), wall, window, sky, shade (C).</span></div>
+<div class="m6-nat"><b>Dock tile</b><span>NSApplication.dockTile.contentView = SwiftUI view with a Circle().trim ring (3.5 pt, 5 pt gap) and a time pill; updated by a 1 s timer only while in flight. Badge via dockTile.badgeLabel, count of unanswered flight invites. One bounce on boarding call, never repeating.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1990}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const C = 2 * Math.PI * 39;
+    return {
+      concepts: [{ k: 'a', name: 'A · Meridian', desc: 'A meridian-line globe with a plane trail rising off it.' }, { k: 'b', name: 'B · Stub', desc: 'A boarding pass with its notch and perforation. The ritual itself.' }, { k: 'c', name: 'C · Window', desc: 'An oval window with the dusk glow, shade half drawn.' }],
+      ladder: [256, 128, 64, 32, 16],
+      docks: [
+        { id: 'a', ring: false, pill: '', badge: '', run: false, dash: '0', t: 'Closed', s: 'Resting in the Dock. No dot, no ring.' },
+        { id: 'b', ring: false, pill: '', badge: '', run: true, dash: '0', t: 'Idle, running', s: 'The system dot only. Nothing animates.' },
+        { id: 'c', ring: true, pill: '18:54', badge: '', run: true, dash: '55', t: 'In flight', s: 'A progress ring 5 pt outside the icon and the time left in a pill. Ticks every second.' },
+        { id: 'd', ring: false, pill: '', badge: '2', run: true, dash: '0', t: 'Friend invites', s: 'The standard system badge with the number of unanswered invitations.' }] };
+  }
+}
+</script>
+</body>
+</html>

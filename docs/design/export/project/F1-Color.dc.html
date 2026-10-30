@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Foundations — Color</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="mx" data-theme="dark" style="width:1440px;background:var(--bg-0);padding:56px 64px;display:flex;flex-direction:column;gap:40px;position:relative;overflow:hidden">
+<div style="position:absolute;right:-180px;top:-220px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(106,183,255,.14),transparent 65%)"></div>
+<header style="display:flex;align-items:flex-end;justify-content:space-between;position:relative">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:center;gap:10px" class="t-caption c2"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Meridian design system · Foundations · 01</div>
+<h1 class="t-display" style="margin:0">Color</h1>
+<p class="t-body c2" style="margin:0;max-width:640px">Two grounds, one accent. Night Cabin is the primary mode; Daybreak is warm paper and soft glass. Tickets and cards look identical in both. Every value in the product is a token on this page.</p>
+</div>
+<div style="display:flex;gap:10px"><span class="pill accent">Tokens only</span><span class="pill">Dark primary</span><span class="pill">Light: Daybreak</span></div>
+</header>
+
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;position:relative">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div class="t-headline" style="margin-bottom:6px">Night Cabin <span class="c3 t-callout" style="font-weight:400">· primary</span></div>
+<sc-for list="{{dark}}" as="t" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:12px;height:40px;border-bottom:1px solid var(--stroke-hair)">
+<div style="{{t.sw}}"></div>
+<div class="mono" style="width:118px;font-size:12px">{{t.n}}</div>
+<div class="mono c2" style="width:196px;font-size:11.5px">{{t.v}}</div>
+<div class="t-callout c2" style="flex:1">{{t.u}}</div>
+</div>
+</sc-for>
+</div>
+<div data-theme="light" style="border-radius:var(--r-card);background:var(--bg-1);padding:20px 24px 14px;display:flex;flex-direction:column;gap:6px;margin-top:-20px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)">
+<div class="t-headline" style="margin-bottom:6px;color:var(--text-1)">Daybreak <span class="t-callout" style="font-weight:400;color:var(--text-2)">· warm paper and soft glass</span></div>
+<sc-for list="{{light}}" as="t" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:12px;height:40px;border-bottom:1px solid var(--stroke-hair)">
+<div style="{{t.sw}}"></div>
+<div class="mono" style="width:118px;font-size:12px;color:var(--text-1)">{{t.n}}</div>
+<div class="mono" style="width:196px;font-size:11.5px;color:var(--text-2)">{{t.v}}</div>
+<div class="t-callout" style="flex:1;color:var(--text-2)">{{t.u}}</div>
+</div>
+</sc-for>
+<div class="t-callout" style="color:var(--text-2);margin-top:8px;max-width:520px">Light-mode status colors are deepened (ok, warn, danger) so they stay above 4.5:1 on paper. The primary button is solid Jetstream there; the gradient is reserved for non-text (trail, rings, glows).</div>
+</div>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;position:relative">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="t-headline">Scenario colors <span class="c3 t-callout" style="font-weight:400">· equal perceived lightness; tickets, arcs, chips, charts</span></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+<sc-for list="{{scen}}" as="s" hint-placeholder-count="8">
+<div style="display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:14px;background:var(--fill-1);border:1px solid var(--stroke-hair)">
+<div style="height:44px;border-radius:9px;background:{{s.c}};display:flex;align-items:center;justify-content:center;color:#14110F"><svg class="ic ic20"><use href="{{s.i}}"></use></svg></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span class="t-callout c1" style="font-weight:500">{{s.n}}</span><span class="mono c3" style="font-size:10.5px">{{s.c}}</span></div>
+</div>
+</sc-for>
+</div>
+<div class="t-callout c2">Always paired with an icon and a label — color is never the only signal. On Daybreak, chip text is the scenario color mixed 54% toward ink.</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="t-headline">Cabin class by duration <span class="c3 t-callout" style="font-weight:400">· foil edge on tickets</span></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+<sc-for list="{{cabins}}" as="c" hint-placeholder-count="5">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="height:76px;border-radius:12px;background:{{c.g}};box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(0,0,0,.12)"></div>
+<div class="t-callout c1" style="font-weight:500">{{c.n}}</div>
+<div class="mono c3" style="font-size:10.5px">{{c.d}}</div>
+</div>
+</sc-for>
+</div>
+<div class="t-headline" style="margin-top:6px">Window-view sky <span class="c3 t-callout" style="font-weight:400">· by sun elevation</span></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+<sc-for list="{{skies}}" as="c" hint-placeholder-count="5">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="height:76px;border-radius:12px;background:{{c.g}};box-shadow:inset 0 0 0 1px var(--stroke-hair)"></div>
+<div class="t-callout c1" style="font-weight:500">{{c.n}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;position:relative">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="t-headline">Contrast, measured <span class="c3 t-callout" style="font-weight:400">· WCAG 2.2, computed from the tokens above</span></div>
+<div style="border-radius:var(--r-card);border:1px solid var(--stroke-hair);overflow:hidden">
+<sc-for list="{{contrast}}" as="r" hint-placeholder-count="10">
+<div style="display:flex;align-items:center;gap:12px;height:40px;padding:0 14px;border-bottom:1px solid var(--stroke-hair);background:var(--fill-1)">
+<div style="{{r.chip}}">Aa</div>
+<div class="t-callout c1" style="flex:1">{{r.n}}</div>
+<div class="mono" style="font-size:12px;width:56px;text-align:right">{{r.ratio}}</div>
+<div class="pill {{r.cls}}" style="width:64px;justify-content:center">{{r.verdict}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="t-headline">Added tokens <span class="c3 t-callout" style="font-weight:400">· new values must be listed here first</span></div>
+<div style="border-radius:var(--r-card);border:1px solid var(--stroke-hair);overflow:hidden">
+<sc-for list="{{added}}" as="r" hint-placeholder-count="8">
+<div style="display:flex;align-items:center;gap:12px;min-height:40px;padding:8px 14px;border-bottom:1px solid var(--stroke-hair);background:var(--fill-1)">
+<div class="mono c1" style="font-size:12px;width:152px">{{r.n}}</div>
+<div class="t-callout c2" style="flex:1">{{r.u}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:10px;margin-top:4px;flex-wrap:wrap">
+<sc-for list="{{maps}}" as="m" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:6px;width:124px">
+<div style="height:64px;border-radius:12px;background:{{m.sea}};position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px var(--stroke-hair)"><div style="position:absolute;left:-14px;top:14px;width:90px;height:60px;border-radius:40% 60% 30% 70%;background:{{m.land}}"></div><div style="position:absolute;right:-10px;bottom:-14px;width:60px;height:44px;border-radius:50%;background:{{m.land}}"></div></div>
+<div class="t-callout c1" style="font-weight:500">{{m.n}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2575}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sw = (v) => {
+      const g = /gradient/.test(v) ? v : 'linear-gradient(' + v + ',' + v + ')';
+      return 'width:28px;height:28px;border-radius:8px;flex:none;background:' + g + ',repeating-conic-gradient(#8a8f9c 0 25%,#565b68 0 50%) 0 0/8px 8px;background-blend-mode:normal;box-shadow:inset 0 0 0 1px rgba(128,128,128,.4)';
+    };
+    const dk = [
+      ['bg-0', '#06080D', 'Window base, deepest'], ['bg-1', '#0B1020', 'Main canvas'], ['bg-2', '#121A2E', 'Raised surfaces'],
+      ['glass-tint', 'rgba(18,26,46,0.55)', 'Liquid Glass tint'], ['stroke-hair', 'rgba(255,255,255,0.08)', '1px hairlines'], ['stroke-glow', 'rgba(255,255,255,0.22)', 'Top inner highlight on glass'],
+      ['text-1', '#F3F5FA', 'Primary text'], ['text-2', '#A9B2C7', 'Secondary text'], ['text-3', '#96A0BA', 'Captions, hints, disabled · 7.2:1'],
+      ['accent-1', '#6AB7FF', 'Jetstream Blue'], ['accent-2', '#8BF3D8', 'Aurora Mint'], ['accent-grad', 'linear-gradient(135deg,#6AB7FF,#8BF3D8)', 'Plane trail, primary CTA'],
+      ['amber', '#FFB547', 'Airport tags, ETA warnings'], ['paper', '#F5F0E6', 'Ticket paper'], ['ink', '#14110F', 'Thermal ink'],
+      ['ok', '#5BE3A0', 'Status: success / on time'], ['warn', '#FFB547', 'Status: caution'], ['danger', '#FF6B6B', 'Status: destructive']
+    ];
+    const lt = [
+      ['bg-0', '#EDE9E1', 'Window base'], ['bg-1', '#F4F1EB', 'Main canvas'], ['bg-2', '#FFFFFF', 'Raised surfaces'],
+      ['glass-tint', 'rgba(255,255,255,0.62)', 'Liquid Glass tint'], ['stroke-hair', 'rgba(20,22,28,0.10)', '1px hairlines'], ['stroke-glow', 'rgba(255,255,255,0.95)', 'Top inner highlight on glass'],
+      ['text-1', '#14161C', 'Primary text'], ['text-2', '#424959', 'Secondary text'], ['text-3', '#565E70', 'Captions, hints, disabled · 5.8:1'],
+      ['accent-1', '#1759E0', 'Jetstream (light), deepened so link text clears 4.5 : 1'], ['accent-2', '#18C7A0', 'Aurora (light)'], ['accent-grad', 'linear-gradient(135deg,#1E6BFF,#18C7A0)', 'Trail, rings, glows'],
+      ['amber', '#FFB547', 'Airport tags (unchanged)'], ['paper', '#F5F0E6', 'Ticket paper (unchanged)'], ['ink', '#14110F', 'Thermal ink (unchanged)'],
+      ['ok', '#08613F', 'Deepened for paper'], ['warn', '#8A4F05', 'Deepened for paper'], ['danger', '#BC2D2D', 'Deepened for paper']
+    ];
+    const mk = (a) => a.map(r => ({ n: r[0], v: r[1].length > 34 ? r[1].replace('linear-gradient(135deg,', '135° ').replace(')', '') : r[1], u: r[2], sw: sw(r[1]) }));
+    const scen = [['Study', '#7AA2FF', 'cap'], ['Work', '#FFB86B', 'case'], ['Read', '#7ADDB2', 'book'], ['Create', '#FF8FB1', 'spark'], ['Code', '#B49CFF', 'code'], ['Meditate', '#8EE3E8', 'lotus'], ['Fitness', '#FF9B7A', 'dumbbell'], ['Other', '#C7CCDA', 'dot']].map(s => ({ n: s[0], c: s[1], i: './icons.svg#' + s[2] }));
+    const cabins = [['Economy', 'var(--foil-economy)', '< 45 min · brushed steel'], ['Premium', 'var(--foil-premium)', '45–90 min · sky glass'], ['Business', 'var(--foil-business)', '90 min–3 h · champagne'], ['First', 'var(--foil-first)', '3–5 h · white-gold foil'], ['Long-haul', 'var(--foil-long)', '5 h+ · holographic']].map(c => ({ n: c[0], g: c[1], d: c[2] }));
+    const skies = [['Night', 'var(--sky-night)'], ['Blue hour', 'var(--sky-blue)'], ['Sunrise / sunset', 'var(--sky-sunset)'], ['Day', 'var(--sky-day)'], ['Overcast', 'var(--sky-overcast)']].map(c => ({ n: c[0], g: c[1] }));
+    // contrast
+    const lum = (h) => { h = h.replace('#', ''); const c = [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+    const cr = (a, b) => { const x = lum(a), y = lum(b), hi = Math.max(x, y), lo = Math.min(x, y); return (hi + .05) / (lo + .05); };
+    const pairs = [
+      ['text-1 on bg-1 · dark', '#F3F5FA', '#0B1020', false], ['text-2 on bg-1 · dark', '#A9B2C7', '#0B1020', false], ['text-3 on bg-1 · dark', '#96A0BA', '#0B1020', false], ['text-3 on bg-2 · dark', '#96A0BA', '#121A2E', false],
+      ['accent-1 on bg-1 · dark', '#6AB7FF', '#0B1020', false], ['amber on bg-1 · dark', '#FFB547', '#0B1020', false], ['ink on amber · airport tag', '#14110F', '#FFB547', false],
+      ['ink on paper · ticket', '#14110F', '#F5F0E6', false], ['cta-fg on accent-1 · dark CTA', '#04101A', '#6AB7FF', false], ['cta-fg on accent-2 · dark CTA', '#04101A', '#8BF3D8', false],
+      ['text-1 on bg-1 · light', '#14161C', '#F4F1EB', false], ['text-2 on bg-1 · light', '#424959', '#F4F1EB', false], ['text-3 on bg-1 · light', '#5F6779', '#F4F1EB', false],
+      ['white on cta-bg · light CTA', '#FFFFFF', '#1E6BFF', false], ['accent-1 text on bg-1 · light', '#1759E0', '#F4F1EB', false], ['ok on bg-1 · light', '#08613F', '#F4F1EB', false], ['danger on bg-1 · light', '#BC2D2D', '#F4F1EB', false]
+    ];
+    const contrast = pairs.map(p => {
+      const r = cr(p[1], p[2]); const pass = r >= 4.5; const dec = p[3];
+      return { n: p[0], ratio: r.toFixed(1) + ':1', verdict: dec ? 'Disabled' : (pass ? 'AA' : 'Large'), cls: dec ? 'warn' : (pass ? 'ok' : 'warn'), chip: 'width:30px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font:600 12px var(--font-ui);background:' + p[2] + ';color:' + p[1] + ';box-shadow:inset 0 0 0 1px rgba(128,128,128,.35)' };
+    });
+    const added = [
+      ['cta-bg / cta-fg', 'Primary button fill and label: gradient + #04101A in dark; solid #1E6BFF + white in light (contrast).'],
+      ['fill-1 · fill-2 · fill-3', 'Neutral overlays for fields, segmented tracks and hover (6 / 10 / 16% white; 5 / 8 / 13% ink in light).'],
+      ['scrim · rim · seg-on', 'Sheet scrim, 1px outline for floating elements, selected-segment surface.'],
+      ['m-sea · m-land · m-land-2', 'Map palette per style (Terra, Monochrome, Standard, Satellite), dark and light.'],
+      ['m-line · m-grat · m-label', 'Borders, graticule and place-name ink on maps.'],
+      ['e0 · e1 · e2 · e3', 'Elevation shadows; lighter, warmer in Daybreak.'],
+      ['spring-snappy · smooth · bouncy · heavy', 'CSS linear() approximations of the four SwiftUI springs (see Motion).'],
+      ['ok / warn / danger (light)', 'Deepened variants so status text passes AA on paper.'],
+      ['text-3 (raised)', 'Was #6B7592 dark and #8A91A3 light, which failed 4.5 : 1. Now #96A0BA and #565E70, so captions and disabled labels pass AA on bg-1 and bg-2.'],
+      ['gl-sea-a · gl-sea-b', 'Globe ocean gradient, top to bottom. Dark #14203F → #050816, light #DCE8F3 → #A8C2DB.'],
+      ['gl-land · gl-edge', 'Globe land fill and country edge. Dark #1E2A4B with rgba(190,205,255,.28), light #FBF9F4 with rgba(20,22,28,.22).'],
+      ['gl-shade · gl-rim', 'Strength of the night-side shade and the atmosphere rim. Dark .5 and .5, light .2 and .25.'],
+      ['stamp-ok · warn · blue · red', 'Ink on paper, identical in both themes: #08613F, #8C4B08, #243F8F, #A82A24. All pass 4.5 : 1 on paper.'],
+      ['Printer hardware greys', 'Housing #3A4258 → #222839 → #161B29 → #0F131E, slit lip #434B63 → #252C3F, LED off #4A3A1E. Literal values in the printer; hardware does not change with the theme.']
+    ].map(r => ({ n: r[0], u: r[1] }));
+    const maps = [['Terra', '#080D1A', '#18213B'], ['Monochrome', '#090C13', '#D8D6CE'], ['Standard', '#0E2133', '#1D3835'], ['Satellite', '#0A2536', '#26402C']].map(m => ({ n: m[0], sea: m[1], land: m[2] }));
+    return { dark: mk(dk), light: mk(lt), scen, cabins, skies, contrast, added, maps };
+  }
+}
+</script>
+</body>
+</html>

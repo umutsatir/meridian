@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M02 — Mini map sizes and states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.m2{width:1280px;height:2650px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:34px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.m2 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.m2-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.m2-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.m2-wall{position:relative;border-radius:26px;overflow:hidden;background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.m2-app{position:absolute;border-radius:14px;background:rgba(246,244,238,.94);box-shadow:0 20px 40px rgba(0,0,0,.35)}
+.m2-app i{display:block;height:8px;border-radius:4px;background:rgba(27,23,16,.12);margin:11px 22px 0}
+.m2-win{position:absolute}
+.m2-t{font:600 14px/18px var(--font-ui)}
+.m2-s{font:400 12px/16px var(--font-ui);color:var(--text-2);margin-top:2px}
+.m2-g{display:grid;grid-template-columns:1fr 1fr;gap:28px 24px}
+.m2-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.m2-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.m2-tbl{width:100%;border-collapse:collapse;font:400 12px/16px var(--font-mono);color:var(--text-2)}
+.m2-tbl td,.m2-tbl th{padding:8px 10px;text-align:left;border-top:1px solid var(--stroke-hair);vertical-align:top}
+.m2-tbl th{font:600 10px/14px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);border-top:0}
+.m2-tbl td:first-child{color:var(--text-1);font:600 12px/16px var(--font-ui);white-space:nowrap}
+.m2-z{position:absolute;width:150px;height:96px;border-radius:14px;border:1.5px dashed rgba(255,255,255,.45);background:rgba(255,255,255,.06)}
+.m2-z.on{border-color:var(--accent-2);background:rgba(139,243,216,.14)}
+</style>
+</helmet>
+<div class="m2" data-screen-label="M02 Mini map sizes and states">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">M02</div><h1 style="margin-top:6px">Mini floating map</h1><div class="t-callout c2" style="margin-top:6px;max-width:660px">Always on top, chrome-free by default. Hover reveals the controls, a corner snaps it home, and click-through lets the map sit over your work without ever catching a click.</div></div><div class="t-callout c3" style="text-align:right;max-width:340px">Radius 20, glass rim 1 pt, no title bar. The plane and the route are the only colors.</div></div>
+
+<div><div class="m2-cap">Three sizes<span>actual size, on a dim desktop</span></div>
+<div class="m2-wall" style="height:410px">
+<div class="m2-app" style="left:36px;top:40px;width:420px;height:340px"><i style="margin-top:34px;width:40%;height:14px"></i><i></i><i style="width:80%"></i><i style="width:64%"></i><i style="width:88%"></i><i style="width:46%"></i></div>
+<div class="m2-win" style="left:24px;top:24px"><dc-import name="MiniMap" w="640" h="360" p=".55" hint-size="640px,360px"></dc-import></div>
+<div class="m2-win" style="left:696px;top:24px"><dc-import name="MiniMap" w="360" h="200" p=".55" hint-size="360px,200px"></dc-import></div>
+<div class="m2-win" style="left:696px;top:240px;width:360px"><div style="font:600 11px/16px var(--font-mono);color:#fff">Large 640 × 360</div><div style="font:400 11px/16px var(--font-mono);color:rgba(255,255,255,.7)">Compact 360 × 200, top right. Medium, below.</div></div>
+<div class="m2-win" style="left:696px;top:318px;width:360px"><div style="font:400 11px/1.5 var(--font-mono);color:rgba(255,255,255,.7)">All three share the same 20 pt radius and the same 1 pt glass rim. Only the size and the control layout change.</div></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:flex-start">
+<div><div class="m2-cap">Medium<span>480 × 270</span></div>
+<div class="m2-wall" style="width:540px;height:320px"><div class="m2-win" style="left:30px;top:25px"><dc-import name="MiniMap" w="480" h="270" p=".55" hint-size="480px,270px"></dc-import></div></div></div>
+<div><div class="m2-cap">Spec<span>pt</span></div>
+<table class="m2-tbl"><tr><th>Size</th><th>Width × height</th><th>Time chip</th><th>Controls</th></tr>
+<tr><td>Compact</td><td>360 × 200</td><td>30 pt high, mono 14</td><td>Pause, sound, size, close</td></tr>
+<tr><td>Medium</td><td>480 × 270</td><td>30 pt high, mono 14</td><td>Same, 28 pt round</td></tr>
+<tr><td>Large</td><td>640 × 360</td><td>30 pt high, mono 14</td><td>Same, plus resize grip</td></tr>
+<tr><td>Free resize</td><td>16:9, 360 – 960 wide</td><td>keeps 12 pt inset</td><td>Drag the grip, bottom right</td></tr>
+<tr><td>Opacity</td><td>30 – 100 %</td><td>chip stays at 100 %</td><td>Slider in the popover</td></tr></table></div>
+</div>
+
+<div><div class="m2-cap">States<span>compact, so the wallpaper stays visible</span></div>
+<div class="m2-g">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
+<div>
+<div class="m2-wall" style="height:250px;background:{{t.bg}}"><div class="m2-app" style="left:26px;top:36px;width:240px;height:260px"><i style="margin-top:30px;width:34%;height:12px"></i><i></i><i style="width:72%"></i><i style="width:58%"></i></div><div class="m2-win" style="left:{{t.x}}px;top:{{t.y}}px"><dc-import name="MiniMap" w="360" h="200" p="{{t.p}}" hover="{{t.hover}}" hover-btn="{{t.hb}}" paused="{{t.paused}}" opacity="{{t.op}}" click-through="{{t.ct}}" hint-size="360px,200px"></dc-import></div>
+<sc-if value="{{t.ring}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:{{t.x}}px;top:{{t.y}}px;width:360px;height:200px;border-radius:20px;border:1.5px dashed rgba(255,255,255,.6);pointer-events:none"></div></sc-if></div>
+<div class="m2-t" style="margin-top:12px">{{t.name}}</div><div class="m2-s">{{t.note}}</div>
+</div>
+</sc-for>
+</div></div>
+
+<div style="display:grid;grid-template-columns:600px 1fr;gap:28px;align-items:flex-start">
+<div><div class="m2-cap">Snap to corners<span>20 pt margin · 56 pt capture</span></div>
+<div class="m2-wall" style="height:376px;border-radius:22px"><div style="position:absolute;left:28px;top:30px;width:544px;height:316px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)">
+<div style="position:absolute;left:0;top:0;right:0;height:12px;background:rgba(255,255,255,.14);border-radius:12px 12px 0 0"></div>
+<div class="m2-z" style="left:10px;top:20px"></div><div class="m2-z" style="right:10px;top:20px"></div><div class="m2-z" style="left:10px;bottom:10px"></div><div class="m2-z on" style="right:10px;bottom:10px"></div>
+<div style="position:absolute;right:10px;bottom:10px;width:150px;height:96px;border-radius:14px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.4)"><dc-import name="MiniMap" w="150" h="96" p=".55" hint-size="150px,96px"></dc-import></div>
+<div style="position:absolute;right:166px;bottom:56px;font:500 11px/14px var(--font-mono);color:var(--accent-2)">snapped · spring 320 ms</div>
+<div style="position:absolute;left:20px;top:116px;width:190px;font:400 11px/1.4 var(--font-mono);color:rgba(255,255,255,.7)">Release within 56 pt of a corner and the window glides to a 20 pt margin. Hold ⌥ to move freely.</div>
+</div></div></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="m2-nat"><b>Native</b><span>NSPanel (.nonactivatingPanel, .borderless), level .floating, collectionBehavior [.canJoinAllSpaces, .fullScreenAuxiliary]. Content: SwiftUI with .glassEffect(.regular, in: .rect(cornerRadius: 20)). Snap: NSAnimationContext with a spring timing function on setFrame(display:animate:).</span></div>
+<div class="m2-nat"><b>Hover</b><span>NSTrackingArea (.mouseEnteredAndExited, .activeAlways). Controls fade and rise 6 pt in 180 ms; they hide again 600 ms after the pointer leaves. A focused control also reveals the row, so the keyboard never loses it.</span></div>
+<div class="m2-nat"><b>Click-through</b><span>ignoresMouseEvents = true. The window shows a “Click-through” pill and cannot be moved. Turn it off from the menu bar popover or with ⌥⌘M, because the window itself can no longer be clicked.</span></div>
+<div class="m2-nat"><b>VoiceOver</b><span>“Mini map, 18 minutes to Paris, group.” Controls: Pause, Sound, Size, Close, each a button with its current value. Reduce Motion: no rise on hover, instant snap.</span></div>
+<div class="m2-nat"><b>Reduce Transparency</b><span>Glass border stays, map layer stays opaque; the control buttons switch to solid bg-2.</span></div>
+</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2650}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const dark = 'linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F)', warm = 'linear-gradient(160deg,#3B2447,#7A3E55 55%,#C6735E)';
+    const T = (name, note, o) => Object.assign({ name, note, bg: dark, x: 170, y: 26, p: '.55', hover: false, hb: '', paused: false, op: 1, ct: false, ring: false }, o);
+    return { tiles: [
+      T('Default', 'Chrome-free. Only the map, the route, and the time chip.', {}),
+      T('Hover', 'Pause, sound, size and close fade in. The resize grip appears.', { hover: true }),
+      T('Hover on a control', 'Pressed and hover states use the same button as the kit.', { hover: true, hb: 'pause' }),
+      T('Paused', 'The plane stops, the chip reads the frozen time and “Paused”.', { paused: true, hover: true }),
+      T('Opacity 60 %', 'Slider in the popover. The chip stays solid so the time is always readable.', { op: .6, bg: warm }),
+      T('Click-through', 'Clicks fall to the app below. A pill marks the mode; the controls are hidden.', { ct: true, ring: true })] };
+  }
+}
+</script>
+</body>
+</html>

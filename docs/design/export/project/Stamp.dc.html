@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passport stamp</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+@keyframes stp-thump{0%{opacity:0;transform:rotate(var(--r)) scale(1.45)}12%{opacity:1;transform:rotate(var(--r)) scale(.98)}34%{opacity:.96;transform:rotate(var(--r)) scale(1.05);filter:blur(.9px)}100%{opacity:.94;transform:rotate(var(--r)) scale(1);filter:blur(0)}}
+.stp-anim{animation:stp-thump 460ms cubic-bezier(.2,0,0,1) both}
+.stp{display:block;mix-blend-mode:multiply}
+.stp-t{font-family:var(--font-cond);font-weight:700}
+.stp-m{font-family:var(--font-mono);font-weight:600}
+</style>
+</helmet>
+<div class="stp {{animCls}}" style="{{rootStyle}}" role="img" aria-label="{{aria}}">
+<svg width="0" height="0" style="position:absolute"><defs>
+<filter id="stp-f-{{uid}}" x="-6%" y="-6%" width="112%" height="112%" color-interpolation-filters="sRGB">
+<feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="{{seed}}" result="warp"/>
+<feDisplacementMap in="SourceGraphic" in2="warp" scale="2.2" result="d"/>
+<feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="{{seed2}}" result="grain"/>
+<feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.7 1.78" result="holes"/>
+<feComposite in="d" in2="holes" operator="in" result="m"/>
+<feGaussianBlur in="m" stdDeviation=".26"/>
+</filter></defs></svg>
+<div style="{{inkStyle}}">
+<svg width="{{W}}" height="{{H}}" viewBox="0 0 160 {{vh}}" style="position:absolute;left:0;top:0;overflow:visible;display:block" aria-hidden="true">
+<g fill="none" stroke="{{ink}}" stroke-linecap="round" stroke-linejoin="round" opacity="{{lockOp}}">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="8"><path d="{{l.d}}" fill="{{l.f}}" stroke="{{l.k}}" stroke-width="{{l.w}}" stroke-dasharray="{{l.da}}"/></sc-for>
+</g>
+<sc-if value="{{inked}}" hint-placeholder-val="{{ true }}"><g fill="{{ink}}" stroke="none" transform="{{glyphT}}"><path d="{{gStabs}}"/><path d="{{gWings}}"/><path d="{{gFus}}"/></g></sc-if>
+</svg>
+<sc-for list="{{texts}}" as="t" hint-placeholder-count="12"><span style="{{t.s}}">{{t.t}}</span></sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"shape":{"editor":"enum","options":["round","oval","octagon","rosette"],"default":"round"},"country":{"editor":"text","default":"FRANCE"},"cc":{"editor":"text","default":"FR"},"code":{"editor":"text","default":"CDG"},"date":{"editor":"text","default":"29 OCT 2026"},"kind":{"editor":"text","default":"ARRIVAL"},"ink":{"editor":"color","default":"#243F8F"},"rot":{"editor":"float","default":-6},"size":{"editor":"int","default":150},"anim":{"editor":"boolean","default":false},"locked":{"editor":"boolean","default":false},"seed":{"editor":"int","default":3},"$preview":{"width":160,"height":160}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 8);
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, f = v => (+v).toFixed(2);
+    let sh = p.shape || 'round'; if (sh === 'rect') sh = 'octagon'; if (sh === 'notch') sh = 'rosette';
+    const size = +(p.size || 150), locked = this.flag(p.locked, false), vh = (sh === 'round' || sh === 'rosette') ? 160 : sh === 'oval' ? 116 : 124, k = size / 160;
+    const rot = +(p.rot === undefined ? -6 : p.rot), seed = +(p.seed || 3);
+    const ink = locked ? 'var(--ink)' : (p.ink || '#243F8F');
+    const country = (p.country || 'FRANCE').toUpperCase(), code = (p.code || 'CDG').toUpperCase(), date = (p.date || '29 OCT 2026').toUpperCase(), kind = (p.kind || 'ARRIVAL').toUpperCase(), cc = (p.cc || 'FR').toUpperCase();
+    const texts = [], lines = [];
+    const L = (d, w, o) => lines.push(Object.assign({ d, w, f: 'none', k: 'currentColor', da: 'none' }, o || {}));
+    const fam = m => m ? 'var(--font-mono)' : 'var(--font-cond)', wt = m => m ? 600 : 700;
+    const T = (t, x, y, fs, ls, m, al) => texts.push({ t, s: 'position:absolute;left:' + (x * k).toFixed(1) + 'px;top:' + (y * k).toFixed(1) + 'px;transform:translate(' + (al === 'l' ? '0' : al === 'r' ? '-100%' : '-50%') + ',-50%);font:' + wt(m) + ' ' + (fs * k).toFixed(1) + 'px/1 ' + fam(m) + ';letter-spacing:' + (ls * k).toFixed(2) + 'px;color:' + ink + ';white-space:pre' });
+    // text on an ellipse, equal arc-length spacing (deg = parametric angle, -90 = top)
+    const ARC = (str, cx, cy, rx, ry, deg, fs, ls, m, bottom) => {
+      const cw = fs * (m ? .6 : .5) + ls, n = str.length, spd = th => Math.hypot(rx * Math.sin(th), ry * Math.cos(th));
+      const at = (s0) => { let th = deg * Math.PI / 180, left = Math.abs(s0), dir = (s0 >= 0 ? 1 : -1) * (bottom ? -1 : 1); while (left > 1e-6) { const st = Math.min(left, .8); th += dir * st / spd(th); left -= st; } return th; };
+      for (let i = 0; i < n; i++) { const th = at((i - (n - 1) / 2) * cw), x = cx + rx * Math.cos(th), y = cy + ry * Math.sin(th), tg = Math.atan2(ry * Math.cos(th), -rx * Math.sin(th)) * 180 / Math.PI, rt = bottom ? tg + 180 : tg;
+        texts.push({ t: str[i], s: 'position:absolute;left:' + (x * k).toFixed(1) + 'px;top:' + (y * k).toFixed(1) + 'px;transform:translate(-50%,-50%) rotate(' + rt.toFixed(1) + 'deg);font:' + wt(m) + ' ' + (fs * k).toFixed(1) + 'px/1 ' + fam(m) + ';color:' + ink + ';white-space:pre' }); }
+    };
+    const circ = (cx, cy, r) => 'M' + f(cx - r) + ' ' + f(cy) + 'a' + f(r) + ' ' + f(r) + ' 0 1 0 ' + f(2 * r) + ' 0a' + f(r) + ' ' + f(r) + ' 0 1 0 ' + f(-2 * r) + ' 0Z';
+    const ell = (cx, cy, rx, ry) => 'M' + f(cx - rx) + ' ' + f(cy) + 'a' + f(rx) + ' ' + f(ry) + ' 0 1 0 ' + f(2 * rx) + ' 0a' + f(rx) + ' ' + f(ry) + ' 0 1 0 ' + f(-2 * rx) + ' 0Z';
+    const oct = (x0, y0, x1, y1, c) => 'M' + (x0 + c) + ' ' + y0 + 'H' + (x1 - c) + 'L' + x1 + ' ' + (y0 + c) + 'V' + (y1 - c) + 'L' + (x1 - c) + ' ' + y1 + 'H' + (x0 + c) + 'L' + x0 + ' ' + (y1 - c) + 'V' + (y0 + c) + 'Z';
+    const ticks = (cx, cy, r0, r1, n) => { let d = ''; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; d += 'M' + f(cx + r0 * Math.cos(a)) + ' ' + f(cy + r0 * Math.sin(a)) + 'L' + f(cx + r1 * Math.cos(a)) + ' ' + f(cy + r1 * Math.sin(a)); } return d; };
+    const star = (cx, cy, r) => { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .42 : r; d += (i ? 'L' : 'M') + f(cx + rr * Math.cos(a)) + ' ' + f(cy + rr * Math.sin(a)); } return d + 'Z'; };
+    const scallop = (cx, cy, R, n) => { let d = ''; const ch = 2 * R * Math.sin(Math.PI / n), r = ch * .56; for (let i = 0; i <= n; i++) { const a = i / n * Math.PI * 2 - Math.PI / 2, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a); d += (i ? 'A' + f(r) + ' ' + f(r) + ' 0 0 1 ' : 'M') + f(x) + ' ' + f(y); } return d + 'Z'; };
+    const dash = '1.6 3.4';
+    let glyph = [80, 60, .15];
+    if (locked) {
+      const o = { da: '1.5 4.5', w: 1.6 };
+      if (sh === 'round') L(circ(80, 80, 72), 1.6, o); else if (sh === 'oval') L(ell(80, 58, 74, 50), 1.6, o); else if (sh === 'octagon') L(oct(8, 10, 152, 114, 24), 1.6, o); else L(scallop(80, 80, 72, 26), 1.6, o);
+      T(country, 80, sh === 'oval' ? 54 : sh === 'octagon' ? 56 : 78, 15, 2.4, false); T('NOT YET VISITED', 80, sh === 'oval' ? 70 : sh === 'octagon' ? 72 : 95, 8, 1.6, true);
+    } else if (sh === 'round') {
+      L(circ(80, 80, 75), 3); L(circ(80, 80, 69.5), 1); L(ticks(80, 80, 62, 65.5, 72), .9); L(circ(80, 80, 60.5), 1.1); L(circ(80, 80, 40), 1.2);
+      L(star(25, 80, 3.4), 0, { f: 'currentColor', k: 'none' }); L(star(135, 80, 3.4), 0, { f: 'currentColor', k: 'none' });
+      ARC(country, 80, 80, 50.5, 50.5, -90, 14.5, 3, false, false); ARC(kind + ' · MERIDIAN', 80, 80, 52, 52, 90, 6.8, 2.4, true, true);
+      T(code, 80, 81, 27, 1.2, false); T(date, 80, 98.5, 6, .5, true); glyph = [80, 62, .12];
+    } else if (sh === 'oval') {
+      L(ell(80, 58, 75, 51), 3); L(ell(80, 58, 69.5, 45.5), 1);
+      L('M33 71H127', .9); L('M33 87H127', .9);
+      ARC(country, 80, 58, 59, 36, -90, 12.5, 3.2, false, false); ARC(kind, 80, 58, 59, 36, 90, 7, 3, true, true);
+      T(code, 80, 52, 31, 1.4, false); T(date, 80, 79, 8, .9, true); glyph = [80, 33, .1];
+      L(star(26, 58, 3), 0, { f: 'currentColor', k: 'none' }); L(star(134, 58, 3), 0, { f: 'currentColor', k: 'none' });
+    } else if (sh === 'octagon') {
+      L(oct(8, 8, 152, 116, 26), 3); L(oct(14, 14, 146, 110, 21), 1); L('M30 38H130', .9); L('M30 86H130', .9);
+      L(star(36, 26, 3), 0, { f: 'currentColor', k: 'none' }); L(star(124, 26, 3), 0, { f: 'currentColor', k: 'none' });
+      T(kind, 80, 26, 12, 4, false); T(code, 80, 62, 34, 1.5, false); T(date, 80, 99, 9.2, 1, true); glyph = [80, 106, .0];
+    } else {
+      L(scallop(80, 80, 76, 28), 2.6); L(circ(80, 80, 66), 1.1); L(circ(80, 80, 61), 1.1, { da: dash }); L(circ(80, 80, 39), 2.2); L(circ(80, 80, 35.5), .9);
+      ARC(country, 80, 80, 48.5, 48.5, -90, 14, 3, false, false); ARC(kind + ' · ' + cc, 80, 80, 50, 50, 90, 7, 2.6, true, true);
+      L(star(22, 80, 3), 0, { f: 'currentColor', k: 'none' }); L(star(138, 80, 3), 0, { f: 'currentColor', k: 'none' });
+      T(code, 80, 80, 22, 1, false); T(date.split(' ').slice(0, 2).join(' '), 80, 94, 6, .4, true); glyph = [80, 63.5, .09];
+    }
+    const g0 = K.plane('twin'), gs = glyph[2];
+    return {
+      uid: this.uid, vh, W: size, H: Math.round(size * vh / 160), seed, seed2: seed * 7 + 2, inked: !locked && gs > 0, texts, lines, ink, lockOp: locked ? .75 : 1,
+      glyphT: 'translate(' + glyph[0] + ' ' + glyph[1] + ') scale(' + gs + ') translate(-50 -50)', gStabs: g0.stabs, gWings: g0.wings, gFus: g0.fus,
+      animCls: this.flag(p.anim, false) ? 'stp-anim' : '', rootStyle: 'position:relative;width:' + size + 'px;height:' + Math.round(size * vh / 160) + 'px;transform:rotate(' + rot + 'deg);--r:' + rot + 'deg;opacity:.94;color:' + ink,
+      inkStyle: 'position:absolute;inset:0;' + (locked ? '' : 'filter:url(#stp-f-' + this.uid + ')'),
+      aria: (locked ? 'Not yet visited: ' : 'Passport stamp: ') + (p.country || 'France')
+    };
+  }
+}
+</script>
+</body>
+</html>

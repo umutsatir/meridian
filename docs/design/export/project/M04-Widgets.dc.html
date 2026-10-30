@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M04 — Desktop widgets</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.m4{width:1280px;height:1420px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:34px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.m4 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.m4-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.m4-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.m4-wall{position:relative;border-radius:28px;padding:40px 44px 36px;box-shadow:inset 0 0 0 1px var(--stroke-hair);display:grid;grid-template-columns:158px 338px 338px 1fr;gap:20px;align-items:start}
+.m4-wall.d{background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F)}
+.m4-wall.l{background:linear-gradient(160deg,#F6D9C4,#F2B8A2 40%,#C99ADA 75%,#8EA6E8)}
+.m4-col{display:flex;flex-direction:column;gap:16px}
+.w{position:relative;border-radius:24px;overflow:hidden;box-sizing:border-box;padding:14px 16px;font-family:var(--font-ui)}
+.w.d{color:#F3F5FA;background:linear-gradient(160deg,rgba(24,32,60,.92),rgba(10,14,28,.94));box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),inset 0 1px 0 rgba(255,255,255,.22),0 18px 40px rgba(0,0,0,.35)}
+.w.l{color:#14161C;background:linear-gradient(160deg,rgba(255,255,255,.94),rgba(250,246,238,.92));box-shadow:inset 0 0 0 1px rgba(20,22,28,.08),inset 0 1px 0 rgba(255,255,255,.9),0 18px 40px rgba(60,40,70,.22)}
+.w .eb{font:600 10px/12px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;opacity:.62}
+.w .sn{font:500 34px/36px var(--font-serif);letter-spacing:-.02em;font-feature-settings:"tnum" 1,"lnum" 1}
+.w .sn small{font:500 12px/1 var(--font-ui);letter-spacing:0;opacity:.62;margin-left:4px}
+.w .mo{font:500 11px/14px var(--font-mono);opacity:.7}
+.w .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6AB7FF;margin-right:6px;vertical-align:1px}
+.w.l .live-dot{background:#1E6BFF}
+.m4-lab{font:600 12px/16px var(--font-ui);color:rgba(255,255,255,.85);margin-top:8px}
+.m4-wall.l .m4-lab{color:rgba(20,22,28,.78)}
+.m4-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.m4-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.w .btn-w{height:26px;padding:0 12px;border-radius:13px;font:600 12px/1 var(--font-ui);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.w.d .btn-w{background:rgba(255,255,255,.14);color:#fff}
+.w.l .btn-w{background:rgba(20,22,28,.08);color:#14161C}
+.w .btn-w:hover{filter:brightness(1.15)}
+.w .btn-w:focus-visible{outline:2px solid #6AB7FF;outline-offset:2px}
+</style>
+</helmet>
+<div class="m4" data-screen-label="M04 Widgets">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">M04</div><h1 style="margin-top:6px">Desktop widgets</h1><div class="t-callout c2" style="margin-top:6px;max-width:660px">Three static widgets and a live in-flight widget, in dark and light. Numbers are serif, labels are quiet caps, the accent is used once per widget.</div></div><div class="t-callout c3" style="text-align:right;max-width:340px">Small 158 × 158 · Medium 338 × 158 · Large 338 × 354. Radius 24, content inset 14 / 16.</div></div>
+
+<sc-for list="{{themes}}" as="th" hint-placeholder-count="2">
+<div><div class="m4-cap">{{th.name}}<span>{{th.note}}</span></div>
+<div class="m4-wall {{th.k}}">
+<!-- col 1: small widgets -->
+<div class="m4-col">
+<div><div class="w {{th.k}}" style="width:158px;height:158px" role="img" aria-label="Next card: Meridian Gold, 47 percent, 7,978 kilometres to go">
+<div class="eb">Next card</div>
+<svg width="158" height="158" viewBox="0 0 158 158" style="position:absolute;left:0;top:0" aria-hidden="true"><defs><linearGradient id="w-r-{{th.k}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{{th.a1}}"/><stop offset="1" stop-color="{{th.a2}}"/></linearGradient></defs>
+<circle cx="79" cy="84" r="38" fill="none" stroke="{{th.track}}" stroke-width="9"/>
+<circle cx="79" cy="84" r="38" fill="none" stroke="url(#w-r-{{th.k}})" stroke-width="9" stroke-linecap="round" stroke-dasharray="112.2 238.8" transform="rotate(-90 79 84)"/></svg>
+<div style="position:absolute;left:0;right:0;top:66px;text-align:center"><div class="sn" style="font-size:26px;line-height:30px">47<small style="margin-left:1px">%</small></div></div>
+<div style="position:absolute;left:16px;right:16px;bottom:11px;display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 11px/14px var(--font-ui)">Meridian Gold</span><span class="mo" style="font-size:10px">7,978 km</span></div></div>
+<div class="m4-lab">Small · Next card</div></div>
+<div><div class="w {{th.k}}" style="width:158px;height:158px" role="img" aria-label="In flight to Paris, 18 minutes 54 seconds left">
+<div class="eb"><span class="live-dot"></span>In flight</div>
+<div style="position:absolute;left:16px;right:16px;top:42px"><div class="sn" style="font-size:38px;line-height:40px">18:54</div><div class="mo" style="margin-top:4px">to Paris · CDG</div></div>
+<div style="position:absolute;left:16px;right:16px;bottom:16px"><div style="height:5px;border-radius:3px;background:{{th.track}}"><i style="display:block;height:100%;width:55%;border-radius:3px;background:linear-gradient(90deg,{{th.a1}},{{th.a2}})"></i></div><div class="mo" style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px"><span>LHR</span><span>55 %</span></div></div></div>
+<div class="m4-lab">Small · Live flight</div></div>
+</div>
+<!-- col 2: medium -->
+<div class="m4-col">
+<div><div class="w {{th.k}}" style="width:338px;height:158px" role="img" aria-label="Longest route: London to New York, 5,540 kilometres, 3 hours 30. Around Earth 0.3 times.">
+<div class="eb">Longest route</div>
+<div style="position:absolute;left:16px;top:34px"><div class="sn" style="font-size:42px;line-height:44px">5,540<small>km</small></div><div class="mo" style="margin-top:3px">LHR → JFK · 3 h 30 min</div></div>
+<svg width="338" height="158" viewBox="0 0 338 158" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="M178 112 C 214 40, 276 36, 316 92" fill="none" stroke="{{th.arc}}" stroke-width="2" stroke-dasharray="1 6" stroke-linecap="round"/><path d="M178 112 C 214 40, 262 34, 296 64" fill="none" stroke="url(#w-r-{{th.k}})" stroke-width="3" stroke-linecap="round"/><circle cx="178" cy="112" r="4.5" fill="{{th.dot}}"/><circle cx="316" cy="92" r="4.5" fill="none" stroke="#FFB547" stroke-width="2"/></svg>
+<div style="position:absolute;left:16px;right:16px;bottom:12px;display:flex;align-items:center;gap:8px"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="8" fill="none" stroke="{{th.track}}" stroke-width="3"/><circle cx="11" cy="11" r="8" fill="none" stroke="url(#w-r-{{th.k}})" stroke-width="3" stroke-linecap="round" stroke-dasharray="15.1 50.3" transform="rotate(-90 11 11)"/></svg><span style="font:600 12px/16px var(--font-ui)">Around Earth <span class="serif" style="font-size:15px">0.3×</span></span></div></div>
+<div class="m4-lab">Medium · Longest route</div></div>
+<div><div class="w {{th.k}}" style="width:338px;height:158px" role="group" aria-label="In flight to Paris, 18 minutes 54 seconds left">
+<div style="display:flex;justify-content:space-between;align-items:center"><div class="eb"><span class="live-dot"></span>In flight · MR 0142</div><div class="mo">ETA 10:42</div></div>
+<div style="position:absolute;left:16px;top:36px"><div class="sn" style="font-size:44px;line-height:46px">18:54</div><div class="mo" style="margin-top:2px">LHR → CDG · 157 km to go</div></div>
+<div style="position:absolute;right:16px;top:44px;display:flex;flex-direction:column;gap:8px;align-items:flex-end"><span class="btn-w" role="button" tabindex="0" aria-label="Pause flight"><svg class="ic ic12"><use href="./icons.svg#pause"></use></svg>Pause</span><span class="btn-w" role="button" tabindex="0" aria-label="Open Meridian">Open</span></div>
+<div style="position:absolute;left:16px;right:16px;bottom:15px"><div style="position:relative;height:5px;border-radius:3px;background:{{th.track}}"><i style="display:block;height:100%;width:55%;border-radius:3px;background:linear-gradient(90deg,{{th.a1}},{{th.a2}})"></i><span style="position:absolute;left:55%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:{{th.dot}};box-shadow:0 0 0 3px {{th.halo}}"></span></div></div></div>
+<div class="m4-lab">Medium · Live flight, interactive</div></div>
+</div>
+<!-- col 3: large -->
+<div class="m4-col">
+<div><div class="w {{th.k}}" style="width:338px;height:354px" role="group" aria-label="This week, 16.1 hours. Current streak, 12 days.">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div class="eb">This week</div><div class="mo">Mon 26 – Sun 1</div></div>
+<div class="sn" style="margin-top:6px;font-size:40px;line-height:42px">16.1<small>hours in flight</small></div>
+<svg width="306" height="150" viewBox="0 0 306 150" style="position:absolute;left:16px;top:96px" aria-hidden="true"><line x1="0" y1="112" x2="306" y2="112" stroke="{{th.track}}" stroke-width="1"/><line x1="0" y1="48" x2="306" y2="48" stroke="{{th.track}}" stroke-width="1" stroke-dasharray="2 5"/>
+<sc-for list="{{th.bars}}" as="b" hint-placeholder-count="7"><rect x="{{b.x}}" y="{{b.y}}" width="30" height="{{b.h}}" rx="8" fill="{{b.fill}}"/></sc-for></svg>
+<div style="position:absolute;left:16px;top:230px;width:306px;display:flex;justify-content:space-between" class="mo"><sc-for list="{{th.bars}}" as="b" hint-placeholder-count="7"><span style="width:30px;text-align:center;font-size:10px;{{b.ls}}">{{b.d}}</span></sc-for></div>
+<div style="position:absolute;left:16px;right:16px;bottom:14px;padding-top:12px;border-top:1px solid {{th.track}};display:flex;align-items:center;gap:12px"><div><div class="eb">Current streak</div><div class="sn" style="font-size:30px;line-height:32px;margin-top:2px">12<small>days</small></div></div><div style="flex:1;display:flex;gap:4px;justify-content:flex-end;align-items:center"><sc-for list="{{th.dots}}" as="d" hint-placeholder-count="12"><i style="width:8px;height:8px;border-radius:50%;background:{{d.c}}"></i></sc-for></div></div></div>
+<div class="m4-lab">Large · Week and streak</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;padding-top:2px;color:{{th.tx}}">
+<div style="font:600 12px/16px var(--font-ui)">Accessibility</div>
+<div style="font:400 12px/1.5 var(--font-ui);opacity:.82">Each widget is one VoiceOver element with a full sentence. Bars have text values in the label, never color alone.</div>
+<div style="font:600 12px/16px var(--font-ui);margin-top:6px">Type</div>
+<div style="font:400 12px/1.5 var(--font-ui);opacity:.82">Numerals scale to 130 %; the medium widgets drop the sub-line first.</div>
+</div>
+</div></div>
+</sc-for>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="m4-nat"><b>Native</b><span>WidgetKit: systemSmall, systemMedium, systemLarge. Static widgets refresh with a TimelineProvider on the hour and after each landing. The live widget uses Text(timerInterval:) so the countdown ticks without any updates, and a Button(intent: PauseFlightIntent()) for Pause.</span></div>
+<div class="m4-nat"><b>Tinted and clear</b><span>For the macOS Tahoe tinted and clear widget styles the ring, bars and route get .widgetAccentable(); everything else renders in the system label color. Backgrounds use containerBackground(for: .widget) with the glass material.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1420}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const vals = [2.4, 3.1, 1.8, 4.2, 2.9, 1.1, 0.6], days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'], max = 4.5;
+    const mk = (th) => vals.map((v, i) => { const h = Math.max(8, v / max * 100); return { x: (i * (306 - 30) / 6).toFixed(1), y: (112 - h).toFixed(1), h: h.toFixed(1), d: days[i], fill: i === 3 ? 'url(#w-r-' + th + ')' : (th === 'd' ? 'rgba(255,255,255,.2)' : 'rgba(20,22,28,.16)'), ls: i === 3 ? 'font-weight:700;opacity:1' : '' }; });
+    const dots = th => Array.from({ length: 12 }, (_, i) => ({ c: th === 'd' ? (i === 11 ? '#8BF3D8' : 'rgba(255,255,255,.55)') : (i === 11 ? '#18C7A0' : 'rgba(20,22,28,.45)') }));
+    // sc-for nesting reads the theme's own bars/dots through closures
+    const T = k => ({ k, a1: k === 'd' ? '#6AB7FF' : '#1E6BFF', a2: k === 'd' ? '#8BF3D8' : '#18C7A0', track: k === 'd' ? 'rgba(255,255,255,.16)' : 'rgba(20,22,28,.12)', arc: k === 'd' ? 'rgba(255,255,255,.55)' : 'rgba(20,22,28,.45)', dot: k === 'd' ? '#fff' : '#14161C', halo: k === 'd' ? 'rgba(106,183,255,.32)' : 'rgba(30,107,255,.24)', tx: k === 'd' ? '#F3F5FA' : '#14161C', bars: mk(k), dots: dots(k) });
+    const d = T('d'), l = T('l');
+    d.name = 'Dark'; d.note = 'on a dim wallpaper'; l.name = 'Light'; l.note = 'on a bright wallpaper';
+    return { themes: [d, l], bars: mk('d'), dots: dots('d') };
+  }
+}
+</script>
+</body>
+</html>

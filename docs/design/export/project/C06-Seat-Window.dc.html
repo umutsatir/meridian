@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C06 Seat map and window view</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c6-seatst{position:static!important;flex:none}
+.c6-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:96px}
+.c6-win{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C06 · §2.7 and §2.8</div>
+<h1 class="t-display" style="margin:0">Seat map and window view</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">Seat choice is the calm part of the ritual. A top-down airliner in dark glass: a slim capsule fuselage with a long rounded nose and two-pane cockpit glazing, 2-2 seating (A C | D F) either side of a centre aisle that carries the row numbers, rows 01 to 12, faint swept wings and a plain round tail cap. The cabin is shortened for the screen and the wings fade out toward the tips. The zone you tap sets the scenario, so a seat is a decision and not a decoration. A window seat previews the window it will give you.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Seat map</h2><span class="th">{{t.label}}</span></div>
+<div style="display:flex;gap:44px;align-items:flex-start">
+<div class="c6-st" style="min-width:800px"><dc-import name="SeatMap" seat="1A" zone="study" friends="{{friends}}" hover="7C" hint-size="800px,392px"></dc-import><div class="sh-cap">Study zone · seat 1A · friends at 1C and 2A</div><div class="sh-note" style="max-width:800px">Tap a zone to select its scenario and tint it; tap a seat to choose it. Arrow keys move through seats, Space or Return confirms. Zone tabs are real buttons with the scenario color as label.</div></div>
+<div style="display:flex;flex-direction:column;gap:18px">
+<div class="c6-st"><div style="width:200px;height:250px;border-radius:18px;overflow:hidden"><dc-import name="WindowView" scene="sunset" w="200" h="250" live="false" hint-size="200px,250px"></dc-import></div><div class="sh-cap">Window preview</div><div class="sh-note" style="max-width:200px">A window seat (A or F) shows the view it will give you, matched to the time of departure.</div></div>
+</div>
+</div>
+<div class="sh-sub">Seat states</div>
+<div class="sh-row" style="gap:30px 40px;align-items:flex-end">
+<div class="c6-st"><span class="sm-seat c6-seatst"></span><div class="sh-cap">Free</div><div class="sh-note">Fill 10%, seat-back edge 16%</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-hover"></span><div class="sh-cap">Hover</div><div class="sh-note">Lift 1.5 pt, tooltip with seat, type, zone</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-sel"><b>7C</b></span><div class="sh-cap">Selected</div><div class="sh-note">Accent ring, 1.12×, glow</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-friend" style="--fc:#FF8FB1"><span class="av sm" style="--avc:#FF8FB1">A<span class="pr" style="width:7px;height:7px"></span></span></span><div class="sh-cap">Friend · focusing</div><div class="sh-note">Avatar bubble, presence dot</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-friend" style="--fc:#7ADDB2"><span class="av sm" style="--avc:#7ADDB2">M<span class="pr idle" style="width:7px;height:7px"></span></span></span><div class="sh-cap">Friend · idle</div><div class="sh-note">Gray dot</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-off"><svg class="ic ic12 c3"><use href="./icons.svg#x"></use></svg></span><div class="sh-cap">Unavailable</div><div class="sh-note">Hatched, 34%, not focusable</div></div>
+<div class="c6-st"><span class="sm-seat c6-seatst is-focus"></span><div class="sh-cap">Keyboard focus</div><div class="sh-note">2 pt ring, 2 pt offset</div></div>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-sub">Zones set the scenario</div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{zoneFrames}}" as="z" hint-placeholder-count="4"><div class="c6-st"><div style="width:360px;height:178px;overflow:hidden"><div style="transform:scale(.45);transform-origin:0 0;width:800px;height:392px"><dc-import name="SeatMap" seat="{{z.seat}}" zone="{{z.zone}}" taken="{{z.taken}}" hint-size="800px,392px"></dc-import></div></div><div class="sh-cap">{{z.t}}</div><div class="sh-note" style="max-width:360px">{{z.n}}</div></div></sc-for>
+</div>
+<div class="sh-native"><b>Native</b><span>One <span style="color:var(--text-1)">Canvas</span> draws the fuselage; seats are <span style="color:var(--text-1)">Button</span>s in a <span style="color:var(--text-1)">Grid</span> with <span style="color:var(--text-1)">matchedGeometryEffect</span>, so the chosen seat number flies into the ticket’s seat field. Zone tabs are a <span style="color:var(--text-1)">Picker</span> styled as chips; VoiceOver reads “Seat 7C, aisle, Read zone, selected”.</span></div>
+</sc-if>
+</section>
+</sc-for>
+<section class="sh-panel" data-theme="dark">
+<div class="sh-title"><h2>Window view</h2><span class="th">Always dark cabin wall, both themes</span></div>
+<p class="t-body c2" style="margin:0;max-width:900px">A rounded-rectangle cabin window, pane aspect 0.7. A near-black sidewall with fabric grain and a vignette; a thick dark-gray moulded trim that fades into it; a light off-white reveal with a bevel and a thin dark ring; a shade housing that overlaps the top edge with a light pull slit. Through the pane: an oblique, hazy aerial city view with a pale sky band, the far horizon, towers on the skyline, a long park and a landmark in the middle distance. The shade drags like a real one.</p>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{scenes}}" as="s" hint-placeholder-count="8"><div class="c6-win"><dc-import name="WindowView" scene="{{s.k}}" w="220" h="305" radius="18" hint-size="220px,305px"></dc-import><div class="sh-cap">{{s.t}}</div><div class="sh-note" style="max-width:220px">{{s.n}}</div></div></sc-for>
+</div>
+<div class="sh-sub">Shade, free preview, locked</div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{shades}}" as="s" hint-placeholder-count="5"><div class="c6-win"><dc-import name="WindowView" scene="sunset" shade="{{s.v}}" w="220" h="305" radius="18" ribbon="{{s.ribbon}}" locked="{{s.locked}}" hint-size="220px,305px"></dc-import><div class="sh-cap">{{s.t}}</div><div class="sh-note" style="max-width:220px">{{s.n}}</div></div></sc-for>
+</div>
+<div class="sh-native"><b>Native</b><span>Window mask is an <span style="color:var(--text-1)">UnevenRoundedRectangle</span> stack; the view is a MapKit flyover camera at a 70° pitch (here a baked procedural city render stands in) with a slow <span style="color:var(--text-1)">TimelineView</span> drift; rain on glass is a Metal refraction shader; the shade is a drag gesture with a <span style="color:var(--text-1)">.spring(response: 0.4, dampingFraction: 0.85)</span> and a light-leak gradient that fades in past 85%.</span></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const friends = [{ seat: '1C', ini: 'A', color: '#FF8FB1', name: 'Anna', presence: '' }, { seat: '2A', ini: 'M', color: '#7ADDB2', name: 'Mert', presence: 'idle' }];
+    const zoneFrames = [{ t: 'Study', zone: 'study', seat: '2A', n: 'Rows 1–3. Quiet, near the front.', taken: ['1C', '3D'] }, { t: 'Work', zone: 'work', seat: '4F', n: 'Rows 4–6. Tray-table posture.', taken: ['5D', '6A'] }, { t: 'Read', zone: 'read', seat: '8A', n: 'Rows 7–9. Over the wing, soft light.', taken: ['7C', '9F'] }, { t: 'Create', zone: 'create', seat: '11F', n: 'Rows 10–12. Back of the cabin, a little noisier.', taken: ['10C', '12A'] }];
+    const scenes = [['day', 'Day', 'Pale overcast sky, hazy horizon'], ['blue', 'Blue hour', 'Elevation −6° to 0°'], ['sunset', 'Sunset', 'Warm horizon, low sun'], ['night', 'Night', 'Street grid in warm light'], ['rain', 'Rain on glass', 'Droplets run, background blurs'], ['storm', 'Thunderstorm', 'Rare, subtle flashes every 7 s'], ['takeoff', 'Take-off tilt', 'Window banks −8° on rotate'], ['landing', 'Landing approach', 'Runway lights rise into view']].map(a => ({ k: a[0], t: a[1], n: a[2] }));
+    const shades = [{ v: 0, t: 'Open', n: 'Shade fully up.', ribbon: false, locked: false }, { v: .5, t: 'Half', n: 'Drag the handle; the spring settles at the release point.', ribbon: false, locked: false }, { v: .92, t: 'Nearly closed', n: 'A warm light leak shows along the lower edge.', ribbon: false, locked: false }, { v: 0, t: 'Free preview', n: 'Ribbon on Pro scenes during a trial flight.', ribbon: true, locked: false }, { v: 0, t: 'Locked · Pro scene', n: 'Quiet unlock hint, never a nag.', ribbon: false, locked: true }];
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], friends, zoneFrames, scenes, shades };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Year in flight, all frames</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="sheet" data-theme="dark" style="width:3320px;height:900px;padding:56px 64px">
+<div class="sh-eyebrow"><span>S37</span><span style="width:24px;height:1px;background:var(--stroke-hair)"></span><span>Year in flight · the eight story frames (360 × 640, exported at 3×)</span></div>
+<div style="display:flex;gap:24px;align-items:flex-start">
+<sc-for list="{{frames}}" as="f" hint-placeholder-count="8"><div class="sh-cell" style="gap:14px"><dc-import name="Recap" frame="{{f.n}}" hint-size="360px,640px"></dc-import><div class="sh-cap">{{f.t}}</div></div></sc-for>
+</div>
+<div class="sh-native"><b>Native</b><span>Frames are SwiftUI views rendered with ImageRenderer at 3× (1080 × 1920) into a PNG that goes to ShareLink. Globes are MapKit snapshots; route glows are Core Image bloom. Numbers use New York Medium with tabular figures off for the display sizes.</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":3320,"height":900}}'>
+class Component extends DCLogic { renderVals() { return { frames: ['01 Cover', '02 Hours', '03 Distance', '04 Favourite scenario', '05 Longest flight', '06 Busiest day', '07 Every route', '08 Card reached'].map((t, i) => ({ n: i, t })) }; } }
+</script>
+</body>
+</html>

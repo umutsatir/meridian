@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P6 Mini map and menu bar</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.p6-bar{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:10px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair);font:500 12px/1 var(--font-ui);color:var(--text-2)}
+.p6-bar b{color:var(--text-1);font-weight:600;margin-right:4px}
+.p6-hint{display:inline-flex;align-items:center;gap:6px;padding:0 10px;height:26px;border-radius:13px;background:var(--fill-1)}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:884px">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;border-radius:22px 22px 0 0;overflow:hidden"><dc-import name="Desktop" live="true" mini="true" size="m" corner="br" pop-open="false" hint-size="1280px,800px"></dc-import></div>
+<div class="p6-bar"><b>Prototype</b><span class="p6-hint">Hover the mini map for controls</span><span class="p6-hint">Drag it; it snaps to a corner</span><span class="p6-hint">Drag the corner to resize</span><span class="p6-hint">Click the menu bar item</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":884}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

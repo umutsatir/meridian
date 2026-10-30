@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Window view</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.wv *{box-sizing:border-box}
+@keyframes wv-drift{from{transform:scale(1) translate(0,0)}to{transform:scale(1.06) translate(-1.2%,.8%)}}
+@keyframes wv-run{0%{transform:translateY(-14px);opacity:0}12%{opacity:.85}100%{transform:translateY(120px);opacity:0}}
+@keyframes wv-flash{0%,90%,100%{opacity:0}92%{opacity:.78}94%{opacity:.08}96%{opacity:.5}98%{opacity:0}}
+.wv-drop{position:absolute;width:5px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.8),rgba(255,255,255,.12) 55%,rgba(255,255,255,.04));box-shadow:0 1px 2px rgba(0,0,0,.25)}
+@media (prefers-reduced-motion:reduce){.wv-ani{animation:none!important}}
+</style>
+</helmet>
+<div class="wv" style="{{rootStyle}}" onPointerMove="{{onMove}}" onPointerUp="{{onUp}}" onPointerLeave="{{onUp}}">
+<!-- cabin sidewall: near black, fabric grain, vignette -->
+<div style="{{wallStyle}}"></div>
+<div style="{{grainStyle}}"></div>
+<!-- dark moulded trim around the window -->
+<div style="{{trimStyle}}"></div>
+<!-- inner reveal: light grey frame with a bevel -->
+<div style="{{ringStyle}}"></div>
+<div style="{{revealStyle}}">
+<div style="{{revealBevel}}"></div>
+<!-- the pane -->
+<div style="{{paneStyle}}">
+<div style="{{sceneStyle}}">
+<div class="wv-ani" style="{{imgStyle}}"></div>
+<div style="{{sunStyle}}"></div>
+<sc-if value="{{runway}}" hint-placeholder-val="{{ false }}"><svg width="100%" height="100%" viewBox="0 0 200 300" preserveAspectRatio="none" style="position:absolute;left:0;top:0" aria-hidden="true"><g fill="#FFE9B8"><sc-for list="{{rwy}}" as="r" hint-placeholder-count="12"><circle cx="{{r.x}}" cy="{{r.y}}" r="{{r.r}}" opacity="{{r.o}}"/></sc-for></g><g><circle cx="86" cy="262" r="2.6" fill="#FF5C5C"/><circle cx="96" cy="262" r="2.6" fill="#FF5C5C"/><circle cx="106" cy="262" r="2.6" fill="#fff"/><circle cx="116" cy="262" r="2.6" fill="#fff"/></g></svg></sc-if>
+<sc-if value="{{rain}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(40,52,70,.2);-webkit-backdrop-filter:blur(1.2px);backdrop-filter:blur(1.2px)"></div><sc-for list="{{drops}}" as="d" hint-placeholder-count="20"><span class="wv-drop" style="{{d.s}}"></span></sc-for></sc-if>
+<sc-if value="{{storm}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:radial-gradient(60% 60% at 40% 30%,#E8EEFF,#9DB2FF 40%,transparent 80%);mix-blend-mode:screen;animation:wv-flash 7s linear infinite;pointer-events:none"></div></sc-if>
+</div>
+<!-- glass: soft reflection, cold edge, double pane line -->
+<div style="{{blurA}}"></div>
+<div style="{{blurB}}"></div>
+<div style="{{skyStyle}}"></div>
+<div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.10) 38%,rgba(255,255,255,.015) 46%,rgba(255,255,255,0) 60%)"></div>
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 45%,transparent 62%,rgba(0,0,0,.34))"></div>
+<div style="{{paneEdge}}"></div>
+<!-- pull-down shade -->
+<div style="{{shadeStyle}}"><div style="{{shadeLines}}"></div><div style="{{leakStyle}}"></div></div>
+</div>
+<!-- shade housing: dark cap over the top of the pane, with the pull slit -->
+<div style="{{housingStyle}}"></div>
+<div style="{{slitStyle}}"></div>
+<div style="{{handleStyle}}" onPointerDown="{{onDown}}" role="slider" aria-label="Window shade" aria-valuenow="{{shadePct}}" tabindex="0" onKeyDown="{{onKey}}"><span style="{{gripStyle}}"></span></div>
+</div>
+<sc-if value="{{ribbon}}" hint-placeholder-val="{{ false }}"><div style="{{ribbonStyle}}">Free preview</div></sc-if>
+<sc-if value="{{locked}}" hint-placeholder-val="{{ false }}"><div style="{{lockStyle}}"><div class="glass e3" style="padding:14px 18px;border-radius:20px;display:flex;align-items:center;gap:12px;max-width:260px"><svg class="ic ic20 c2"><use href="./icons.svg#lock"></use></svg><div><div style="font:600 14px/18px var(--font-ui)">{{lockTitle}}</div><div class="t-callout c2">Part of Meridian Pro. Free scenes stay free.</div></div></div></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"bare":{"editor":"boolean","default":false},"part":{"editor":"enum","options":["all","pane"],"default":"all"},"scene":{"editor":"enum","options":["day","blue","sunset","night","rain","storm","takeoff","landing"],"default":"day"},"shade":{"editor":"float","default":0},"w":{"editor":"int","default":420},"h":{"editor":"int","default":580},"live":{"editor":"boolean","default":false},"ribbon":{"editor":"boolean","default":false},"locked":{"editor":"boolean","default":false},"$preview":{"width":420,"height":580}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 7);
+  state = { shade: null, drag: false };
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state;
+    const flag = (v, d) => v === undefined || v === null || v === '' ? d : !(v === false || v === 'false');
+    const bare = flag(p.bare, false), W = +(p.w || 420), H = +(p.h || 580), scene = p.scene || 'day', live = flag(p.live, false);
+    const shade = st.shade !== null ? st.shade : Math.max(0, Math.min(1, +(p.shade || 0)));
+    // ---- geometry. Reveal frame = the visible window; the dark trim stands 38% taller around it. ----
+    const fit = +(p.fit) || .72, only = p.part === 'pane';   // part="pane": just the glass + shade, filling the whole box (the host draws the frame in perspective)
+    let Rh = only ? H / .8845 : H * fit, Rw = Rh * .77, Th = Rh * 1.48, Tw = Th * .733;
+    const kk = only ? 1 : Math.min(1, (W * .985) / Tw, (H * .99) / Th); Rh *= kk; Rw *= kk; Th *= kk; Tw *= kk;
+    const m = Rw * .1, mt = m * .5, Pw = Rw - 2 * m, Ph = Rh - mt - m, cx = only ? Rw / 2 - m : W / 2 + (+(p.cx) || 0), cy = only ? Rh / 2 - mt : H / 2, r = v => Math.round(v * 10) / 10;
+    const hh = Rh * .112;   // housing bottom edge, in reveal coordinates
+    // ---- scene table: which render, how it is graded, what glows ----
+    const S = {
+      day: { img: 'day', f: 'none', sun: 'none' },
+      blue: { img: 'blue', f: 'none', sun: 'none' },
+      sunset: { img: 'sunset', f: 'none', sun: 'radial-gradient(circle at 18% 64%,rgba(255,240,200,.62),rgba(255,176,110,.30) 14%,transparent 42%)' },
+      night: { img: 'night', f: 'none', sun: 'none' },
+      rain: { img: 'rain', f: 'saturate(.9)', sun: 'none' },
+      storm: { img: 'rain', f: 'brightness(.62) contrast(1.12) saturate(.7)', sun: 'none' },
+      takeoff: { img: 'day', f: 'none', sun: 'none' },
+      landing: { img: 'blue', f: 'brightness(1.12) saturate(1.1)', sun: 'radial-gradient(circle at 28% 66%,rgba(255,225,170,.5),transparent 36%)' }
+    }[scene] || { img: 'day', f: 'none', sun: 'none' };
+    const SKY = { day: '238,241,240', blue: '212,226,240', sunset: '255,216,180', night: '12,18,34', rain: '168,176,186', storm: '58,66,82', landing: '212,226,240' }[scene] || '238,241,240';
+    const rnd = K.rng(scene.length * 977 + 3);
+    const rwy = []; for (let i = 0; i < 11; i++) { const f = i / 10, y = 296 - f * 120, spread = 7 + (1 - f) * 70; rwy.push({ x: (100 - spread).toFixed(1), y: y.toFixed(1), r: (1 + (1 - f) * 2.2).toFixed(1), o: (.5 + (1 - f) * .5).toFixed(2) }); rwy.push({ x: (100 + spread).toFixed(1), y: y.toFixed(1), r: (1 + (1 - f) * 2.2).toFixed(1), o: (.5 + (1 - f) * .5).toFixed(2) }); }
+    const drops = []; if (scene === 'rain' || scene === 'storm') for (let i = 0; i < 26; i++) { const dl = rnd() * 3.2; drops.push({ s: 'left:' + (rnd() * 96).toFixed(1) + '%;top:' + (rnd() * 70).toFixed(1) + '%;transform:scale(' + (.6 + rnd() * 1.1).toFixed(2) + ');animation:wv-run ' + (2.6 + rnd() * 2.4).toFixed(1) + 's ease-in ' + dl.toFixed(1) + 's infinite' }); }
+    const tilt = scene === 'takeoff' ? -9 : (scene === 'landing' ? 5 : 0);
+    const zoom = scene === 'takeoff' ? 1.28 : 1;
+    const hp = hh - mt + Rh * .004, sh = shade, panelH = hp + sh * (Ph - hp), px = v => r(v) + 'px';
+    const RAD = px(Rw * .4), PRAD = only ? '0px' : px(Pw * .31), TRAD = px(Tw * .37);
+    return {
+      rootStyle: 'position:relative;width:' + W + 'px;height:' + H + 'px;overflow:hidden;border-radius:' + (p.radius !== undefined ? p.radius : 0) + 'px;background:' + (bare ? 'transparent' : '#060607') + ';' + (live ? 'touch-action:none;' : ''),
+      wallStyle: bare || only ? 'display:none' : 'position:absolute;inset:0;background:radial-gradient(64% 58% at 50% 46%,#16181c,#0b0c0e 60%,#040405 100%)',
+      grainStyle: 'display:none;position:absolute;inset:0;pointer-events:none;opacity:.55;background-image:radial-gradient(rgba(255,255,255,.07) .8px,transparent 1.1px);background-size:3.5px 3.5px;-webkit-mask-image:radial-gradient(70% 62% at 50% 48%,transparent 30%,#000 100%);mask-image:radial-gradient(70% 62% at 50% 48%,transparent 30%,#000 100%)',
+      trimStyle: only ? 'display:none' : 'position:absolute;left:' + px(cx - Tw * .62) + ';top:' + px(cy - Th * .6) + ';width:' + px(Tw * 1.24) + ';height:' + px(Th * 1.2) + ';border-radius:50%;background:radial-gradient(closest-side,rgba(176,196,226,.34),rgba(176,196,226,.12) 55%,rgba(176,196,226,0) 100%);-webkit-filter:blur(' + px(Tw * .16) + ');filter:blur(' + px(Tw * .16) + ');pointer-events:none',
+      ringStyle: only ? 'display:none' : 'position:absolute;left:' + px(cx - Rw / 2 - Rw * .016) + ';top:' + px(cy - Rh / 2 - Rw * .016) + ';width:' + px(Rw + Rw * .032) + ';height:' + px(Rh + Rw * .032) + ';border-radius:' + px(Rw * .416) + ';background:transparent;box-shadow:0 ' + px(Rw * .012) + ' ' + px(Rw * .07) + ' rgba(0,0,0,.45)',
+      revealStyle: 'position:absolute;left:' + px(cx - Rw / 2) + ';top:' + px(cy - Rh / 2) + ';width:' + px(Rw) + ';height:' + px(Rh) + ';border-radius:' + RAD + ';overflow:hidden;background:' + (only ? 'transparent' : 'linear-gradient(162deg,#efeee9 0%,#d6d4cd 48%,#b9b7b0 100%)') + '',
+      revealBevel: only ? 'display:none' : 'position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 ' + Math.max(1, Rw * .004) + 'px rgba(255,255,255,.55),inset 0 ' + px(-Rw * .03) + ' ' + px(Rw * .06) + ' rgba(0,0,0,.2),inset 0 ' + px(Rw * .02) + ' ' + px(Rw * .04) + ' rgba(255,255,255,.4)',
+      paneStyle: 'position:absolute;left:' + px(m) + ';top:' + px(mt) + ';width:' + px(Pw) + ';height:' + px(Ph) + ';border-radius:' + PRAD + ';overflow:hidden;background:#000;' + (only ? '' : 'box-shadow:0 0 0 ' + Math.max(1, Rw * .006) + 'px rgba(40,40,42,.9),0 0 ' + px(Rw * .03) + ' rgba(0,0,0,.5);') + 'isolation:isolate',
+      sceneStyle: 'position:absolute;left:' + (tilt || scene === 'takeoff' ? '-14%' : '-4%') + ';top:' + (tilt || scene === 'takeoff' ? '-14%' : '0') + ';width:' + (tilt || scene === 'takeoff' ? '128%' : '108%') + ';height:' + (tilt || scene === 'takeoff' ? '128%' : '104%') + ';overflow:hidden;transform:rotate(' + tilt + 'deg);' + (scene === 'takeoff' ? 'transform-origin:50% 60%;' : ''),
+      imgStyle: 'position:absolute;inset:0;background:url(./wv-city-' + S.img + '.jpg) 50% 0%/cover no-repeat;filter:' + (S.f === 'none' ? '' : S.f + ' ') + 'blur(.7px);transform-origin:' + (scene === 'takeoff' ? '50% 100%' : '50% 0%') + ';animation:wv-drift 70s ease-in-out infinite alternate' + (zoom !== 1 ? ';scale:' + zoom : ''),
+      blurA: 'position:absolute;inset:0;border-radius:' + PRAD + ';overflow:hidden;pointer-events:none;-webkit-backdrop-filter:blur(2.2px);backdrop-filter:blur(2.2px);-webkit-mask-image:radial-gradient(ellipse 62% 56% at 50% 50%,transparent 34%,#000 92%);mask-image:radial-gradient(ellipse 62% 56% at 50% 50%,transparent 34%,#000 92%)',
+      blurB: 'position:absolute;inset:0;border-radius:' + PRAD + ';overflow:hidden;pointer-events:none;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);-webkit-mask-image:radial-gradient(ellipse 60% 54% at 50% 50%,transparent 58%,#000 108%);mask-image:radial-gradient(ellipse 60% 54% at 50% 50%,transparent 58%,#000 108%)',
+      skyStyle: scene === 'takeoff' ? 'display:none' : 'position:absolute;left:0;right:0;top:0;height:22%;pointer-events:none;background:linear-gradient(180deg,rgba(' + SKY + ',1) 0%,rgba(' + SKY + ',1) 38%,rgba(' + SKY + ',.4) 68%,rgba(' + SKY + ',0) 100%)',
+      sunStyle: 'position:absolute;inset:0;background:' + S.sun + ';mix-blend-mode:screen;pointer-events:none',
+      paneEdge: 'position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),inset 0 0 ' + px(Rw * .05) + ' rgba(0,0,0,.45)',
+      runway: scene === 'landing', rwy, rain: scene === 'rain' || scene === 'storm', storm: scene === 'storm', drops,
+      shadeStyle: 'position:absolute;left:0;right:0;top:0;height:' + px(panelH) + ';background:linear-gradient(180deg,#E9E5DA,#D8D2C3);box-shadow:0 ' + px(Rw * .02) + ' ' + px(Rw * .05) + ' rgba(0,0,0,.45);transition:' + (st.drag ? 'none' : 'height 460ms var(--spring-smooth)') + ';z-index:6;' + (sh <= .001 ? 'visibility:hidden' : ''),
+      shadeLines: 'position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(20,17,15,.07) 0 1px,transparent 1px 7px);pointer-events:none',
+      leakStyle: 'position:absolute;left:8%;right:8%;bottom:-3px;height:3px;border-radius:2px;background:#FFF4D8;box-shadow:0 0 14px 6px rgba(255,236,190,.65);opacity:' + (shade > .8 && shade < .995 ? (.35 + (shade - .8) * 3).toFixed(2) : 0) + ';pointer-events:none',
+      housingStyle: 'position:absolute;left:' + px(Rw * .13) + ';top:' + px(-Rh * .01) + ';width:' + px(Rw * .74) + ';height:' + px(hh + Rh * .01) + ';border-radius:0 0 50% 50% / 0 0 100% 100%;background:linear-gradient(180deg,#303034 0%,#212124 55%,#161618 100%);box-shadow:inset 0 ' + px(-Rw * .006) + ' 0 rgba(255,255,255,.07),0 ' + px(Rw * .012) + ' ' + px(Rw * .04) + ' rgba(0,0,0,.6);z-index:8;pointer-events:none',
+      slitStyle: 'position:absolute;left:' + px(Rw * .3) + ';top:' + px(Rh * .018) + ';width:' + px(Rw * .4) + ';height:' + px(Math.max(2, Rh * .007)) + ';border-radius:' + px(Rh) + ';background:linear-gradient(180deg,#d9d9d6,#8f8f8c);box-shadow:0 1px 0 rgba(0,0,0,.5);z-index:9;pointer-events:none',
+      handleStyle: sh < .03
+        ? 'position:absolute;left:50%;top:0;width:' + px(Rw * .5) + ';height:' + px(hh) + ';transform:translateX(-50%);cursor:' + (live ? 'grab' : 'default') + ';z-index:10;display:flex;align-items:center;justify-content:center'
+        : 'position:absolute;left:50%;top:' + px(mt + panelH - Rh * .012) + ';width:' + px(Rw * .34) + ';height:' + px(Math.max(14, Rh * .045)) + ';transform:translateX(-50%);display:flex;align-items:center;justify-content:center;border-radius:' + px(Rh * .03) + ';background:linear-gradient(180deg,#e3e0d6,#bdb8a8);box-shadow:0 ' + px(Rw * .01) + ' ' + px(Rw * .03) + ' rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6);cursor:' + (live ? 'grab' : 'default') + ';z-index:10;transition:' + (st.drag ? 'none' : 'top 460ms var(--spring-smooth)'),
+      gripStyle: sh < .03 ? 'display:none' : 'width:46%;height:3px;border-radius:2px;background:rgba(20,17,15,.38);display:block',
+      shadePct: Math.round(shade * 100),
+      ribbon: flag(p.ribbon, false), ribbonStyle: 'position:absolute;left:-44px;top:30px;width:190px;transform:rotate(-38deg);text-align:center;padding:6px 0;font:600 11px/1 var(--font-ui);letter-spacing:.16em;text-transform:uppercase;color:#04101A;background:var(--accent-grad);box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:10',
+      locked: flag(p.locked, false), lockTitle: p.lockTitle || 'Thunderstorm scene', lockStyle: 'position:absolute;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding-bottom:36px;background:linear-gradient(180deg,rgba(8,10,16,.1),rgba(8,10,16,.72));-webkit-backdrop-filter:blur(6px) saturate(.5);backdrop-filter:blur(6px) saturate(.5)',
+      onDown: e => { if (!live) return; this._d = { y: e.clientY, s: shade }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this.setState({ drag: true }); },
+      onMove: e => { if (!this._d) return; const s = Math.max(0, Math.min(1, this._d.s + (e.clientY - this._d.y) / Ph)); this.setState({ shade: s }); },
+      onUp: () => { if (!this._d) return; this._d = null; this.setState({ drag: false }); },
+      onKey: e => { if (!live) return; if (e.key === 'ArrowDown') this.setState({ shade: Math.min(1, shade + .1) }); if (e.key === 'ArrowUp') this.setState({ shade: Math.max(0, shade - .1) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

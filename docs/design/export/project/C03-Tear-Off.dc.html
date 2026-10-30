@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C03 Tear-off stub</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c3-tab{width:100%;border-collapse:collapse;font:400 13px/1.45 var(--font-ui)}
+.c3-tab th{text-align:left;font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding:0 14px 10px 0;border-bottom:1px solid var(--stroke-hair)}
+.c3-tab td{padding:10px 14px 10px 0;vertical-align:top;border-bottom:1px solid var(--stroke-hair);color:var(--text-2)}
+.c3-tab td:first-child{color:var(--text-1);font:600 12px/1.45 var(--font-mono);white-space:nowrap}
+.c3-code{margin:0;padding:16px 18px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.6 var(--font-mono);color:var(--text-2);white-space:pre;overflow:hidden}
+.c3-code b{color:var(--accent-1);font-weight:500}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C03 · §2.3</div>
+<h1 class="t-display" style="margin:0">Tear-off stub</h1>
+<p class="t-body c2" style="margin:0;max-width:860px">The star moment. Grab the stub, pull along the perforation, feel it resist, then let go of control: past 72% the paper finishes the tear by itself, flies into the Wallet icon and the ticket slides up into the gate. Under 72% the partial tear stays and you can pick it back up. Try it for real in prototype P1.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>States of the tear</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{t.frames}}" as="f" hint-placeholder-count="8">
+<div class="sh-cell" style="width:286px"><div style="width:286px;height:396px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--stroke-hair)"><dc-import name="Ritual" t="2400" tear="{{f.tear}}" grab="{{f.grab}}" fly="{{f.fly}}" w="520" h="720" zoom=".55" sidebar="false" cx="260" slot-top="40" hint-size="286px,396px"></dc-import></div>
+<div class="sh-cap">{{f.name}}</div><div class="sh-note" style="max-width:286px">{{f.note}}</div></div>
+</sc-for>
+</div>
+</section>
+</sc-for>
+<section class="sh-panel" data-theme="dark">
+<div class="sh-title"><h2>Together · stubs tear in sequence</h2><span class="th">S42 · P5</span></div>
+<div class="sh-row" style="gap:28px;align-items:flex-start">
+<sc-for list="{{group}}" as="f" hint-placeholder-count="3">
+<div class="sh-cell" style="width:286px"><div style="width:286px;height:396px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--stroke-hair)"><dc-import name="Ritual" t="2400" tear="{{f.tear}}" grab="{{f.grab}}" fly="{{f.fly}}" w="520" h="720" zoom=".55" sidebar="false" cx="260" slot-top="40" hint-size="286px,396px"></dc-import></div>
+<div class="sh-cap">{{f.name}}</div><div class="sh-note" style="max-width:286px">{{f.note}}</div></div>
+</sc-for>
+<div style="flex:1;min-width:320px;display:flex;flex-direction:column;gap:14px"><div class="sh-sub">Same mechanic, one ticket per passenger</div>
+<div class="sh-note" style="max-width:none">When the gate opens each friend checks in; their stub tears with the same rip, flies to their own corner of the lobby and the passenger strip lights their avatar. Order is check-in order, 400 ms apart, so a group of six finishes in 2.4 s. Your own stub is always interactive, theirs play as animation.</div>
+<div class="sh-native"><b>Native</b><span>One <span style="color:var(--text-1)">TearModel</span> per ticket (progress, grab side, velocity); remote passengers drive it from a timeline instead of a DragGesture.</span></div></div>
+</div>
+</section>
+<section class="sh-panel" data-theme="dark">
+<div class="sh-title"><h2>Mechanics</h2><span class="th">Spec</span></div>
+<div style="display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:48px;align-items:start">
+<div>
+<svg width="520" height="420" viewBox="0 0 520 420" style="display:block;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<rect x="60" y="30" width="400" height="170" rx="16" fill="#F5F0E6" opacity=".92"/>
+<text x="76" y="62" font-family="Inter" font-size="11" fill="#14110F" opacity=".6" letter-spacing="1.5">MAIN BODY</text>
+<polyline points="60,200 100,198 130,201 168,199 205,202 236,199 270,201 300,199" fill="none" stroke="#14110F" stroke-opacity=".7" stroke-width="1.4"/>
+<line x1="300" y1="200" x2="460" y2="200" stroke="#14110F" stroke-opacity=".5" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round"/>
+<polygon points="300,199 460,199 460,199" fill="none"/>
+<polygon points="60,200 300,200 300,320 60,320" fill="#F5F0E6" opacity=".9"/><text x="76" y="262" font-family="Inter" font-size="11" fill="#14110F" opacity=".6" letter-spacing="1.5">STUB (attached part)</text>
+<g transform="rotate(25 300 200)"><polygon points="300,200 340,198 380,201 420,199 460,200 460,320 300,320" fill="#F5F0E6" opacity=".96"/><text x="318" y="262" font-family="Inter" font-size="11" fill="#14110F" opacity=".6" letter-spacing="1.5">STUB</text></g>
+<circle cx="300" cy="200" r="6" fill="var(--accent-1)"/><text x="312" y="188" font-family="JetBrains Mono" font-size="11" fill="var(--accent-1)">pivot = tear front x_f</text>
+<path d="M360 200 A60 60 0 0 1 354 226" fill="none" stroke="var(--accent-2)" stroke-width="1.6"/><text x="372" y="226" font-family="JetBrains Mono" font-size="11" fill="var(--accent-2)">θ ≤ 25°</text>
+<line x1="450" y1="356" x2="220" y2="356" stroke="var(--text-2)" stroke-width="1.5"/><polygon points="220,356 230,351 230,361" fill="var(--text-2)"/><text x="228" y="378" font-family="JetBrains Mono" font-size="11" fill="var(--text-2)">drag direction · projected on perforation</text>
+<text x="76" y="404" font-family="JetBrains Mono" font-size="11" fill="var(--text-3)">p = |Δx| / 360   x_f = 360·(1−p)   θ = 25°·(1−(1−p)^1.6)</text>
+</svg>
+</div>
+<div>
+<table class="c3-tab"><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>
+<tr><td>Affordance</td><td>Hover on stub: open-hand cursor, perforation dots brighten, stub lifts 2 pt</td></tr>
+<tr><td>Grab</td><td>Anywhere on the stub; the half you press decides the side the tear starts from</td></tr>
+<tr><td>Progress</td><td>Drag distance projected on the perforation ÷ ticket width (360)</td></tr>
+<tr><td>Resistance</td><td>easeInCubic for the first 10%, then 1:1. Body shifts 1–2 pt toward the pull, springs back on completion</td></tr>
+<tr><td>Edge</td><td>Seeded jagged clip, ±1.5–2.5 pt, shared by both pieces; 1 pt lighter fibrous rim on each edge</td></tr>
+<tr><td>Pivot</td><td>Stub rotates about the tear front up to 25°; 4 pt curl near the front (shade gradient, mesh warp natively)</td></tr>
+<tr><td>Particles</td><td>3–6 cream paper bits, 1–3 pt, ballistic with gravity, fade over 0.9 s</td></tr>
+<tr><td>Threshold</td><td>≥ 72%: auto-completes with accelerating rip, stub keeps drag velocity and spin, shrinks into the sidebar Wallet icon (+1 badge, soft thud)</td></tr>
+<tr><td>Below 72%</td><td>Releases, partial tear stays, can be resumed</td></tr>
+<tr><td>Haptics</td><td>Light tick every 6%, stronger release tick at completion</td></tr>
+<tr><td>Accessibility</td><td>Visible “Tear” button, Space or Return plays the same animation; Reduce Motion: quick fade + rip sound; VoiceOver: “Boarding pass printed. Activate to tear off the stub.”</td></tr>
+</tbody></table>
+</div></div>
+<pre class="c3-code"><b>// paper rip · velocity-driven (§5.2)</b>
+noise  → <b>bandpass</b>(f = 1500 + v·2500 Hz, Q = 0.8) → gain(v^1.15 · 0.42) → master
+crackle: n = round(v · 9) clicks per frame, each 2–8 ms of highpassed noise, level 0.06 + 0.12·v
+gate:    v = 0 (pointer still)  → gain → 0 in 12 ms constant, noise node stopped
+finish:  band-pass sweeps 1.8 → 4 kHz in 200 ms, gain 0.12 → 0.5, then <b>150 Hz sine thump</b> (4 ms attack, 180 ms decay)</pre>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const F = (name, tear, grab, fly, note) => ({ name, tear, grab, fly, note });
+    const dark = [
+      F('Rest · hover', 0, 'R', 0, 'Open-hand cursor, perforation brightens, stub lifts 2 pt. “Tear here →” guides the eye.'),
+      F('12% · tension', .12, 'R', 0, 'Past the resistance zone. Body leans 1.5 pt toward the pull, first paper bits pop off.'),
+      F('30% · right to left', .30, 'R', 0, 'Stub swings about the front, jagged edge follows the pointer exactly.'),
+      F('55% · left to right', .55, 'L', 0, 'Mirrored: grab the left corner and the front travels the other way.'),
+      F('72% · threshold', .72, 'R', 0, 'Auto-completes here with an accelerating rip. Releasing earlier keeps the partial tear.'),
+      F('Flying · 45%', 1, 'R', .45, 'Stub keeps the drag velocity and spin, arcs to the Wallet icon, shrinking.'),
+      F('Torn', 1, 'R', 1, 'Soft thud, +1 on Wallet, “Boarding complete. Have a calm flight.” The ticket slides up to the gate.'),
+      F('Released at 40%', .40, 'R', 0, 'Partial tear stays visible. Grab again and continue from where it stopped.')
+    ];
+    return { themes: [{ k: 'dark', label: 'Dark', frames: dark }, { k: 'light', label: 'Light — Daybreak (key frames)', frames: [dark[1], dark[3], dark[4], dark[7]] }],
+      group: [F('Anna · torn', 1, 'R', .55, 'Her stub is already on its way to her wallet.'), F('Mert · tearing', .5, 'L', 0, 'Mid-tear, driven by his check-in timeline.'), F('You · ready', 0, 'R', 0, 'Last to check in; your stub waits for your hand.')] };
+  }
+}
+</script>
+</body>
+</html>

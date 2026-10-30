@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C04 Membership cards</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c4-tab{width:100%;border-collapse:collapse;font:400 13px/1.45 var(--font-ui)}
+.c4-tab th{text-align:left;font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding:0 14px 10px 0;border-bottom:1px solid var(--stroke-hair)}
+.c4-tab td{padding:10px 14px 10px 0;vertical-align:top;border-bottom:1px solid var(--stroke-hair);color:var(--text-2)}
+.c4-tab td:first-child{color:var(--text-1);font:600 12px/1.45 var(--font-mono);white-space:nowrap}
+.c4-cf{position:relative;height:420px;perspective:1100px;overflow:hidden;border-radius:22px;background:radial-gradient(60% 80% at 50% 60%,rgba(106,183,255,.10),transparent 70%);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.c4-cf>div{position:absolute;top:56px;transform-style:preserve-3d}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C04 · §2.4</div>
+<h1 class="t-display" style="margin:0">Membership cards</h1>
+<p class="t-body c2" style="margin:0;max-width:860px">Six tiers, six materials, one rule: every card is a small physical object. ID-1 ratio 1.586, 340 × 214 pt in lists and 480 × 303 pt in the hero carousel, radius 20. Pointer-driven 3D tilt with perspective 900, a specular glare that follows the pointer, foil that shifts hue with the angle, parallax layers at z = 0 / 12 / 24 / 36. The tilting prototype is P2.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Six tiers</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:28px 64px">
+<sc-for list="{{tiers}}" as="c" hint-placeholder-count="6">
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="{{c.k}}" hint-size="340px,214px"></dc-import><div class="sh-cap">{{c.name}} · {{c.km}}</div><div class="sh-note" style="max-width:340px">{{c.mat}}</div></div>
+</sc-for>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div><div class="sh-sub">Tilt and glare · pointer positions</div><div class="sh-note" style="margin-top:4px;max-width:820px">rotateY = (pointerX − centerX) / width × 14°, rotateX = −(pointerY − centerY) / height × 14°. Shadow shifts opposite to the tilt and softens as the card rises 10 pt. Glare: radial white 35% → 0, radius 60% of card width, soft-light.</div></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{tilts}}" as="c" hint-placeholder-count="4">
+<div class="sh-cell" style="width:286px"><div style="width:286px;height:180px"><div style="transform:scale(.84);transform-origin:0 0"><dc-import name="Card" tier="{{c.k}}" px="{{c.px}}" py="{{c.py}}" hint-size="340px,214px"></dc-import></div></div><div class="sh-cap">{{c.name}}</div><div class="sh-note" style="max-width:286px">{{c.note}}</div></div>
+</sc-for>
+</div>
+<div><div class="sh-sub">Front, back</div></div>
+<div class="sh-row" style="gap:28px 64px">
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="gold" hint-size="340px,214px"></dc-import><div class="sh-cap">Front · idle</div><div class="sh-note" style="max-width:340px">Sheen sweeps every 6 s when untouched.</div></div>
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="gold" flipped="true" hint-size="340px,214px"></dc-import><div class="sh-cap">Back · after flip</div><div class="sh-note" style="max-width:340px">Click rotates 180° about Y in ~700 ms, Bouncy spring. Stripe, totals, next card, Share.</div></div>
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="obsidian" flipped="true" hint-size="340px,214px"></dc-import><div class="sh-cap">Back · Obsidian</div><div class="sh-note" style="max-width:340px">Back face keeps the tier material; text stays at 4.5:1 or better.</div></div>
+</div>
+<div><div class="sh-sub">Locked</div><div class="sh-note" style="margin-top:4px;max-width:820px;width:820px">Frosted, desaturated, progress ring, “N km to unlock”. The lock never changes layout; the card still tilts with a dull specular.</div></div>
+<div class="sh-row" style="gap:28px 64px">
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="gold" locked="true" hint-size="340px,214px"></dc-import><div class="sh-cap">Locked · Meridian Gold</div></div>
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="equator" locked="true" hint-size="340px,214px"></dc-import><div class="sh-cap">Locked · Equator</div></div>
+<div class="sh-cell" style="width:340px"><dc-import name="Card" tier="obsidian" locked="true" hint-size="340px,214px"></dc-import><div class="sh-cap">Locked · Obsidian</div></div>
+</div>
+<div><div class="sh-sub">Coverflow · S32</div><div class="sh-note" style="margin-top:4px;max-width:820px;width:820px">Center card large, neighbours rotated ∓28°, scaled 0.8, blurred 2 px. Arrow keys and horizontal scroll step through.</div></div>
+<div class="c4-cf" style="width:1232px">
+<sc-for list="{{flow}}" as="c" hint-placeholder-count="5"><div style="{{c.s}}"><dc-import name="Card" tier="{{c.k}}" size="{{c.size}}" hint-size="480px,303px"></dc-import></div></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px">
+<table class="c4-tab"><thead><tr><th>Layer</th><th>z (pt)</th><th>Parallax</th></tr></thead><tbody>
+<tr><td>Pattern</td><td>0</td><td>up to 6 pt, opposite to the tilt</td></tr>
+<tr><td>Emblem</td><td>12</td><td>up to 6 pt</td></tr>
+<tr><td>Text</td><td>24</td><td>up to 6 pt</td></tr>
+<tr><td>Chip</td><td>36</td><td>up to 6 pt</td></tr>
+<tr><td>Foil mask</td><td>logo, constellation, guilloche</td><td>hue ±60°, saturation 60%, angle follows tilt; strongest on Jetstream and Obsidian</td></tr>
+</tbody></table>
+<table class="c4-tab"><thead><tr><th>Moment</th><th>Spec</th></tr></thead><tbody>
+<tr><td>Return</td><td>Pointer leaves: Smooth spring to flat in ≈ 600 ms, glare fades</td></tr>
+<tr><td>Flip</td><td>180° about Y, ~700 ms Bouncy spring, whoosh 400 → 1200 Hz</td></tr>
+<tr><td>Bend</td><td>Far edge curves 2–3 pt: gradient mask here, mesh warp natively</td></tr>
+<tr><td>Anisotropy</td><td>Gold sunburst brightness follows angle between pointer and center</td></tr>
+</tbody></table>
+</div>
+<div class="sh-native"><b>Native</b><span><span style="color:var(--text-1)">.rotation3DEffect(.degrees(14), axis: (x,y,0), perspective: 0.5)</span> driven by <span style="color:var(--text-1)">onContinuousHover</span>; foil, sunburst and glare as one Metal <span style="color:var(--text-1)">[[stitchable]]</span> shader taking pointer, tilt and time; far-edge bend with <span style="color:var(--text-1)">.distortionEffect</span>.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = window.MeridianKit, mat = { departure: 'Frosted brushed steel, pale blue edge light.', cruise: 'Sapphire gradient glass, fine meridian-line engraving.', jetstream: 'Aurora holographic foil, color shifts with angle.', gold: 'Brushed-gold sunburst, anisotropic radial lines, serif emboss.', equator: 'White gold with a thin world-circle guilloche.', obsidian: 'Matte black, mirror-polished edge, foil constellation.' };
+    const tiers = K.tiers.map(t => ({ k: t.k, name: t.name, km: K.fmtKm(t.km) + ' km', mat: mat[t.k] }));
+    const tilts = [{ k: 'gold', px: 0, py: 0, name: 'Rest', note: 'Flat, no glare, shadow straight down.' }, { k: 'gold', px: -.42, py: -.38, name: 'Pointer top-left', note: 'rotateY −11.8°, rotateX +10.6°. Glare top-left, edge glint left.' }, { k: 'jetstream', px: .42, py: -.3, name: 'Jetstream · top-right', note: 'Foil hue +50°, aurora band slides across the logo.' }, { k: 'obsidian', px: .3, py: .4, name: 'Obsidian · bottom-right', note: 'Constellation foil strongest, mirror edge catches light.' }];
+    const mk = (k, x, rot, sc, z, size, blur) => ({ k, size, s: 'left:' + x + 'px;transform:rotateY(' + rot + 'deg) scale(' + sc + ');z-index:' + z + ';filter:blur(' + blur + 'px);opacity:' + (blur ? .8 : 1) });
+    const flow = [mk('departure', 30, 28, .8, 1, 'list', 2), mk('cruise', 270, 28, .8, 2, 'list', 2), mk('jetstream', 376, 0, 1, 5, 'hero', 0), mk('gold', 760, -28, .8, 2, 'list', 2), mk('equator', 862, -28, .8, 1, 'list', 2)];
+    flow[2].s = 'left:376px;transform:scale(1);z-index:5'; flow[0].s = 'left:-10px;transform:rotateY(28deg) scale(.8);z-index:1;filter:blur(2px);opacity:.85'; flow[1].s = 'left:210px;transform:rotateY(28deg) scale(.8);z-index:2;filter:blur(2px);opacity:.9'; flow[3].s = 'left:700px;transform:rotateY(-28deg) scale(.8);z-index:2;filter:blur(2px);opacity:.9'; flow[4].s = 'left:900px;transform:rotateY(-28deg) scale(.8);z-index:1;filter:blur(2px);opacity:.85';
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], tiers, tilts, flow };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stats components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.st-bar{position:absolute;bottom:0;display:flex;flex-direction:column-reverse;border-radius:5px 5px 2px 2px;overflow:hidden;cursor:pointer;transition:opacity var(--d2) var(--ease),transform var(--d3) var(--spring-snappy)}
+.st-bar i{display:block;width:100%;background:var(--c)}
+[data-theme="light"] .st-bar i{background:color-mix(in srgb,var(--c) 74%,#2A2F3C)}
+.st-bar:is(:hover,.is-hover){transform:translateY(-2px)}
+.st-dim{opacity:.38}
+.st-grid{position:absolute;left:0;right:0;height:1px;background:var(--stroke-hair)}
+.st-ylbl{position:absolute;left:0;font:500 11px/1 var(--font-mono);color:var(--text-3);transform:translateY(-50%)}
+.st-xlbl{position:absolute;bottom:-20px;transform:translateX(-50%);font:500 11px/1 var(--font-ui);color:var(--text-3);white-space:nowrap}
+.st-cell{position:absolute;border-radius:3px;background:var(--fill-1);transition:transform var(--d2) var(--ease)}
+.st-cell:is(:hover,.is-hover){transform:scale(1.35);box-shadow:0 0 0 1px var(--text-2);z-index:3}
+.st-l1{background:rgba(106,183,255,.28)}.st-l2{background:rgba(106,183,255,.5)}.st-l3{background:rgba(106,183,255,.74)}.st-l4{background:var(--accent-grad)}
+[data-theme="light"] .st-l1{background:rgba(30,107,255,.22)}[data-theme="light"] .st-l2{background:rgba(30,107,255,.42)}[data-theme="light"] .st-l3{background:rgba(30,107,255,.68)}[data-theme="light"] .st-l4{background:var(--accent-grad)}
+.st-num{font:500 52px/52px var(--font-serif);letter-spacing:-.015em}
+.st-num small{font:500 15px/1 var(--font-ui);color:var(--text-2);margin-left:6px;letter-spacing:0}
+@keyframes st-grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.st-grow{transform-origin:50% 100%;animation:st-grow 620ms var(--ease) both}
+</style>
+</helmet>
+<div style="{{rootStyle}}">
+<!-- bars -->
+<sc-if value="{{isBars}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:34px;right:0;top:6px;bottom:26px">
+<sc-for list="{{grid}}" as="g" hint-placeholder-count="4"><div class="st-grid" style="{{g.s}}"></div><span class="st-ylbl" style="{{g.ls}}">{{g.t}}</span></sc-for>
+<div style="{{goalStyle}}"></div>
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
+<div class="st-bar {{b.cls}}" style="{{b.s}}" tabindex="0" role="img" aria-label="{{b.aria}}" onPointerEnter="{{b.enter}}" onPointerLeave="{{b.leave}}">
+<sc-for list="{{b.segs}}" as="g" hint-placeholder-count="3"><i style="{{g.s}}"></i></sc-for>
+</div>
+<span class="st-xlbl" style="{{b.xs}}">{{b.x}}</span>
+</sc-for>
+<sc-if value="{{tip}}" hint-placeholder-val="{{ false }}"><div class="glass e2" style="{{tipStyle}}"><div style="font:600 12px/16px var(--font-ui)">{{tip.title}}</div><div class="mono" style="font-size:13px;margin:2px 0 4px">{{tip.total}}</div><sc-for list="{{tip.rows}}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:7px;font:500 11px/16px var(--font-ui);color:var(--text-2)"><i style="width:8px;height:8px;border-radius:2px;background:{{r.c}}"></i><span style="flex:1">{{r.l}}</span><span class="mono">{{r.v}}</span></div></sc-for></div></sc-if>
+</div>
+</sc-if>
+<!-- heat -->
+<sc-if value="{{isHeat}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:28px;top:0;right:0;height:16px"><sc-for list="{{months}}" as="m" hint-placeholder-count="6"><span class="c3" style="{{m.s}}">{{m.t}}</span></sc-for></div>
+<sc-for list="{{dows}}" as="d" hint-placeholder-count="3"><span class="c3" style="{{d.s}}">{{d.t}}</span></sc-for>
+<div style="position:absolute;left:28px;top:22px">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="120"><div class="st-cell {{c.cls}}" style="{{c.s}}" title="{{c.tip}}"></div></sc-for>
+</div>
+<div style="{{legendStyle}}"><span class="c3" style="font-size:11px">Less</span><sc-for list="{{legend}}" as="l" hint-placeholder-count="5"><i class="st-cell {{l}}" style="position:static;width:12px;height:12px;display:inline-block"></i></sc-for><span class="c3" style="font-size:11px">More</span></div>
+</sc-if>
+<!-- ring -->
+<sc-if value="{{isRing}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{label}}" hint-placeholder-val="{{ true }}"><div class="eyebrow" style="font-size:10px;line-height:32px;height:32px">{{label}}</div></sc-if>
+<svg width="{{S}}" height="{{S}}" viewBox="0 0 {{S}} {{S}}" style="{{ringBox}};transform:rotate(-90deg);overflow:visible" aria-hidden="true"><defs><linearGradient id="st-rg-{{uid}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient><filter id="st-rb-{{uid}}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5"/></filter></defs>
+<circle cx="{{c}}" cy="{{c}}" r="{{r}}" fill="none" style="stroke:var(--fill-2)" stroke-width="{{sw}}"/>
+<circle cx="{{c}}" cy="{{c}}" r="{{r}}" fill="none" stroke="#6AB7FF" stroke-opacity=".4" stroke-width="{{sw}}" stroke-linecap="round" stroke-dasharray="{{dash}}" filter="url(#st-rb-{{uid}})"/>
+<circle cx="{{c}}" cy="{{c}}" r="{{r}}" fill="none" stroke="url(#st-rg-{{uid}})" stroke-width="{{sw}}" stroke-linecap="round" stroke-dasharray="{{dash}}"/>
+</svg>
+<div style="{{ringTxt}}"><div style="{{ringNumStyle}}">{{ringVal}}</div><div class="t-callout c2" style="margin-top:4px;white-space:nowrap;text-align:center">{{ringSub}}</div></div>
+</sc-if>
+<!-- top scenarios -->
+<sc-if value="{{isTop}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{tops}}" as="t" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px"><span style="width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:color-mix(in srgb,{{t.c}} 20%,transparent);color:{{t.c}}"><svg class="ic ic14"><use href="{{t.icon}}"></use></svg></span>
+<div style="flex:1"><div style="display:flex;justify-content:space-between;font:500 13px/16px var(--font-ui)"><span>{{t.l}}</span><span class="mono c2" style="font-size:12px">{{t.v}}</span></div><div style="margin-top:6px;height:6px;border-radius:3px;background:var(--fill-2);overflow:hidden"><i style="{{t.s}}"></i></div></div></div>
+</sc-for>
+</div>
+</sc-if>
+<!-- tile -->
+<sc-if value="{{isTile}}" hint-placeholder-val="{{ false }}">
+<div class="eyebrow">{{label}}</div><div class="st-num" style="margin-top:8px">{{value}}<small>{{unit}}</small></div><div class="t-callout c2" style="margin-top:8px">{{sub}}</div>
+</sc-if>
+<!-- streak -->
+<sc-if value="{{isStreak}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;justify-content:space-between;height:32px"><div class="eyebrow" style="font-size:10px;line-height:12px">{{streakLabel}}</div><span style="width:32px;height:32px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;flex:none;background:linear-gradient(135deg,rgba(106,183,255,.28),rgba(139,243,216,.14));box-shadow:inset 0 0 0 1px rgba(106,183,255,.4),0 0 16px rgba(106,183,255,.18)"><svg width="18" height="16" viewBox="0 0 26 22" fill="none" stroke="var(--accent-2)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18L13 4L23 18"/><path d="M8 18L13 11L18 18"/></svg></span></div>
+<div class="st-num" style="margin-top:26px;white-space:nowrap">{{value}}<small>{{streakUnit}}</small></div>
+<div class="t-callout c2" style="margin-top:8px;white-space:nowrap">{{sub}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["bars","heat","ring","top","tile","streak"],"default":"bars"},"period":{"editor":"enum","options":["day","week","month","year"],"default":"week"},"w":{"editor":"int","default":560},"h":{"editor":"int","default":240},"hover":{"editor":"int","default":-1},"progress":{"editor":"float","default":.56},"weeks":{"editor":"int","default":26},"anim":{"editor":"boolean","default":false},"label":{"editor":"text","default":""},"value":{"editor":"text","default":""},"unit":{"editor":"text","default":""},"sub":{"editor":"text","default":""},"$preview":{"width":560,"height":280}}'>
+class Component extends DCLogic {
+  state = { hv: null };
+  uid = Math.random().toString(36).slice(2, 8);
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  split(total, seed) { const K = window.MeridianKit, r = K.rng(seed); const keys = ['code', 'work', 'study', 'read', 'create']; const w = keys.map(() => .2 + r()); const sw = w.reduce((a, b) => a + b, 0); return keys.map((k, i) => ({ sc: k, h: total * w[i] / sw })); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, kind = p.kind || 'bars', W = +(p.w || 560), H = +(p.h || 240);
+    const out = { isBars: kind === 'bars', isHeat: kind === 'heat', isRing: kind === 'ring', isTop: kind === 'top', isTile: kind === 'tile', isStreak: kind === 'streak', uid: this.uid, rootStyle: 'position:relative;width:' + W + 'px;height:' + H + 'px', label: p.label || '', value: p.value || '', unit: p.unit || '', sub: p.sub || '', streakLabel: p.label || 'Streak', streakUnit: p.unit || 'days' };
+    const fmtH = h => { const m = Math.round(h * 60); return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60 ? String(m % 60).padStart(2, '0') + ' min' : '') : m + ' min'; };
+    if (kind === 'bars') {
+      const per = p.period || 'week', rr = K.rng(per === 'week' ? 5 : per === 'month' ? 11 : per === 'year' ? 23 : 31);
+      let tot = [], lab = [], sel = -1, goal = per === 'day' ? 0.5 : per === 'week' ? 3 : per === 'month' ? 3 : 90 / 12;
+      if (per === 'week') { tot = [2.4, 3.1, 1.8, 4.2, 2.9, 1.1, 0.6]; lab = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; sel = 3; }
+      else if (per === 'month') { for (let i = 1; i <= 29; i++) { const wd = (i + 3) % 7; tot.push(wd >= 5 ? .4 + rr() * 1.4 : 1.4 + rr() * 3.4); lab.push(i % 7 === 1 ? String(i) : ''); } sel = 28; }
+      else if (per === 'year') { tot = [14, 18, 22, 26, 31, 29, 24, 27, 33, 38, 8, 0]; lab = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']; sel = 9; tot = tot.map(v => v * 1.0); goal = 30; }
+      else { for (let i = 0; i < 24; i++) { const v = (i >= 9 && i <= 11) ? 0.5 + rr() * .5 : (i >= 14 && i <= 16) ? .3 + rr() * .6 : (i >= 20 && i <= 21) ? .15 + rr() * .3 : rr() < .15 ? rr() * .2 : 0; tot.push(v); lab.push(i % 6 === 0 ? String(i).padStart(2, '0') : ''); } sel = 10; }
+      const mx = Math.max.apply(null, tot.concat([goal])), step = per === 'year' ? 10 : per === 'day' ? .5 : 1, top = Math.ceil(mx / step) * step, inH = H - 32;
+      const n = tot.length, area = W - 68, slot = area / n, bw = Math.min(per === 'year' ? 34 : per === 'month' ? 12 : per === 'week' ? 40 : 14, slot * .66);
+      const hv = this.state.hv !== null ? this.state.hv : (p.hover === undefined ? -1 : +p.hover);
+      out.grid = []; for (let v = 0; v <= top + .001; v += step) { const y = inH - v / top * inH; out.grid.push({ s: 'top:' + y.toFixed(1) + 'px', ls: 'top:' + y.toFixed(1) + 'px', t: per === 'day' ? (v * 60) + 'm' : v + (per === 'year' ? ' h' : ' h') }); }
+      out.goalStyle = 'position:absolute;left:34px;right:0;top:' + (inH - goal / top * inH).toFixed(1) + 'px;height:0;border-top:1.5px dashed var(--accent-2);opacity:.6';
+      out.grid.forEach(g => { g.s = 'left:34px;' + g.s; });
+      const grow = this.flag(p.anim, false);
+      out.bars = tot.map((v, i) => {
+        const segs = this.split(v, i * 13 + (per.length * 7)), hh = v / top * inH, x = 34 + slot * i + (slot - bw) / 2;
+        const rows = segs.filter(s => s.h > .001).map(s => ({ c: K.scenarios[s.sc][1], l: K.scenarios[s.sc][0], v: fmtH(s.h) }));
+        return { s: 'left:' + x.toFixed(1) + 'px;width:' + bw.toFixed(1) + 'px;height:' + Math.max(v > 0 ? 3 : 0, hh).toFixed(1) + 'px' + (grow ? ';animation:st-grow 620ms var(--ease) ' + (i * 24) + 'ms both' : ''), cls: (hv >= 0 && hv !== i ? 'st-dim ' : '') + (hv === i ? 'is-hover' : ''), x: lab[i], xs: 'left:' + (34 + slot * i + slot / 2).toFixed(1) + 'px;font-weight:' + (i === sel ? 700 : 500) + ';color:' + (i === sel ? 'var(--text-1)' : 'var(--text-3)'),
+          segs: segs.map(s => ({ s: '--c:' + K.scenarios[s.sc][1] + ';height:' + (s.h / v * 100).toFixed(2) + '%' })), aria: (lab[i] || ('Item ' + (i + 1))) + ': ' + fmtH(v), enter: () => this.setState({ hv: i }), leave: () => this.setState({ hv: null }), tipData: { title: per === 'week' ? lab[i] + ' 26 Oct' : per === 'year' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][i] : per === 'month' ? 'Oct ' + (i + 1) : String(i).padStart(2, '0') + ':00', total: fmtH(v), rows, x: x + bw / 2, y: inH - hh } };
+      });
+      const ht = hv >= 0 ? out.bars[hv] : null;
+      out.tip = ht ? ht.tipData : null;
+      out.tipStyle = ht ? 'position:absolute;left:' + Math.max(40, Math.min(W - 190, ht.tipData.x - 80)).toFixed(0) + 'px;top:' + Math.max(-4, ht.tipData.y - 112).toFixed(0) + 'px;width:160px;padding:10px 12px;border-radius:12px;z-index:8;pointer-events:none' : 'display:none';
+    }
+    if (kind === 'heat') {
+      const weeks = +(p.weeks || 26), cs = 12, gp = 3, r = K.rng(77), cells = [], months = [], dows = [];
+      const MN = ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'];
+      for (let w = 0; w < weeks; w++) for (let d = 0; d < 7; d++) { const idx = w * 7 + d, wk = d >= 5, base = wk ? .25 : .72, v = r() < (wk ? .5 : .12) ? 0 : base * r() * (1 + (w / weeks) * .6), lvl = v === 0 ? 0 : v < .22 ? 1 : v < .42 ? 2 : v < .62 ? 3 : 4; if (w === weeks - 1 && d > 3) continue; cells.push({ cls: 'st-l' + lvl, s: 'left:' + (w * (cs + gp)) + 'px;top:' + (d * (cs + gp)) + 'px;width:' + cs + 'px;height:' + cs + 'px', tip: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][d] + ' · ' + (lvl === 0 ? 'No flights' : fmtH(lvl * .75 + r() * .4)) }); }
+      for (let w = 0; w < weeks; w += 4) months.push({ t: MN[Math.round(w / 4.33) % 12], s: 'position:absolute;left:' + (w * (cs + gp)) + 'px;top:0;font:500 11px/14px var(--font-ui)' });
+      ['Mon', 'Wed', 'Fri'].forEach((t, i) => dows.push({ t, s: 'position:absolute;left:0;top:' + (22 + i * 2 * (cs + gp) - 1) + 'px;font:500 10px/14px var(--font-ui)' }));
+      out.cells = cells; out.months = months; out.dows = dows; out.legend = ['st-l0', 'st-l1', 'st-l2', 'st-l3', 'st-l4']; out.legendStyle = 'position:absolute;right:0;top:' + (22 + 7 * (cs + gp) + 8) + 'px;display:flex;align-items:center;gap:4px';
+    }
+    if (kind === 'ring') {
+      const lblH = p.label ? 32 : 0, S = Math.min(W, H - lblH), ringL = (W - S) / 2, ringT = lblH + (H - lblH - S) / 2, sw = Math.max(10, S * .09), r = (S - sw) / 2 - 2, circ = 2 * Math.PI * r, pr = Math.max(0, Math.min(1, +(p.progress === undefined ? .56 : p.progress)));
+      out.ringBox = 'position:absolute;left:' + ringL.toFixed(1) + 'px;top:' + ringT.toFixed(1) + 'px'; out.ringTxt = 'position:absolute;left:' + ringL.toFixed(1) + 'px;top:' + ringT.toFixed(1) + 'px;width:' + S + 'px;height:' + S + 'px;display:flex;flex-direction:column;align-items:center;justify-content:center'; out.S = S; out.c = S / 2; out.r = r; out.sw = sw; out.dash = (circ * pr).toFixed(1) + ' ' + circ.toFixed(1); out.ringNumStyle = 'font:500 ' + Math.round(S * .22) + 'px/1 var(--font-serif);letter-spacing:-.015em;white-space:nowrap'; out.ringVal = p.value || '1 h 41'; out.ringSub = p.sub || 'of 3 h goal';
+    }
+    if (kind === 'top') {
+      const rows = [['code', 31.2], ['work', 24.5], ['study', 17.8], ['read', 12.6], ['create', 8.4]], mx = rows[0][1];
+      out.tops = rows.map(r => ({ c: K.scenarios[r[0]][1], l: K.scenarios[r[0]][0], icon: './icons.svg#' + K.scenarios[r[0]][2], v: r[1].toFixed(1) + ' h · ' + Math.round(r[1] / 94.5 * 100) + '%', s: 'display:block;height:100%;width:' + (r[1] / mx * 100).toFixed(1) + '%;border-radius:3px;background:' + K.scenarios[r[0]][1] }));
+    }
+    return out;
+  }
+}
+</script>
+</body>
+</html>

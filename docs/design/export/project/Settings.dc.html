@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings window</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.st-h{font:500 40px/44px var(--font-serif);letter-spacing:-.02em;margin:0}
+.st-nav .nav{cursor:pointer;overflow:hidden}
+.st-nav .nav span.t{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.st-card{border-radius:20px;overflow:hidden}
+.st-row{display:flex;align-items:center;gap:16px;min-height:54px;padding:9px 18px}
+.st-row+.st-row{border-top:1px solid var(--stroke-hair)}
+.st-lbl{font:500 14px/18px var(--font-ui)}
+.st-sub{font:400 12px/16px var(--font-ui);color:var(--text-2);margin-top:2px}
+.st-cap{font:500 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);padding:0 6px;margin:0 0 8px}
+.st-opt{position:relative;display:flex;flex-direction:column;gap:6px;padding:14px 14px 12px;border-radius:18px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);cursor:pointer;transition:background var(--d2) var(--ease),box-shadow var(--d2) var(--ease)}
+.st-opt:is(:hover,.is-hover){background:var(--fill-2)}
+.st-opt:active{transform:scale(.985)}
+.st-opt:focus-visible,.st-opt.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.st-opt.is-selected{background:var(--fill-2);box-shadow:inset 0 0 0 2px var(--accent-1)}
+.st-opt.is-disabled{opacity:.4;pointer-events:none}
+.st-app{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:16px;cursor:pointer;transition:background var(--d2) var(--ease)}
+.st-app:is(:hover,.is-hover){background:var(--fill-2)}
+.st-app:focus-visible,.st-app.is-focus{outline:2px solid var(--accent-1);outline-offset:1px}
+.st-app .ico{position:relative;width:52px;height:52px;border-radius:13px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 2px 6px rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity var(--d2) var(--ease),filter var(--d2) var(--ease)}
+.st-app.off .ico{opacity:.45;filter:saturate(.3)}
+.st-app .nm{font:500 12px/14px var(--font-ui);color:var(--text-1)}
+.st-app.off .nm{color:var(--text-3)}
+.st-app .ck{position:absolute;right:20px;top:4px;width:20px;height:20px;border-radius:50%;background:var(--accent-grad);color:#04101A;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--bg-1)}
+[data-theme="light"] .st-app .ck{background:#1E6BFF;color:#fff}
+.st-app.add .ico{background:transparent;box-shadow:none;border:1.5px dashed var(--text-3);color:var(--text-2)}
+.st-sw{width:34px;height:34px;border-radius:50%;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28);position:relative;transition:transform var(--d2) var(--spring-snappy)}
+.st-sw:is(:hover,.is-hover){transform:scale(1.08)}
+.st-sw:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+.st-sw.is-selected::after{content:"";position:absolute;inset:-5px;border-radius:50%;box-shadow:0 0 0 2px var(--text-1)}
+.st-anno{border:1px dashed var(--stroke-glow);border-radius:14px;padding:14px 16px;font:500 11px/1.5 var(--font-mono);color:var(--accent-2);background:rgba(8,12,22,.35)}
+[data-theme="light"] .st-anno{background:rgba(255,255,255,.55);color:#0B6B57;border-color:rgba(20,22,28,.3)}
+.st-anno b{display:block;font:700 10px/1.4 var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--text-1);margin:8px 0 2px}
+.st-anno b:first-child{margin-top:0}
+.st-ghost{height:8px;border-radius:4px;background:var(--fill-3)}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-1)">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 50% at 80% 0%,rgba(106,183,255,.10),transparent 70%)"></div>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- settings navigation -->
+<div class="glass st-nav" style="position:absolute;left:12px;top:12px;width:268px;height:776px;border-radius:var(--r-sidebar);padding:56px 10px 12px;display:flex;flex-direction:column;gap:2px" role="navigation" aria-label="Settings sections">
+<sc-for list="{{nav}}" as="n" hint-placeholder-count="10">
+<sc-if value="{{n.gap}}" hint-placeholder-val="{{ false }}"><div style="height:10px"></div></sc-if>
+<sc-if value="{{n.item}}" hint-placeholder-val="{{ true }}"><div class="nav {{n.cls}}" role="button" tabindex="0" aria-current="{{n.cur}}" title="{{n.full}}" onClick="{{n.pick}}"><svg class="ic ic18"><use href="{{n.ic}}"></use></svg><span class="t">{{n.t}}</span><sc-if value="{{n.hasPro}}" hint-placeholder-val="{{ false }}"><span class="pill" style="height:18px;padding:0 7px;font-size:10px;margin-left:auto">Pro</span></sc-if></div></sc-if>
+</sc-for>
+<div style="flex:1"></div>
+<div class="c3" style="font:400 11px/14px var(--font-mono);padding:0 10px 6px">Meridian 1.0 (design preview)</div>
+</div>
+
+<!-- content -->
+<div style="position:absolute;left:304px;top:48px;right:36px">
+<div class="eyebrow">Settings <span class="kbd" style="margin-left:6px">⌘ ,</span></div>
+<h1 class="st-h" style="margin-top:6px">{{title}}</h1>
+<div class="t-callout c2" style="margin-top:4px;max-width:640px">{{desc}}</div>
+</div>
+
+<div class="noscroll" style="position:absolute;left:304px;top:150px;width:{{colW}}px;bottom:20px;overflow:auto;padding-bottom:20px">
+
+<!-- Account -->
+<sc-if value="{{isAccount}}" hint-placeholder-val="{{ false }}">
+<div class="glass e1 st-card" style="padding:18px 20px;display:flex;align-items:center;gap:16px;margin-bottom:22px">
+<div class="av" style="width:56px;height:56px;font-size:20px"><span>E</span></div>
+<div style="flex:1"><div class="t-headline">Elif Kaya</div><div class="mono c2" style="font-size:12px;margin-top:2px">Joined Mar 2025 · 12,022 km flown</div></div>
+<span class="pill">Meridian Free</span>
+<button class="btn btn-primary btn-sm">See Meridian Pro</button>
+</div>
+</sc-if>
+
+<!-- generic groups -->
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<div style="{{g.gs}}">
+<div class="st-cap">{{g.cap}}</div>
+<div class="glass e1 st-card">
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="4">
+<div class="st-row" style="{{r.rs}}">
+<div style="flex:1;min-width:0"><div class="st-lbl">{{r.t}}</div><sc-if value="{{r.hasSub}}" hint-placeholder-val="{{ false }}"><div class="st-sub">{{r.sub}}</div></sc-if></div>
+<sc-if value="{{r.isToggle}}" hint-placeholder-val="{{ false }}"><span class="toggle {{r.tcls}}" role="switch" aria-checked="{{r.checked}}" aria-label="{{r.t}}" tabindex="0" onClick="{{r.flip}}"></span></sc-if>
+<sc-if value="{{r.isSeg}}" hint-placeholder-val="{{ false }}"><div class="seg" role="radiogroup" aria-label="{{r.t}}"><sc-for list="{{r.opts}}" as="o" hint-placeholder-count="3"><span class="{{o.cls}}" role="radio" aria-checked="{{o.checked}}" tabindex="0" onClick="{{o.pick}}">{{o.t}}</span></sc-for></div></sc-if>
+<sc-if value="{{r.isSelect}}" hint-placeholder-val="{{ false }}"><button class="btn btn-secondary btn-sm" aria-haspopup="menu" aria-label="{{r.t}}: {{r.val}}">{{r.val}}<svg class="ic ic12 c2"><use href="./icons.svg#chev-d"></use></svg></button></sc-if>
+<sc-if value="{{r.isKeys}}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:4px;align-items:center" aria-label="{{r.keysText}}"><sc-for list="{{r.keys}}" as="k" hint-placeholder-count="3"><span class="kbd" style="min-width:24px;height:24px;font-size:12px">{{k}}</span></sc-for></div></sc-if>
+<sc-if value="{{r.isBtn}}" hint-placeholder-val="{{ false }}"><button class="btn {{r.bcls}} btn-sm">{{r.btn}}</button></sc-if>
+<sc-if value="{{r.isValue}}" hint-placeholder-val="{{ false }}"><span class="mono c2" style="font-size:13px">{{r.val}}</span></sc-if>
+<sc-if value="{{r.isPill}}" hint-placeholder-val="{{ false }}"><span class="pill ok"><svg class="ic ic12"><use href="./icons.svg#check"></use></svg>{{r.val}}</span></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+
+<!-- Maps: both-names preview -->
+<sc-if value="{{isMaps}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:2px;margin-left:6px;max-width:600px" class="t-callout c3">Where governments name a place differently, Meridian shows both names, in the order your device region prefers. Disputed borders are drawn as dashed lines of control and are never colored as part of one country.</div>
+</sc-if>
+
+<!-- Appearance -->
+<sc-if value="{{isAppearance}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom:22px"><div class="st-cap">Theme</div>
+<div style="display:flex;gap:12px" role="radiogroup" aria-label="Theme">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="3">
+<div class="st-opt {{t.cls}}" style="flex:1" role="radio" aria-checked="{{t.checked}}" tabindex="0" onClick="{{t.pick}}">
+<div style="height:64px;border-radius:10px;overflow:hidden;position:relative;{{t.bg}};box-shadow:inset 0 0 0 1px rgba(128,128,128,.3)"><div style="{{t.bar}}"></div><div style="{{t.b1}}"></div><div style="{{t.b2}}"></div></div>
+<div style="font:600 13px/16px var(--font-ui);display:flex;align-items:center;gap:6px">{{t.t}}<sc-if value="{{t.sel}}" hint-placeholder-val="{{ false }}"><svg class="ic ic12 cA"><use href="./icons.svg#check"></use></svg></sc-if></div>
+<div class="c2" style="font:400 12px/16px var(--font-ui)">{{t.sub}}</div>
+</div>
+</sc-for>
+</div></div>
+<div style="margin-bottom:22px"><div class="st-cap">App icon</div>
+<div class="glass e1 st-card" style="padding:16px 18px 14px">
+<div style="display:flex;gap:16px" role="radiogroup" aria-label="App icon concept">
+<sc-for list="{{icons}}" as="i" hint-placeholder-count="3">
+<div class="st-opt {{i.cls}}" style="flex:1;align-items:center;padding:14px 8px 10px" role="radio" aria-checked="{{i.checked}}" tabindex="0" onClick="{{i.pick}}">
+<dc-import name="AppIcon" concept="{{i.k}}" variant="default" size="84" hint-size="84px,84px"></dc-import>
+<div style="font:600 13px/16px var(--font-ui)">{{i.t}}</div>
+<div class="c2" style="font:400 11px/14px var(--font-ui);text-align:center">{{i.sub}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:10px;margin-top:12px"><svg class="ic ic14 c2"><use href="./icons.svg#info"></use></svg><span class="t-callout c2">Dark, Tinted and Clear follow the macOS icon style in System Settings. All four are drawn for each concept.</span></div>
+</div></div>
+<div><div class="st-cap">Accent</div>
+<div class="glass e1 st-card" style="padding:16px 18px;display:flex;align-items:center;gap:16px">
+<div style="display:flex;gap:16px;align-items:center" role="radiogroup" aria-label="Accent color">
+<sc-for list="{{accents}}" as="a" hint-placeholder-count="5"><span class="st-sw {{a.cls}}" style="background:{{a.bg}}" role="radio" aria-checked="{{a.checked}}" aria-label="{{a.t}}" tabindex="0" onClick="{{a.pick}}"></span></sc-for>
+</div>
+<div style="flex:1"></div>
+<div class="t-callout c2" style="text-align:right">{{accentName}} · used for progress, selection and the plane trail</div>
+</div></div>
+</sc-if>
+
+<!-- Sounds -->
+<sc-if value="{{isSounds}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:28px;align-items:flex-start">
+<div style="flex:1;min-width:0"><dc-import name="Mixer" w="504" section="layers" sound="false" hint-size="504px,520px"></dc-import></div>
+<div style="width:408px;flex:none"><dc-import name="Mixer" w="408" section="announce" hint-size="408px,420px"></dc-import>
+<div class="glass e1 st-card" style="margin-top:16px;padding:14px 18px;display:flex;align-items:center;gap:14px"><div style="flex:1"><div class="st-lbl">UI sounds</div><div class="st-sub">Taps, tears and stamps. Off silences every effect except announcements.</div></div><span class="toggle {{uiOn}}" role="switch" aria-checked="{{uiChecked}}" aria-label="UI sounds" tabindex="0" onClick="{{uiFlip}}"></span></div>
+<div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#play"></use></svg>Play boarding chime</button><button class="btn btn-tertiary btn-sm">Play seatbelt chime</button></div>
+</div>
+</div>
+</sc-if>
+
+<!-- Focus -->
+<sc-if value="{{isFocus}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:28px;align-items:flex-start;width:940px">
+<div style="width:520px;flex:none">
+<div class="st-cap">When a blocked app comes to the front</div>
+<div style="display:flex;gap:10px;margin-bottom:22px" role="radiogroup" aria-label="Blocking mode">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<div class="st-opt {{m.cls}}" style="flex:1" role="radio" aria-checked="{{m.checked}}" tabindex="0" onClick="{{m.pick}}">
+<div style="display:flex;align-items:center;gap:8px"><svg class="ic ic16 {{m.icc}}"><use href="{{m.ic}}"></use></svg><span style="font:600 14px/18px var(--font-ui)">{{m.t}}</span></div>
+<div class="c2" style="font:400 12px/16px var(--font-ui)">{{m.sub}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="st-cap">Apps and sites</div><div class="mono c2" style="font-size:12px;margin-bottom:8px">{{appCount}} blocked</div></div>
+<div class="glass e1 st-card" style="padding:10px 10px 6px;{{gridDim}}">
+<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px" role="group" aria-label="Blocked apps">
+<sc-for list="{{apps}}" as="a" hint-placeholder-count="10">
+<div class="st-app {{a.cls}}" role="switch" aria-checked="{{a.checked}}" aria-label="{{a.t}}, {{a.state}}" tabindex="0" onClick="{{a.flip}}">
+<div class="ico" style="{{a.bg}}"><svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true"><path d="{{a.path}}" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<sc-if value="{{a.on}}" hint-placeholder-val="{{ false }}"><span class="ck"><svg class="ic ic12"><use href="./icons.svg#check"></use></svg></span></sc-if>
+<span class="nm">{{a.t}}</span>
+</div>
+</sc-for>
+<div class="st-app add" role="button" tabindex="0" aria-label="Add an app"><div class="ico"><svg class="ic ic20"><use href="./icons.svg#plus"></use></svg></div><span class="nm c2">Add app…</span></div>
+</div>
+<div style="height:1px;background:var(--stroke-hair);margin:8px 8px 10px"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 8px 10px">
+<sc-for list="{{sites}}" as="s" hint-placeholder-count="3"><span class="chip" style="height:30px;font-size:12px;--sc:var(--sc-other)"><svg class="ic ic12"><use href="./icons.svg#globe"></use></svg>{{s}}<svg class="ic ic12 c3"><use href="./icons.svg#x"></use></svg></span></sc-for>
+<span class="field" style="height:30px;width:160px;font-size:12px;padding:0 10px"><svg class="ic ic12 c3"><use href="./icons.svg#plus"></use></svg><input placeholder="Add a site" aria-label="Add a site to block"></span>
+</div>
+</div>
+<div class="glass e1 st-card" style="margin-top:18px">
+<sc-for list="{{fx}}" as="r" hint-placeholder-count="2"><div class="st-row"><div style="flex:1"><div class="st-lbl">{{r.t}}</div><div class="st-sub">{{r.sub}}</div></div><span class="toggle {{r.tcls}}" role="switch" aria-checked="{{r.checked}}" aria-label="{{r.t}}" tabindex="0" onClick="{{r.flip}}"></span></div></sc-for>
+</div>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="st-cap">Preview</div><div class="mono c3" style="font-size:11px;margin-bottom:8px">{{modeName}}</div></div>
+<div style="position:relative;width:392px;height:372px;border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--stroke-hair),var(--e2);background:var(--bg-2)">
+<!-- blocked app window, placeholder -->
+<div style="position:absolute;left:18px;top:20px;right:18px;bottom:0;border-radius:14px 14px 0 0;background:var(--fill-2);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<div style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px"><i style="width:9px;height:9px;border-radius:50%;background:var(--fill-3)"></i><i style="width:9px;height:9px;border-radius:50%;background:var(--fill-3)"></i><i style="width:9px;height:9px;border-radius:50%;background:var(--fill-3)"></i><span class="c3" style="margin-left:10px;font:500 11px/1 var(--font-ui)">Social — blocked app</span></div>
+<div style="padding:8px 16px;display:flex;flex-direction:column;gap:12px"><div style="display:flex;gap:10px;align-items:center"><span style="width:30px;height:30px;border-radius:50%;background:var(--fill-3)"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="st-ghost" style="width:46%"></div><div class="st-ghost" style="width:78%;opacity:.6"></div></div></div><div style="height:96px;border-radius:12px;background:var(--fill-3);opacity:.7"></div><div class="st-ghost" style="width:88%"></div><div class="st-ghost" style="width:64%;opacity:.6"></div><div style="display:flex;gap:10px;align-items:center"><span style="width:30px;height:30px;border-radius:50%;background:var(--fill-3)"></span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="st-ghost" style="width:52%"></div><div class="st-ghost" style="width:70%;opacity:.6"></div></div></div></div>
+</div>
+<!-- Off -->
+<sc-if value="{{pvOff}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:0;right:0;bottom:16px;text-align:center" class="t-callout c2"><span class="pill">Nothing appears</span></div></sc-if>
+<!-- Nudge -->
+<sc-if value="{{pvNudge}}" hint-placeholder-val="{{ false }}">
+<div class="glass e2" style="position:absolute;left:30px;right:30px;top:18px;border-radius:20px;padding:12px 14px;display:flex;gap:12px;align-items:center"><span style="width:34px;height:34px;border-radius:10px;background:var(--fill-2);display:flex;align-items:center;justify-content:center;flex:none"><svg class="ic ic18 cA"><use href="./icons.svg#plane"></use></svg></span><div style="flex:1;min-width:0"><div style="font:600 13px/17px var(--font-ui)">You’re in flight to Paris — 18 min left.</div><div class="cA" style="font:600 12px/16px var(--font-ui);margin-top:2px">Return to focus</div></div><svg class="ic ic14 c3"><use href="./icons.svg#x"></use></svg></div>
+<div style="position:absolute;left:30px;right:30px;bottom:16px;text-align:center" class="mono c3"><span style="font-size:11px">Slides in for 6 s, then tucks away. Never steals focus.</span></div>
+</sc-if>
+<!-- Strict -->
+<sc-if value="{{pvStrict}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:var(--scrim);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)"></div>
+<div class="glass e3" style="position:absolute;left:40px;right:40px;top:50%;margin-top:-148px;border-radius:28px;padding:22px 22px 18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:8px"><span class="pulse cA" style="display:inline-flex"><span class="dotp"></span></span><span class="eyebrow">In flight · LHR → CDG</span></div>
+<div class="t-title2" style="font-size:22px;line-height:28px">You’re in flight to Paris — 18 min left.</div>
+<div class="bar" style="height:6px"><i style="width:57%"></i></div>
+<div style="display:flex;justify-content:space-between" class="mono c2"><span style="font-size:11px">24 of 42 min</span><span style="font-size:11px">ETA 10:42</span></div>
+<button class="btn btn-primary" style="width:100%;height:44px">Return to focus</button>
+<div style="display:flex;gap:10px"><button class="btn btn-secondary btn-sm" style="flex:1">Take a break</button><button class="btn btn-tertiary btn-sm" style="flex:1">Land early</button></div>
+</div>
+</sc-if>
+</div>
+<div class="st-anno" style="margin-top:16px;width:392px">
+<b>Native</b>NSWorkspace.didActivateApplicationNotification → borderless NSPanel (level .floating, joins all Spaces) hosting SwiftUI glass; Nudge = non-activating panel. Meridian never quits or hides other apps. A hard block would need Screen Time APIs and is an open product decision.
+<b>VoiceOver</b>Overlay is a dialog; focus lands on Return to focus; Esc = Take a break.
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+
+<!-- right column notes -->
+<sc-if value="{{showAnno}}" hint-placeholder-val="{{ false }}">
+<div class="st-anno" style="position:absolute;left:984px;top:150px;width:260px">
+<b>Native</b>Settings scene (⌘,). NavigationSplitView; each pane is a Form restyled with the same glass cards; Toggle with a custom ToggleStyle (44×26).
+<b>Keyboard</b>Tab walks rows in order; arrow keys move inside a segmented control; Space flips a switch. Focus ring 2 pt accent, 2 pt offset.
+<b>VoiceOver</b>Sidebar items: “General, selected, button”. Rows read “Launch at login, switch, on”.
+<b>Type</b>Rows reflow to two lines at 130%; the sidebar widens to 280 pt and labels truncate with a tooltip.
+<b>Reduce Transparency</b>Cards become solid bg-2 with a hairline.
+</div>
+</sc-if>
+<sc-if value="{{showMapPrev}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:984px;top:150px;width:260px">
+<div class="st-cap">Preview</div>
+<div style="position:relative;width:260px;height:300px;border-radius:20px;overflow:hidden;background:var(--m-sea);box-shadow:inset 0 0 0 1px var(--stroke-hair),var(--e2)">
+<svg width="260" height="300" viewBox="0 0 260 300" aria-hidden="true"><path d="M-10 190 C 40 150, 90 170, 130 140 C 170 110, 210 130, 270 100 L 270 310 L -10 310 Z" fill="var(--m-land)"/><path d="M-10 190 C 40 150, 90 170, 130 140 C 170 110, 210 130, 270 100" fill="none" stroke="var(--m-line)" stroke-width="2"/><path d="M60 214 C 90 196, 120 206, 150 190" fill="none" stroke="var(--m-label)" stroke-width="1.4" stroke-dasharray="5 4"/><circle cx="104" cy="206" r="4" fill="var(--accent-1)"/></svg>
+<div style="position:absolute;left:124px;top:196px;font:500 12px/15px var(--font-ui);color:var(--text-1)">Falkland Islands<div style="color:var(--m-label)">Islas Malvinas</div></div>
+<div style="position:absolute;left:18px;top:18px;font:500 11px/14px var(--font-mono);color:var(--m-label);letter-spacing:.06em;text-transform:uppercase">Both names on</div>
+<div style="position:absolute;left:14px;right:14px;bottom:14px" class="glass e1"><div style="padding:10px 12px;border-radius:14px;font:400 12px/16px var(--font-ui);color:var(--text-2)">Order follows your device region; you can swap it in System Settings.</div></div>
+</div>
+<div class="st-anno" style="margin-top:14px"><b>Native</b>MapKit labels; the second name is an MKAnnotation subtitle on the same coordinate. Dashed line = disputed boundary overlay (MKPolyline).</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"pane":{"editor":"enum","options":["general","flight","focus","sounds","maps","appearance","notifications","shortcuts","account","privacy"],"default":"general"},"focusMode":{"editor":"enum","options":["off","nudge","strict"],"default":"strict"},"annotate":{"editor":"boolean","default":false},"theme":{"editor":"enum","options":["system","dark","light"],"default":"dark"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { pane: null, v: {}, mode: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : (v === true || v === 'true'); }
+  set(k, x) { this.setState({ v: Object.assign({}, this.state.v, { [k]: x }) }); }
+  renderVals() {
+    const p = this.props, st = this.state;
+    const pane = st.pane || p.pane || 'general', mode = st.mode || p.focusMode || 'strict';
+    const val = (id, d) => (id in st.v ? st.v[id] : d);
+    const T = (id, t, sub, def, extra) => Object.assign({ id, kind: 'toggle', t, sub, def }, extra || {});
+    const S = (id, t, sub, opts, def) => ({ id, kind: 'seg', t, sub, opts, def });
+    const SEL = (t, sub, v) => ({ id: 'sel-' + t, kind: 'select', t, sub, val: v });
+    const K = (t, sub, keys) => ({ id: 'k-' + t, kind: 'keys', t, sub, keys });
+    const B = (t, sub, btn, bcls) => ({ id: 'b-' + t, kind: 'btn', t, sub, btn, bcls: bcls || 'btn-secondary' });
+    const V = (t, sub, v) => ({ id: 'v-' + t, kind: 'value', t, sub, val: v });
+    const PL = (t, sub, v) => ({ id: 'p-' + t, kind: 'pill', t, sub, val: v });
+    const P = {
+      general: { title: 'General', desc: 'How Meridian lives on your Mac. Everything here is reversible.', col: 640, anno: true, groups: [
+        { cap: 'Launch and window', rows: [T('login', 'Launch at login', 'Starts quietly in the menu bar.', true), T('menubar', 'Show in menu bar', 'Plane glyph and remaining time, updated every second.', true), T('dock', 'Show in Dock', 'Turn off to live only in the menu bar.', true), T('bg', 'Keep flying when the window closes', 'The flight keeps running; the menu bar item stays.', true)] },
+        { cap: 'Language and units', rows: [SEL('Language', 'Follows System Settings.', 'System (English)'), S('dist', 'Distance', '', ['km', 'mi'], 0), S('time', 'Time', '', ['24 h', '12 h'], 0)] },
+        { cap: 'Sleep and quit', rows: [T('resume', 'Resume flights after sleep or quit', 'Your plane keeps flying while the Mac sleeps. “Flight resumed” appears when you are back.', true), T('hold', 'Hold to land early', 'Press and hold for 1.2 s so a stray click never ends a flight.', true)] }] },
+      flight: { title: 'Flight', desc: 'Defaults for planning, check-in and the rituals around them.', col: 640, anno: true, groups: [
+        { cap: 'Defaults', rows: [SEL('Home airport', 'Your origin chip on the plan screen.', 'London Heathrow · LHR'), SEL('Default scenario', '', 'Coding'), S('seat', 'Seat preference', 'Used when you quick start.', ['Window', 'Aisle'], 0), T('qs', 'Quick start checks in automatically', 'Skips the seat step. Uses your last scenario and duration.', false)] },
+        { cap: 'Rituals', rows: [S('print', 'Ticket printing', 'The printer takes 2.4 s.', ['Full', 'Quick', 'Off'], 0), S('takeoff', 'Take-off sequence', 'Full is 6 s. Short is 2 s.', ['Full', 'Short', 'Skip'], 0), T('tear', 'Tear sound and haptics', 'Follows your hand: faster pull, louder rip.', true), T('stamp', 'Landing stamp', 'A 60 ms thump and a 120 ms bleed.', true)] },
+        { cap: 'Landing', rows: [SEL('Landing heads-up', 'The “prepare for landing” banner.', '5 minutes before'), T('notes', 'Ask what you got done', 'A short notes prompt after you land.', true)] }] },
+      maps: { title: 'Maps and labels', desc: 'What the map shows, and what it calls things.', col: 640, mapPrev: true, isMaps: true, groups: [
+        { cap: 'Style', rows: [S('mapstyle', 'Map style', 'Terra is the default in dark, Standard in light.', ['Terra', 'Mono', 'Standard', 'Satellite'], 0), S('lang', 'Label language', '', ['Local', 'English', 'Both'], 1)] },
+        { cap: 'Labels', rows: [T('both', 'Show both names for disputed places', 'Both names appear together, in the order your region prefers.', true), T('borders', 'Show country borders', 'Disputed borders are drawn as dashed lines.', true), T('cities', 'Show city names', 'Only places above 1 million people, so the map stays calm.', true), T('plane', 'Show the plane trail', 'The accent trail behind your plane.', true)] }] },
+      appearance: { title: 'Appearance', desc: 'Theme, app icon and accent.', col: 640, isAppearance: true, groups: [] },
+      notifications: { title: 'Notifications', desc: 'Quiet by default. Meridian only speaks when it is useful.', col: 640, anno: true, groups: [
+        { cap: 'Flight', rows: [T('n1', 'Boarding call', 'When your scheduled flight opens.', true), T('n2', 'Gate opens in 5 min', 'For flights you booked for later.', true), T('n3', 'Prepare for landing', '5 minutes before you land.', true), T('n4', 'Landed', 'After a flight ends while Meridian is in the background.', false)] },
+        { cap: 'Together', rows: [T('n5', 'Friend joined your flight', '', true), T('n6', 'Friend landed', 'Status only. There is no chat.', true), T('n7', 'Flight invitations', '', true)] },
+        { cap: 'Delivery', rows: [T('n8', 'Time Sensitive for the landing heads-up', 'Breaks through a Focus so you never miss the landing.', true), S('quiet', 'Quiet hours', 'No banners, only the menu bar.', ['Off', '22:00–07:00', 'Custom'], 1)] }] },
+      shortcuts: { title: 'Shortcuts', desc: 'Every action has a key. Click a shortcut to record a new one.', col: 640, anno: true, groups: [
+        { cap: 'Global', rows: [K('Quick start', 'From any app.', ['⌃', '⌥', '⏎']), K('Show mini map', '', ['⌥', '⌘', 'M']), K('Pause or resume', '', ['⌥', '⌘', 'P'])] },
+        { cap: 'In the app', rows: [K('Quick start', '', ['⌘', '⏎']), K('Plan, Tickets, Map, Stats, Together', '⌘1 to ⌘5', ['⌘', '1–5']), K('Toggle window view', '', ['⌘', 'J']), K('Hold to land early', 'Hold for 1.2 s.', ['⌥', '⌘', 'L']), K('Settings', '', ['⌘', ','])] }] },
+      account: { title: 'Account and Pro', desc: 'Your profile, iCloud sync and your plan.', col: 640, anno: true, isAccount: true, groups: [
+        { cap: 'Plan', rows: [B('Meridian Pro', 'Adds the satellite map, extra cabin sounds and friend flights over 4 people. Everything else stays free.', 'See what is included')] },
+        { cap: 'iCloud', rows: [T('icloud', 'Sync with iCloud', 'Synced 2 min ago · 148 flights.', true), V('Family Sharing', 'Pro can be shared with up to 5 people.', 'Not set up'), B('Restore purchases', '', 'Restore')] },
+        { cap: 'Account', rows: [B('Sign out', 'Your flights stay in iCloud.', 'Sign out', 'btn-tertiary')] }] },
+      privacy: { title: 'Data and privacy', desc: 'Your flights belong to you. Nothing leaves your devices unless you turn it on.', col: 640, anno: true, groups: [
+        { cap: 'Sharing', rows: [T('p1', 'Share anonymous usage data', 'Off by default. Never includes what you tag or write.', false), T('p2', 'Show my flights to friends', 'Status only. Never the destination notes.', true)] },
+        { cap: 'Your data', rows: [B('Export my flights', 'CSV or JSON, with every ticket and note.', 'Export…'), B('Clear map cache', '124 MB on this Mac.', 'Clear'), B('Delete all Meridian data', 'This removes flights, cards and stamps on every device.', 'Delete…', 'btn-danger')] },
+        { cap: 'About', rows: [B('Privacy policy', '', 'Open', 'btn-tertiary'), B('Terms of use', '', 'Open', 'btn-tertiary')] }] },
+      focus: { title: 'Focus and blocking', desc: 'A soft block: Meridian covers distractions, you decide what to do. It never quits an app.', col: 940, focus: true, groups: [] },
+      sounds: { title: 'Sounds and announcements', desc: 'Layer the cabin, then choose what the crew says.', col: 940, sounds: true, groups: [] }
+    };
+    const cur = P[pane];
+    const navDef = [['general', 'General', 'settings'], ['flight', 'Flight', 'plane'], ['focus', 'Focus and blocking', 'shield'], ['sounds', 'Sounds and announcements', 'sound'], ['maps', 'Maps and labels', 'map'], ['appearance', 'Appearance', 'sun'], ['notifications', 'Notifications', 'bell'], ['shortcuts', 'Shortcuts', 'target'], ['account', 'Account and Pro', 'user'], ['privacy', 'Data and privacy', 'lock']];
+    const nav = [];
+    navDef.forEach((n, i) => { if (i === 6) nav.push({ gap: true, item: false, cls: '', t: '', ic: '', full: '', cur: 'false', pick: () => {}, hasPro: false }); nav.push({ gap: false, item: true, cls: n[0] === pane ? 'is-active' : '', t: n[1], full: n[1], ic: './icons.svg#' + n[2], cur: n[0] === pane ? 'page' : 'false', pick: () => this.setState({ pane: n[0] }), hasPro: n[0] === 'account' }); });
+    const F = { isToggle: false, isSeg: false, isSelect: false, isKeys: false, isBtn: false, isValue: false, isPill: false, hasSub: false, opts: [], keys: [], keysText: '', val: '', btn: '', bcls: '', tcls: '', checked: 'false' };
+    const groups = cur.groups.map((g, gi) => ({ cap: g.cap, gs: 'margin-bottom:22px', rows: g.rows.map((r, ri) => {
+      const o = Object.assign({}, F, { t: r.t, sub: r.sub || '', hasSub: !!r.sub, rs: '' });
+      if (r.kind === 'toggle') { const on = !!val(r.id, r.def); Object.assign(o, { isToggle: true, tcls: on ? 'on' : '', checked: String(on), flip: () => this.set(r.id, !on) }); }
+      if (r.kind === 'seg') { const sel = val(r.id, r.def); o.isSeg = true; o.opts = r.opts.map((t, i) => ({ t, cls: i === sel ? 'on' : '', checked: String(i === sel), pick: () => this.set(r.id, i) })); }
+      if (r.kind === 'select') Object.assign(o, { isSelect: true, val: r.val });
+      if (r.kind === 'keys') Object.assign(o, { isKeys: true, keys: r.keys, keysText: r.keys.join(' ') });
+      if (r.kind === 'btn') Object.assign(o, { isBtn: true, btn: r.btn, bcls: r.bcls });
+      if (r.kind === 'value') Object.assign(o, { isValue: true, val: r.val });
+      if (r.kind === 'pill') Object.assign(o, { isPill: true, val: r.val });
+      return o;
+    }) }));
+    // appearance
+    const th = val('theme', p.theme === 'light' ? 'light' : p.theme === 'system' ? 'system' : 'dark');
+    const thDef = [['system', 'System', 'Follows macOS, switches at sunset.'], ['dark', 'Dark', 'The default for focused work.'], ['light', 'Light — Daybreak', 'Warm paper, same glass.']];
+    const themes = thDef.map(d => { const dk = d[0] === 'dark', lt = d[0] === 'light', sy = d[0] === 'system';
+      const bg = sy ? 'background:linear-gradient(105deg,#0B1020 0 50%,#F4F1EB 50% 100%)' : 'background:' + (dk ? '#0B1020' : '#F4F1EB');
+      const barC = dk ? 'rgba(255,255,255,.14)' : lt ? 'rgba(20,22,28,.12)' : 'rgba(128,128,128,.2)';
+      return { t: d[1], sub: d[2], cls: th === d[0] ? 'is-selected' : '', checked: String(th === d[0]), sel: th === d[0], bg, bar: 'position:absolute;left:8px;top:8px;width:34px;bottom:8px;border-radius:7px;background:' + barC, b1: 'position:absolute;left:52px;top:12px;right:12px;height:12px;border-radius:5px;background:' + barC, b2: 'position:absolute;left:52px;top:32px;right:12px;bottom:12px;border-radius:7px;background:' + barC, pick: () => this.set('theme', d[0]) }; });
+    const ic = val('icon', 'b');
+    const icons = [['a', 'Meridian', 'A globe, a plane trail.'], ['b', 'Stub', 'A boarding pass with a notch.'], ['c', 'Window', 'An oval window at dusk.']].map(d => ({ k: d[0], t: d[1], sub: d[2], cls: ic === d[0] ? 'is-selected' : '', checked: String(ic === d[0]), pick: () => this.set('icon', d[0]) }));
+    const ac = val('accent', 'sky');
+    const acDef = [['sky', 'Sky', 'var(--accent-1)'], ['mint', 'Mint', 'var(--accent-2)'], ['amber', 'Amber', 'var(--amber)'], ['rose', 'Rose', 'var(--sc-create)'], ['violet', 'Violet', 'var(--sc-code)']];
+    const accents = acDef.map(d => ({ t: d[1], bg: d[2], cls: ac === d[0] ? 'is-selected' : '', checked: String(ac === d[0]), pick: () => this.set('accent', d[0]) }));
+    // focus
+    const mdDef = [['off', 'Off', 'Meridian stays out of the way.', './icons.svg#eye', 'c2'], ['nudge', 'Nudge', 'A small banner when a blocked app comes forward.', './icons.svg#bell', 'cA'], ['strict', 'Strict overlay', 'A full overlay until you return, take a break or land early.', './icons.svg#shield', 'cA']];
+    const modes = mdDef.map(d => ({ t: d[1], sub: d[2], ic: d[3], icc: d[4], cls: mode === d[0] ? 'is-selected' : '', checked: String(mode === d[0]), pick: () => this.setState({ mode: d[0] }) }));
+    const appsDef = [['Mail', '#7AA2FF', 'M14 18h24v16H14z M14 18l12 10 12-10'], ['Messages', '#7ADDB2', 'M14 18h24v14H26l-8 6v-6h-4z'], ['Social', '#FF8FB1', 'M26 14a6 6 0 1 1 0 12 6 6 0 0 1 0-12 M14 40c2-8 8-10 12-10s10 2 12 10'], ['Video', '#FF9B7A', 'M20 16l18 10-18 10z'], ['News', '#C7CCDA', 'M14 16h24v22H14z M18 22h16 M18 28h16 M18 33h9'], ['Games', '#B49CFF', 'M14 24h24l2 12H12z M20 28v6 M17 31h6 M32 30h.01 M36 33h.01'], ['Shopping', '#FFB86B', 'M14 20h24l-3 18H17z M20 20c0-8 12-8 12 0'], ['Chat', '#8EE3E8', 'M12 18h28v16H28l-8 6v-6h-8z M19 26h14']];
+    const apps = appsDef.map(a => { const on = !!val('app-' + a[0], ['Social', 'Video', 'News', 'Games', 'Shopping', 'Chat'].includes(a[0])); const disabled = mode === 'off';
+      return { t: a[0], on, cls: (on ? '' : 'off') + (disabled ? ' off' : ''), checked: String(on), state: on ? 'blocked' : 'allowed', bg: 'background:linear-gradient(160deg,' + a[1] + ',color-mix(in srgb,' + a[1] + ' 55%,#10162B))', glyph: '', flip: () => this.set('app-' + a[0], !on), path: a[2] }; });
+    const appCount = apps.filter(a => a.on).length;
+    const fxDef = [['f1', 'Allow your editor and terminal', 'Three apps are always allowed during a flight.', true], ['f2', 'Lift the block during a break', 'Take a break pauses the flight and the block together.', true]];
+    const fx = fxDef.map(d => { const on = !!val(d[0], d[3]); return { t: d[1], sub: d[2], tcls: on ? 'on' : '', checked: String(on), flip: () => this.set(d[0], !on) }; });
+    const ui = !!val('ui', true);
+    const showAnno = !!(cur.anno && this.flag(p.annotate, false));
+    return {
+      nav, title: cur.title, desc: cur.desc, colW: cur.col, groups,
+      isMaps: !!cur.isMaps, isAppearance: !!cur.isAppearance, isAccount: !!cur.isAccount, isSounds: !!cur.sounds, isFocus: !!cur.focus,
+      themes, icons, accents, accentName: acDef.find(d => d[0] === ac)[1],
+      modes, apps, appCount, sites: ['news.example', 'video.example'], fx, gridDim: mode === 'off' ? 'opacity:.5' : '',
+      modeName: mode === 'off' ? 'Off' : mode === 'nudge' ? 'Nudge' : 'Strict overlay', pvOff: mode === 'off', pvNudge: mode === 'nudge', pvStrict: mode === 'strict',
+      uiOn: ui ? 'on' : '', uiChecked: String(ui), uiFlip: () => this.set('ui', !ui),
+      showAnno, showMapPrev: !!cur.mapPrev
+    };
+  }
+}
+</script>
+</body>
+</html>

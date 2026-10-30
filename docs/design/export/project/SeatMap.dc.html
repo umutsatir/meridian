@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Seat map</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.sm-seat{position:absolute;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  background:var(--fill-2);box-shadow:inset 0 0 0 1px var(--stroke-hair),inset 0 1px 0 var(--stroke-glow);
+  transition:transform var(--d3) var(--spring-snappy),box-shadow var(--d2) var(--ease),background var(--d2) var(--ease)}
+.sm-seat:is(:hover,.is-hover){background:var(--fill-3);transform:translateY(-1.5px)}
+.sm-seat.is-sel{background:linear-gradient(135deg,rgba(106,183,255,.55),rgba(139,243,216,.35));box-shadow:0 0 0 2px var(--accent-1),0 8px 18px rgba(0,0,0,.4),0 0 24px rgba(106,183,255,.38),inset 0 1px 0 rgba(255,255,255,.5);transform:scale(1.12) translateY(-2px);z-index:5}
+[data-theme="light"] .sm-seat.is-sel{background:linear-gradient(135deg,rgba(30,107,255,.4),rgba(24,199,160,.3));box-shadow:0 0 0 2px var(--accent-1),0 8px 18px rgba(40,34,20,.25),inset 0 1px 0 rgba(255,255,255,.7)}
+.sm-seat.is-friend{box-shadow:0 0 0 1.5px var(--fc),inset 0 1px 0 var(--stroke-glow)}
+.sm-seat.is-off{opacity:.34;cursor:not-allowed;background:repeating-linear-gradient(135deg,var(--fill-1) 0 3px,transparent 3px 6px);pointer-events:none}
+.sm-seat.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.sm-seat b{font:700 11px/1 var(--font-mono);letter-spacing:-.02em;color:var(--text-1)}
+.sm-zone{position:absolute;border-radius:14px;transition:background var(--d3) var(--ease),box-shadow var(--d3) var(--ease)}
+.sm-tab{position:absolute;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:7px;font:500 13px/1 var(--font-ui);cursor:pointer;--zc-ink:var(--zc);color:var(--zc-ink);background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);transition:background var(--d2) var(--ease),box-shadow var(--d2) var(--ease)}
+[data-theme="light"] .sm-tab{--zc-ink:color-mix(in srgb,var(--zc) 46%,#14161C)}
+.sm-tab:is(:hover,.is-hover){background:color-mix(in srgb,var(--zc) 14%,var(--fill-1))}
+.sm-tab.is-sel{background:color-mix(in srgb,var(--zc) 22%,transparent);box-shadow:0 0 0 1px var(--zc),0 0 22px color-mix(in srgb,var(--zc) 28%,transparent)}
+.sm-tab.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.sm-rim{position:absolute;height:3px;width:26px;border-radius:2px;background:var(--accent-1);box-shadow:0 0 10px rgba(106,183,255,.8)}
+.sm-hull{stroke:var(--stroke-hair);stroke-width:1.2}
+.sm-row{position:absolute;font:500 10px/14px var(--font-mono);color:var(--text-2);width:26px;text-align:center;letter-spacing:.02em}
+.sm-let{position:absolute;font:500 10px/14px var(--font-mono);color:var(--text-2);width:16px;text-align:center}
+</style>
+</helmet>
+<div style="{{rootStyle}}" tabindex="0" role="group" aria-label="Seat map" onKeyDown="{{onKey}}">
+<!-- zone tabs -->
+<sc-for list="{{tabs}}" as="z" hint-placeholder-count="4">
+<div class="sm-tab {{z.cls}}" style="{{z.s}}" role="button" tabindex="0" aria-label="{{z.aria}}" onClick="{{z.pick}}"><svg class="ic ic14"><use href="{{z.icon}}"></use></svg>{{z.label}}</div>
+</sc-for>
+<!-- aircraft: drawn nose-up in local space (u across, v along), then turned so the nose points left -->
+<svg style="position:absolute;left:0;top:0;overflow:visible;pointer-events:none" width="{{W}}" height="{{H}}" viewBox="0 0 {{W}} {{H}}" aria-hidden="true">
+<defs>
+<linearGradient id="{{gWR}}" gradientUnits="userSpaceOnUse" x1="{{wR1}}" y1="0" x2="{{wR2}}" y2="0"><stop offset="0" style="stop-color:var(--text-1);stop-opacity:.085"/><stop offset=".5" style="stop-color:var(--text-1);stop-opacity:.05"/><stop offset="1" style="stop-color:var(--text-1);stop-opacity:0"/></linearGradient>
+<linearGradient id="{{gWL}}" gradientUnits="userSpaceOnUse" x1="{{wL1}}" y1="0" x2="{{wL2}}" y2="0"><stop offset="0" style="stop-color:var(--text-1);stop-opacity:.085"/><stop offset=".5" style="stop-color:var(--text-1);stop-opacity:.05"/><stop offset="1" style="stop-color:var(--text-1);stop-opacity:0"/></linearGradient>
+<linearGradient id="{{gSR}}" gradientUnits="userSpaceOnUse" x1="{{sR1}}" y1="0" x2="{{sR2}}" y2="0"><stop offset="0" style="stop-color:var(--text-1);stop-opacity:.07"/><stop offset="1" style="stop-color:var(--text-1);stop-opacity:0"/></linearGradient>
+<linearGradient id="{{gSL}}" gradientUnits="userSpaceOnUse" x1="{{sL1}}" y1="0" x2="{{sL2}}" y2="0"><stop offset="0" style="stop-color:var(--text-1);stop-opacity:.07"/><stop offset="1" style="stop-color:var(--text-1);stop-opacity:0"/></linearGradient>
+<linearGradient id="{{gHull}}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".05"/><stop offset=".18" stop-color="#fff" stop-opacity=".0"/><stop offset=".82" stop-color="#fff" stop-opacity=".0"/><stop offset="1" stop-color="#fff" stop-opacity=".05"/></linearGradient>
+<clipPath id="{{cHull}}"><path d="{{hullD}}"/></clipPath>
+</defs>
+<g transform="{{xf}}">
+<path d="{{wingR}}" fill="url(#{{gWR}})"/><path d="{{wingL}}" fill="url(#{{gWL}})"/>
+<path d="{{stabR}}" fill="url(#{{gSR}})"/><path d="{{stabL}}" fill="url(#{{gSL}})"/>
+<path d="{{hullD}}" style="fill:var(--bg-1)" opacity=".94"/>
+<path d="{{hullD}}" style="fill:var(--fill-1)"/>
+<path d="{{hullD}}" fill="url(#{{gHull}})"/>
+<path d="{{hullD}}" fill="none" class="sm-hull"/>
+<g clip-path="url(#{{cHull}})"><path d="{{hullD}}" fill="none" style="stroke:var(--text-1)" stroke-opacity=".035" stroke-width="30"/><path d="{{hullD}}" fill="none" style="stroke:var(--text-1)" stroke-opacity=".04" stroke-width="16"/><path d="{{hullD}}" fill="none" style="stroke:var(--text-1)" stroke-opacity=".05" stroke-width="6"/></g>
+<path d="{{paneL}}" style="fill:var(--fill-3)"/><path d="{{paneR}}" style="fill:var(--fill-3)"/>
+</g>
+</svg>
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="4"><div class="sm-zone" style="{{z.s}}"></div></sc-for>
+<sc-for list="{{lets}}" as="n" hint-placeholder-count="4"><div class="sm-let" style="{{n.s}}">{{n.t}}</div></sc-for>
+<sc-for list="{{rowNums}}" as="n" hint-placeholder-count="12"><div class="sm-row" style="{{n.s}}">{{n.t}}</div></sc-for>
+<sc-if value="{{rimOn}}" hint-placeholder-val="{{ false }}"><div class="sm-rim" style="{{rimStyle}}"></div></sc-if>
+<!-- seats -->
+<sc-for list="{{seats}}" as="s" hint-placeholder-count="48">
+<div class="sm-seat {{s.cls}}" style="{{s.s}}" role="radio" aria-checked="{{s.checked}}" aria-label="{{s.aria}}" tabindex="-1" onClick="{{s.pick}}" onPointerEnter="{{s.enter}}" onPointerLeave="{{s.leave}}">
+<sc-if value="{{s.sel}}" hint-placeholder-val="{{ false }}"><b>{{s.code}}</b></sc-if>
+<sc-if value="{{s.friend}}" hint-placeholder-val="{{ false }}"><span class="av sm" style="{{s.fs}}">{{s.ini}}<span class="pr {{s.pres}}" style="width:7px;height:7px"></span></span></sc-if>
+<sc-if value="{{s.off}}" hint-placeholder-val="{{ false }}"><svg class="ic ic12 c3"><use href="./icons.svg#x"></use></svg></sc-if>
+</div>
+</sc-for>
+<sc-if value="{{tip}}" hint-placeholder-val="{{ false }}"><span class="tip" style="{{tipStyle}}"><b>{{tipCode}}</b><span class="c2">{{tipText}}</span></span></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"zone":{"editor":"enum","options":["","study","work","read","create"],"default":"study"},"seat":{"editor":"text","default":"1A"},"hover":{"editor":"text","default":""},"live":{"editor":"boolean","default":false},"focusSeat":{"editor":"text","default":""},"onSeat":{"editor":null},"onZone":{"editor":null},"$preview":{"width":800,"height":392}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 7);
+  state = { zone: null, seat: null, hover: null, cur: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.flag(p.live, false);
+    const ZN = ['study', 'work', 'read', 'create'], LET = ['A', 'C', 'D', 'F'];
+    // ---- geometry (px). The hull is a slim capsule: parabolic nose, straight sides, round tail cap. ----
+    const W = 800, H = 392, x0 = 8, h = 88, L = 172, P = 43, SZ = 30, cy = 196, xr0 = x0 + L + 12;
+    const LANE = [-64, -30, 30, 64];             // A C | D F, aisle between
+    const zoneOf = r => ZN[Math.floor((r - 1) / 3)];
+    const seatSel = st.seat !== null ? st.seat : (p.seat === undefined ? '1A' : p.seat);
+    const zoneSel = st.zone !== null ? st.zone : (p.zone === undefined ? zoneOf(parseInt(seatSel) || 1) : p.zone);
+    const hov = st.hover !== null ? st.hover : (p.hover || '');
+    const cur = st.cur !== null ? st.cur : (p.focusSeat || '');
+    const friends = Array.isArray(p.friends) ? p.friends : [], taken = Array.isArray(p.taken) ? p.taken : ['2C', '3D', '5D', '5F', '8A', '8C', '9F', '11C', '4A', '6F', '12D', '10C'];
+    const xc = r => xr0 + (r - 1) * P + P / 2;
+    const typeOf = l => (l === 'A' || l === 'F') ? 'Window' : 'Aisle';
+    const seats = [];
+    for (let r = 1; r <= 12; r++) for (let li = 0; li < 4; li++) {
+      const code = r + LET[li], zk = zoneOf(r), fr = friends.find(f => f.seat === code), off = taken.includes(code) && !fr, sel = code === seatSel, type = typeOf(LET[li]);
+      const cls = (sel ? 'is-sel ' : '') + (fr ? 'is-friend ' : '') + (off ? 'is-off ' : '') + (hov === code ? 'is-hover ' : '') + (cur === code ? 'is-focus ' : '');
+      seats.push({ code, cls, s: 'left:' + (xc(r) - SZ / 2) + 'px;top:' + (cy + LANE[li] - SZ / 2) + 'px;--fc:' + (fr ? fr.color : 'transparent'), sel, friend: !!fr, ini: fr ? fr.ini : '', fs: fr ? '--avc:' + fr.color : '', pres: fr ? (fr.presence || '') : '', off,
+        checked: sel ? 'true' : 'false', aria: 'Seat ' + code + ', ' + type + ', ' + K.scenarios[zk][0] + ' zone' + (fr ? ', taken by ' + fr.name : off ? ', unavailable' : '') + (sel ? ', selected' : ''),
+        pick: () => { if (off) return; this.setState({ seat: code, zone: zk, cur: code }); const cb = this.props.onSeat; if (typeof cb === 'function') cb({ seat: code, zone: zk }); const cz = this.props.onZone; if (typeof cz === 'function') cz(zk); },
+        enter: () => this.setState({ hover: code }), leave: () => this.setState({ hover: '' }) });
+    }
+    const tabs = ZN.map((z, i) => { const sc = K.scenarios[z], tx = xr0 + i * 3 * P + 4, w = 3 * P - 8; return { label: sc[0], icon: './icons.svg#' + sc[2], cls: (zoneSel === z ? 'is-sel' : ''), s: 'left:' + tx + 'px;top:0;width:' + w + 'px;--zc:' + sc[1], aria: sc[0] + ' zone, rows ' + (i * 3 + 1) + ' to ' + (i * 3 + 3), pick: () => { const cs = parseInt(seatSel) || 1; let ns = seatSel; if (zoneOf(cs) !== z) { ns = (i * 3 + 1) + 'A'; } this.setState({ zone: z, seat: ns, cur: ns }); const cb = this.props.onZone; if (typeof cb === 'function') cb(z); const cb2 = this.props.onSeat; if (typeof cb2 === 'function') cb2({ seat: ns, zone: z }); } }; });
+    const zones = ZN.map((z, i) => { const sc = K.scenarios[z], on = zoneSel === z; return { s: 'left:' + (xr0 + i * 3 * P + 2) + 'px;top:' + (cy - 83) + 'px;width:' + (3 * P - 4) + 'px;height:166px;background:color-mix(in srgb,' + sc[1] + ' ' + (on ? 20 : 7) + '%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,' + sc[1] + ' ' + (on ? 60 : 20) + '%,transparent)' }; });
+    const lets = LET.map((l, i) => ({ t: l, s: 'left:' + (xr0 - 28) + 'px;top:' + (cy + LANE[i] - 7) + 'px' }));
+    const rowNums = []; for (let r = 1; r <= 12; r++) rowNums.push({ t: (r < 10 ? '0' : '') + r, s: 'left:' + (xc(r) - 13) + 'px;top:' + (cy - 7) + 'px' });
+    const selRow = parseInt(seatSel) || 0, selLet = (seatSel || '').slice(-1), rimOn = !!seatSel && selRow > 0 && (selLet === 'A' || selLet === 'F');
+    const rimStyle = 'left:' + (xc(selRow) - 13) + 'px;top:' + (selLet === 'A' ? cy - h - 2 : cy + h - 1) + 'px';
+    // ---- aircraft path strings, local coordinates: u across (0 = centre line), v along from the nose tip ----
+    const f = v => Math.round(v * 10) / 10;
+    const rowsEnd = xr0 + 12 * P - x0 + 4, ry = 66, V1 = rowsEnd;
+    const na = 36.6, nb = 91.1, hullD = 'M0 0 C' + na + ' 0 ' + h + ' ' + nb + ' ' + h + ' ' + L + ' L' + h + ' ' + V1 + ' A' + h + ' ' + ry + ' 0 0 1 ' + (-h) + ' ' + V1 + ' L' + (-h) + ' ' + L + ' C' + (-h) + ' ' + nb + ' ' + (-na) + ' 0 0 0Z';
+    // windshield: two panes with a centre post, lune-shaped, inset from the hull
+    const pane = s => 'M' + s * 5 + ' 35 L' + s * 5 + ' 56.3 Q' + s * 24 + ' 55.9 ' + s * 52.4 + ' 72 L' + s * 42 + ' 48.4 Q' + s * 26 + ' 36 ' + s * 5 + ' 35Z';
+    // wings: a flat swept trapezoid, root rows 4-9, faint and fading toward the tip
+    const rv = xr0 - x0, uT = 190, wRootLE = rv + 3.9 * P, wRootTE = rv + 8.5 * P, sLE = .52, sTE = .2, u0 = h - 12;
+    const wing = s => { const a = [u0, wRootLE - (h - u0) * 0], b = [uT, wRootLE + (uT - h) * sLE], c = [uT, wRootTE + (uT - h) * sTE], d = [u0, wRootTE]; return 'M' + s * a[0] + ' ' + f(wRootLE - 12 * sLE) + ' L' + s * b[0] + ' ' + f(b[1]) + ' L' + s * c[0] + ' ' + f(c[1]) + ' L' + s * d[0] + ' ' + f(d[1]) + 'Z'; };
+    const sT = h + 44, sRootLE = V1 - 62, sRootTE = V1 - 10;
+    const stab = s => 'M' + s * (h - 8) + ' ' + sRootLE + ' L' + s * sT + ' ' + f(sRootLE + 44 * .62) + ' L' + s * sT + ' ' + f(sRootTE + 44 * .12) + ' L' + s * (h - 8) + ' ' + sRootTE + 'Z';
+    const hs = hov ? seats.find(s => s.code === hov) : null;
+    const lbl = hov ? typeOf(hov.slice(-1)) : '';
+    const hr = hov ? parseInt(hov) : 0;
+    const scale = +(p.scale || 1);
+    return {
+      rootStyle: 'position:relative;width:' + W + 'px;height:' + H + 'px;outline:none' + (scale !== 1 ? ';transform:scale(' + scale + ');transform-origin:0 0' : ''),
+      W, H, xf: 'matrix(0 1 1 0 ' + x0 + ' ' + cy + ')', gWR: 'smw' + this.uid, gWL: 'smx' + this.uid, gHull: 'smh' + this.uid, gSR: 'sms' + this.uid, gSL: 'smt' + this.uid, sR1: h, sR2: sT, sL1: -h, sL2: -sT, cHull: 'smc' + this.uid,
+      wR1: h, wR2: uT, wL1: -h, wL2: -uT, hullD, paneL: pane(-1), paneR: pane(1), wingR: wing(1), wingL: wing(-1), stabR: stab(1), stabL: stab(-1),
+      tabs, zones, seats, lets, rowNums, rimOn, rimStyle,
+      tip: !!hs && live ? true : (!!hov && !live), tipCode: hov, tipText: ' · ' + lbl + ' · ' + (hr ? K.scenarios[zoneOf(hr)][0] : ''), tipStyle: hs ? 'position:absolute;left:' + (parseFloat(hs.s.match(/left:([\d.]+)/)[1]) + SZ / 2) + 'px;top:' + (parseFloat(hs.s.match(/top:([\d.]+)/)[1]) - 36) + 'px;transform:translateX(-50%);z-index:9' : 'display:none',
+      onKey: e => {
+        if (!live) return; const cs = cur || seatSel || '1A'; let r = parseInt(cs) || 1, li = LET.indexOf(cs.slice(-1)); if (li < 0) li = 0;
+        if (e.key === 'ArrowRight') r = Math.min(12, r + 1); else if (e.key === 'ArrowLeft') r = Math.max(1, r - 1); else if (e.key === 'ArrowDown') li = Math.min(3, li + 1); else if (e.key === 'ArrowUp') li = Math.max(0, li - 1);
+        else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); const sd = seats.find(s => s.code === cs); if (sd) sd.pick(); return; } else return;
+        e.preventDefault(); this.setState({ cur: r + LET[li], hover: '' });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

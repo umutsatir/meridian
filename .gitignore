@@ -45,3 +45,6 @@ docs/research/reference-images/
 
 # Agent worktrees
 .claude/worktrees/
+# local tooling venv (Scripts/compare.py)
+.venv-tools/
+.build-app/

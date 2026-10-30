@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Together screens</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.tg-h{position:absolute;left:252px;top:52px;right:32px;display:flex;justify-content:space-between;align-items:flex-end}
+.tg-ttl{font:500 44px/48px var(--font-serif);letter-spacing:-.015em;margin-top:4px}
+.tg-card{border-radius:26px;box-sizing:border-box}
+.tg-row{display:flex;align-items:center;gap:14px;height:64px;padding:0 18px;border-radius:16px}
+.tg-row:is(:hover,.is-hover){background:var(--fill-1)}
+.tg-lbl{font:600 10px/12px var(--font-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+.tg-opt{height:36px;padding:0 14px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;background:var(--fill-1);border:1px solid var(--stroke-hair);font:500 13px/1 var(--font-ui);color:var(--text-2);cursor:pointer}
+.tg-opt:is(:hover,.is-hover){background:var(--fill-2);color:var(--text-1)}
+.tg-opt.on{background:linear-gradient(135deg,rgba(106,183,255,.22),rgba(139,243,216,.10));color:var(--text-1);box-shadow:0 0 0 1px rgba(106,183,255,.4)}
+[data-theme="light"] .tg-opt.on{background:linear-gradient(135deg,rgba(30,107,255,.12),rgba(24,199,160,.08));box-shadow:0 0 0 1px rgba(30,107,255,.3)}
+.tg-step{display:inline-flex;align-items:center;height:36px;border-radius:12px;background:var(--fill-1);border:1px solid var(--stroke-hair);overflow:hidden}
+.tg-step>span{width:36px;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-2);cursor:pointer}
+.tg-step>span:hover{background:var(--fill-2);color:var(--text-1)}
+.tg-step>b{min-width:48px;text-align:center;font:500 15px/1 var(--font-mono);border-left:1px solid var(--stroke-hair);border-right:1px solid var(--stroke-hair);height:100%;display:flex;align-items:center;justify-content:center}
+.tg-qr{width:116px;height:116px;border-radius:14px;background:#F3F5FA;padding:9px;box-sizing:border-box}
+.tg-code{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 12px;border-radius:12px;background:var(--fill-2);font:500 12px/1 var(--font-mono);color:var(--text-2)}
+.tg-brd{border-radius:22px;background:#0B1020;padding:6px 18px}
+.tg-brow{display:flex;align-items:center;gap:18px;height:58px;border-bottom:1px solid rgba(255,255,255,.07)}
+.tg-brow:last-child{border-bottom:0}
+.tg-stub{position:absolute;left:0;top:0;transform-origin:20% 0}
+.tg-tk{position:relative;width:144px;height:240px}
+</style>
+</helmet>
+<div class="win" data-theme="{{theme}}" tabindex="0" style="background:var(--bg-1)">
+<dc-import name="Sidebar" active="together" badge="{{sbBadge}}" hint-size="220px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- ================= S40 FRIENDS ================= -->
+<sc-if value="{{isFriends}}" hint-placeholder-val="{{ false }}">
+<div class="tg-h"><div><div class="eyebrow">Together</div><div class="tg-ttl">Friends</div></div><span class="btn btn-primary" role="button" tabindex="0"><svg class="ic ic16"><use href="./icons.svg#plus"></use></svg>Add friend</span></div>
+<div class="glass e2 tg-card" style="position:absolute;left:252px;top:140px;width:600px;padding:14px 14px 16px">
+<div class="eyebrow" style="padding:8px 18px 6px">On Meridian · 6</div>
+<sc-for list="{{friends}}" as="f" hint-placeholder-count="6"><div class="tg-row {{f.cls}}"><span class="av lg" style="--avc:{{f.c}}">{{f.i}}<span class="pr {{f.pr}}" style="width:12px;height:12px"></span></span><div style="flex:1;min-width:0"><div style="font:600 15px/20px var(--font-ui)">{{f.n}}</div><div class="t-callout c2">{{f.s}}</div></div><sc-if value="{{f.join}}" hint-placeholder-val="{{ false }}"><span class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#seat"></use></svg>Join seat</span></sc-if><span class="mono c3" style="font-size:12px">{{f.t}}</span></div></sc-for>
+<div class="hr" style="margin:10px 18px"></div>
+<div class="eyebrow" style="padding:6px 18px">Requests · 2</div>
+<sc-for list="{{reqs}}" as="r" hint-placeholder-count="2"><div class="tg-row"><span class="av" style="--avc:{{r.c}}">{{r.i}}</span><div style="flex:1"><div style="font:600 14px/18px var(--font-ui)">{{r.n}}</div><div class="t-callout c3">{{r.h}}</div></div><span class="btn btn-secondary btn-sm">Decline</span><span class="btn btn-primary btn-sm">Accept</span></div></sc-for>
+</div>
+<div class="glass e2 tg-card" style="position:absolute;left:880px;top:140px;width:368px;padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+<div style="font:600 17px/22px var(--font-ui)">Add a friend</div>
+<div class="seg" style="width:100%"><span class="on" style="flex:1">Username</span><span style="flex:1">Invite link</span><span style="flex:1">QR code</span></div>
+<div class="field" style="height:44px"><svg class="ic ic16 c3"><use href="./icons.svg#search"></use></svg><input placeholder="@username" aria-label="Username"></div>
+<div style="display:flex;align-items:center;gap:14px"><div class="tg-qr"><svg width="98" height="98" viewBox="0 0 96 96"><path d="{{qr}}" fill="#0B1020"/></svg></div><div style="flex:1"><div class="t-callout c2">Show this code or share your link. It works for 24 hours.</div><span class="tg-code" style="margin-top:10px">meridian.fly/elif-k</span></div></div>
+<span class="btn btn-secondary" role="button" tabindex="0"><svg class="ic ic16"><use href="./icons.svg#copy"></use></svg>Copy invite link</span>
+<div class="hr"></div>
+<div style="display:flex;gap:12px;align-items:flex-start"><svg class="ic ic20" style="color:var(--accent-1);flex:none;margin-top:1px"><use href="./icons.svg#eye"></use></svg><div><div style="font:600 13px/18px var(--font-ui)">Privacy</div><div class="t-callout c2">Friends see your flight status, never your task or location.</div></div></div>
+</div>
+</sc-if>
+
+<!-- ================= S41 CREATE ================= -->
+<sc-if value="{{isCreate}}" hint-placeholder-val="{{ false }}">
+<div class="tg-h"><div><div class="eyebrow">Together</div><div class="tg-ttl">Create a shared flight</div></div></div>
+<div class="glass e2 tg-card" style="position:absolute;left:252px;top:140px;width:580px;padding:26px 28px;display:flex;flex-direction:column;gap:22px">
+<div><div class="tg-lbl">Route</div><div style="display:flex;align-items:center;gap:10px"><span class="btn btn-secondary" style="height:48px"><span class="tag">LHR</span>London</span><span class="btn-round glass-ctl sm" style="width:32px;height:32px"><svg class="ic ic16"><use href="./icons.svg#route"></use></svg></span><span class="btn btn-secondary" style="height:48px"><span class="tag">CDG</span>Paris</span><span style="flex:1"></span><span class="mono c2" style="font-size:13px">{{dur}} min · 348 km</span></div></div>
+<div><div class="tg-lbl">Flight time</div><div style="display:flex;gap:8px"><sc-for list="{{mins}}" as="m" hint-placeholder-count="5"><span class="tg-opt {{m.cls}}" role="button" tabindex="0" onClick="{{m.set}}">{{m.t}}</span></sc-for></div></div>
+<div><div class="tg-lbl">Gate opens in</div><div style="display:flex;gap:8px"><sc-for list="{{gates}}" as="g" hint-placeholder-count="4"><span class="tg-opt {{g.cls}}" role="button" tabindex="0" onClick="{{g.set}}">{{g.t}}</span></sc-for></div></div>
+<div style="display:flex;gap:40px"><div><div class="tg-lbl">Group size · max 8</div><div style="display:flex;align-items:center;gap:14px"><span class="tg-step"><span role="button" aria-label="Fewer" onClick="{{dec}}"><svg class="ic ic14"><use href="./icons.svg#minus"></use></svg></span><b>{{size}}</b><span role="button" aria-label="More" onClick="{{inc}}"><svg class="ic ic14"><use href="./icons.svg#plus"></use></svg></span></span><div style="display:flex"><sc-for list="{{slots}}" as="s" hint-placeholder-count="8"><span class="av sm" style="{{s.s}}">{{s.t}}</span></sc-for></div></div></div></div>
+<div style="display:flex;align-items:center;gap:14px"><span class="toggle {{pubCls}}" role="switch" tabindex="0" aria-label="Public flight" onClick="{{togglePub}}"></span><div><div style="font:600 14px/18px var(--font-ui)">{{pubTitle}}</div><div class="t-callout c2">{{pubSub}}</div></div></div>
+<div style="display:flex;gap:12px"><span class="btn btn-primary btn-lg" role="button" tabindex="0" onClick="{{create}}">Create shared flight</span><span class="btn btn-secondary btn-lg" role="button" tabindex="0">Cancel</span></div>
+</div>
+<div class="glass e3 tg-card" style="position:absolute;left:860px;top:140px;width:388px;padding:24px 26px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="eyebrow">Invite card</div><div class="cond" style="font-size:40px;line-height:44px;margin-top:6px">LHR <span style="opacity:.5">→</span> CDG</div><div class="mono c2" style="font-size:12px;margin-top:4px">MR 0142 · {{dur}} min · 348 km</div></div><div class="tg-qr"><svg width="98" height="98" viewBox="0 0 96 96"><path d="{{qr}}" fill="#0B1020"/></svg></div></div>
+<div style="display:flex;gap:10px;align-items:center"><span class="tg-code">meridian.fly/MR0142-x7q</span><span class="btn btn-primary btn-sm"><svg class="ic ic14"><use href="./icons.svg#copy"></use></svg>Copy link</span></div>
+<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="pill accent"><span class="dotp pulse"></span>Gate opens in {{gate}} min</span><span class="mono c2" style="font-size:12px">{{size}} seats · {{pubWord}}</span></div>
+</div>
+</sc-if>
+
+<!-- ================= S42 LOBBY ================= -->
+<sc-if value="{{isLobby}}" hint-placeholder-val="{{ false }}">
+<div class="tg-h"><div><div class="eyebrow">Shared flight · MR 0142</div><div class="tg-ttl">LHR to CDG, 42 min</div></div><span class="pill {{lobPillCls}}"><span class="dotp pulse"></span>{{lobPill}}</span></div>
+<div class="glass e2 tg-card" style="position:absolute;left:252px;top:128px;width:612px;height:352px;overflow:hidden"><div style="transform:scale(.7);transform-origin:0 0;width:800px;height:392px;margin:36px 0 0 26px"><dc-import name="SeatMap" seat="1A" zone="" friends="{{seatFriends}}" hint-size="800px,392px"></dc-import></div></div>
+<div class="glass e2 tg-card" style="position:absolute;left:884px;top:128px;width:364px;height:352px;padding:20px 22px;display:flex;flex-direction:column;gap:10px">
+<div class="eyebrow">At the gate</div>
+<sc-for list="{{gatePax}}" as="g" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:12px;height:48px;opacity:{{g.op}}"><span class="av" style="--avc:{{g.c}}">{{g.i}}<span class="pr {{g.pr}}"></span></span><div style="flex:1"><div style="font:600 14px/18px var(--font-ui)">{{g.n}}</div><div class="mono c3" style="font-size:11px">Seat {{g.seat}}</div></div><span class="pill {{g.pc}}">{{g.st}}</span></div></sc-for>
+<div style="flex:1"></div>
+<div class="hr"></div>
+<div style="display:flex;gap:10px;align-items:center"><svg class="ic ic16" style="color:var(--accent-1)"><use href="./icons.svg#users"></use></svg><div class="t-callout" style="font-size:13px">{{liveLine}}</div></div>
+</div>
+<div class="glass e1 tg-card" style="position:absolute;left:252px;top:496px;width:996px;height:288px;padding:14px 28px;display:flex;align-items:center;gap:30px">
+<div style="width:150px"><div class="eyebrow">Stubs</div><div class="serif" style="font-size:34px;line-height:38px;margin-top:6px">{{tornN}} of {{pax}}</div><div class="t-callout c2">torn off in order</div></div>
+<sc-for list="{{tks}}" as="k" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><div class="tg-tk"><div style="position:absolute;left:0;top:0;opacity:{{k.bodyOp}}"><dc-import name="Ticket" from="LHR" to="CDG" state="{{k.state}}" name="{{k.full}}" seat="{{k.seat}}" scale=".4" flat="true" topic="" hint-size="144px,{{k.h}}px"></dc-import></div><div class="tg-stub" style="{{k.stubStyle}}"><div style="width:144px;height:240px;clip-path:polygon(0 178px,24px 174px,48px 179px,72px 175px,96px 179px,120px 174px,144px 177px,144px 240px,0 240px)"><dc-import name="Ticket" from="LHR" to="CDG" state="printed" name="{{k.full}}" seat="{{k.seat}}" scale=".4" flat="true" topic="" hint-size="144px,240px"></dc-import></div></div></div><span class="mono c2" style="font-size:11px">{{k.n}}</span></div></sc-for>
+</div>
+</sc-if>
+
+<!-- ================= S44 GROUP LANDING ================= -->
+<sc-if value="{{isGL}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:252px;top:56px"><div class="eyebrow">Charles de Gaulle · Touchdown 10:42</div><div class="tg-ttl" style="font-size:52px;line-height:58px;margin-top:6px">Landed together.</div></div>
+<div style="position:absolute;left:252px;top:158px;width:310px;height:389px"><dc-import name="Ticket" from="LHR" to="CDG" state="group" group="E,A,M,J" scale=".86" anim="{{anim}}" topic="" hint-size="310px,389px"></dc-import></div>
+<div style="position:absolute;left:590px;top:158px;width:658px;display:flex;flex-direction:column;gap:16px">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px"><div class="glass e2" style="border-radius:20px;padding:16px 18px;height:96px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between"><div class="eyebrow">Collective</div><div class="serif" style="font:500 38px/40px var(--font-serif)">2 h 48<small class="c2" style="font:500 14px/1 var(--font-ui);margin-left:6px">min</small></div></div><div class="glass e2" style="border-radius:20px;padding:16px 18px;height:96px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between"><div class="eyebrow">Distance</div><div class="serif" style="font:500 38px/40px var(--font-serif)">1,392<small class="c2" style="font:500 14px/1 var(--font-ui);margin-left:6px">km</small></div></div><div class="glass e2" style="border-radius:20px;padding:16px 18px;height:96px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between"><div class="eyebrow">Aboard</div><div class="serif" style="font:500 38px/40px var(--font-serif)">4<small class="c2" style="font:500 14px/1 var(--font-ui);margin-left:6px">of 4</small></div></div></div>
+<div class="glass e2 tg-card" style="padding:10px 14px;display:flex;gap:18px;align-items:center"><div style="flex:1"><sc-for list="{{landed}}" as="l" hint-placeholder-count="4"><div class="tg-row" style="height:50px"><span class="av" style="--avc:{{l.c}}">{{l.i}}<span class="pr left"></span></span><div style="flex:1"><div style="font:600 14px/18px var(--font-ui)">{{l.n}}</div></div><span class="mono c2" style="font-size:12px">{{l.t}}</span><span class="pill ok">Landed</span></div></sc-for></div><div style="width:170px;height:170px;display:flex;align-items:center;justify-content:center;border-radius:18px;background:var(--paper)"><dc-import name="Stamp" shape="round" country="France" cc="FR" code="CDG" date="29 OCT 2026" kind="TOGETHER" ink="#243F8F" rot="-7" size="150" anim="{{anim}}" hint-size="150px,150px"></dc-import></div></div>
+<div style="display:flex;gap:12px;align-items:center"><span class="btn btn-primary btn-lg" role="button" tabindex="0" onClick="{{again}}"><svg class="ic ic18"><use href="./icons.svg#users"></use></svg>Fly again together</span><span class="btn btn-secondary btn-lg" role="button" tabindex="0"><svg class="ic ic18"><use href="./icons.svg#wallet"></use></svg>Add to wallet</span><span class="btn-round glass glass-ctl" role="button" aria-label="Share"><svg class="ic ic18"><use href="./icons.svg#share"></use></svg></span></div>
+</div>
+</sc-if>
+
+<!-- ================= S45 PUBLIC BOARD ================= -->
+<sc-if value="{{isBoard}}" hint-placeholder-val="{{ false }}">
+<div class="tg-h"><div><div class="eyebrow">Together · Public flights</div><div class="tg-ttl">Departures</div></div><div style="display:flex;gap:12px;align-items:center"><div class="seg glass"><span class="on">Any time</span><span>≤ 25 min</span><span>25 to 60</span><span>60+</span></div></div></div>
+<div style="position:absolute;left:252px;top:132px;display:flex;gap:10px"><sc-for list="{{chips}}" as="c" hint-placeholder-count="5"><span class="chip {{c.cls}}" style="--sc:{{c.c}}"><svg class="ic ic14"><use href="{{c.ic}}"></use></svg>{{c.t}}</span></sc-for></div>
+<div class="tg-brd" style="position:absolute;left:252px;top:184px;width:996px;box-sizing:border-box">
+<sc-for list="{{board}}" as="b" hint-placeholder-count="7"><div class="tg-brow"><span style="zoom:.86"><dc-import name="SplitFlap" text="{{b.fl}}" size="xs" hint-size="160px,32px"></dc-import></span><span style="zoom:.86"><dc-import name="SplitFlap" text="{{b.rt}}" size="xs" tone="white" hint-size="210px,32px"></dc-import></span><span class="mono" style="color:var(--text-2);font-size:12px;width:128px;line-height:16px">{{b.mn}}<br>{{b.n}} aboard</span><span style="flex:1"></span><span style="zoom:.86"><dc-import name="SplitFlap" text="{{b.st}}" len="17" size="xs" hint-size="380px,32px"></dc-import></span><span class="btn btn-secondary btn-sm {{b.jc}}" style="margin-left:4px">Join</span></div></sc-for>
+</div>
+<div style="position:absolute;left:252px;top:690px;width:996px;display:flex;gap:12px;align-items:center" class="c2"><svg class="ic ic16"><use href="./icons.svg#shield"></use></svg><span class="t-callout">Public flights are quiet by design: no chat, no names, just company. Be kind; read the <u>community guidelines</u>.</span></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"screen":{"editor":"enum","options":["friends","create","lobby","landing","board"],"default":"friends"},"theme":{"editor":"text","default":"dark"},"live":{"editor":"boolean","default":false},"t":{"editor":"int","default":2300},"onCreate":{"editor":null},"onBoard":{"editor":null},"onAgain":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { mins: 42, gate: 10, size: 4, pub: false, t: 0, anim: false };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentDidMount() {
+    const p = this.props; if (!this.flag(p.live, false)) return;
+    if (p.screen === 'lobby') { this._t0 = performance.now(); const A = window.MeridianAudio; let last = -1; const L = now => { const t = now - this._t0; const k = Math.floor((t - 800) / 900); if (k !== last && k >= 0 && k < 4) { last = k; if (A && A.enabled) { A.init(); A.rip.finish && A.rip.finish(); } } this.setState({ t }); if (t > 5600 && !this._d) { this._d = 1; const cb = this.props.onBoard; if (typeof cb === 'function') cb(); return; } this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); }
+    if (p.screen === 'landing') { setTimeout(() => this.setState({ anim: true }), 200); }
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.flag(p.live, false), scr = p.screen || 'friends';
+    const t = live ? st.t : +(p.t === undefined ? 2300 : p.t), cl = (v, a, b) => Math.max(a, Math.min(b, v));
+    const me = [{ n: 'Elif', full: 'ELIF KAYA', i: 'E', c: '#7AA2FF', seat: '1A', arr: 0, tear: 800 }, { n: 'Anna', full: 'ANNA SVENSSON', i: 'A', c: '#FF8FB1', seat: '1C', arr: 700, tear: 1700 }, { n: 'Mert', full: 'MERT DEMIR', i: 'M', c: '#7ADDB2', seat: '2A', arr: 1500, tear: 2600 }, { n: 'Jo', full: 'JO PARK', i: 'J', c: '#FFB86B', seat: '2C', arr: 2300, tear: 3500 }];
+    // QR
+    const rr = K.rng(9); let qr = ''; const N = 21, c = 96 / N;
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const fin = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13); let on; if (fin) { const lx = x > 13 ? x - 14 : x, ly = y > 13 ? y - 14 : y; on = (lx === 0 || lx === 6 || ly === 0 || ly === 6) || (lx >= 2 && lx <= 4 && ly >= 2 && ly <= 4); } else on = rr() > .5; if (on) qr += 'M' + (x * c).toFixed(1) + ' ' + (y * c).toFixed(1) + 'h' + c.toFixed(1) + 'v' + c.toFixed(1) + 'h-' + c.toFixed(1) + 'z'; }
+    // friends
+    const fr = [{ n: 'Anna Svensson', i: 'A', c: '#FF8FB1', pr: '', s: 'Focusing · in flight to Paris', t: '18 min left', join: true, cls: '' }, { n: 'Mert Demir', i: 'M', c: '#7ADDB2', pr: 'idle', s: 'Idle · last flew 2 h ago', t: '', join: false, cls: 'is-hover' }, { n: 'Jo Park', i: 'J', c: '#FFB86B', pr: '', s: 'At the gate · MR 0211 boarding', t: '', join: true, cls: '' }, { n: 'Selin Aydın', i: 'S', c: '#B49CFF', pr: 'idle', s: 'Idle', t: '', join: false, cls: '' }, { n: 'Daniel Ortiz', i: 'D', c: '#7AA2FF', pr: 'left', s: 'Landed in Madrid · 12 min ago', t: '', join: false, cls: '' }, { n: 'Kaito Mori', i: 'K', c: '#8BF3D8', pr: 'idle', s: 'Idle · last flew yesterday', t: '', join: false, cls: '' }];
+    const reqs = [{ n: 'Ayşe Yılmaz', i: 'Y', c: '#FFB86B', h: '@ayse · 3 mutual friends' }, { n: 'Tom Becker', i: 'T', c: '#7ADDB2', h: '@tomb · via invite link' }];
+    // create
+    const mins = [25, 42, 60, 90].map(m => ({ t: m + ' min', cls: st.mins === m ? 'on' : '', set: () => this.setState({ mins: m }) })).concat([{ t: 'Custom', cls: '', set: () => {} }]);
+    const gates = [5, 10, 15, 30].map(g => ({ t: g + ' min', cls: st.gate === g ? 'on' : '', set: () => this.setState({ gate: g }) }));
+    const slots = []; const cols = ['#7AA2FF', '#FF8FB1', '#7ADDB2', '#FFB86B', '#B49CFF', '#8BF3D8', '#FF9A9A', '#FFE9A8']; for (let i = 0; i < 8; i++) slots.push({ t: i < st.size ? 'E,A,M,J,S,D,K,T'.split(',')[i] : '', s: i < st.size ? '--avc:' + cols[i] + ';margin-left:' + (i ? -6 : 0) + 'px;box-shadow:0 0 0 2px var(--bg-1)' : 'margin-left:' + (i ? -6 : 0) + 'px;background:var(--fill-2);box-shadow:0 0 0 2px var(--bg-1);border:1px dashed var(--stroke-hair)' });
+    // lobby
+    const arrived = me.map(m => t >= m.arr), tornU = me.map(m => cl((t - m.tear) / 650, 0, 1)), tornN = tornU.filter(u => u >= 1).length;
+    const lastArr = [...me].reverse().find(m => t >= m.arr && m.n !== 'Elif');
+    const seatFriends = me.slice(1).map(m => ({ seat: m.seat, ini: m.i, color: m.c, name: m.n, presence: t >= m.arr ? '' : 'idle' }));
+    const gatePax = me.map((m, i) => ({ n: m.n === 'Elif' ? 'You' : m.n, i: m.i, c: m.c, seat: m.seat, pr: arrived[i] ? '' : 'idle', op: arrived[i] ? 1 : .5, st: tornU[i] >= 1 ? 'Torn' : (arrived[i] ? 'Checked in' : 'On the way'), pc: tornU[i] >= 1 ? 'ok' : (arrived[i] ? 'accent' : '') }));
+    const tks = me.map((m, i) => { const u = tornU[i], e = u * u * (3 - 2 * u), tearing = u > 0; return { n: m.n === 'Elif' ? 'You · ' + m.seat : m.n + ' · ' + m.seat, full: m.full, seat: m.seat, state: tearing ? 'torn' : 'printed', h: tearing ? 181 : 240, bodyOp: arrived[i] ? 1 : .35, stubStyle: tearing ? 'transform:translate(' + (e * 34).toFixed(1) + 'px,' + (e * 120).toFixed(1) + 'px) rotate(' + (e * 24).toFixed(1) + 'deg);opacity:' + (1 - e * e).toFixed(2) + ';pointer-events:none' : 'opacity:0;pointer-events:none' }; });
+    const doors = 'All aboard';
+    // board
+    const board = [{ fl: 'TK 0900', rt: 'IST → NRT', mn: '50 min', n: 128, st: 'BOARDING IN 06:12' }, { fl: 'MR 0211', rt: 'LHR → CDG', mn: '42 min', n: 64, st: 'BOARDING' }, { fl: 'MR 0304', rt: 'JFK → LAX', mn: '25 min', n: 37, st: 'BOARDING IN 12:40' }, { fl: 'MR 0177', rt: 'HEL → ARN', mn: '25 min', n: 21, st: 'BOARDING IN 18:05' }, { fl: 'MR 0412', rt: 'AMS → DUB', mn: '60 min', n: 52, st: 'BOARDING IN 24:30' }, { fl: 'MR 0098', rt: 'SYD → SIN', mn: '90 min', n: 14, st: 'BOARDING IN 31:00' }, { fl: 'MR 0066', rt: 'FRA → ZRH', mn: '25 min', n: 9, st: 'DEPARTED' }].map((b, i) => Object.assign(b, { jc: i === 6 ? 'is-disabled' : '' }));
+    const SC = K.scenarios; const chips = [['code', 'Coding'], ['study', 'Study'], ['read', 'Read'], ['work', 'Work'], ['create', 'Create']].map((a, i) => ({ t: SC[a[0]][0], c: SC[a[0]][1], ic: './icons.svg#' + SC[a[0]][2], cls: i === 0 ? 'is-selected' : '' }));
+    return {
+      theme: p.theme === 'light' ? 'light' : 'dark', isFriends: scr === 'friends', isCreate: scr === 'create', isLobby: scr === 'lobby', isGL: scr === 'landing', isBoard: scr === 'board', qr,
+      sbBadge: '', friends: fr, reqs,
+      mins, gates, size: st.size, slots, dur: st.mins, gate: st.gate, pubCls: st.pub ? 'on' : '', pubTitle: st.pub ? 'Public flight' : 'Private flight', pubSub: st.pub ? 'Shown on the departures board. Anyone can ask to join.' : 'Only people with the link can join.', pubWord: st.pub ? 'public' : 'private',
+      dec: () => this.setState({ size: Math.max(2, st.size - 1) }), inc: () => this.setState({ size: Math.min(8, st.size + 1) }), togglePub: () => this.setState({ pub: !st.pub }), create: () => { const cb = this.props.onCreate; if (typeof cb === 'function') cb(); },
+      seatFriends, gatePax, tks, tornN, pax: 4, lobPill: tornN === 4 ? 'All aboard' : 'Gate opens in ' + K.mmss(Math.max(0, 252 - Math.round(t / 100))), lobPillCls: tornN === 4 ? 'ok' : 'accent',
+      liveLine: tornN === 4 ? 'Everyone is aboard. Take-off in a moment.' : (lastArr ? lastArr.n + ' is at the gate' : 'Waiting for friends…'),
+      landed: me.map((m, i) => ({ n: m.full.split(' ').map(w => w[0] + w.slice(1).toLowerCase()).join(' '), i: m.i, c: m.c, t: '10:4' + (2 + (i % 2)) })), anim: this.flag(p.anim, false) || st.anim, again: () => { const cb = this.props.onAgain; if (typeof cb === 'function') cb(); },
+      board, chips
+    };
+  }
+}
+</script>
+</body>
+</html>

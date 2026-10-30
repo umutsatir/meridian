@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Boarding pass</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.tk *{box-sizing:border-box}
+.tk-cap{font:600 9.5px/1 var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:rgba(20,17,15,.7)}
+.tk-val{font:500 17px/1.1 var(--font-mono);letter-spacing:-.01em}
+.tk-cell{position:absolute;display:flex;flex-direction:column;gap:6px}
+.tk-av{width:20px;height:20px;border-radius:50%;margin-left:-5px;display:inline-flex;align-items:center;justify-content:center;font:700 9px/1 var(--font-ui);color:#14110F;box-shadow:0 0 0 1.5px #F5F0E6}
+.tk-btn{height:30px;padding:0 14px;border-radius:15px;border:1px solid rgba(20,17,15,.4);display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--font-ui);color:#14110F}
+@keyframes tk-stamp{0%{transform:scale(1.6);opacity:0;filter:blur(1.5px)}34%{transform:scale(.96);opacity:1;filter:blur(.2px)}100%{transform:scale(1);opacity:1;filter:blur(0)}}
+.tk-stamp-anim{animation:tk-stamp 180ms cubic-bezier(.3,0,.2,1) both}
+</style>
+</helmet>
+<div class="tk" style="{{outerStyle}}" onPointerMove="{{onMove}}" onPointerLeave="{{onLeave}}">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="mx-stamp" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" result="d"/><feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="11" result="n2"/><feColorMatrix in="n2" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  7 0 0 0 -2.05" result="holes"/><feComposite in="d" in2="holes" operator="in"/></filter></defs></svg>
+
+<sc-if value="{{isLocked}}" hint-placeholder-val="{{ false }}">
+<div style="{{lockedStyle}}">
+<div style="position:absolute;inset:0;border-radius:22px;border:1.5px dashed var(--text-3);background:var(--fill-1)"></div>
+<div style="position:absolute;left:0;right:0;top:34%;display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--text-3)">
+<svg class="ic ic24"><use href="./icons.svg#lock"></use></svg>
+<div class="t-callout" style="text-align:center;max-width:150px">{{lockedLabel}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{notLocked}}" hint-placeholder-val="{{ true }}">
+<div style="{{scaleStyle}}">
+<div style="{{liftStyle}}">
+<div style="{{shadowStyle}}">
+<div style="{{clipStyle}}">
+
+<sc-if value="{{isFront}}" hint-placeholder-val="{{ true }}">
+<div class="paper notched" style="{{paperStyle}}">
+<!-- band + foil edge -->
+<div style="{{bandStyle}}"></div>
+<div style="{{foilStyle}}"></div>
+<!-- header -->
+<div style="position:absolute;left:24px;right:28px;top:6px;height:48px;display:flex;align-items:center;justify-content:space-between" class="ink">
+<div style="font:700 11px/1 var(--font-ui);letter-spacing:.24em">MERIDIAN AIR</div>
+<div class="tk-cap">Boarding pass</div>
+</div>
+<!-- route block -->
+<div style="position:absolute;left:0;right:0;top:54px;height:130px;overflow:hidden">
+<div class="dotmap" style="{{mapStyle}}"></div>
+<div style="{{pStyle}}"></div><div style="{{qStyle}}"></div>
+<div style="position:absolute;left:24px;top:6px" class="ink">
+<div class="tk-cap">From</div>
+<div class="cond" style="font-size:64px;line-height:64px;letter-spacing:.005em;margin-top:2px">{{from}}</div>
+<div style="font:500 13px/1 var(--font-ui);margin-top:2px">{{fromCity}}</div>
+<div style="{{ulStyle}}"></div>
+</div>
+<div style="position:absolute;left:112px;width:136px;top:42px;display:flex;flex-direction:column;align-items:center;gap:6px" class="ink">
+<div style="position:relative;width:136px;height:20px;display:flex;align-items:center;justify-content:center">
+<div style="position:absolute;left:0;right:0;top:9px;border-top:1.5px dashed rgba(20,17,15,.55)"></div>
+<div style="position:relative;background:var(--paper);padding:0 6px;color:#14110F"><svg class="ic" style="width:18px;height:18px;transform:rotate(90deg)"><use href="./icons.svg#plane"></use></svg></div>
+</div>
+<div class="mono" style="font-size:13px;letter-spacing:.02em">{{dur}}</div>
+</div>
+<div style="position:absolute;right:28px;top:6px;text-align:right" class="ink">
+<div class="tk-cap">To</div>
+<div class="cond" style="font-size:64px;line-height:64px;letter-spacing:.005em;margin-top:2px">{{to}}</div>
+<div style="font:500 13px/1 var(--font-ui);margin-top:2px">{{toCity}}</div>
+<div style="{{ulStyleR}}"></div>
+</div>
+</div>
+<!-- data grid -->
+<div style="position:absolute;left:24px;right:28px;top:184px;height:150px" class="ink">
+<div class="tk-cell" style="left:0;top:8px"><div class="tk-cap">Date</div>
+<sc-if value="{{isBoarding}}" hint-placeholder-val="{{ false }}"><div class="mx-pillamb">Boarding</div></sc-if>
+<sc-if value="{{notBoarding}}" hint-placeholder-val="{{ true }}"><div class="tk-val">{{date}}</div></sc-if>
+</div>
+<div class="tk-cell" style="left:160px;top:8px"><div class="tk-cap">Flight</div><div class="tk-val">{{flight}}</div></div>
+<div class="tk-cell" style="left:0;top:58px"><div class="tk-cap">Gate</div><div class="tk-val">{{gate}}</div></div>
+<div class="tk-cell" style="left:160px;top:58px"><div class="tk-cap">Seat</div><div class="tk-val">{{seat}}</div></div>
+<div class="tk-cell" style="left:0;top:108px"><div class="tk-cap">Boarding</div><div class="tk-val">{{boarding}}</div></div>
+<div class="tk-cell" style="left:160px;top:108px"><div class="tk-cap">Distance</div><div class="tk-val">{{km}} km</div></div>
+<div style="position:absolute;left:0;right:0;top:0;height:1px;background:rgba(20,17,15,.14)"></div>
+</div>
+<!-- scenario row -->
+<div style="position:absolute;left:24px;right:28px;top:334px;height:56px;display:flex;align-items:center;gap:12px" class="ink">
+<div style="{{chipStyle}}"><svg class="ic" style="width:15px;height:15px"><use href="{{scIcon}}"></use></svg>{{scLabel}}</div>
+<div style="flex:1;min-width:0;font:400 13px/1.25 var(--font-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.8">{{topic}}</div>
+</div>
+<!-- passenger -->
+<div style="position:absolute;left:24px;right:28px;top:390px;height:40px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(20,17,15,.14)" class="ink">
+<sc-if value="{{isGroup}}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;padding-left:5px">
+<sc-for list="{{avatars}}" as="a" hint-placeholder-count="4"><span class="tk-av" style="{{a.s}}">{{a.t}}</span></sc-for>
+<span class="mono" style="font-size:11px;margin-left:8px;opacity:.75">{{groupLabel}}</span>
+</div>
+</sc-if>
+<sc-if value="{{notGroup}}" hint-placeholder-val="{{ true }}"><div class="mono" style="font-size:12px;letter-spacing:.06em">{{name}}</div></sc-if>
+<div style="display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-ui)"><span>Class: {{cabinName}}</span><span class="{{foilClass}}" style="width:28px;height:10px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(20,17,15,.28)"></span></div>
+</div>
+
+<!-- stamps -->
+<sc-if value="{{isLanded}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:156px;top:314px;transform:rotate(-6deg);color:var(--stamp-ok)"><div class="stamp {{stampAnimCls}}"><span>Landed</span><small>{{toCity}} · {{landTime}}</small></div></div></sc-if>
+<sc-if value="{{isDiverted}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:150px;top:312px;transform:rotate(-6deg);color:var(--stamp-warn)"><div class="stamp"><span>Diverted</span><small>{{flownLabel}}</small></div></div></sc-if>
+
+<!-- inflight progress along the torn edge -->
+<sc-if value="{{isInflight}}" hint-placeholder-val="{{ false }}">
+<div style="{{progTrack}}"></div>
+<div style="{{progFill}}"></div>
+</sc-if>
+
+<!-- perforation + stub -->
+<sc-if value="{{hasStub}}" hint-placeholder-val="{{ true }}">
+<div class="perf" style="position:absolute;left:20px;right:20px;top:449px"></div>
+<div style="position:absolute;left:24px;right:24px;top:458px;height:18px;display:flex;align-items:center;justify-content:space-between" class="ink">
+<div class="tk-cap" style="display:flex;align-items:center;gap:6px;letter-spacing:.2em"><svg class="ic" style="width:12px;height:12px"><use href="./icons.svg#scissors"></use></svg>Tear here</div>
+<div class="mono" style="font-size:10px;opacity:.7">{{from}} → {{to}}</div>
+</div>
+<div style="position:absolute;left:24px;right:24px;top:482px;height:34px;display:flex;gap:28px;align-items:flex-end" class="ink">
+<div><div class="tk-cap">Seat</div><div class="mono" style="font-size:16px;margin-top:5px">{{seat}}</div></div>
+<div><div class="tk-cap">Gate</div><div class="mono" style="font-size:16px;margin-top:5px">{{gate}}</div></div>
+<div><div class="tk-cap">Time</div><div class="mono" style="font-size:16px;margin-top:5px">{{boarding}}</div></div>
+<div style="margin-left:auto;text-align:right"><div class="tk-cap">{{flight}}</div><div class="mono" style="font-size:16px;margin-top:5px">{{dur}}</div></div>
+</div>
+<div style="position:absolute;left:30px;top:524px;width:300px;height:56px" class="ink">
+<svg width="300" height="56" viewBox="0 0 300 56" style="display:block;{{barClip}}"><path d="{{barcode}}" fill="#14110F" fill-opacity=".92"/></svg>
+</div>
+<div class="mono ink" style="position:absolute;left:30px;width:300px;top:584px;font-size:7px;letter-spacing:.14em;text-align:center;opacity:.65">{{serial}}</div>
+</sc-if>
+
+<!-- heat-fade veil while printing -->
+<sc-if value="{{isPrinting}}" hint-placeholder-val="{{ false }}"><div style="{{veilStyle}}"></div></sc-if>
+<!-- torn rim -->
+<sc-if value="{{isTorn}}" hint-placeholder-val="{{ false }}">
+<svg width="360" height="8" viewBox="0 0 360 8" style="position:absolute;left:0;top:446px" aria-hidden="true"><polyline points="{{rimPts}}" fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="1.1" stroke-linejoin="round"/></svg>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isBack}}" hint-placeholder-val="{{ false }}">
+<div class="paper notched" style="{{paperStyle}}">
+<div style="{{bandStyle}}"></div>
+<div style="{{foilStyle}}"></div>
+<div style="position:absolute;left:24px;right:28px;top:6px;height:48px;display:flex;align-items:center;justify-content:space-between" class="ink">
+<div style="font:700 11px/1 var(--font-ui);letter-spacing:.24em">MERIDIAN AIR</div>
+<div class="tk-cap">{{flight}} · {{date}} · Seat {{seat}}</div>
+</div>
+<div style="position:absolute;left:24px;right:28px;top:58px;height:150px;border-radius:12px;overflow:hidden;background:rgba(20,17,15,.045);box-shadow:inset 0 0 0 1px rgba(20,17,15,.14)" class="ink">
+<div class="dotmap" style="{{mapStyle2}}"></div>
+<svg width="308" height="150" viewBox="0 0 308 150" style="position:absolute;left:0;top:0"><path d="{{arcPath}}" fill="none" stroke="#14110F" stroke-width="1.6" stroke-dasharray="1 4" stroke-linecap="round"/><circle cx="{{ax}}" cy="{{ay}}" r="4" fill="#F5F0E6" stroke="#14110F" stroke-width="2"/><circle cx="{{bx}}" cy="{{by}}" r="4" fill="#14110F"/></svg>
+<div class="cond" style="position:absolute;left:12px;top:10px;font-size:20px">{{from}} → {{to}}</div>
+</div>
+<div style="position:absolute;left:24px;right:28px;top:222px" class="ink">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="tk-cap">Notes</div><div style="{{chipStyle}};height:24px;font-size:11px"><svg class="ic" style="width:12px;height:12px"><use href="{{scIcon}}"></use></svg>{{scLabel}}</div></div>
+<div class="serif it" style="font-size:19px;line-height:26px;margin-top:8px;height:104px;overflow:hidden">{{notes}}</div>
+</div>
+<div style="position:absolute;left:24px;right:28px;top:350px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid rgba(20,17,15,.14);padding-top:14px" class="ink">
+<div><div class="tk-cap">Focused</div><div class="tk-val" style="margin-top:6px">{{dur}}</div></div>
+<div><div class="tk-cap">Distance</div><div class="tk-val" style="margin-top:6px">{{km}} km</div></div>
+<div><div class="tk-cap">Miles</div><div class="tk-val" style="margin-top:6px">+{{km}}</div></div>
+</div>
+<div style="position:absolute;left:24px;right:28px;bottom:14px;height:34px;display:flex;gap:8px;align-items:center" class="ink">
+<span class="tk-btn"><svg class="ic" style="width:13px;height:13px"><use href="./icons.svg#pencil"></use></svg>Edit</span>
+<span class="tk-btn"><svg class="ic" style="width:13px;height:13px"><use href="./icons.svg#share"></use></svg>Share</span>
+<span class="tk-btn" style="margin-left:auto;border-color:rgba(168,42,36,.55);color:var(--stamp-red)"><svg class="ic" style="width:13px;height:13px"><use href="./icons.svg#trash"></use></svg>Delete</span>
+</div>
+<sc-if value="{{isTorn}}" hint-placeholder-val="{{ false }}"><svg width="360" height="8" viewBox="0 0 360 8" style="position:absolute;left:0;top:446px"><polyline points="{{rimPts}}" fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="1.1"/></svg></sc-if>
+</div>
+</sc-if>
+
+</div>
+<sc-if value="{{isPrinting}}" hint-placeholder-val="{{ false }}"><div style="{{headStyle}}"></div></sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"scenario":{"editor":"enum","options":["study","work","read","create","code","meditate","fitness","other"],"default":"code"},"state":{"editor":"enum","options":["printed","printing","torn","boarding","inflight","landed","diverted","group","locked"],"default":"printed"},"side":{"editor":"enum","options":["front","back"],"default":"front"},"scale":{"editor":"float","default":1},"$preview":{"width":360,"height":600}}'>
+class Component extends DCLogic {
+  state = { rx: 0, ry: 0, lift: 0 };
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state;
+    const flag = (v, d) => v === undefined || v === null || v === '' ? d : !(v === false || v === 'false');
+    const from = p.from || 'LHR', to = p.to || 'CDG';
+    const A = K.ap(from) || K.ap('LHR'), B = K.ap(to) || K.ap('CDG');
+    const km = p.km ? +p.km : Math.round(K.gc(from, to));
+    const mins = p.minutes ? +p.minutes : K.minutes(km);
+    const scKey = p.scenario || 'code', sc = K.scenarios[scKey] || K.scenarios.code;
+    const cabin = K.cabin(mins), foilClass = 'foil-' + cabin;
+    const state = p.state || 'printed', side = p.side || 'front';
+    const scale = +(p.scale || 1), tile = flag(p.tile, false);
+    const seed = +(p.seed || K.hash(from + to + (p.flight || 'MR 0142')));
+    const colorBy = p.colorBy || 'scenario';
+    const month = p.month !== undefined ? +p.month : (seed % 12);
+    const isLocked = state === 'locked';
+    const torn = tile || state === 'torn' || state === 'inflight' || state === 'landed' || state === 'diverted';
+    const printing = state === 'printing';
+    const print = printing ? Math.max(0, Math.min(1, +(p.print === undefined ? 0.5 : p.print))) : 1;
+    // accent for the band/underline according to color-coding
+    const cont = K.continent(to);
+    let bandBg = sc[1], inkTone = sc[1];
+    if (colorBy === 'class') { bandBg = 'var(--foil-' + cabin + ')'; inkTone = cabin === 'first' ? '#D5C49A' : cabin === 'economy' ? '#9AA3B3' : cabin === 'premium' ? '#6FAEEA' : cabin === 'business' ? '#B98E3F' : '#6AB7FF'; }
+    if (colorBy === 'continent') { bandBg = 'var(--ct-' + cont + ')'; inkTone = 'var(--ct-' + cont + ')'; }
+    if (colorBy === 'month') { bandBg = 'hsl(' + (month * 30) + ' 62% 74%)'; inkTone = bandBg; }
+    const toInk = c => 'color-mix(in srgb,' + c + ' 52%,#14110F)';
+    const H = torn ? 452 : 600;
+    // torn polygon (seeded) -- points for clip + rim
+    const r = K.rng(seed), amp = 1.5 + r() * 1.0, pts = [], rim = [];
+    let x = 360;
+    while (x > -4) { const y = 450 - amp + r() * amp * 2; pts.push([Math.max(0, x), y]); x -= 2.2 + r() * 3.4; }
+    const clipPoly = 'polygon(0px 0px,360px 0px,' + pts.map(q => q[0].toFixed(1) + 'px ' + q[1].toFixed(2) + 'px').join(',') + ',0px 450px)';
+    const rimPts = pts.map(q => q[0].toFixed(1) + ',' + (q[1] - 446 - 0.5).toFixed(2)).join(' ');
+    // wallet tile & hover tilt
+    const hover = flag(p.hover, false), live = flag(p.live, false);
+    const rx = live ? st.rx : (hover ? -4 : 0), ry = live ? st.ry : (hover ? 5 : 0), lift = live ? st.lift : (hover ? 8 : 0);
+    const shadowY = 24 + lift * 1.6, shadowB = 24 + lift * 1.2;
+    const outW = 360 * scale, outH = (isLocked ? 452 : H) * scale;
+    // route watermark
+    const fit = K.worldFit(from, to, 360, 130);
+    const mapStyle = '--ms:' + fit.s.toFixed(0) + 'px;--mx:' + fit.ox.toFixed(0) + 'px;--my:' + fit.oy.toFixed(0) + 'px;position:absolute;inset:0;opacity:.085;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat';
+    const dot = (pt, fill) => 'position:absolute;left:' + (pt[0] - 3.5).toFixed(1) + 'px;top:' + (pt[1] - 3.5).toFixed(1) + 'px;width:7px;height:7px;border-radius:50%;border:1.5px solid ' + fill + ';opacity:.34';
+    const fit2 = K.worldFit(from, to, 308, 150);
+    const arcPts = K.arc(from, to, 40).map(q => K.eq.xy(q[0], q[1])).map(q => [q[0] / 1440 * fit2.s + fit2.ox, q[1] / 720 * (fit2.s / 2) + fit2.oy]);
+    const arcPath = arcPts.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + (q[1] - Math.sin(i / (arcPts.length - 1) * Math.PI) * 14).toFixed(1)).join(' ');
+    // avatars
+    const names = (p.group || 'E,A,M,S,D,K').split(',').slice(0, 6);
+    const avc = ['#7AA2FF', '#FFB86B', '#7ADDB2', '#FF8FB1', '#B49CFF', '#8EE3E8'];
+    const avatars = names.map((n, i) => ({ t: n, s: 'background:' + avc[i % 6] }));
+    const prog = Math.max(0, Math.min(1, +(p.progress === undefined ? 0.6 : p.progress)));
+    const flown = p.flown ? +p.flown : Math.round(mins * 0.74);
+    const lockLabels = p.label || 'Your next flight prints here';
+    return {
+      from, to, fromCity: A.city, toCity: B.city, km, dur: mins + ' min',
+      date: p.date || 'THU 29 OCT', flight: p.flight || 'MR 0142', gate: p.gate || 'A12', seat: p.seat || '1A', boarding: p.boarding || '10:00', name: p.name || 'ELIF KAYA',
+      topic: p.topic === undefined ? 'Auth module refactor' : p.topic, landTime: p.landTime || '10:42', notes: p.notes || 'Finished the token refresh path and wrote the migration. Review tomorrow.',
+      scLabel: sc[0], scIcon: './icons.svg#' + (sc[2] === 'dot' ? 'dot' : sc[2]),
+      cabinName: K.cabinName[cabin], foilClass,
+      isLocked, notLocked: !isLocked, isFront: side === 'front', isBack: side === 'back',
+      isBoarding: state === 'boarding', notBoarding: state !== 'boarding',
+      isGroup: state === 'group', notGroup: state !== 'group', avatars, groupLabel: names.length + ' on board',
+      isLanded: state === 'landed', stampAnimCls: flag(p.anim, false) ? 'tk-stamp-anim' : '', isDiverted: state === 'diverted', isInflight: state === 'inflight', isPrinting: printing, isTorn: torn,
+      hasStub: !torn && side === 'front',
+      flownLabel: flown + ' / ' + mins + ' MIN',
+      lockedLabel: lockLabels,
+      outerStyle: 'position:relative;width:' + outW + 'px;height:' + outH + 'px;' + (live ? 'cursor:default;' : ''),
+      lockedStyle: 'position:relative;width:' + outW + 'px;height:' + outH + 'px',
+      scaleStyle: 'position:absolute;left:0;top:0;width:360px;height:' + H + 'px;transform:scale(' + scale + ');transform-origin:0 0',
+      liftStyle: 'position:absolute;inset:0;transform:perspective(900px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) translateY(' + (-lift) + 'px);transition:transform 320ms var(--spring-snappy)',
+      shadowStyle: 'position:absolute;inset:0;' + (flag(p.flat, false) ? '' : 'filter:drop-shadow(0 ' + shadowY + 'px ' + shadowB + 'px rgba(0,0,0,.45))'),
+      clipStyle: 'position:absolute;inset:0;' + (printing ? 'clip-path:inset(0 0 ' + ((1 - print) * 100).toFixed(2) + '% 0);' : ''),
+      paperStyle: 'position:absolute;left:0;top:0;width:360px;height:' + H + 'px;border-radius:22px;--ny:450px;' + (torn ? 'clip-path:' + clipPoly + ';' : ''),
+      bandStyle: 'position:absolute;left:0;right:0;top:0;height:6px;background:' + bandBg,
+      foilStyle: 'position:absolute;right:0;top:0;width:' + (colorBy === 'class' ? 7 : 4) + 'px;height:450px;background:var(--foil-' + cabin + ');background-size:100% 400%;opacity:.95',
+      mapStyle, mapStyle2: '--ms:' + fit2.s.toFixed(0) + 'px;--mx:' + fit2.ox.toFixed(0) + 'px;--my:' + fit2.oy.toFixed(0) + 'px;position:absolute;inset:0;opacity:.28;mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat',
+      pStyle: dot(fit.p, '#14110F'), qStyle: dot(fit.q, '#14110F'),
+      ulStyle: 'width:64px;height:3px;border-radius:2px;margin-top:5px;background:' + (colorBy === 'class' ? bandBg : bandBg),
+      ulStyleR: 'width:64px;height:3px;border-radius:2px;margin:5px 0 0 auto;background:' + bandBg,
+      chipStyle: 'display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 13px 0 10px;border-radius:15px;font:600 13px/1 var(--font-ui);color:' + toInk(inkTone === sc[1] ? sc[1] : sc[1]) + ';background:color-mix(in srgb,' + sc[1] + ' 30%,#F5F0E6);box-shadow:inset 0 0 0 1px color-mix(in srgb,' + sc[1] + ' 65%,#14110F 10%)',
+      barcode: K.barcodePath(seed + 7, 300, 56, 7), serial: 'MR0142·' + from + to + '·' + (p.seat || '1A') + '·29OCT26·00' + (1000 + seed % 9000),
+      barClip: printing ? 'clip-path:inset(0 ' + (100 - Math.max(0, Math.min(100, (print - 0.9) / 0.1 * 100))).toFixed(1) + '% 0 0)' : '',
+      veilStyle: 'position:absolute;left:0;right:0;top:' + Math.max(0, print * 600 - 94).toFixed(1) + 'px;height:94px;background:linear-gradient(180deg,rgba(245,240,230,0),rgba(245,240,230,.88));pointer-events:none',
+      headStyle: 'position:absolute;left:-6px;right:-6px;top:' + (print * 600 - 1).toFixed(1) + 'px;height:2px;border-radius:1px;background:#fff;box-shadow:0 0 12px 3px rgba(255,255,255,.55),0 0 2px #fff',
+      rimPts, arcPath, ax: (arcPts[0][0]).toFixed(1), ay: arcPts[0][1].toFixed(1), bx: arcPts[arcPts.length - 1][0].toFixed(1), by: arcPts[arcPts.length - 1][1].toFixed(1),
+      progTrack: 'position:absolute;left:0;width:360px;top:445px;height:4px;background:rgba(20,17,15,.12)',
+      progFill: 'position:absolute;left:0;top:444px;height:5px;width:' + (360 * prog).toFixed(1) + 'px;background:linear-gradient(90deg,#6AB7FF,#8BF3D8);box-shadow:0 0 14px 2px rgba(106,183,255,.75),0 0 3px #8BF3D8',
+      onMove: e => { if (!live) return; const b = e.currentTarget.getBoundingClientRect(); const dx = (e.clientX - b.left) / b.width - .5, dy = (e.clientY - b.top) / b.height - .5; this.setState({ ry: +(dx * 12).toFixed(2), rx: +(-dy * 12).toFixed(2), lift: 8 }); },
+      onLeave: () => { if (live) this.setState({ rx: 0, ry: 0, lift: 0 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

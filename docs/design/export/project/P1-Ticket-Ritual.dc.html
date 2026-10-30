@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P1 Ticket ritual</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.p1-bar{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:18px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair)}
+.p1-step{display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-ui);color:var(--text-3);white-space:nowrap}
+.p1-step i{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font:600 11px/1 var(--font-mono);font-style:normal;background:var(--fill-2);color:var(--text-2)}
+.p1-step.cur{color:var(--text-1);font-weight:600}.p1-step.cur i{background:var(--accent-grad);color:#04101A;box-shadow:0 0 12px rgba(106,183,255,.55)}
+.p1-step.done i{background:rgba(91,227,160,.18);color:var(--ok)}
+.p1-sep{width:16px;height:1px;background:var(--stroke-hair)}
+.p1-ctl{display:flex;align-items:center;gap:8px;font:500 12px/1 var(--font-ui);color:var(--text-2)}
+@keyframes p1-in{from{opacity:0}to{opacity:1}}
+.p1-fade{animation:p1-in 520ms var(--ease) both}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:884px">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;border-radius:22px 22px 0 0;overflow:hidden">
+<sc-if value="{{isPlan}}" hint-placeholder-val="{{ true }}"><dc-import name="Planner" origin="{{origin}}" on-checkin="{{onCheckin}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isRitual}}" hint-placeholder-val="{{ false }}"><dc-import name="Ritual" from="{{tFrom}}" to="{{tTo}}" scenario="{{tSc}}" km="{{tKm}}" minutes="{{tMin}}" live="true" reduce="{{reduce}}" annotate="true" on-printed="{{onPrinted}}" on-torn="{{onTorn}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isGate}}" hint-placeholder-val="{{ false }}"><dc-import name="Gate" from="{{tFrom}}" to="{{tTo}}" km="{{tKm}}" minutes="{{tMin}}" live="true" on-board="{{onBoard}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isTakeoff}}" hint-placeholder-val="{{ false }}"><dc-import name="Takeoff" from="{{tFrom}}" to="{{tTo}}" total="{{tMin}}" live="true" reduce="{{reduce}}" on-done="{{onDone}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isCruise}}" hint-placeholder-val="{{ false }}"><div class="p1-fade" style="position:absolute;inset:0"><dc-import name="Flight" from="{{tFrom}}" to="{{tTo}}" p="0.03" total="{{tMin}}" km="{{tKm}}" live="true" speed="120" on-land="{{onLand}}" hint-size="1280px,800px"></dc-import></div></sc-if>
+<sc-if value="{{isLanded}}" hint-placeholder-val="{{ false }}"><dc-import name="Landing" from="{{tFrom}}" to="{{tTo}}" km="{{tKm}}" minutes="{{tMin}}" live="true" anim="true" on-fly-again="{{onAgain}}" on-wallet="{{onAgainWallet}}" hint-size="1280px,800px"></dc-import></sc-if>
+</div>
+<div class="p1-bar">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="7"><span class="p1-step {{s.cls}}"><i>{{s.n}}</i>{{s.t}}</span><sc-if value="{{s.sep}}" hint-placeholder-val="{{ true }}"><span class="p1-sep"></span></sc-if></sc-for>
+<span style="flex:1"></span>
+<div class="p1-ctl"><span>Sound</span><span class="toggle {{soundCls}}" role="switch" tabindex="0" aria-label="UI sounds" onClick="{{toggleSound}}"></span></div>
+<div class="p1-ctl"><span>Reduce Motion</span><span class="toggle {{reduceCls}}" role="switch" tabindex="0" aria-label="Reduce motion" onClick="{{toggleReduce}}"></span></div>
+<span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{restart}}"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Restart</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":884}}'>
+class Component extends DCLogic {
+  state = { phase: 'plan', sub: 'print', trip: { from: 'LHR', to: 'CDG', minutes: 42, km: 348, scenario: 'code' }, sound: true, reduce: false, origin: 'LHR', n: 0 };
+  go(phase, extra) { this.setState(Object.assign({ phase }, extra || {})); }
+  renderVals() {
+    const st = this.state, ph = st.phase, A = window.MeridianAudio; if (A) A.enabled = st.sound;
+    const T = ['Plan', 'Check-in', 'Printing', 'Tear', 'Gate', 'Take-off', 'Cruise'];
+    const idx = ph === 'plan' ? 0 : ph === 'ritual' ? (st.sub === 'print' ? 2 : 3) : ph === 'gate' ? 4 : ph === 'takeoff' ? 5 : 6;
+    const steps = T.map((t, i) => ({ t, n: i + 1, cls: i < idx ? 'done' : (i === idx ? 'cur' : ''), sep: i < T.length - 1 }));
+    return {
+      isPlan: ph === 'plan', isRitual: ph === 'ritual', isGate: ph === 'gate', isTakeoff: ph === 'takeoff', isCruise: ph === 'cruise', isLanded: ph === 'landed',
+      key: st.n, origin: st.origin, tFrom: st.trip.from, tTo: st.trip.to, tMin: st.trip.minutes, tKm: st.trip.km, tSc: st.trip.scenario, reduce: st.reduce,
+      steps, soundCls: st.sound ? 'on' : '', reduceCls: st.reduce ? 'on' : '',
+      onCheckin: o => { const trip = { from: o.from, to: o.to, minutes: o.minutes || 42, km: o.km || 348, scenario: o.scenario || 'code' }; if (o.quick) this.setState({ trip, phase: 'takeoff', sub: 'print' }); else this.setState({ trip, phase: 'ritual', sub: 'print' }); },
+      onPrinted: () => this.setState({ sub: 'tear' }), onTorn: () => this.setState({ phase: 'gate' }), onBoard: () => this.setState({ phase: 'takeoff' }), onDone: () => this.setState({ phase: 'cruise' }),
+      onLand: () => this.setState({ phase: 'landed' }), onAgain: o => this.setState({ origin: o.from, phase: 'plan', n: st.n + 1 }), onAgainWallet: () => this.setState({ origin: st.trip.to, phase: 'plan', n: st.n + 1 }),
+      toggleSound: () => this.setState({ sound: !st.sound }), toggleReduce: () => this.setState({ reduce: !st.reduce }), restart: () => this.setState({ phase: 'plan', origin: 'LHR', sub: 'print', n: st.n + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

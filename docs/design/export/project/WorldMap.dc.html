@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>World map screen</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.wm-row{display:flex;align-items:center;gap:12px;height:44px;padding:0 10px;border-radius:12px;cursor:pointer;transition:background var(--d2) var(--ease)}
+.wm-row:hover,.wm-row.is-hover{background:var(--fill-1)}
+.wm-row:focus-visible{outline:2px solid var(--accent-1);outline-offset:-2px}
+.wm-rk{width:16px;text-align:right;font:500 11px/1 var(--font-mono);color:var(--text-3)}
+.wm-iata{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:22px;border-radius:7px;background:var(--amber);color:var(--ink);font:700 13px/1 var(--font-cond);letter-spacing:.05em}
+.wm-track{position:relative;flex:1;height:44px;cursor:pointer}
+.wm-track .line{position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px;background:var(--fill-3)}
+.wm-track .fill{position:absolute;left:0;top:20px;height:4px;border-radius:2px;background:var(--accent-grad)}
+.wm-track .tk{position:absolute;top:14px;width:1px;height:16px;background:var(--text-3);opacity:.5}
+.wm-track .tk.big{top:10px;height:24px;opacity:.9}
+.wm-track .hd{position:absolute;top:12px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:#fff;box-shadow:0 0 0 5px rgba(106,183,255,.35),0 2px 8px rgba(0,0,0,.4)}
+.wm-track .lb{position:absolute;top:34px;font:500 10px/1 var(--font-mono);color:var(--text-3);transform:translateX(-50%);white-space:nowrap}
+.wm-track:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px;border-radius:8px}
+</style>
+</helmet>
+<div class="win" style="background:var(--m-sea)" tabindex="0" onKeyDown="{{onKey}}">
+<div style="position:absolute;inset:0;background:radial-gradient(70% 70% at 45% 50%,rgba(70,92,190,.22),transparent 70%)"></div>
+
+<sc-if value="{{isGlobe}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:90px;top:-50px;width:900px;height:900px"><dc-import name="Globe" size="900" lon="{{lon}}" lat="{{lat}}" visited="{{showVisited}}" drag="{{live}}" routes="{{gRoutes}}" pins="{{gPins}}" hint-size="900px,900px"></dc-import></div>
+</sc-if>
+<sc-if value="{{isFlat}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:0;top:152px;width:1280px;height:484px"><dc-import name="WorldFlat" w="1280" lat-top="80" lat-bot="-56" visited="{{showVisited}}" routes="{{gRoutes}}" pins="{{gPins}}" hint-size="1280px,484px"></dc-import></div>
+</sc-if>
+
+<dc-import name="Sidebar" active="map" rail="true" hint-size="64px,784px"></dc-import>
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- top controls -->
+<div class="glass e2" style="position:absolute;left:96px;top:36px;height:44px;border-radius:22px;padding:0 18px;display:flex;align-items:center;gap:14px"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#globe"></use></svg><span style="font:600 15px/1 var(--font-ui)">World</span><span class="mono c2" style="font-size:12px">19 countries · 41 airports</span></div>
+<div style="position:absolute;left:0;right:0;top:36px;display:flex;justify-content:center;gap:12px;pointer-events:none;padding-left:60px">
+<div class="seg glass e2" style="pointer-events:auto;padding:4px;border-radius:16px"><span class="{{globeOn}}" role="tab" onClick="{{setGlobe}}"><svg class="ic ic14"><use href="./icons.svg#globe"></use></svg>Globe</span><span class="{{flatOn}}" role="tab" onClick="{{setFlat}}"><svg class="ic ic14"><use href="./icons.svg#map"></use></svg>Flat</span></div>
+<div class="seg glass e2" style="pointer-events:auto;padding:4px;border-radius:16px"><span class="{{freqOn}}" role="tab" onClick="{{setFreq}}">Frequency</span><span class="{{scOn}}" role="tab" onClick="{{setSc}}">Scenario</span></div>
+</div>
+
+<!-- top airports -->
+<div class="glass e3" style="position:absolute;right:24px;top:36px;width:272px;border-radius:26px;padding:18px 12px 12px">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 10px"><span style="font:600 15px/18px var(--font-ui)">Top airports</span><span class="eyebrow">Visits</span></div>
+<div style="display:flex;flex-direction:column;margin-top:10px">
+<sc-for list="{{tops}}" as="a" hint-placeholder-count="8"><div class="wm-row {{a.cls}}" role="button" tabindex="0" aria-label="{{a.aria}}"><span class="wm-rk">{{a.rk}}</span><span class="wm-iata">{{a.code}}</span><div style="flex:1;min-width:0"><div style="font:500 13px/16px var(--font-ui)">{{a.city}}</div><div style="height:3px;border-radius:2px;margin-top:5px;background:var(--fill-2);overflow:hidden"><i style="{{a.bar}}"></i></div></div><span class="mono" style="font-size:12px">{{a.n}}</span></div></sc-for>
+</div>
+<div class="hr" style="margin:10px 10px 12px"></div>
+<div style="padding:0 10px 4px">
+<sc-if value="{{isFreq}}" hint-placeholder-val="{{ true }}"><div class="eyebrow" style="margin-bottom:8px">Country intensity</div><div style="height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(106,183,255,.22),rgba(106,183,255,.46),rgba(106,183,255,.78))"></div><div style="display:flex;justify-content:space-between;margin-top:6px" class="mono c3"><span style="font-size:10px">1 flight</span><span style="font-size:10px">10+</span></div></sc-if>
+<sc-if value="{{isSc}}" hint-placeholder-val="{{ false }}"><div class="eyebrow" style="margin-bottom:8px">Routes by scenario</div><div style="display:flex;flex-wrap:wrap;gap:6px 12px"><sc-for list="{{scLegend}}" as="l" hint-placeholder-count="7"><span style="display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--font-ui);color:var(--text-2)"><i style="{{l.s}}"></i>{{l.t}}</span></sc-for></div></sc-if>
+</div>
+</div>
+
+<!-- time scrubber -->
+<div class="glass e3" style="position:absolute;left:96px;width:872px;bottom:28px;height:84px;border-radius:30px;padding:0 22px;display:flex;align-items:center;gap:18px">
+<span class="btn-round glass glass-ctl" style="flex:none;width:44px;height:44px" role="button" tabindex="0" aria-label="{{playLbl}}" onClick="{{togglePlay}}"><svg class="ic ic20"><use href="{{playIc}}"></use></svg></span>
+<div style="flex:none;width:112px"><div class="eyebrow">Replay</div><div class="mono" style="font-size:18px;line-height:24px;margin-top:2px">{{monthLbl}}</div></div>
+<div class="wm-track" role="slider" tabindex="0" aria-label="Replay time" aria-valuenow="{{tPct}}" aria-valuemin="0" aria-valuemax="100" onPointerDown="{{pd}}" onPointerMove="{{pm}}" onPointerUp="{{pu}}">
+<div class="line"></div><div class="fill" style="{{fillStyle}}"></div>
+<sc-for list="{{ticks}}" as="k" hint-placeholder-count="20"><i class="tk {{k.cls}}" style="{{k.s}}"></i></sc-for>
+<div class="hd" style="{{headStyle}}"></div>
+<span class="lb" style="left:0%;transform:none">Mar 2025</span><span class="lb" style="left:100%;transform:translateX(-100%)">Oct 2026</span>
+</div>
+<div style="flex:none;text-align:right;width:84px"><div class="mono" style="font-size:18px;line-height:24px">{{flightsSoFar}}</div><div class="eyebrow">flights</div></div>
+<div class="seg" style="flex:none"><sc-for list="{{speeds}}" as="s" hint-placeholder-count="3"><span class="{{s.cls}}" onClick="{{s.pick}}">{{s.t}}</span></sc-for></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["globe","flat"],"default":"globe"},"by":{"editor":"enum","options":["frequency","scenario"],"default":"frequency"},"t":{"editor":"float","default":1},"live":{"editor":"boolean","default":false},"hoverRow":{"editor":"int","default":-1},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { mode: null, by: null, t: null, play: false, speed: 1, lon: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  R() { return [['LHR', 'CDG', 14, .04, 'code'], ['LHR', 'AMS', 9, .10, 'work'], ['LHR', 'DUB', 6, .22, 'read'], ['LHR', 'FRA', 5, .30, 'work'], ['LHR', 'IST', 4, .38, 'study'], ['LHR', 'MAD', 3, .46, 'code'], ['LHR', 'CAI', 2, .55, 'read'], ['LHR', 'JFK', 3, .60, 'work'], ['LHR', 'DXB', 2, .66, 'create'], ['IST', 'ESB', 3, .40, 'create'], ['ESB', 'ADB', 2, .44, 'meditate'], ['FRA', 'IST', 2, .48, 'work'], ['JFK', 'BOS', 4, .64, 'work'], ['BOS', 'YYZ', 2, .70, 'study'], ['YYZ', 'SFO', 2, .76, 'create'], ['SIN', 'SYD', 1, .82, 'study'], ['DXB', 'DOH', 2, .88, 'fitness'], ['AMS', 'BCN', 2, .93, 'code']]; }
+  play() { cancelAnimationFrame(this._raf); this._l = null; const L = now => { const dt = this._l ? (now - this._l) / 1000 : 0; this._l = now; const st = this.state; if (!st.play) return; let t = (st.t === null ? 0 : st.t) + dt * .06 * st.speed; if (t >= 1) { this.setState({ t: 1, play: false }); return; } this.setState({ t }); this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state, live = this.flag(p.live, false);
+    const mode = st.mode || (p.mode === 'flat' ? 'flat' : 'globe'), by = st.by || (p.by === 'scenario' ? 'scenario' : 'frequency');
+    const t = st.t !== null ? st.t : (typeof p.t === 'string' || typeof p.t === 'number' ? +p.t : 1);
+    const hovRow = typeof p.hoverRow === 'string' || typeof p.hoverRow === 'number' ? +p.hoverRow : -1;
+    const routes = this.R().filter(r => r[3] <= t + 1e-6);
+    const gRoutes = routes.map(r => { const fresh = t - r[3] < .07, col = by === 'scenario' ? K.scenarios[r[4]][1] : (r[2] >= 6 ? '#8BF3D8' : r[2] >= 3 ? '#6AB7FF' : '#9FB2FF'); return { a: r[0], b: r[1], c: fresh ? '#FFFFFF' : col, w: 1 + Math.min(2.4, r[2] * .16), o: fresh ? .95 : .78, h: .08 }; });
+    const tops = [['LHR', 38], ['CDG', 17], ['AMS', 12], ['IST', 10], ['JFK', 8], ['FRA', 7], ['DUB', 7], ['MAD', 5]];
+    const gPins = tops.map((a, i) => ({ code: a[0], c: '#FFB547', r: 2.6 + a[1] / 38 * 2.4, lbl: i < 5 }));
+    const m = Math.min(19, Math.floor(t * 19.999)), mi = (2 + m) % 12, yr = 2025 + Math.floor((2 + m) / 12), MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const ticks = []; for (let i = 0; i < 20; i++) ticks.push({ s: 'left:' + (i / 19 * 100).toFixed(2) + '%', cls: (i + 2) % 12 === 0 ? 'big' : '' });
+    const play = st.play;
+    const seek = (e, el) => { const r = el.getBoundingClientRect(); this.setState({ t: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), play: false }); };
+    return {
+      isGlobe: mode === 'globe', isFlat: mode === 'flat', globeOn: mode === 'globe' ? 'on' : '', flatOn: mode === 'flat' ? 'on' : '', freqOn: by === 'frequency' ? 'on' : '', scOn: by === 'scenario' ? 'on' : '', isFreq: by === 'frequency', isSc: by === 'scenario',
+      lon: st.lon !== null ? st.lon : -8, lat: 36, showVisited: by === 'frequency', live, gRoutes, gPins,
+      tops: tops.map((a, i) => ({ rk: i + 1, code: a[0], city: K.ap(a[0]).city, n: a[1], bar: 'display:block;height:100%;border-radius:2px;background:var(--accent-grad);width:' + (a[1] / 38 * 100).toFixed(0) + '%', cls: i === hovRow ? 'is-hover' : '', aria: K.ap(a[0]).city + ', ' + a[1] + ' visits' })),
+      scLegend: Object.keys(K.scenarios).filter(k => k !== 'other').map(k => ({ t: K.scenarios[k][0], s: 'width:8px;height:8px;border-radius:50%;display:block;background:' + K.scenarios[k][1] })),
+      monthLbl: MN[mi] + ' ' + yr, tPct: Math.round(t * 100), flightsSoFar: Math.round(87 * t), ticks, fillStyle: 'width:' + (t * 100).toFixed(2) + '%', headStyle: 'left:' + (t * 100).toFixed(2) + '%',
+      playLbl: play ? 'Pause replay' : 'Play replay', playIc: './icons.svg#' + (play ? 'pause' : 'play'),
+      speeds: [1, 2, 4].map(s => ({ t: s + '×', cls: st.speed === s ? 'on' : '', pick: () => this.setState({ speed: s }) })),
+      setGlobe: () => this.setState({ mode: 'globe' }), setFlat: () => this.setState({ mode: 'flat' }), setFreq: () => this.setState({ by: 'frequency' }), setSc: () => this.setState({ by: 'scenario' }),
+      togglePlay: () => { const np = !st.play; this.setState({ play: np, t: np && (st.t === null ? t : st.t) >= 1 ? 0 : (st.t === null ? t : st.t) }, () => { if (np) this.play(); }); },
+      pd: e => { this._seek = true; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} seek(e, e.currentTarget); }, pm: e => { if (this._seek) seek(e, e.currentTarget); }, pu: () => { this._seek = false; },
+      onKey: e => { if (e.key === ' ') { e.preventDefault(); } if (e.key === 'ArrowRight') this.setState({ t: Math.min(1, t + .05), play: false }); if (e.key === 'ArrowLeft') this.setState({ t: Math.max(0, t - .05), play: false }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

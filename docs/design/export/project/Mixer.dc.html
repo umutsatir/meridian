@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sound mixer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.mx-row{display:flex;align-items:center;gap:12px;height:42px;padding:0 4px}
+.mx-mute{width:18px;height:18px;border-radius:50%;flex:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1.5px var(--text-3);transition:background var(--d2) var(--ease),box-shadow var(--d2) var(--ease)}
+.mx-mute::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent-1);transition:transform var(--d3) var(--spring-snappy)}
+.mx-mute.is-muted::after{transform:scale(0)}
+.mx-mute:is(:hover,.is-hover){box-shadow:inset 0 0 0 1.5px var(--text-2)}
+.mx-mute:focus-visible,.mx-mute.is-focus{outline:2px solid var(--accent-1);outline-offset:2px}
+.mx-track{position:relative;flex:1;height:26px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.mx-track.is-muted{opacity:.4}
+.mx-track:focus-visible,.mx-track.is-focus{outline:2px solid var(--accent-1);outline-offset:2px;border-radius:6px}
+.mx-sw{display:flex;align-items:center;gap:14px;min-height:46px;padding:4px 4px}
+.mx-lbl{font:500 14px/18px var(--font-ui)}
+.mx-sub{font:400 12px/16px var(--font-ui);color:var(--text-2);margin-top:1px}
+</style>
+</helmet>
+<div class="glass e3" style="{{rootStyle}}">
+<sc-if value="{{showLayers}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 4px"><div class="t-headline">Cabin sound</div><div class="mono c2" style="font-size:12px">{{masterText}}</div></div>
+<div class="mx-row" style="margin-top:4px"><svg class="ic ic18 c2"><use href="./icons.svg#sound"></use></svg><span class="mx-lbl" style="width:60px">Master</span>
+<div class="mx-track" tabindex="0" role="slider" aria-label="Master volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{master}}" onPointerDown="{{masterDown}}" onPointerMove="{{masterMove}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onKeyDown="{{masterKey}}"><div class="slider" style="{{masterStyle}}"><i></i><b></b></div></div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 8px"><sc-for list="{{presets}}" as="p" hint-placeholder-count="3"><span class="chip {{p.cls}}" style="--sc:{{p.c}};height:30px;font-size:12px" role="button" tabindex="0" onClick="{{p.pick}}">{{p.t}}</span></sc-for></div>
+<div class="hr"></div>
+<div style="display:flex;flex-direction:column;padding-top:6px">
+<sc-for list="{{layers}}" as="l" hint-placeholder-count="7">
+<div class="mx-row">
+<span class="mx-mute {{l.mcls}}" role="switch" aria-checked="{{l.on}}" aria-label="{{l.name}} {{l.state}}" tabindex="0" onClick="{{l.toggle}}"></span>
+<span class="mx-lbl" style="width:98px;color:{{l.tc}}">{{l.name}}</span>
+<svg width="64" height="22" viewBox="0 0 64 22" style="flex:none;opacity:{{l.wo}}" aria-hidden="true"><path d="{{l.wave}}" fill="none" stroke="var(--accent-2)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div class="mx-track {{l.tcls}}" tabindex="0" role="slider" aria-label="{{l.name}} level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{l.v}}" onPointerDown="{{l.down}}" onPointerMove="{{l.move}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onKeyDown="{{l.key}}"><div class="slider {{l.hov}}" style="{{l.ss}}"><i></i><b></b></div></div>
+<span class="mono c2" style="width:30px;text-align:right;font-size:12px">{{l.v}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showAnn}}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{showLayers}}" hint-placeholder-val="{{ true }}"><div class="hr" style="margin:10px 0 6px"></div></sc-if>
+<div class="t-headline" style="padding:0 4px 4px">Announcements</div>
+<sc-for list="{{toggles}}" as="t" hint-placeholder-count="6">
+<div class="mx-sw"><div style="flex:1"><div class="mx-lbl">{{t.t}}</div><div class="mx-sub">{{t.sub}}</div></div><span class="toggle {{t.cls}}" role="switch" tabindex="0" aria-checked="{{t.on}}" aria-label="{{t.t}}" onClick="{{t.flip}}"></span></div>
+</sc-for>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"w":{"editor":"int","default":420},"section":{"editor":"enum","options":["all","layers","announce"],"default":"all"},"live":{"editor":"boolean","default":false},"preset":{"editor":"text","default":"deep"},"sound":{"editor":"boolean","default":false},"focusRow":{"editor":"int","default":-1},"$preview":{"width":420,"height":900}}'>
+class Component extends DCLogic {
+  state = { lv: null, mute: null, master: null, tg: null, preset: null, t: 0 };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentDidMount() { if (this.flag(this.props.live, false)) { const L = now => { this.setState({ t: now / 1000 }); this._raf = setTimeout(() => requestAnimationFrame(L), 50); }; requestAnimationFrame(L); } }
+  componentWillUnmount() { clearTimeout(this._raf); }
+  presetsDef() { return { deep: { lv: { hum: 55, rain: 0, ocean: 0, forest: 0, brown: 38, pink: 0, music: 0 }, master: 72 }, night: { lv: { hum: 70, rain: 0, ocean: 0, forest: 0, brown: 22, pink: 0, music: 34 }, master: 60 }, rainy: { lv: { hum: 30, rain: 64, ocean: 0, forest: 0, brown: 0, pink: 0, music: 42 }, master: 68 } }; }
+  apply(k) { const A = window.MeridianAudio, p = this.presetsDef()[k]; this.setState({ lv: Object.assign({}, p.lv), master: p.master, mute: {}, preset: k }); this.push(p.lv, {}, p.master); }
+  push(lv, mute, master) { const A = window.MeridianAudio; if (!A || !this.flag(this.props.sound, false) || !A.enabled) return; Object.keys(lv).forEach(k => A.layer(k, mute[k] ? 0 : lv[k] / 100 * master / 100)); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.flag(p.live, false), sec = p.section || 'all';
+    const LAYERS = [['hum', 'Cabin hum'], ['rain', 'Rain'], ['ocean', 'Ocean'], ['forest', 'Forest'], ['brown', 'Brown noise'], ['pink', 'Pink noise'], ['music', 'Soft music']];
+    const pk = st.preset || p.preset || 'deep', pd = this.presetsDef()[pk] || this.presetsDef().deep;
+    const lv = st.lv || pd.lv, mute = st.mute || {}, master = st.master !== null ? st.master : pd.master, t = live ? st.t : 3.2;
+    const tg = st.tg || { cap: true, crew: true, belt: true, head: true, atc: false };
+    const duck = tg.duck !== undefined ? tg.duck : true;
+    const wave = (k, v, m) => { const amp = m ? 0 : Math.max(.5, v / 100 * 9), r = K.rng(K.hash(k)); let d = ''; for (let i = 0; i <= 32; i++) { const x = i * 2, ph = i / 32 * Math.PI * 2; let y; if (k === 'ocean') y = Math.sin(ph * 1.3 + t * 1.2) * amp; else if (k === 'hum') y = Math.sin(ph * 3 + t * 5) * amp * .5; else if (k === 'music') y = Math.sin(ph * 2 + t * 3) * amp * Math.sin(ph * .8 + 1) + Math.sin(ph * 7 + t * 4) * amp * .25; else y = (Math.sin(ph * (k === 'rain' ? 14 : k === 'forest' ? 8 : k === 'brown' ? 3 : 10) + t * 6 + r() * 6) * .7 + (r() - .5)) * amp * .8; d += (i ? 'L' : 'M') + x + ',' + (11 - y).toFixed(1); } return d; };
+    const layers = LAYERS.map((a, i) => { const k = a[0], v = lv[k] || 0, m = !!mute[k], eff = m ? 0 : v;
+      const set = nv => { const nl = Object.assign({}, lv); nl[k] = Math.max(0, Math.min(100, Math.round(nv))); this.setState({ lv: nl, preset: st.preset || pk }); this.push(nl, mute, master); };
+      const fromX = e => { const r = e.currentTarget.getBoundingClientRect(); return (e.clientX - r.left) / r.width * 100; };
+      return { name: a[1], v, on: m ? 'false' : 'true', state: m ? 'muted' : 'on', mcls: m ? 'is-muted' : '', tc: m ? 'var(--text-3)' : 'var(--text-1)', wo: m || v === 0 ? .3 : .95, wave: wave(k, v, m || v === 0), tcls: m ? 'is-muted' : '', hov: '', ss: '--v:' + (v || .01), down: e => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this._d = k; set(fromX(e)); }, move: e => { if (this._d === k) set(fromX(e)); }, key: e => { if (e.key === 'ArrowRight') { e.preventDefault(); set(v + (e.shiftKey ? 10 : 2)); } if (e.key === 'ArrowLeft') { e.preventDefault(); set(v - (e.shiftKey ? 10 : 2)); } },
+        toggle: () => { const nm = Object.assign({}, mute); nm[k] = !m; this.setState({ mute: nm }); this.push(lv, nm, master); } };
+    });
+    const presets = [['deep', 'Deep Work', '#B49CFF'], ['night', 'Night Flight', '#7AA2FF'], ['rainy', 'Rainy Read', '#7ADDB2']].map(a => ({ t: a[1], c: a[2], cls: pk === a[0] && (!st.lv || JSON.stringify(st.lv) === JSON.stringify(this.presetsDef()[pk].lv)) ? 'is-selected' : '', pick: () => this.apply(a[0]) }));
+    const flip = k => () => { const nt = Object.assign({}, tg); nt[k] = !(k === 'duck' ? duck : tg[k]); this.setState({ tg: nt }); };
+    const tdef = [['duck', 'Duck announcements', 'Ambient sound dips 6 dB while the captain speaks.', duck], ['cap', 'Captain announcements', 'Short, warm, never more than three a flight.', tg.cap], ['crew', 'Cabin crew chimes', 'A soft two-note chime at phase changes.', tg.crew], ['belt', 'Seatbelt sign', 'Chime and light when the plane takes off and lands.', tg.belt], ['head', 'Landing heads-up (5 min before)', 'A quiet notice before descent so you can wrap up.', tg.head], ['atc', 'ATC chatter', 'Faint radio murmur in the background.', tg.atc]];
+    const toggles = tdef.map(a => ({ t: a[1], sub: a[2], on: a[3] ? 'true' : 'false', cls: a[3] ? 'on' : '', flip: flip(a[0]) }));
+    const setMaster = nv => { const m = Math.max(0, Math.min(100, Math.round(nv))); this.setState({ master: m }); this.push(lv, mute, m); };
+    return {
+      layers, presets, toggles, master, masterText: master + '%', masterStyle: '--v:' + (master || .01), showLayers: sec !== 'announce', showAnn: sec !== 'layers',
+      rootStyle: 'width:' + (+(p.w || 420)) + 'px;border-radius:28px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:2px',
+      masterDown: e => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this._d = 'master'; const r = e.currentTarget.getBoundingClientRect(); setMaster((e.clientX - r.left) / r.width * 100); },
+      masterMove: e => { if (this._d !== 'master') return; const r = e.currentTarget.getBoundingClientRect(); setMaster((e.clientX - r.left) / r.width * 100); },
+      masterKey: e => { if (e.key === 'ArrowRight') { e.preventDefault(); setMaster(master + 2); } if (e.key === 'ArrowLeft') { e.preventDefault(); setMaster(master - 2); } },
+      up: () => { this._d = null; }
+    };
+  }
+}
+</script>
+</body>
+</html>

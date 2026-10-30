@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Localisation test</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.lc{width:1440px;padding:56px 56px 64px;box-sizing:border-box;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);display:flex;flex-direction:column;gap:26px;-webkit-font-smoothing:antialiased}
+.lc h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:6px 0 0}
+.lc-g{display:grid;grid-template-columns:150px repeat(3,1fr);gap:0;border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);overflow:hidden}
+.lc-h{padding:16px 22px;font:600 11px/16px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--text-2);border-bottom:1px solid var(--stroke-hair);display:flex;align-items:center;gap:8px}
+.lc-h i{font:600 10px/1 var(--font-ui);font-style:normal;letter-spacing:.08em;padding:4px 7px;border-radius:9px;background:rgba(255,181,71,.16);color:#FFC27A}
+.lc-h i.fin{background:rgba(139,243,216,.14);color:var(--accent-2)}
+.lc-k{padding:22px 22px;font:600 11px/16px var(--font-ui);letter-spacing:.1em;text-transform:uppercase;color:var(--text-2);border-top:1px solid var(--stroke-hair)}
+.lc-c{padding:22px 22px;border-top:1px solid var(--stroke-hair);border-left:1px solid var(--stroke-hair);display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:0}
+.lc-m{font:400 11px/16px var(--font-mono);color:var(--text-2)}
+.lc-hint{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 16px;border-radius:20px;font:600 14px/1 var(--font-ui);white-space:nowrap}
+.lc-n{position:relative;width:100%;max-width:344px;border-radius:22px;padding:12px 14px 12px 12px;display:flex;gap:12px;color:#F3F5FA;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 40%,rgba(255,255,255,.07)),rgba(22,30,52,.66);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.1),0 18px 44px rgba(0,0,0,.4);box-sizing:border-box}
+.lc-n .t{font:600 14px/18px var(--font-ui)}
+.lc-n .b{font:400 13px/18px var(--font-ui);color:rgba(243,245,250,.78);margin-top:1px}
+.lc-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.lc-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+</style>
+</helmet>
+<div class="lc" data-theme="dark" data-screen-label="L01 Localisation test">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px"><div><div class="eyebrow">L01 · Localisation</div><h1>Turkish and German at +30 %</h1><div class="t-callout c2" style="margin-top:6px;max-width:840px">The four Turkish strings from the copy deck, set in the real components at their real widths, next to English and a German length test. Nothing is allowed to clip, wrap awkwardly or move the layout.</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:340px">Button 226 pt wide, hint pill and banner as built. Turkish is final for the deck samples; German is a placeholder.</div></div>
+
+<div class="lc-g">
+<div class="lc-h"></div>
+<div class="lc-h">English</div>
+<div class="lc-h">Turkish <i class="fin">deck copy</i></div>
+<div class="lc-h">German <i>length test</i></div>
+
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+<div class="lc-k">{{r.k}}</div>
+<sc-for list="{{r.cells}}" as="c" hint-placeholder-count="3">
+<div class="lc-c">
+<sc-if value="{{c.isHead}}" hint-placeholder-val="{{ false }}"><div style="font:500 52px/1.04 var(--font-serif);letter-spacing:-.02em">{{c.t}}</div><div style="font:400 16px/24px var(--font-ui);color:var(--text-2)">{{c.sub}}</div></sc-if>
+<sc-if value="{{c.isBtn}}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary btn-lg" style="width:226px;padding:0">{{c.t}}</button><div class="lc-m">{{c.sub}}</div></sc-if>
+<sc-if value="{{c.isHint}}" hint-placeholder-val="{{ false }}"><div class="glass e2 lc-hint"><span>{{c.t}}</span><svg class="ic ic14"><use href="./icons.svg#chev-r"></use></svg></div><div class="lc-m">{{c.sub}}</div></sc-if>
+<sc-if value="{{c.isBanner}}" hint-placeholder-val="{{ false }}"><div class="lc-n" role="group" aria-label="{{c.t}}"><div style="flex:none"><dc-import name="AppIcon" concept="b" variant="default" size="38" hint-size="38px,38px"></dc-import></div><div style="flex:1;min-width:0"><div class="t">{{c.t}}</div><div class="b">{{c.sub}}</div></div></div></sc-if>
+</div></sc-for>
+</sc-for>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<div class="lc-nat"><b>Rules</b><span>Buttons keep their width and let the label shrink to 12 pt before it ellipsizes. Pills, chips and times never wrap and grow to the right. Headlines wrap to two lines at most. Every container is laid out with HStack and VStack, never fixed offsets, so SwiftUI’s own 30 % expansion test needs no changes.</span></div>
+<div class="lc-nat"><b>Right to left</b><span>Not designed here, but nothing blocks it: icons that point (chevrons, arrows) are mirrored with .flipsHorizontallyInRightToLeft, the pass, perforation and ticket numbers are not mirrored because they are objects, and the map is never mirrored.</span></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":981}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const head = (t, sub) => ({ isHead: true, isBtn: false, isHint: false, isBanner: false, t, sub });
+    const btn = (t, sub) => ({ isHead: false, isBtn: true, isHint: false, isBanner: false, t, sub });
+    const hint = (t, sub) => ({ isHead: false, isBtn: false, isHint: true, isBanner: false, t, sub });
+    const ban = (t, sub) => ({ isHead: false, isBtn: false, isHint: false, isBanner: true, t, sub });
+    const rows = [
+      { k: 'Welcome', cells: [head('Fly into focus.', 'Pick a destination. Land your work.'), head('Odağa uç.', 'Bir varış noktası seç. İşini yere indir.'), head('Flieg in den Fokus.', 'Wähle ein Ziel. Lande deine Arbeit.')] },
+      { k: 'Primary button', cells: [btn('Check in', '8 characters'), btn('Check-in yap', '12 characters, +50 %'), btn('Einchecken', '10 characters, +25 %')] },
+      { k: 'Tear hint', cells: [hint('Tear here', '9 characters'), hint('Bileti buradan yırt', '19 characters, +111 %'), hint('Hier abreißen', '13 characters, +44 %')] },
+      { k: 'Landing banner', cells: [ban('Prepare for landing', 'Cabin crew, prepare for landing. 5 minutes to go.'), ban('İniş için hazırlanın', 'İniş için hazırlanın. 5 dakika kaldı.'), ban('Landeanflug', 'Bitte zur Landung bereitmachen. Noch 5 Minuten.')] }
+    ];
+    return { rows: rows.map(r => ({ k: r.k, cells: r.cells })) };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Desktop with menu bar and mini map</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.dk-bar{position:absolute;left:0;top:0;right:0;height:28px;display:flex;align-items:center;padding:0 14px;gap:18px;font:500 13px/1 var(--font-ui);color:rgba(255,255,255,.92);background:rgba(12,16,30,.42);backdrop-filter:blur(24px) saturate(1.4);z-index:80}
+.dk-bar b{font-weight:700}
+.dk-it{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;font:500 13px/1 var(--font-ui);font-feature-settings:"tnum" 1;cursor:pointer;transition:background var(--d1) var(--ease)}
+.dk-it:hover,.dk-it.is-hover{background:rgba(255,255,255,.16)}
+.dk-it.on{background:rgba(255,255,255,.26)}
+.dk-it.pulse{animation:dk-p 1.4s ease-in-out infinite}
+@keyframes dk-p{0%,100%{box-shadow:0 0 0 0 rgba(106,183,255,0)}50%{box-shadow:0 0 0 4px rgba(106,183,255,.45)}}
+.dk-dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.dk-mini{position:absolute;touch-action:none}
+.dk-note{position:absolute;border-radius:16px;background:rgba(246,244,238,.94);color:#1B1710;box-shadow:0 30px 60px rgba(0,0,0,.35)}
+</style>
+</helmet>
+<div class="win" data-theme="dark" style="{{wall}}" tabindex="0">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;background:radial-gradient(40% 50% at 78% 28%,{{sun}},transparent 70%)"></div>
+<!-- app window behind -->
+<div class="dk-note" style="left:120px;top:96px;width:640px;height:520px;padding:0">
+<div style="height:40px;border-radius:16px 16px 0 0;background:#ECE9E1;display:flex;align-items:center;padding:0 16px;gap:8px"><i style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></i><i style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></i><i style="width:12px;height:12px;border-radius:50%;background:#28C840"></i><span style="margin-left:14px;font:600 13px/1 var(--font-ui);color:#4A4636">Auth module refactor</span></div>
+<div style="padding:26px 34px;display:flex;flex-direction:column;gap:14px"><div style="font:500 26px/32px var(--font-serif)">Token refresh path</div><sc-for list="{{lines}}" as="l" hint-placeholder-count="9"><div style="height:10px;width:{{l.w}}%;border-radius:5px;background:rgba(27,23,16,.12)"></div></sc-for></div>
+</div>
+<!-- menu bar -->
+<div class="dk-bar"><b>Meridian</b><span>File</span><span>Edit</span><span>View</span><span>Window</span><span>Help</span><span style="flex:1"></span>
+<span style="display:flex;align-items:center;gap:12px"><svg class="ic ic14" style="opacity:.85"><use href="./icons.svg#sound"></use></svg><svg class="ic ic14" style="opacity:.85"><use href="./icons.svg#search"></use></svg>
+<span class="dk-it {{itemCls}}" role="button" tabindex="0" aria-label="Meridian: {{itemLabel}}" onClick="{{togglePop}}"><sc-if value="{{dot}}" hint-placeholder-val="{{ false }}"><span class="dk-dot"></span></sc-if><svg class="ic ic14"><use href="{{itemIc}}"></use></svg><sc-if value="{{itemText}}" hint-placeholder-val="{{ true }}"><span>{{itemText}}</span></sc-if></span>
+<span style="opacity:.92">Thu 29 Oct&nbsp;&nbsp;10:04</span></span></div>
+<!-- popover -->
+<sc-if value="{{popover}}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:{{popLeft}}px;top:36px;z-index:90"><dc-import name="MenuPopover" state="{{state}}" p="{{p}}" mini-on="{{mini}}" size="{{size}}" opacity="{{opacity}}" click-through="{{ct}}" paused="{{paused}}" hover-btn="{{popHover}}" arrow="{{arrow}}" on-mini="{{onMini}}" on-size="{{onSize}}" on-opacity="{{onOpacity}}" on-click-through="{{onCt}}" on-pause="{{onPause}}" hint-size="340px,560px"></dc-import></div></sc-if>
+<!-- mini -->
+<sc-if value="{{mini}}" hint-placeholder-val="{{ true }}"><div class="dk-mini" style="{{miniStyle}}" onPointerDown="{{mDown}}" onPointerMove="{{mMove}}" onPointerUp="{{mUp}}"><dc-import name="MiniMap" w="{{mw}}" h="{{mh}}" p="{{p}}" opacity="{{opacity}}" click-through="{{ct}}" paused="{{paused}}" hover="{{hoverMini}}" hover-btn="{{hoverBtn}}" live="{{live}}" on-size="{{onCycle}}" on-close="{{onClose}}" on-resize="{{onResize}}" hint-size="{{mw}}px,{{mh}}px"></dc-import></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"state":{"editor":"enum","options":["idle","boarding","flight","last","landed"],"default":"flight"},"popOpen":{"editor":"boolean","default":false},"mini":{"editor":"boolean","default":true},"size":{"editor":"enum","options":["s","m","l"],"default":"m"},"corner":{"editor":"enum","options":["tl","tr","bl","br"],"default":"br"},"hoverMini":{"editor":"boolean","default":false},"hoverBtn":{"editor":"text","default":""},"popHover":{"editor":"text","default":""},"opacity":{"editor":"float","default":1},"clickThrough":{"editor":"boolean","default":false},"p":{"editor":"float","default":.55},"live":{"editor":"boolean","default":false},"light":{"editor":"boolean","default":false},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { p: null, pop: null, mini: null, size: null, corner: null, pos: null, opacity: null, ct: null, paused: false, drag: false, free: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  live() { return this.flag(this.props.live, false); }
+  componentDidMount() { if (this.live()) { this._t = performance.now(); const L = now => { const dt = (now - this._t) / 1000; this._t = now; if (!this.state.paused) { const p = Math.min(1, (this.state.p !== null ? this.state.p : +(this.props.p === undefined ? .55 : this.props.p)) + dt * 20 / 2520); this.setState({ p }); } this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); } }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  dims(sz) { return { s: [360, 200], m: [480, 270], l: [640, 360] }[sz] || [480, 270]; }
+  corners(w, h) { const m = 16; return { tl: [m, 44], tr: [1280 - w - m, 44], bl: [m, 800 - h - m], br: [1280 - w - m, 800 - h - m] }; }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.live();
+    const prog = st.p !== null ? st.p : +(p.p === undefined ? .55 : p.p);
+    const state = live ? (prog >= 1 ? 'landed' : prog >= .9 ? 'last' : 'flight') : (p.state || 'flight');
+    const size = st.size || p.size || 'm', d = this.dims(size), corner = st.corner || p.corner || 'br';
+    const free = st.free, w = free ? free.w : d[0], h = free ? free.h : d[1];
+    const pos = st.pos || this.corners(w, h)[corner];
+    const popover = st.pop !== null ? st.pop : this.flag(p.popOpen, false), mini = st.mini !== null ? st.mini : this.flag(p.mini, true);
+    const op = st.opacity !== null ? st.opacity : +(p.opacity === undefined ? 1 : p.opacity), ct = st.ct !== null ? st.ct : this.flag(p.clickThrough, false);
+    const rem = Math.round((1 - prog) * 42 * 60), light = this.flag(p.light, false);
+    const item = { idle: ['', './icons.svg#plane', false, 'Idle'], boarding: ['04:12', './icons.svg#plane', true, 'Boarding'], flight: [K.mmss(rem), './icons.svg#plane', false, 'In flight'], last: [K.mmss(state === 'last' ? Math.max(0, rem) : 252), './icons.svg#plane', false, 'Last minute'], landed: ['Landed', './icons.svg#check', false, 'Landed'] }[state];
+    const lines = [86, 92, 74, 88, 40, 90, 82, 66, 30].map(w => ({ w }));
+    const popLeft = 926;
+    const upd = o => this.setState(o);
+    return {
+      state, p: prog, wall: light ? 'background:linear-gradient(160deg,#F6D9C4,#F2B8A2 40%,#C99ADA 75%,#8EA6E8)' : 'background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F)', sun: light ? 'rgba(255,240,200,.8)' : 'rgba(255,170,110,.26)', lines,
+      itemCls: (popover ? 'on ' : '') + (state === 'last' ? 'pulse' : ''), itemIc: item[1], itemText: item[0], dot: item[2], itemLabel: item[3], popover, popLeft, arrow: 1096 - popLeft - 6, mini, size, opacity: op, ct, paused: st.paused, popHover: p.popHover || '',
+      togglePop: () => upd({ pop: !popover }),
+      mw: Math.round(w), mh: Math.round(h), hoverMini: this.flag(p.hoverMini, false), hoverBtn: p.hoverBtn || '', live,
+      miniStyle: 'left:' + Math.round(pos[0]) + 'px;top:' + Math.round(pos[1]) + 'px;z-index:70;pointer-events:' + (ct ? 'none' : 'auto') + ';transition:' + (st.drag || free ? 'none' : 'left 380ms var(--spring-smooth),top 380ms var(--spring-smooth)') + ';cursor:' + (st.drag ? 'grabbing' : 'grab'),
+      onMini: v => upd({ mini: v }), onSize: v => upd({ size: v, pos: null, free: null }), onOpacity: v => upd({ opacity: v }), onCt: v => upd({ ct: v }), onPause: () => upd({ paused: !st.paused }),
+      onCycle: () => { const n = size === 's' ? 'm' : size === 'm' ? 'l' : 's'; upd({ size: n, pos: null, free: null }); }, onClose: () => upd({ mini: false }),
+      onResize: r => { if (!live) return; const wd = Math.max(300, Math.min(700, r.w)); if (!r.done) upd({ free: { w: wd, h: Math.round(wd * 9 / 16) } }); else { const best = ['s', 'm', 'l'].reduce((a, k) => Math.abs(this.dims(k)[0] - wd) < Math.abs(this.dims(a)[0] - wd) ? k : a, 's'); upd({ size: best, free: null, pos: null }); } },
+      mDown: e => { if (!live) return; this._m = { x: e.clientX, y: e.clientY, px: pos[0], py: pos[1], moved: false }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (z) {} },
+      mMove: e => { const m = this._m; if (!m) return; const dx = e.clientX - m.x, dy = e.clientY - m.y; if (!m.moved && Math.abs(dx) + Math.abs(dy) < 4) return; m.moved = true; upd({ drag: true, pos: [m.px + dx, m.py + dy] }); },
+      mUp: e => { const m = this._m; this._m = null; if (!m || !m.moved) return; const cx = m.px + (e.clientX - m.x) + w / 2, cy = m.py + (e.clientY - m.y) + h / 2; const c = (cx < 640 ? 't' : 'b'); const k = (cy < 400 ? 't' : 'b') + (cx < 640 ? 'l' : 'r'); upd({ drag: false, corner: k, pos: this.corners(w, h)[k] }); setTimeout(() => this.setState({ pos: null }), 420); }
+    };
+  }
+}
+</script>
+</body>
+</html>

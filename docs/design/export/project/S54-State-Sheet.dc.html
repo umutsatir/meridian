@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>S54 — State sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.s4{width:1280px;height:1620px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:30px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.s4 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.s4-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.s4-t{position:relative;height:292px;border-radius:26px;padding:26px 28px 24px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.s4-t .art{height:96px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.s4-t .h{font:600 17px/22px var(--font-ui)}
+.s4-t .b{font:400 13px/18px var(--font-ui);color:var(--text-2);margin-top:6px;max-width:290px}
+.s4-t .act{display:flex;gap:10px;margin-top:auto}
+.s4-id{position:absolute;left:14px;top:12px;font:600 10px/12px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--text-3)}
+.s4-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.s4-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.s4-ic{width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:var(--fill-2);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.s4-bn{display:flex;align-items:center;gap:16px;padding:16px 18px 16px 18px;border-radius:22px}
+.s4-ghost{background:var(--fill-2);border-radius:8px}
+@media (prefers-reduced-motion:reduce){.skel{animation:none;background:var(--fill-2)}}
+</style>
+</helmet>
+<div class="s4" data-screen-label="S54 State sheet">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">S54</div><h1 style="margin-top:6px">States</h1><div class="t-callout c2" style="margin-top:6px;max-width:620px">Nothing here shames you for having no data. Empty states say what will fill the space, errors say what still works, and loading never blocks the flight.</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:340px">Every button uses the kit’s hover, pressed, focus and disabled states. All tiles are 368 × 292.</div></div>
+
+<div><div class="s4-cap">Empty<span>shown inside the normal screen, never as a modal</span></div>
+<div class="s4-grid">
+<div class="glass e2 s4-t" role="group" aria-label="No flights yet"><span class="s4-id">Wallet · no flights</span>
+<div class="art"><svg width="150" height="92" viewBox="0 0 150 92" fill="none" aria-hidden="true"><path d="M14 6h122a8 8 0 0 1 8 8v22a9 9 0 0 0 0 18v24a8 8 0 0 1-8 8H14a8 8 0 0 1-8-8V54a9 9 0 0 0 0-18V14a8 8 0 0 1 8-8Z" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="5 6"/><path d="M104 12v68" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/><rect x="24" y="24" width="44" height="8" rx="4" fill="var(--fill-3)"/><rect x="24" y="42" width="62" height="6" rx="3" fill="var(--fill-2)"/><rect x="24" y="56" width="34" height="6" rx="3" fill="var(--fill-2)"/><svg x="112" y="34" width="24" height="24" viewBox="0 0 24 24" color="var(--text-3)"><use href="./icons.svg#plane"></use></svg></svg></div>
+<div class="h">No tickets yet. Your first flight will print here.</div>
+<div class="b">Pick a destination and a tag. The printer does the rest.</div>
+<div class="act"><button class="btn btn-primary btn-sm">Plan a flight</button></div></div>
+<div class="glass e2 s4-t" role="group" aria-label="No friends"><span class="s4-id">Together · no friends</span>
+<div class="art"><svg width="150" height="92" viewBox="0 0 150 92" fill="none" aria-hidden="true"><circle cx="40" cy="46" r="26" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="4 6"/><circle cx="75" cy="46" r="26" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="4 6" fill="var(--bg-2)"/><circle cx="110" cy="46" r="26" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="4 6" fill="var(--bg-2)"/><path d="M110 36v20M100 46h20" stroke="var(--text-2)" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+<div class="h">Nobody on board yet.</div>
+<div class="b">Invite a friend to fly the same route at the same time. It shows status only, never chat.</div>
+<div class="act"><button class="btn btn-primary btn-sm">Invite a friend</button><button class="btn btn-tertiary btn-sm">Learn how it works</button></div></div>
+<div class="glass e2 s4-t" role="group" aria-label="No cards"><span class="s4-id">Cards · none unlocked</span>
+<div class="art"><svg width="150" height="92" viewBox="0 0 150 92" fill="none" aria-hidden="true"><rect x="21" y="9" width="108" height="74" rx="12" stroke="var(--text-3)" stroke-width="2" stroke-dasharray="5 6"/><rect x="21" y="9" width="108" height="74" rx="12" fill="var(--fill-1)"/><path d="M36 64h40" stroke="var(--fill-3)" stroke-width="5" stroke-linecap="round"/><svg x="97" y="21" width="22" height="22" viewBox="0 0 24 24" color="var(--text-2)"><use href="./icons.svg#lock"></use></svg></svg></div>
+<div class="h">No cards yet.</div>
+<div class="b">Cards unlock as you fly. The first one arrives at 1,000 km.</div>
+<div class="act"><button class="btn btn-secondary btn-sm">See all cards</button></div></div>
+</div></div>
+
+<div><div class="s4-cap">Errors<span>plain words, one action, never red unless data is at risk</span></div>
+<div class="s4-grid">
+<div class="glass e2 s4-t" role="alert" aria-label="No internet"><span class="s4-id">No internet</span>
+<div class="art"><span class="s4-ic"><svg class="ic ic24 c2"><use href="./icons.svg#wifi-off"></use></svg></span></div>
+<div class="h">You’re offline.</div>
+<div class="b">Your flight keeps running. The map shows the last tiles it downloaded.</div>
+<div class="act"><button class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Try again</button></div></div>
+<div class="glass e2 s4-t" role="alert" aria-label="iCloud is off"><span class="s4-id">iCloud off</span>
+<div class="art"><span class="s4-ic"><svg class="ic ic24 cAmber"><use href="./icons.svg#cloud-off"></use></svg></span></div>
+<div class="h">iCloud is off.</div>
+<div class="b">Flights are saved on this Mac only. Turn on iCloud to keep them on every device.</div>
+<div class="act"><button class="btn btn-primary btn-sm">Open System Settings</button><button class="btn btn-tertiary btn-sm">Not now</button></div></div>
+<div class="glass e2 s4-t" role="alert" aria-label="Map failed to load"><span class="s4-id">Map failed</span>
+<div class="art"><svg width="170" height="92" viewBox="0 0 170 92" fill="none" aria-hidden="true"><rect x="2" y="2" width="166" height="88" rx="16" fill="var(--m-sea)" stroke="var(--stroke-hair)" stroke-width="1.5"/><path d="M26 66C54 28 112 26 144 50" stroke="var(--accent-1)" stroke-width="2.4" stroke-dasharray="1 7" stroke-linecap="round"/><circle cx="26" cy="66" r="5" fill="var(--text-1)"/><circle cx="144" cy="50" r="5" fill="var(--text-1)"/><svg x="73" y="26" width="22" height="22" viewBox="0 0 24 24" color="var(--accent-1)" style="transform:rotate(-8deg)"><use href="./icons.svg#plane"></use></svg></svg></div>
+<div class="h">The map didn’t load.</div>
+<div class="b">Your plane is still flying. We’re showing the simple route until the map is back.</div>
+<div class="act"><button class="btn btn-secondary btn-sm"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Reload map</button></div></div>
+</div></div>
+
+<div><div class="s4-cap">Loading<span>skeletons keep the final layout; shimmer 1.4 s; Reduce Motion = static fill</span></div>
+<div class="s4-grid">
+<div class="glass e2 s4-t" style="padding:22px 26px" aria-busy="true" aria-label="Loading ticket"><span class="s4-id">Ticket</span>
+<div style="margin-top:14px;width:150px;height:216px;border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;gap:10px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<div class="skel" style="height:10px;width:60%"></div><div style="display:flex;justify-content:space-between;margin-top:8px"><div class="skel" style="height:30px;width:42px"></div><div class="skel" style="height:30px;width:42px"></div></div><div class="skel" style="height:8px;width:80%;margin-top:6px"></div><div class="skel" style="height:8px;width:56%"></div><div class="skel" style="height:8px;width:68%"></div><div style="flex:1"></div><div class="skel" style="height:34px"></div></div></div>
+<div class="glass e2 s4-t" style="padding:22px 26px;align-items:stretch;text-align:left" aria-busy="true" aria-label="Loading wallet"><span class="s4-id">Wallet list</span>
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:16px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:12px;align-items:center"><div class="skel" style="width:40px;height:40px;border-radius:12px;flex:none"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px"><div class="skel" style="height:10px;width:{{r.a}}%"></div><div class="skel" style="height:8px;width:{{r.b}}%"></div></div><div class="skel" style="height:10px;width:36px"></div></div></sc-for></div></div>
+<div class="glass e2 s4-t" style="padding:22px 26px;align-items:stretch" aria-busy="true" aria-label="Loading stats"><span class="s4-id">Stats</span>
+<div style="margin-top:22px;display:flex;align-items:flex-end;gap:12px;height:150px;padding:0 6px"><sc-for list="{{bars}}" as="b" hint-placeholder-count="7"><div class="skel" style="flex:1;height:{{b}}%;border-radius:8px 8px 4px 4px"></div></sc-for></div>
+<div style="display:flex;gap:10px;margin-top:16px"><div class="skel" style="height:10px;width:30%"></div><div class="skel" style="height:10px;width:18%"></div></div></div>
+</div></div>
+
+<div><div class="s4-cap">Flight resumed<span>shown at the top of the cruise screen, auto-dismisses after 8 s, never steals focus</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="glass e2 s4-bn" role="status" aria-label="Flight resumed after quit"><span style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(106,183,255,.22),rgba(139,243,216,.10));box-shadow:0 0 0 1px rgba(106,183,255,.34);flex:none"><svg class="ic ic20 cA"><use href="./icons.svg#plane"></use></svg></span><div style="flex:1;min-width:0"><div style="font:600 15px/20px var(--font-ui)">Flight resumed.</div><div class="c2" style="font:400 13px/18px var(--font-ui)">Your plane kept flying while you were away.</div><div class="mono c3" style="font-size:11px;margin-top:5px">Quit 09:14 · back 09:31 · 17 min flown · 25 min left</div></div><button class="btn btn-tertiary btn-sm">Got it</button></div>
+<div class="glass e2 s4-bn" role="status" aria-label="Flight resumed after sleep"><span style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--fill-2);flex:none"><svg class="ic ic20 c2"><use href="./icons.svg#moon"></use></svg></span><div style="flex:1;min-width:0"><div style="font:600 15px/20px var(--font-ui)">Flight resumed.</div><div class="c2" style="font:400 13px/18px var(--font-ui)">Your plane kept flying while you were away.</div><div class="mono c3" style="font-size:11px;margin-top:5px">Mac slept 09:14 · woke 09:21 · 7 min flown · 35 min left</div></div><button class="btn btn-tertiary btn-sm">Got it</button></div>
+<div class="glass e2 s4-bn" role="status" aria-label="Landed while away"><span style="width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--fill-2);flex:none"><svg class="ic ic20 cOk"><use href="./icons.svg#check"></use></svg></span><div style="flex:1;min-width:0"><div style="font:600 15px/20px var(--font-ui)">Landed in Paris while you were away.</div><div class="c2" style="font:400 13px/18px var(--font-ui)">The whole 42 minutes counted. Your stamp is in the passport.</div></div><button class="btn btn-primary btn-sm">See the ticket</button></div>
+<div class="t-callout c3" style="padding:0 6px">The third banner is new copy outside the copy deck. Please confirm it.</div>
+</div>
+<div class="glass e2" style="border-radius:22px;padding:20px 22px;display:flex;flex-direction:column;gap:12px">
+<div class="eyebrow" style="color:var(--text-1)">How it decides</div>
+<div class="t-callout c2">On launch or wake, Meridian compares <span class="mono" style="font-size:12px">now</span> with the last saved tick. The flight is a function of clock time, so nothing has to run in the background.</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:flex-start"><span class="mono" style="font-size:11px;color:var(--accent-2);width:92px;flex:none;padding-top:2px">{{r.k}}</span><span class="t-callout" style="font-size:13px">{{r.v}}</span></div></sc-for></div>
+<div class="st-note c3" style="font:400 12px/1.5 var(--font-mono)">Native: flight state in SwiftData (start, duration, pausedTotal); on NSWorkspace.didWakeNotification and applicationDidFinishLaunching compute elapsed, then post the banner as a SwiftUI overlay. VoiceOver reads it once as a status.</div>
+</div>
+</div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1620}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      rows: [{ a: 52, b: 34 }, { a: 64, b: 40 }, { a: 44, b: 30 }, { a: 58, b: 36 }],
+      bars: [38, 62, 48, 80, 56, 70, 42],
+      rules: [{ k: 'Time left', v: 'Resume where the clock says. The banner shows how long you were away.' }, { k: 'Paused', v: 'A flight paused on a break stays paused. No banner.' }, { k: 'Past landing', v: 'Land it, count all the minutes, add the stamp, show the third banner.' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Take-off sequence</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.to-skip{position:absolute;right:24px;top:20px;z-index:60}
+.to-hud{position:absolute;left:28px;bottom:28px;z-index:30;height:44px;border-radius:22px;padding:0 18px;display:flex;align-items:center;gap:16px;font:500 12px/1 var(--font-mono);letter-spacing:.04em;color:var(--text-1)}
+.to-hud b{font-weight:600;color:var(--text-1)}
+.to-hud span.k{color:var(--text-3);margin-right:6px}
+</style>
+</helmet>
+<div class="win" style="{{rootStyle}}" tabindex="0" onKeyDown="{{onKey}}">
+<!-- cinematic: satellite chase camera -->
+<sc-if value="{{cine}}" hint-placeholder-val="{{ true }}">
+<div style="{{regStyle}}"></div>
+<div style="{{farmStyle}}"></div>
+<svg width="1280" height="800" viewBox="{{viewBox}}" style="position:absolute;left:0;top:0;display:block" aria-hidden="true">
+<defs>
+<pattern id="{{idMow}}" patternUnits="userSpaceOnUse" width="400" height="40"><rect width="400" height="20" fill="#8FA85A"/><rect y="20" width="400" height="20" fill="#879F54"/></pattern><linearGradient id="{{idFade}}" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity="1"/><stop offset=".7" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><mask id="{{idMask}}" maskUnits="userSpaceOnUse" x="-110" y="-3200" width="220" height="3600"><rect x="-110" y="-3200" width="220" height="3600" fill="url(#{{idFade}})"/></mask>
+<filter id="{{idBlur}}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+<g id="{{idPark}}"><path d="{{pkStabs}}" fill="#ECEFF4"/><path d="{{pkWings}}" fill="#F4F6FA"/><path d="{{pkFus}}" fill="#FAFBFD"/><path d="{{pkFus}}" fill="#0B1020" opacity=".1"/></g>
+<radialGradient id="{{idLg}}"><stop offset="0" stop-color="#FFF2CF"/><stop offset=".4" stop-color="#FFD98A" stop-opacity=".8"/><stop offset="1" stop-color="#FFB547" stop-opacity="0"/></radialGradient>
+</defs>
+<!-- grass strips, shoulders, taxiway -->
+<rect x="-110" y="-3200" width="220" height="3600" fill="url(#{{idMow}})" mask="url(#{{idMask}})" opacity=".9"/>
+<rect x="-31" y="-3140" width="62" height="3320" fill="#5B5F67"/>
+<rect x="-23" y="-3100" width="46" height="3300" fill="#44474F"/>
+<path d="{{taxiD}}" fill="#50535B"/>
+<path d="{{taxiLines}}" stroke="#E2C25A" stroke-width=".55" fill="none" opacity=".9"/>
+<path d="{{tireD}}" stroke="#15171C" stroke-opacity=".22" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+<!-- markings -->
+<path d="{{marksD}}" fill="#ECEFF5" opacity=".95"/>
+<text x="-9" y="-62" font-family="Barlow Condensed" font-weight="700" font-size="21" fill="#ECEFF5" opacity=".92" text-anchor="middle" letter-spacing="1">2</text>
+<text x="9" y="-62" font-family="Barlow Condensed" font-weight="700" font-size="21" fill="#ECEFF5" opacity=".92" text-anchor="middle" letter-spacing="1">7</text>
+<!-- apron, terminal, gates -->
+<rect x="-452" y="-210" width="226" height="470" rx="6" fill="#9A9DA5"/>
+<path d="M-452 -210 H-226 M-452 -112 H-226 M-452 -10 H-226 M-452 92 H-226 M-452 194 H-226" stroke="#7E8189" stroke-width="1" opacity=".6"/>
+<g filter="url(#{{idBlur}})" opacity=".4"><rect x="-436" y="-186" width="48" height="418" fill="#05070C" transform="translate(12 16)"/></g>
+<rect x="-440" y="-190" width="46" height="418" rx="3" fill="#D3D6DE"/>
+<path d="M-433 -180 H-401 M-433 -150 H-401 M-433 -120 H-401 M-433 -90 H-401 M-433 -60 H-401 M-433 -30 H-401 M-433 0 H-401 M-433 30 H-401 M-433 60 H-401 M-433 90 H-401 M-433 120 H-401 M-433 150 H-401 M-433 180 H-401 M-433 210 H-401" stroke="#A9B2C4" stroke-width="9" opacity=".7"/>
+<g fill="#B4B8C3"><rect x="-394" y="-155" width="30" height="5"/><rect x="-394" y="-95" width="30" height="5"/><rect x="-394" y="-35" width="30" height="5"/><rect x="-394" y="25" width="30" height="5"/><rect x="-394" y="85" width="30" height="5"/><rect x="-394" y="145" width="30" height="5"/></g>
+<sc-for list="{{parked}}" as="p" hint-placeholder-count="6"><g transform="{{p.sh}}" filter="url(#{{idBlur}})" opacity=".34"><use href="{{parkRef}}" style="filter:brightness(0)"/></g><use href="{{parkRef}}" transform="{{p.t}}"/></sc-for>
+<!-- tower + hangars -->
+<g filter="url(#{{idBlur}})" opacity=".4"><rect x="-190" y="150" width="14" height="14" fill="#05070C" transform="translate(30 36)"/></g>
+<circle cx="-183" cy="157" r="9" fill="#C8CBD3"/><circle cx="-183" cy="157" r="4.6" fill="#8D93A2"/>
+<g filter="url(#{{idBlur}})" opacity=".4"><rect x="150" y="120" width="120" height="48" fill="#05070C" transform="translate(16 18)"/></g>
+<rect x="150" y="120" width="120" height="48" rx="2" fill="#BFC3CC"/><path d="M150 144 H270" stroke="#9AA0AD" stroke-width="1.2"/>
+<sc-if value="{{dusk}}" hint-placeholder-val="{{ false }}"><g><sc-for list="{{lights}}" as="l" hint-placeholder-count="40"><circle cx="{{l.x}}" cy="{{l.y}}" r="{{l.r}}" fill="url(#{{idLg}})"/></sc-for></g></sc-if>
+</svg>
+<!-- fine grain keeps the imagery crisp when the camera is low -->
+<div style="{{grainStyle}}"></div>
+<div style="{{tintStyle}}"></div>
+<!-- plane shadow, then plane -->
+<div style="{{shadowBox}}"><dc-import name="Plane" variant="twin" size="128" shadow="false" lights="false" hint-size="128px,128px"></dc-import></div>
+<div style="{{planeBox}}"><dc-import name="Plane" variant="twin" size="128" shadow="false" hint-size="128px,128px"></dc-import></div>
+<div style="{{vigStyle}}"></div>
+<div class="to-hud glass e2" style="{{hudStyle}}"><span><span class="k">SPD</span><b>{{kt}}</b> kt</span><span><span class="k">ALT</span><b>{{ft}}</b> ft</span><span><span class="k">RWY</span><b>27R</b></span></div>
+<div style="{{labelStyle}}"><span class="eyebrow" style="letter-spacing:.2em;color:#E9EDF5">{{phaseLabel}}</span><span class="cond" style="font-size:34px;line-height:1">{{from}} <span style="opacity:.5">→</span> {{to}}</span></div>
+</sc-if>
+<!-- crossfade (reduced motion) -->
+<sc-if value="{{isReduce}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:#06080D"></div></sc-if>
+<!-- map rising -->
+<sc-if value="{{rise}}" hint-placeholder-val="{{ true }}">
+<div style="{{riseStyle}}"><dc-import name="Flight" from="{{from}}" to="{{to}}" p="0.03" total="{{total}}" hint-size="1280px,800px"></dc-import></div>
+</sc-if>
+<sc-if value="{{showSkip}}" hint-placeholder-val="{{ true }}"><span class="btn btn-secondary glass-ctl to-skip" role="button" tabindex="0" onClick="{{skip}}">Skip <span class="kbd">Esc</span></span></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"from":{"editor":"text","default":"LHR"},"to":{"editor":"text","default":"CDG"},"total":{"editor":"int","default":42},"t":{"editor":"int","default":3600},"live":{"editor":"boolean","default":false},"reduce":{"editor":"boolean","default":false},"tod":{"editor":"enum","options":["day","dusk"],"default":"day"},"onDone":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 7);
+  state = { t: 0 };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  live() { return this.flag(this.props.live, false); }
+  componentDidMount() { if (this.live()) { this._t0 = performance.now(); const A = window.MeridianAudio; if (A && A.enabled) { A.init(); A.chime('board'); } const L = n => { const t = Math.min(6000, performance.now() - this._t0); if (t >= 3000 && !this._w) { this._w = 1; if (A && A.enabled) A.whoosh(); } this.setState({ t }); if (t >= 6000) { this.finish(); return; } this._raf = requestAnimationFrame(L); }; this._raf = requestAnimationFrame(L); } }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  finish() { if (this._done) return; this._done = true; cancelAnimationFrame(this._raf); const cb = this.props.onDone; if (typeof cb === 'function') cb(); }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, reduce = this.flag(p.reduce, false), u = this.uid, dusk = p.tod === 'dusk';
+    const t = this.live() ? this.state.t : +(p.t === undefined ? 3600 : p.t);
+    const sec = t / 1000, ease = x => x * x * (3 - 2 * x), cl = (v, a, b) => Math.max(a, Math.min(b, v)), f1 = v => v.toFixed(1);
+    // ---- flight state: hold, roll (700 m), lift-off, climb ----
+    const ru = cl((sec - 1.2) / 2.0, 0, 1), dist = sec < 3.2 ? 700 * ru * ru : 700 + 520 * (sec - 3.2) + 90 * Math.pow(sec - 3.2, 2);
+    const lu = cl((sec - 3.2) / 2.4, 0, 1), h = 1300 * Math.pow(ease(lu), 1.35) + (sec > 5.6 ? (sec - 5.6) * 500 : 0);
+    const D = 100 + h * 1.25 + 18 * ru, s = 300 / D;
+const kt = Math.round(sec < 1.2 ? 0 : sec < 3.2 ? 158 * ru : 158 + 74 * lu), ft = Math.round(h * 3.28);
+    const planeY = -dist - 40, camY = planeY - 140 / s, camX = 0, fade = 1 - ease(cl((t - 4300) / 900, 0, 1));
+    const vx = camX - 640 / s, vy = camY - 420 / s;
+    const shake = sec > 1.2 && sec < 3.4 ? Math.sin(sec * 90) * .9 * ru : 0;
+    // ---- imagery layers ----
+    const farmM = 1536 * .7, regM = 1024 * 4;
+    const bgp = (M) => 'background-position:' + f1(640 - camX * s) + 'px ' + f1(420 - camY * s) + 'px;background-size:' + f1(M * s) + 'px ' + f1(M * s) + 'px';
+    const farmA = cl((s - .55) / .5, 0, 1), tone = dusk ? 'filter:sepia(.45) saturate(1.25) brightness(.72) hue-rotate(-10deg);' : 'filter:saturate(1.02);', speedBlur = cl((dist > 0 ? (sec < 3.2 ? 700 * 2 * ru / 2.0 : 700 + 520) : 0) * s / 2600, 0, 1.6);
+    const regStyle = 'position:absolute;inset:0;background:url(./sat-regional.jpg);' + bgp(regM) + ';' + tone + 'filter:' + (dusk ? 'sepia(.45) saturate(1.25) brightness(.72) hue-rotate(-10deg)' : 'saturate(1.02)') + ' blur(' + speedBlur.toFixed(2) + 'px);opacity:' + fade.toFixed(2);
+    const farmStyle = 'position:absolute;inset:0;background:url(./sat-farm.jpg);' + bgp(farmM) + ';filter:' + (dusk ? 'sepia(.45) saturate(1.25) brightness(.72) hue-rotate(-10deg)' : 'saturate(1.02)') + ' blur(' + speedBlur.toFixed(2) + 'px);opacity:' + (farmA * fade).toFixed(2);
+    // ---- airport vectors (metres) ----
+    const R = (x, y, w, hh) => 'M' + f1(x) + ' ' + f1(y) + ' h' + f1(w) + ' v' + f1(hh) + ' h' + f1(-w) + 'Z ';
+    let marks = '';
+    for (let i = 0; i < 6; i++) for (const sg of [-1, 1]) { const x = sg * (3.4 + i * 3.1); marks += R(sg < 0 ? x - 1.5 : x, -6, 1.5, 30); }
+    marks += R(-21.9, -6, .5, 3100) + R(21.4, -6, .5, 3100);
+    for (let y = -110; y > -3000; y -= 50) marks += R(-.45, y, .9, 30);
+    [-150, -300, -450, -600, -750, -900, -1050].forEach((y, i) => { const big = i === 1; for (const sg of [-1, 1]) { const o = big ? 9 : (i % 2 ? 5.5 : 8); marks += R(sg < 0 ? -o - (big ? 9 : 2.4) : o, y, big ? 9 : 2.4, big ? 30 : 22); if (!big) marks += R(sg < 0 ? -o - 6.4 : o + 4, y, 2.4, 22); } });
+    let tire = ''; const rn = K.rng(41); for (let i = 0; i < 26; i++) { const x = (rn() < .5 ? -1 : 1) * (3 + rn() * 5), y = -250 - rn() * 300; tire += 'M' + f1(x) + ' ' + f1(y) + ' l' + f1((rn() - .5) * .8) + ' ' + f1(20 + rn() * 50) + ' '; }
+    const taxi = 'M-168 200 V-3000 H-132 V200Z M-132 150 L-31 80 V108 L-132 178Z M-132 -240 L-31 -300 V-276 L-132 -216Z M-168 -80 H-226 V-56 H-168Z M-168 60 H-226 V84 H-168Z';
+    const tl = 'M-150 200 V-3000 M-132 164 L-31 94 M-132 -228 L-31 -288 M-168 -68 H-226 M-168 72 H-226';
+    const g0 = K.plane('twin'), parked = [-150, -90, -30, 30, 90].map((y, i) => ({ t: 'translate(' + f1(-350) + ' ' + f1(y) + ') rotate(-90) scale(.38) translate(-50 -50)', sh: 'translate(' + f1(-336) + ' ' + f1(y + 12) + ') rotate(-90) scale(.38) translate(-50 -50)' }));
+    const lights = []; if (dusk) for (let y = 40; y > -1700; y -= 60) { lights.push({ x: '-23.4', y: String(y), r: 2.6 }); lights.push({ x: '23.4', y: String(y), r: 2.6 }); }
+    const rise = t >= 4200 && !reduce, riseU = ease(cl((t - 4200) / 1800, 0, 1)), rr = reduce ? ease(cl(t / 700, 0, 1)) : riseU;
+    const total = +(p.total || 42);
+    const phaseLabel = sec < 1.2 ? 'Taxi' : sec < 3.2 ? 'Take-off roll' : sec < 4.4 ? 'Rotate' : 'Climb';
+    const pK = Math.pow(Math.min(1, s / 3), .33), pS = 128, sx = 640 + shake, sy = 560;
+    const shOff = h * s * .55 + 2, shScale = 1;
+    return {
+      rootStyle: 'background:#06080D', uid: u, idMow: 'to-m' + u, idFade: 'to-f' + u, idMask: 'to-k' + u, idBlur: 'to-b' + u, idPark: 'to-p' + u, idLg: 'to-l' + u, parkRef: '#to-p' + u,
+      cine: !reduce && t < 5300, isReduce: reduce, rise: rise || reduce, showSkip: this.live() && t < 4200, dusk,
+      regStyle, farmStyle, viewBox: [f1(vx), f1(vy), f1(1280 / s), f1(800 / s)].join(' '),
+      marksD: marks, tireD: tire, taxiD: taxi, taxiLines: tl, pkFus: g0.fus, pkWings: g0.wings, pkStabs: g0.stabs, parked, lights,
+      grainStyle: 'position:absolute;inset:0;background:url(./sat-grain.png) 0 0/256px 256px;mix-blend-mode:overlay;opacity:' + (.42 * cl(s / 1.6, .25, 1) * fade).toFixed(2) + ';pointer-events:none',
+      tintStyle: 'position:absolute;inset:0;pointer-events:none;background:' + (dusk ? 'linear-gradient(180deg,rgba(255,130,70,.18),rgba(40,20,70,.32))' : 'linear-gradient(180deg,rgba(255,250,235,.06),rgba(10,20,40,.12))'),
+      shadowBox: 'position:absolute;left:' + f1(sx + shOff * .7 - pS / 2) + 'px;top:' + f1(sy + shOff - pS / 2) + 'px;width:' + pS + 'px;height:' + pS + 'px;transform:scale(' + (pK * .96).toFixed(3) + ');filter:brightness(0) blur(' + (.8 + h * s * .02).toFixed(1) + 'px);opacity:' + (.38 * fade * (1 - .5 * lu)).toFixed(2),
+      planeBox: 'position:absolute;left:' + f1(sx - pS / 2) + 'px;top:' + f1(sy - pS / 2) + 'px;width:' + pS + 'px;height:' + pS + 'px;transform:scale(' + (pK * (1 + .04 * ease(lu))).toFixed(3) + ') rotate(' + (shake * .4).toFixed(2) + 'deg);opacity:' + fade.toFixed(2) + ';filter:drop-shadow(0 ' + (2 + Math.round(h * s * .02)) + 'px ' + (3 + Math.round(h * s * .03)) + 'px rgba(0,0,0,.25))',
+      vigStyle: 'position:absolute;inset:0;background:radial-gradient(90% 80% at 50% 54%,transparent 52%,rgba(3,4,8,.62));pointer-events:none',
+      hudStyle: 'opacity:' + (fade * cl(sec / .6, 0, 1)).toFixed(2), kt, ft,
+      labelStyle: 'position:absolute;left:0;right:0;top:44px;display:flex;flex-direction:column-reverse;align-items:center;gap:8px;text-shadow:0 1px 12px rgba(3,4,8,.85);opacity:' + (fade * cl(sec / .6, 0, 1)).toFixed(2),
+      phaseLabel, from: p.from || 'LHR', to: p.to || 'CDG', total,
+      riseStyle: 'position:absolute;left:0;top:0;width:1280px;height:800px;opacity:' + (reduce ? rr : Math.min(1, riseU * 1.6)).toFixed(2) + ';transform:' + (reduce ? 'none' : 'translateY(' + ((1 - riseU) * 62).toFixed(1) + '%) scale(' + (1.05 - .05 * riseU).toFixed(3) + ')') + ';filter:blur(' + ((1 - rr) * 14).toFixed(1) + 'px);transform-origin:50% 100%',
+      skip: () => this.finish(), onKey: e => { if (e.key === 'Escape') this.finish(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

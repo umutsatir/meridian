@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Redline sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rl{width:1440px;padding:56px 56px 64px;box-sizing:border-box;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);display:flex;flex-direction:column;gap:28px;-webkit-font-smoothing:antialiased}
+.rl h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:6px 0 0}
+.rl-main{display:flex;gap:28px;align-items:flex-start}
+.rl-spec{position:relative;flex:none;border-radius:24px;overflow:hidden;background-color:var(--bg-1);background-image:radial-gradient(rgba(255,255,255,.075) 1px,transparent 1.2px);background-size:12px 12px;box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.rl-ov{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none}
+.rl-ov>*{position:absolute;box-sizing:border-box}
+.rl-fr{border:1px solid rgba(255,61,139,.85)}
+.rl-zn{border:1px dashed rgba(255,61,139,.55)}
+.rl-pd{background:rgba(0,200,255,.2);border:1px solid rgba(0,200,255,.55)}
+.rl-gp{background:rgba(46,230,140,.2);border:1px solid rgba(46,230,140,.55)}
+.rl-ci{border:1px solid rgba(255,61,139,.9);border-radius:50%}
+.rl-ln{background:#FF3D8B}
+.rl-tk{background:#FF3D8B}
+.rl-lb{font:600 10px/12px var(--font-mono);color:#FFA3C9;background:rgba(8,10,20,.86);padding:1px 4px;border-radius:4px;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,61,139,.4)}
+.rl-pin{width:18px;height:18px;border-radius:9px;background:#FF8DBD;color:#1A0610;font:700 10px/18px var(--font-ui);text-align:center;box-shadow:0 0 0 2px rgba(8,10,20,.6)}
+.rl-lcol{flex:none;display:flex;flex-direction:column;gap:18px}
+.rl-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px}
+.rl-sec{border-radius:20px;padding:16px 18px 10px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.rl-sec h3{margin:0 0 8px;font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.rl-row{display:grid;grid-template-columns:24px 138px 1fr;gap:10px;padding:7px 0;border-top:1px solid var(--stroke-hair);align-items:start}
+.rl-row:first-of-type{border-top:0}
+.rl-k{font:600 12px/16px var(--font-ui);color:var(--text-1)}
+.rl-v{font:400 11.5px/16px var(--font-mono);color:var(--text-2)}
+.rl-bd{width:18px;height:18px;border-radius:9px;background:#FF8DBD;color:#1A0610;font:700 10px/18px var(--font-ui);text-align:center}
+.rl-sw{width:18px;height:18px;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.28)}
+.rl-lead{width:24px;display:flex;align-items:flex-start;justify-content:flex-start}
+.rl-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.rl-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+.rl-wall{position:absolute;border-radius:18px;background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.rl-bar{position:absolute;border-radius:14px;background:rgba(12,16,30,.92);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.rl-it{position:absolute;display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;font:500 13px/1 var(--font-ui);font-feature-settings:"tnum" 1;color:rgba(255,255,255,.92);background:rgba(255,255,255,.26);transform-origin:0 0}
+.rl-note{position:absolute;font:400 11px/15px var(--font-ui);color:var(--text-2)}
+.rl-crop{position:absolute;overflow:hidden}
+</style>
+</helmet>
+<div class="rl" data-theme="dark" data-screen-label="{{screenLabel}}">
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px"><div><div class="eyebrow">{{code}} · Redlines</div><h1>{{title}}</h1><div class="t-callout c2" style="margin-top:6px;max-width:760px">{{lede}}</div></div>
+<div class="t-callout c3" style="text-align:right;max-width:330px">All values in pt (1 pt = 1 px at 1×). Magenta lines are dimensions, cyan is padding, green is gap. Numbered pins match the type and token tables.</div></div>
+
+<div class="rl-main">
+<div class="rl-lcol" style="{{lcolStyle}}">
+<div class="rl-spec" style="{{specStyle}}">
+
+<sc-if value="{{o_ticket}}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:100px;top:60px"><dc-import name="Ticket" from="LHR" to="CDG" scenario="code" state="printed" scale="1.5" hint-size="540px,900px"></dc-import></div></sc-if>
+
+<sc-if value="{{o_card}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:130px;top:56px"><dc-import name="Card" tier="gold" size="hero" hint-size="480px,302px"></dc-import></div>
+<div style="position:absolute;left:130px;top:448px"><dc-import name="Card" tier="gold" size="hero" flipped="true" hint-size="480px,302px"></dc-import></div></sc-if>
+
+<sc-if value="{{o_printer}}" hint-placeholder-val="{{ false }}"><div class="rl-crop" style="left:70px;top:70px;width:600px;height:380px"><div style="position:absolute;left:-448px;top:-420px"><dc-import name="Ritual" t="1300" hint-size="1280px,800px"></dc-import></div></div></sc-if>
+
+<sc-if value="{{o_mini}}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50px;top:60px"><dc-import name="MiniMap" size="l" hover="true" hover-btn="size" hint-size="640px,360px"></dc-import></div>
+<div style="position:absolute;left:50px;top:480px"><dc-import name="MiniMap" size="s" hover="true" paused="true" hint-size="360px,200px"></dc-import></div></sc-if>
+
+<sc-if value="{{o_pop}}" hint-placeholder-val="{{ false }}"><div class="rl-bar" style="left:24px;top:30px;width:692px;height:84px"></div>
+<span class="rl-it" style="left:84px;top:39px;transform:scale(3)"><svg class="ic ic14"><use href="./icons.svg#plane"></use></svg><span>18:54</span></span>
+<div class="rl-wall" style="left:60px;top:166px;width:620px;height:900px"></div>
+<div style="position:absolute;left:115px;top:190px;width:340px;height:556px;transform:scale(1.5);transform-origin:0 0"><dc-import name="MenuPopover" state="flight" p=".55" mini-on="true" size="m" arrow="240" hint-size="340px,556px"></dc-import></div></sc-if>
+
+<div class="rl-ov">
+<sc-for list="{{fr}}" as="a" hint-placeholder-count="30"><i class="{{a.c}}" style="{{a.s}}"></i></sc-for>
+<sc-for list="{{dm}}" as="d" hint-placeholder-count="40"><i class="rl-ln" style="{{d.ln}}"></i><i class="rl-tk" style="{{d.t1}}"></i><i class="rl-tk" style="{{d.t2}}"></i><span class="rl-lb" style="{{d.lb}}">{{d.tx}}</span></sc-for>
+<sc-for list="{{tx}}" as="t" hint-placeholder-count="6"><span class="rl-lb" style="{{t.s}}">{{t.t}}</span></sc-for>
+<sc-for list="{{pn}}" as="p" hint-placeholder-count="12"><span class="rl-pin" style="{{p.s}}">{{p.n}}</span></sc-for>
+</div>
+</div>
+<sc-for list="{{secsL}}" as="sec" hint-placeholder-count="2"><section class="rl-sec"><h3>{{sec.t}}</h3>
+<sc-for list="{{sec.rows}}" as="r" hint-placeholder-count="8"><div class="rl-row"><div class="rl-lead"><sc-if value="{{r.hasPin}}" hint-placeholder-val="{{ false }}"><span class="rl-bd">{{r.pin}}</span></sc-if><sc-if value="{{r.hasSw}}" hint-placeholder-val="{{ false }}"><span class="rl-sw" style="{{r.sw}}"></span></sc-if></div><div class="rl-k">{{r.k}}</div><div class="rl-v">{{r.v}}</div></div></sc-for>
+</section></sc-for>
+</div>
+
+<div class="rl-side">
+<sc-for list="{{secsR}}" as="sec" hint-placeholder-count="4"><section class="rl-sec"><h3>{{sec.t}}</h3>
+<sc-for list="{{sec.rows}}" as="r" hint-placeholder-count="8"><div class="rl-row"><div class="rl-lead"><sc-if value="{{r.hasPin}}" hint-placeholder-val="{{ false }}"><span class="rl-bd">{{r.pin}}</span></sc-if><sc-if value="{{r.hasSw}}" hint-placeholder-val="{{ false }}"><span class="rl-sw" style="{{r.sw}}"></span></sc-if></div><div class="rl-k">{{r.k}}</div><div class="rl-v">{{r.v}}</div></div></sc-for>
+</section></sc-for>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+<sc-for list="{{nat}}" as="n" hint-placeholder-count="2"><div class="rl-nat"><b>{{n.h}}</b><span>{{n.t}}</span></div></sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"obj":{"editor":"enum","options":["ticket","card","printer","mini","popover"],"default":"ticket"},"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const obj = this.props.obj || 'ticket';
+    const fr = [], dm = [], tx = [], pn = [];
+    const f1 = v => Math.round(v * 10) / 10;
+    // group helper: object units -> panel px
+    const G = (ox, oy, Z) => {
+      const X = x => f1(ox + x * Z), Y = y => f1(oy + y * Z);
+      return {
+        f: (x, y, w, h, k) => fr.push({ c: 'rl-' + (k || 'fr'), s: 'left:' + X(x) + 'px;top:' + Y(y) + 'px;width:' + f1(w * Z) + 'px;height:' + f1(h * Z) + 'px' }),
+        h: (x, y, len, t, side) => { const x0 = X(x), y0 = Y(y), L = f1(len * Z); dm.push({ ln: 'left:' + x0 + 'px;top:' + y0 + 'px;width:' + L + 'px;height:1px', t1: 'left:' + x0 + 'px;top:' + (y0 - 4) + 'px;width:1px;height:9px', t2: 'left:' + f1(x0 + L - 1) + 'px;top:' + (y0 - 4) + 'px;width:1px;height:9px', lb: 'left:' + f1(x0 + L / 2) + 'px;top:' + (side === 'b' ? y0 + 6 : y0 - 19) + 'px;transform:translateX(-50%)', tx: t }); },
+        v: (x, y, len, t, side) => { const x0 = X(x), y0 = Y(y), L = f1(len * Z); dm.push({ ln: 'left:' + x0 + 'px;top:' + y0 + 'px;width:1px;height:' + L + 'px', t1: 'left:' + (x0 - 4) + 'px;top:' + y0 + 'px;width:9px;height:1px', t2: 'left:' + (x0 - 4) + 'px;top:' + f1(y0 + L - 1) + 'px;width:9px;height:1px', lb: 'left:' + (side === 'r' ? x0 + 8 : x0 - 8) + 'px;top:' + f1(y0 + L / 2) + 'px;transform:translate(' + (side === 'r' ? '0' : '-100%') + ',-50%)', tx: t }); },
+        t: (x, y, t, anchor) => tx.push({ t, s: 'left:' + X(x) + 'px;top:' + Y(y) + 'px;transform:translate(' + (anchor === 'c' ? '-50%' : anchor === 'r' ? '-100%' : '0') + ',-50%)' }),
+        p: (x, y, n) => pn.push({ n, s: 'left:' + (X(x) - 9) + 'px;top:' + (Y(y) - 9) + 'px' })
+      };
+    };
+    const row = (k, v) => ({ k, v, hasPin: false, hasSw: false, pin: '', sw: '' });
+    const prow = (n, k, v) => ({ k, v, hasPin: true, hasSw: false, pin: String(n), sw: '' });
+    const crow = (sw, k, v) => ({ k, v, hasPin: false, hasSw: true, pin: '', sw });
+    let secs = [], nat = [], pw = 740, ph = 1000, title = '', code = '', lede = '';
+
+    if (obj === 'ticket') {
+      code = 'R01'; title = 'Boarding pass'; lede = 'The hero artifact, 360 × 600 pt. Drawn here at 150 % so the 6 pt and 8 pt gaps stay measurable. Every zone sits on a 2 pt baseline; the only off-grid values are the 9.5 pt caption and the 14 pt notch.';
+      ph = 1040; const g = G(100, 60, 1.5);
+      g.f(0, 0, 360, 600, 'fr'); g.f(0, 0, 360, 6, 'fr');
+      [[24, 6, 308, 48], [0, 54, 360, 130], [24, 184, 308, 150], [24, 334, 308, 56], [24, 390, 308, 40], [24, 458, 312, 18], [24, 482, 312, 34], [30, 524, 300, 56], [30, 584, 300, 8]].forEach(a => g.f(a[0], a[1], a[2], a[3], 'zn'));
+      g.f(0, 6, 24, 424, 'pd'); g.f(332, 6, 28, 424, 'pd');
+      g.f(20, 449, 320, 2, 'fr'); g.f(-14, 436, 28, 28, 'ci'); g.f(346, 436, 28, 28, 'ci');
+      g.h(0, -14, 360, '360', 't'); g.h(0, 12, 24, '24', 't'); g.h(332, 12, 28, '28', 't');
+      g.v(-34, 0, 600, '600', 'l');
+      [[0, 6, '6'], [6, 48, '48'], [54, 130, '130'], [184, 150, '150'], [334, 56, '56'], [390, 40, '40'], [430, 20, '20'], [450, 150, '150']].forEach(a => g.v(-14, a[0], a[1], a[2], 'l'));
+      [[450, 8, '8'], [458, 18, '18'], [476, 6, '6'], [482, 34, '34'], [516, 8, '8'], [524, 56, '56'], [580, 12, '12'], [592, 8, '8']].forEach(a => g.v(374, a[0], a[1], a[2], 'r'));
+      g.h(0, 606, 30, '30', 'b'); g.h(30, 606, 300, '300', 'b'); g.h(330, 606, 30, '30', 'b');
+      g.h(24, 188, 160, '160', 'b');
+      g.t(205, 441, 'perforation y 449 · notch r14', 'l');
+      [[1, 12, 30], [2, 346, 30], [3, 12, 104], [4, 12, 145], [5, 180, 150], [6, 12, 224], [7, 12, 362], [8, 12, 410], [9, 12, 499], [10, 12, 552], [11, 12, 588]].forEach(a => g.p(a[1], a[2], a[0]));
+      secs = [
+        { t: 'Layout, pt', rows: [row('Size', '360 × 600 · radius 22 (--r-ticket) · notch radius 14 (--r-notch)'), row('Body and stub', '450 and 150, split at y 450'), row('Band', '6 tall, scenario colour · foil edge 4 wide × 450 tall on the right (7 in the Class view)'), row('Header', 'y 6–54, 48 tall · margins left 24, right 28'), row('Route block', 'y 54–184, 130 tall · codes at x 24 and 28 from the right'), row('Data grid', 'y 184–334 · columns x 24 and 184 (pitch 160) · rows at y 192, 242, 292 (pitch 50) · value 15.5 below caption · hairline on top'), row('Scenario row', 'y 334–390 · chip 30 tall, radius 15, padding 0 13 0 10, gap 12 to topic'), row('Passenger line', 'y 390–430 · hairline on top · cabin label and 28 × 10 foil swatch at right'), row('Perforation', 'y 449 · dots 2 pt, pitch 8, from x 20 to 340'), row('Stub', 'caption y 458 · values y 482 · barcode 300 × 56 at x 30, y 524 · serial y 584 · bottom margin 8')] },
+        { t: 'Type styles · prototype font → native', rows: [prow(1, 'Carrier', 'Inter 700 11/11, +0.24 em, caps → SF Pro Bold'), prow(2, 'Caption', 'Inter 600 9.5/9.5, +0.12 em, caps, ink 62 % → SF Pro Semibold'), prow(3, 'IATA code', 'Barlow Condensed 700 64/64 → SF Pro Condensed Bold'), prow(4, 'City', 'Inter 500 13/13 → SF Pro Medium'), prow(5, 'Duration', 'JetBrains Mono 500 13, +0.02 em → SF Mono Medium'), prow(6, 'Data value', 'JetBrains Mono 500 17/18.7, −0.01 em → SF Mono Medium'), prow(7, 'Scenario chip', 'Inter 600 13/13 → SF Pro Semibold'), prow(8, 'Passenger', 'JetBrains Mono 500 12, +0.06 em → SF Mono Medium'), prow(9, 'Stub value', 'JetBrains Mono 500 16 → SF Mono Medium'), prow(10, 'Barcode', 'PDF417-style bars, ink 92 %, drawn left to right while printing'), prow(11, 'Serial', 'JetBrains Mono 500 7, +0.14 em, ink 65 % · decorative, hidden from VoiceOver')] },
+        { t: 'Colour tokens and contrast on paper', rows: [crow('background:#F5F0E6', 'paper', '#F5F0E6 · --paper'), crow('background:#14110F', 'ink', '#14110F at 92 % = #262320 · 13.8 : 1'), crow('background:#6A6661', 'caption ink', 'ink at 62 % = #6A6661 · 5.0 : 1'), crow('background:rgba(20,17,15,.14)', 'hairline', 'ink at 14 %, 1 pt · decorative'), crow('background:rgba(20,17,15,.45)', 'perforation dot', 'ink at 45 %, 2 pt · decorative'), crow('background:#FFB547', 'amber pill', '--amber · BOARDING, ink on amber 10.7 : 1'), crow('background:#08613F', 'stamp ok', '--stamp-ok · 6.6 : 1'), crow('background:#8C4B08', 'stamp warn', '--stamp-warn · 5.9 : 1'), crow('background:#A82A24', 'stamp red', '--stamp-red · 6.1 : 1'), crow('background:var(--foil-economy)', 'foil edges', '--foil-economy … --foil-long · always paired with the cabin label')] },
+        { t: 'Material and depth', rows: [row('Contact shadow', 'drop-shadow 0 24 48 rgba(0,0,0,.45) · wallet tile 0 12 24'), row('Top highlight', '1 pt white at 90 % on the top edge'), row('Sheen', 'linear white 6 % → 0 over the top 40 %'), row('Grain', '240 pt tile at 55 % multiply ≈ 3 % luminance'), row('Ink bleed', 'text-shadow 0 0 0.6 ink at 35 %'), row('Hover (wallet)', 'lift 8 · tilt up to 6° · perspective 900 · spring Snappy 320 ms'), row('Torn edge', 'seeded polyline, amplitude 1.5–2.5 pt, unique per ticket')] }
+      ];
+      nat = [{ h: 'Native', t: 'Paper is a SwiftUI Shape with a seeded torn path and .drawingGroup(). Notches use a compound Path with even-odd fill. Grain is a 128 px tiling Metal noise at 3 %, the contact shadow a .shadow(radius: 24, y: 24) on the drawingGroup so the notches are respected.' }, { h: 'VoiceOver', t: 'Ticket: “Boarding pass, London Heathrow to Paris Charles de Gaulle, flight MR 0142, gate A12, seat 1A, 42 minutes. Activate to tear off the stub.” Stub: “Stub, seat 1A. Drag, or press Return, to tear.”' }];
+    }
+
+    if (obj === 'card') {
+      code = 'R02'; title = 'Membership card'; lede = 'ID-1 ratio, 340 × 214 pt in lists and 480 × 302 pt in the hero carousel (shown at 141 %). Front above, back below; all layers sit on a 22 pt inset, the only exception is the 2 pt optical shift on the name for the emboss.';
+      ph = 830; const Z = 480 / 340; let g = G(130, 56, Z);
+      g.f(0, 0, 340, 214, 'fr'); [[22, 18, 100, 26], [195, 24, 123, 18], [22, 66, 40, 30], [22, 118, 209, 36], [22, 156, 160, 16], [22, 188.5, 296, 9.5]].forEach(a => g.f(a[0], a[1], a[2], a[3], 'zn'));
+      g.f(0, 0, 22, 214, 'pd'); g.f(318, 0, 22, 214, 'pd');
+      g.h(0, -12, 340, '340', 't'); g.v(354, 0, 214, '214', 'r');
+      [[0, 18, '18'], [18, 26, '26'], [44, 22, '22'], [66, 30, '30'], [96, 22, '22'], [118, 54, '54'], [172, 16.5, '16.5'], [188.5, 9.5, '9.5'], [198, 16, '16']].forEach(a => g.v(-12, a[0], a[1], a[2], 'l'));
+      g.h(22, 63, 40, '40', 't'); g.v(240, 118, 36, '36', 'r'); g.v(240, 156, 16, '16', 'r');
+      [[1, 11, 31], [2, 329, 33], [3, 11, 136], [4, 11, 164], [5, 11, 193]].forEach(a => g.p(a[1], a[2], a[0]));
+      g = G(130, 448, Z);
+      g.f(0, 0, 340, 214, 'fr'); g.f(0, 22, 340, 34, 'zn'); [[22, 70, 92, 39], [124, 70, 92, 39], [226, 70, 92, 39], [22, 128, 296, 27], [22, 172, 150, 26], [250, 172, 68, 26]].forEach(a => g.f(a[0], a[1], a[2], a[3], 'zn'));
+      g.f(0, 0, 22, 214, 'pd'); g.f(318, 0, 22, 214, 'pd');
+      [[0, 22, '22'], [22, 34, '34'], [56, 14, '14'], [70, 39, '39'], [109, 19, '19'], [128, 27, '27'], [155, 17, '17'], [172, 26, '26'], [198, 16, '16']].forEach(a => g.v(-12, a[0], a[1], a[2], 'l'));
+      g.h(114, 112, 10, '10', 'b'); g.v(354, 22, 34, 'stripe 34', 'r');
+      [[6, 11, 75], [7, 11, 92], [8, 11, 136], [9, 11, 186], [10, 329, 186]].forEach(a => g.p(a[1], a[2], a[0]));
+      secs = [
+        { t: 'Layout, pt · front', rows: [row('Size', '340 × 214 list · 480 × 302 hero · radius 20 (--r-card)'), row('Emblem', 'x 22, y 18 · mark 26 + 8 gap + wordmark'), row('Member number', 'right 22, y 24'), row('Chip', 'x 22, y 66 · 40 × 30 · radius 6'), row('Name and tagline', 'x 22, bottom 42 · name line 36, tagline line 16, 2 apart'), row('Since row', 'x 22, bottom 16 · space-between, left and right inset 22')] },
+        { t: 'Layout, pt · back', rows: [row('Magnetic stripe', 'y 22, 34 tall, full bleed'), row('Stats grid', 'x 22, y 70 · 3 columns · gap 10 · caption 9 + 5 + value 15'), row('Next card', 'y 128 · title row 16, bar 5 tall, radius 3, 8 below'), row('Bottom row', 'bottom 16, 26 tall · signature 150 × 24, radius 5 · Share 26 tall, radius 13')] },
+        { t: 'Type styles · prototype font → native', rows: [prow(1, 'Wordmark', 'Inter 600 9, +0.3 em, caps → SF Pro Semibold'), prow(2, 'Member number', 'JetBrains Mono 500 9.5, +0.12 em → SF Mono Medium'), prow(3, 'Card name', 'Newsreader 600 32/36, −0.005 em, emboss shadow → New York Semibold'), prow(4, 'Tagline', 'Newsreader italic 12.5/16 → New York Italic'), prow(5, 'Since row', 'JetBrains Mono 500 9.5, +0.1 em → SF Mono Medium'), prow(6, 'Back caption', 'Inter 500 9, +0.12 em, caps → SF Pro Medium'), prow(7, 'Back value', 'JetBrains Mono 600 15 → SF Mono Semibold'), prow(8, 'Next card', 'Newsreader 13 + JetBrains Mono 10.5'), prow(9, 'Signature', 'Newsreader italic 11 on a 150 × 24 strip'), prow(10, 'Share', 'JetBrains Mono 11 · 26 tall pill with 1 pt ring')] },
+        { t: 'Colour by tier · base, ink, small-text contrast', rows: [crow('background:linear-gradient(135deg,#8A94A6,#CCD3DE 38%,#9AA4B5 62%,#C3CAD6)', 'Departure · 0 km', 'ink #14161C · small text 85 % · min 5.6 : 1'), crow('background:linear-gradient(135deg,#0A1D4A,#1B55CC 46%,#0B2A6B)', 'Cruise · 1,000 km', 'ink #F3F5FA · small text 90 % · min 5.2 : 1'), crow('background:linear-gradient(135deg,#0B1020,#16224A 50%,#0B1020)', 'Jetstream · 5,000 km', 'ink #F3F5FA · small text 78 % · min 8.5 : 1'), crow('background:linear-gradient(135deg,#A07A28,#E8C46A 36%,#B58B35 62%,#F0D58C)', 'Meridian Gold · 20,000 km', 'ink #2B1C04 · small text 90 % · min 4.6 : 1'), crow('background:linear-gradient(135deg,#E9DEC0,#fff 40%,#E7D9B1 70%,#FBF4E0)', 'Equator · 40,075 km', 'ink #3A2E15 · small text 85 % · min 6.6 : 1'), crow('background:linear-gradient(135deg,#050608,#14161C 48%,#08090C)', 'Obsidian · 100,000 km', 'ink #F3F5FA · small text 78 % · min 8.5 : 1'), row('Back plate', 'dark-ink tiers get a 42 % white veil, light-ink tiers a 42 % night veil, so back text keeps ≥ 7 : 1')] },
+        { t: 'Motion and material', rows: [row('Tilt', 'rotateY = pointerX × 28°, rotateX = −pointerY × 28° (±14° at the edge) · perspective 900 · lift 10 pt'), row('Tracking', '90 ms linear while the pointer moves, 650 ms Smooth spring on release'), row('Parallax', 'engraving and emblem 0.33, text 0.67, chip 1.0 × 12 pt'), row('Glare', 'radial white 30–45 %, soft-light, radius 60 % · edge glint 3–4 % band at 55 %'), row('Foil hue', 'conic hsl, +120° across the width · 0.25–1.0 by tier'), row('Idle shimmer', '115° sweep every 6 s · off while hovered and when locked'), row('Flip', '700 ms Bouncy spring around Y, both faces backface-hidden'), row('Locked', 'grayscale .75, brightness .78, frost 3 pt blur · progress ring 58 pt, radius 25, stroke 3')] }
+      ];
+      nat = [{ h: 'Native', t: 'SwiftUI view with .rotation3DEffect(perspective: 1/9), layers offset by a shared pointer value, foil as a Metal [[stitchable]] colorEffect keyed on the tilt vector. CoreMotion tilt on trackpad-less Macs is out of scope; keyboard focus shows the glare at the centre.' }, { h: 'VoiceOver', t: 'Card: “Meridian Gold membership card, 20,000 kilometres tier, member since March 2025.” Locked: “Equator card, locked. 28,053 kilometres to unlock. Activate to see requirements.” The card flips with Space.' }];
+    }
+
+    if (obj === 'printer') {
+      code = 'R03'; title = 'Ticket printer'; lede = 'The printer sits at the bottom of the stage and pushes the pass upward; the housing is hardware grey, so it is the only part of the product that is not glass. Drawn here at 100 %, cropped to the lower 380 pt of the 1280 × 800 stage.';
+      ph = 640; const g = G(70, 70, 1); const dx = 448, dy = 420;
+      g.f(498 - dx, 660 - dy, 500, 140, 'fr'); g.f(534 - dx, 668 - dy, 428, 12, 'zn'); g.f(534 - dx, 676 - dy, 428, 10, 'zn'); g.f(526 - dx, 704 - dy, 7, 7, 'zn'); [0, 8, 16].forEach(i => g.f(928 - dx, 704 + i - dy, 44, 3, 'zn')); g.f(488 - dx, 614 - dy, 520, 110, 'zn');
+      g.f(568 - dx, 0, 360, 240, 'zn');
+      g.h(50, 396, 500, '500 housing', 'b'); g.h(86, 420, 428, '428 slit and lip', 'b'); g.h(86, 444, 34, '34', 'b'); g.h(120, 444, 360, '360 ticket', 'b'); g.h(480, 444, 34, '34', 'b');
+      [[0, 8, '8'], [8, 12, '12']].forEach(a => g.v(540 + 20, 240 + a[0], a[1], a[2], 'r'));
+      g.v(80 - 20, 240, 44, '44', 'l'); g.h(50, 292, 28, '28', 'b'); g.h(524, 292, 26, '26', 'b'); g.h(480, 306, 44, '44', 'b');
+      g.t(80, 214, 'housing radius 28 top corners', 'l'); g.t(310, 270, 'slit 12 · lip 10 · radius 9', 'c');
+      [[1, 62, 262], [2, 96, 254], [3, 128, 263], [4, 82, 288], [5, 502, 289], [6, 70, 205], [7, 300, 120]].forEach(a => g.p(a[1], a[2], a[0]));
+      secs = [
+        { t: 'Layout, stage 1280 × 800', rows: [row('Housing', '500 × 140 visible, x 498, y 660 · top corners radius 28 · extends below the window edge'), row('Slit', '428 × 12, radius 6, 8 below the housing top · inset 36 each side'), row('Lip', '428 × 10, radius 0 0 9 9, flush with the slit bottom, drawn above the paper'), row('Ticket clearance', '360 wide in a 428 slit: 34 each side'), row('Status LED', '7 pt dot, 28 from the left, 44 from the top'), row('Vents', '3 × (44 × 3, radius 2) pitch 8, 26 from the right, 44 from the top'), row('Glow', '520 × 110 ellipse centred on the slit, amber at 30 % × (0.5 + 0.5 × progress)')] },
+        { t: 'Type styles', rows: [prow(7, 'Ticket', 'See R01. The printer itself carries no text; the Skip button below the stage is Button/secondary 13/600.')] },
+        { t: 'Hardware colour and depth', rows: [crow('background:linear-gradient(180deg,#3A4258,#222839 9%,#161B29 38%,#0F131E)', 'Housing', '#3A4258 → #222839 → #161B29 → #0F131E · inset 1 pt white 30 % · outer shadow 0 −18 50 rgba(0,0,0,.5)'), crow('background:linear-gradient(180deg,#010208,#0A0D18)', 'Slit', '#010208 → #0A0D18 · inset 0 3 7 black 95 % · 1 pt white 16 % below'), crow('background:linear-gradient(180deg,#434B63,#252C3F)', 'Lip', '#434B63 → #252C3F · inset 1 pt white 18 % · shadow 0 5 12 black 50 %'), crow('background:#FFB547', 'LED on', '#FFB547 · glow 0 0 8 2 at 80 %'), crow('background:#4A3A1E', 'LED off', '#4A3A1E, no glow'), crow('background:rgba(0,0,0,.55)', 'Vent', 'black 55 %, 1 pt white 8 % below')] },
+        { t: 'Timing', rows: [row('Start', '200 ms after Check in (LED blinks 60 on / 50 off / 60 on before)'), row('Feed', '14 steps · each 114 ms = 84 ms ease-out cubic + 30 ms hold · ends at 1800 ms'), row('Heat fade', 'a 120 pt cream veil (rgba 247,226,190) trails the paper, fades out 1800–2060 ms'), row('Settle', '1800–2100 ms: 6 pt sine bounce, ±1.5° seeded rotation'), row('Sound and haptics', 'stepper chirp and a trackpad tick on each step · heavier tick at the settle'), row('Reduce Motion', 'no printer: the pass appears in place with a 200 ms cross-fade')] }
+      ];
+      nat = [{ h: 'Native', t: 'Housing, slit and lip are three layered RoundedRectangle shapes; the ticket is clipped to the slit with .mask. Stepping uses a KeyframeAnimator with 14 keyframes (CubicKeyframe 84 ms, LinearKeyframe 30 ms). The stage blur is a .blur on the map layer only.' }, { h: 'VoiceOver', t: 'Announce once: “Printing your boarding pass.” then, when done: “Boarding pass printed. Activate to tear off the stub.” The Skip button reads “Skip printing”.' }];
+    }
+
+    if (obj === 'mini') {
+      code = 'R04'; title = 'Mini window'; lede = 'Always on top, chrome-free until hovered. Large and compact shown at 100 %; the medium size is 480 × 270 with the same inset values. Radius 20, glass border 1 pt, controls reveal in 180 ms.';
+      ph = 790; let g = G(50, 60, 1);
+      g.f(0, 0, 640, 360, 'fr'); g.f(500, 10, 130, 28, 'zn'); g.f(12, 318, 112, 30, 'zn'); g.f(618, 334, 22, 22, 'zn'); [0, 34, 68, 102].forEach(i => g.f(500 + i, 10, 28, 28, 'zn'));
+      g.h(0, -14, 640, '640', 't'); g.v(-14, 0, 360, '360', 'l'); g.h(500, 52, 130, '130', 'b'); g.v(654, 10, 28, '28', 'r');
+      g.h(630, 24, 10, '10', 'b'); g.v(520, 0, 10, '10', 'r'); g.h(0, 333, 12, '12', 'b'); g.v(40, 348, 12, '12', 'r');
+      [[1, 30, 306], [2, 100, 306], [3, 565, 50], [4, 603, 346]].forEach(a => g.p(a[1], a[2], a[0]));
+      g.t(300, 20, 'hover: controls fade and slide 4 pt in', 'c'); g.t(0, -34, 'LARGE', 'l');
+      g = G(50, 480, 1); g.t(0, -34, 'COMPACT', 'l');
+      g.f(0, 0, 360, 200, 'fr'); g.f(220, 10, 130, 28, 'zn'); g.f(12, 158, 112, 30, 'zn'); g.f(334, 174, 22, 22, 'zn');
+      g.h(0, -14, 360, '360', 't'); g.v(-14, 0, 200, '200', 'l'); g.h(220, 52, 130, '130', 'b'); g.v(374, 10, 28, '28', 'r');
+      secs = [
+        { t: 'Layout, pt', rows: [row('Sizes', 'compact 360 × 200 · medium 480 × 270 · large 640 × 360 · free resize keeps the 16 : 9 ratio'), row('Radius', '20 (--r-card) · clip to the rounded rectangle'), row('Control cluster', '4 × 28 round buttons, gap 6, right 10, top 10 · icon 14'), row('Time chip', 'left 12, bottom 12 · 30 tall, radius 15, padding 0 12, gap 8'), row('Resize grip', '22 × 22 hit area, right 4, bottom 4, glyph 10'), row('Click-through pill', 'left 12, top 12 · 24 tall accent pill, replaces the controls'), row('Map labels', 'city names appear from 480 wide up; the compact size shows route and plane only'), row('Snap', '16 from the screen edge, 44 from the top (under the menu bar) · 380 ms Smooth spring')] },
+        { t: 'Type styles · prototype font → native', rows: [prow(1, 'Time', 'JetBrains Mono 500 14/14, −0.02 em → SF Mono Medium'), prow(2, 'Sub label', 'Inter 500 11/11, 70 % → SF Pro Medium · “to Paris” or “Paused”'), prow(3, 'Controls', 'SF Symbols 14, regular weight'), prow(4, 'Grip', 'custom 10 pt two-line glyph, 70 % white')] },
+        { t: 'Colour and depth', rows: [crow('background:rgba(18,26,46,.62)', 'Control fill', 'rgba(18,26,46,.62) + 12 blur · ring white 16 % · hover rgba(40,56,92,.8)'), crow('background:rgba(18,26,46,.66)', 'Chip fill', 'rgba(18,26,46,.66) + 14 blur · ring white 14 % · text #F3F5FA 12.8 : 1'), crow('background:linear-gradient(180deg,rgba(6,8,13,0),rgba(6,8,13,.5))', 'Legibility scrim', 'bottom 50 % of the map, 0 → 50 % night'), crow('background:#6AB7FF', 'Trail', '6 pt glow at 30 % under a 2.4 pt gradient #6AB7FF → #8BF3D8'), crow('background:#FFB547', 'Destination ring', '3.2 radius, 1.6 stroke --amber'), row('Window edge', 'ring white 22 % · inset top highlight white 30 % · shadow 0 24 56 rgba(0,0,0,.55)')] },
+        { t: 'States', rows: [row('Default', 'chrome-free, only the chip'), row('Hover', 'controls opacity 0 → 1 and 4 pt slide, 180 ms'), row('Pressed', 'control scales to 0.92 · hover fill'), row('Focus', '2 pt --accent-1 ring, 2 pt offset (keyboard: Tab cycles the controls)'), row('Paused', 'chip sub label reads “Paused”, plane stops, trail stays'), row('Opacity', '30–100 %, set in the menu bar popover'), row('Click-through', 'the whole window ignores the pointer; the pill is the only label')] }
+      ];
+      nat = [{ h: 'Native', t: 'NSPanel (styleMask .nonactivatingPanel, level .floating, collectionBehavior .canJoinAllSpaces + .fullScreenAuxiliary), SwiftUI content with MapKit. Click-through is ignoresMouseEvents = true. Snapping animates NSWindow.setFrame with a Smooth spring.' }, { h: 'VoiceOver', t: 'Window: “Meridian mini map, flight MR 0142, 18 minutes 54 seconds remaining.” Controls: “Pause flight”, “Sound on”, “Change size, medium”, “Close mini map”. The grip reads “Resize, adjustable”.' }];
+    }
+
+    if (obj === 'popover') {
+      code = 'R05'; title = 'Menu bar item and popover'; lede = 'The menu bar item at 300 % so the 6 pt gaps read, then the 340 pt popover at 150 %. Everything inside the popover sits on a 12 pt vertical rhythm with a 15 pt inset (14 padding + 1 pt glass stroke).';
+      ph = 1090; let g = G(84, 39, 3);
+      g.f(0, 0, 73.2, 22, 'fr'); g.f(8, 4, 14, 14, 'zn'); g.f(28, 4.5, 37.2, 13, 'zn');
+      g.h(0, 25, 8, '8', 'b'); g.h(8, 25, 14, '14', 'b'); g.h(22, 25, 6, '6', 'b'); g.h(28, 25, 37.2, '37', 'b'); g.h(65.2, 25, 8, '8', 'b');
+      g.v(-6, 0, 22, '22', 'l'); g.t(77, 11, 'radius 6 · 13/13 medium, tabular', 'l');
+      g = G(115, 190, 1.5);
+      g.f(0, 0, 340, 556, 'fr'); [[15, 15, 310, 24], [15, 51, 310, 140], [15, 203, 310, 62], [15, 277, 310, 32], [15, 334, 310, 34], [15, 380, 310, 36], [15, 428, 310, 18], [15, 458, 310, 26], [15, 509, 310, 32]].forEach(a => g.f(a[0], a[1], a[2], a[3], 'zn'));
+      g.f(0, 0, 15, 556, 'pd'); g.f(325, 0, 15, 556, 'pd'); g.f(15, 321, 310, 1, 'fr'); g.f(15, 496, 310, 1, 'fr');
+      g.h(0, -12, 340, '340', 't');
+      [[0, 15, '15'], [15, 24, '24'], [39, 12, '12'], [51, 140, '140'], [191, 12, '12'], [203, 62, '62'], [265, 12, '12'], [277, 32, '32'], [309, 12, '12'], [322, 12, '12'], [334, 34, '34'], [368, 12, '12'], [380, 36, '36'], [416, 12, '12'], [428, 18, '18'], [446, 12, '12'], [458, 26, '26'], [484, 12, '12'], [497, 12, '12'], [509, 32, '32'], [541, 15, '15']].forEach(a => g.v(-12, a[0], a[1], a[2], 'l'));
+      g.v(354, 0, 556, '556', 'r'); g.h(15, 567, 310, '310', 'b'); g.h(238.5, -6, 17, 'arrow 12 · 45°', 't');
+      [[1, 7.5, 27], [2, 332.5, 27], [3, 7.5, 210], [4, 7.5, 245], [5, 332.5, 240], [6, 332.5, 262], [7, 7.5, 293], [8, 7.5, 342], [9, 7.5, 358], [10, 7.5, 398], [11, 332.5, 437]].forEach(a => g.p(a[1], a[2], a[0]));
+      secs = [
+        { t: 'Menu bar item', rows: [row('Height and radius', '22 tall inside the 28 menu bar · radius 6'), row('Padding and gap', '0 8 · icon 14 · gap 6 · text 13 medium, tabular figures'), row('States', 'idle: glyph only · boarding: amber 6 pt dot · in flight: glyph + 42:18 · last minute: accent pulse 1.4 s · landed: check'), row('Hover / open', 'fill white 16 % / 26 %'), row('Contrast', 'the item is drawn in the system menu bar foreground, so it adapts to light, dark and tinted wallpapers')] },
+        { t: 'Popover layout, pt', rows: [row('Size', '340 × 556 (state flight, mini on) · radius 22 · padding 14 + 1 stroke'), row('Row gap', '12 between all rows; hairlines are 1 pt with 12 above and below'), row('Map', '310 × 140, radius 16, MiniMap component'), row('Status row', 'pill 24 tall (radius 12, padding 0 10) · route right-aligned'), row('Buttons', 'Pause 100 · Land 158 · round 32 · all 32 tall, radius 10'), row('Rows below', 'segmented control 36 (segments 28 tall) · slider 196 × 4 · toggles 44 × 26'), row('Arrow', '12 × 12 diamond, radius 3, 6 above the glass, centred under the item')] },
+        { t: 'Type styles · prototype font → native', rows: [prow(1, 'Status pill', 'Inter 600 11, +0.04 em, caps → SF Pro Semibold'), prow(2, 'Route', 'JetBrains Mono 500 12 → SF Mono Medium'), prow(3, 'Eyebrow', 'Inter 500 11/14, +0.08 em, caps → SF Pro Medium'), prow(4, 'Time remaining', 'JetBrains Mono 500 44/46, −0.04 em → SF Mono Medium'), prow(5, 'Phase', 'Inter 600 13/16 → SF Pro Semibold'), prow(6, 'Phase detail', 'JetBrains Mono 500 11 → SF Mono Medium'), prow(7, 'Button/small', 'Inter 600 13/13 → SF Pro Semibold'), prow(8, 'Row title', 'Inter 600 13/16 → SF Pro Semibold'), prow(9, 'Row caption', 'Inter 400 12/18 → SF Pro Regular'), prow(10, 'Segment', 'Inter 500 13/13 → SF Pro Medium'), prow(11, 'Value', 'JetBrains Mono 500 12 → SF Mono Medium')] },
+        { t: 'Colour tokens', rows: [crow('background:rgba(18,26,46,.55)', 'Glass tint', '--glass-tint · blur 32–48 · saturation 160 % · shadow e3'), crow('background:#F3F5FA', 'Text 1', '--text-1 · on glass 14.7 : 1'), crow('background:#A9B2C7', 'Text 2', '--text-2 · on glass 7.5 : 1'), crow('background:#96A0BA', 'Text 3', '--text-3 · on glass 5.8 : 1 (raised from #6B7592 to pass AA)'), crow('background:#5BE3A0', 'In flight', '--ok pill, text on its 16 % tint 6.8 : 1'), crow('background:#6AB7FF', 'Accent', '--accent-1 · last minute pulse, slider fill, focus ring'), crow('background:#FFB547', 'Amber', '--amber · boarding dot and pill')] }
+      ];
+      nat = [{ h: 'Native', t: 'MenuBarExtra(.window) with a SwiftUI content view; the item label is a Text with .monospacedDigit() and an SF Symbol, updated by a 1 s TimelineView only while a flight is active. Popover width fixed at 340, height follows the content.' }, { h: 'VoiceOver', t: 'Item: “Meridian, in flight, 18 minutes 54 seconds remaining.” Popover: first focus lands on the status pill. Pause reads “Pause flight”, Land reads “Hold to land early”, the toggles read “Mini map, on”.' }];
+    }
+
+    const leftT = { ticket: ['Material and depth'], card: ['Motion and material'], printer: ['Type styles', 'Timing'], mini: ['States'], popover: ['Colour tokens'] }[obj] || [];
+    const secsL = secs.filter(x => leftT.indexOf(x.t) >= 0), secsR = secs.filter(x => leftT.indexOf(x.t) < 0);
+    return { code, title, lede, fr, dm, tx, pn, secsL, secsR, nat, lcolStyle: 'width:' + pw + 'px', o_ticket: obj === 'ticket', o_card: obj === 'card', o_printer: obj === 'printer', o_mini: obj === 'mini', o_pop: obj === 'popover', specStyle: 'width:' + pw + 'px;height:' + ph + 'px', screenLabel: code + ' Redlines ' + title };
+  }
+}
+</script>
+</body>
+</html>

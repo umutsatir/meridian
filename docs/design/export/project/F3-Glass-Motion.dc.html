@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Foundations — Glass, elevation, motion</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.x3d{position:absolute;left:50%;top:50%;width:300px;height:190px;margin:-95px 0 0 -150px;border-radius:26px}
+.demo-row{display:grid;grid-template-columns:150px 1fr 74px;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--stroke-hair)}
+.demo-track{position:relative;height:24px;border-radius:12px;background:var(--fill-1)}
+.demo-dot{position:absolute;left:4px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--accent-grad);animation-name:mx-demo;animation-duration:2.8s;animation-iteration-count:infinite;animation-direction:alternate}
+@keyframes mx-demo{0%,12%{left:4px}88%,100%{left:calc(100% - 20px)}}
+.mapbox{position:relative;border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--rim)}
+.mapbox>.over{position:absolute;inset:0}
+.lbl3{font:500 12px/1.3 var(--font-mono);color:var(--text-2)}
+.cap3{font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2)}
+@keyframes mx-dur1{0%{left:4px}5%,50%{left:calc(100% - 20px)}55%,100%{left:4px}}
+@keyframes mx-dur2{0%{left:4px}8.3%,50%{left:calc(100% - 20px)}58.3%,100%{left:4px}}
+@keyframes mx-dur3{0%{left:4px}13.3%,50%{left:calc(100% - 20px)}63.3%,100%{left:4px}}
+@keyframes mx-dur4{0%{left:4px}21.7%,50%{left:calc(100% - 20px)}71.7%,100%{left:4px}}
+@keyframes mx-dur5{0%{left:4px}45.8%,52%{left:calc(100% - 20px)}97.8%,100%{left:4px}}
+@keyframes mx-demo2{0%,12%{left:6px;top:6px}88%,100%{left:24px;top:24px}}@keyframes mx-fade{0%,100%{opacity:.15}50%{opacity:1}}
+</style>
+</helmet>
+<div class="mx" data-theme="dark" style="width:1440px;background:var(--bg-0);padding:56px 64px 72px;display:flex;flex-direction:column;gap:56px;position:relative;overflow:hidden">
+<div style="position:absolute;right:-220px;top:-220px;width:760px;height:760px;border-radius:50%;background:radial-gradient(circle,rgba(106,183,255,.10),transparent 65%)"></div>
+<header style="display:flex;flex-direction:column;gap:10px;position:relative">
+<div style="display:flex;align-items:center;gap:10px" class="t-caption c2"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Meridian design system · Foundations · 03</div>
+<h1 class="t-display" style="margin:0">Glass, paper, elevation, motion</h1>
+<p class="t-body c2" style="margin:0;max-width:760px">Two materials only. Liquid Glass floats over the map and carries controls; warm thermal paper carries documents. Everything else is the map and the dark ground. Motion is physical: springs, inertia, a little overshoot, paper that behaves like paper.</p>
+</header>
+
+<!-- ============ GLASS ============ -->
+<section style="display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:56px;position:relative">
+<div>
+<div class="t-headline" style="margin-bottom:6px">Liquid Glass recipe <span class="c3 t-callout" style="font-weight:400">· six layers, one token each</span></div>
+<div style="position:relative;height:470px;margin-top:8px;perspective:1500px;border-radius:24px;background:radial-gradient(70% 70% at 40% 45%,rgba(106,183,255,.10),transparent 70%),var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);overflow:hidden">
+<div style="position:absolute;left:0;top:0;width:640px;height:470px;transform-style:preserve-3d;transform:translate(-20px,28px) rotateX(58deg) rotateZ(-32deg) scale(.96)">
+<div class="x3d" style="transform:translateZ(-30px);background:rgba(0,0,0,.65);filter:blur(22px);box-shadow:0 60px 80px #000"></div>
+<div class="x3d" style="transform:translateZ(0);background:radial-gradient(circle at 24% 30%,#2A3C6B 0 18%,transparent 19%),radial-gradient(circle at 70% 66%,#1F2A49 0 24%,transparent 25%),repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,transparent 1px 22px),#080D1A;box-shadow:inset 0 0 0 1px var(--stroke-hair)"></div>
+<div class="x3d" style="transform:translateZ(54px);background:radial-gradient(circle at 24% 30%,#3A5090 0 18%,transparent 19%),radial-gradient(circle at 70% 66%,#2C3A66 0 24%,transparent 25%),repeating-linear-gradient(0deg,rgba(255,255,255,.1) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 1px,transparent 1px 22px),#0A1224;filter:blur(3px) saturate(1.6);opacity:.95"></div>
+<div class="x3d" style="transform:translateZ(108px);background:var(--glass-tint);box-shadow:inset 0 0 0 1px var(--stroke-hair)"></div>
+<div class="x3d" style="transform:translateZ(162px);background:linear-gradient(135deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.04) 38%,rgba(255,255,255,.16) 100%)"></div>
+<div class="x3d" style="transform:translateZ(216px);box-shadow:inset 0 1px 0 var(--stroke-glow),inset 0 0 0 1px var(--stroke-hair);background:transparent"></div>
+</div>
+<!-- leader labels -->
+<sc-for list="{{layers}}" as="l" hint-placeholder-count="6">
+<div style="{{l.s}}"><div style="display:flex;align-items:center;gap:8px"><span class="callout-dot">{{l.n}}</span><span class="t-callout" style="font-weight:600">{{l.t}}</span></div><div class="lbl3" style="margin:3px 0 0 26px">{{l.v}}</div></div>
+</sc-for>
+</div>
+<p class="t-callout c2" style="margin:16px 0 0;max-width:620px">Native build: <span class="mono" style="font-size:12px">.glassEffect(.regular.tint(Color.glassTint).interactive(), in: .rect(cornerRadius: 28))</span> inside a <span class="mono" style="font-size:12px">GlassEffectContainer</span> so neighbouring pieces merge and morph. The canvas reproduces the same layers with backdrop-filter, a 135° specular gradient and two inset hairlines.</p>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div class="t-headline">Glass over the map <span class="c3 t-callout" style="font-weight:400">· dark and Daybreak</span></div>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div class="mapbox" data-theme="{{t.k}}" style="height:236px">
+<dc-import name="MapLayer" w="620" h="236" map-style="{{t.map}}" zoom="2.2" lat="49.8" lon="2.8" labels="false" hint-size="600px,236px"></dc-import>
+<div class="over">
+<div class="glass" style="position:absolute;left:18px;top:18px;width:170px;height:200px;border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:2px">
+<div class="nav is-active"><svg class="ic"><use href="./icons.svg#plane"></use></svg>Plan</div>
+<div class="nav"><svg class="ic"><use href="./icons.svg#ticket"></use></svg>Tickets</div>
+<div class="nav is-hover"><svg class="ic"><use href="./icons.svg#card"></use></svg>Cards</div>
+<div class="nav"><svg class="ic"><use href="./icons.svg#globe"></use></svg>Map</div>
+<div class="nav"><svg class="ic"><use href="./icons.svg#chart"></use></svg>Stats</div>
+</div>
+<div class="glass" style="position:absolute;left:206px;top:18px;height:52px;padding:0 8px 0 18px;border-radius:26px;display:flex;align-items:center;gap:6px"><span class="t-callout c2">From</span><span class="cond" style="font-size:22px">LHR</span><span class="t-callout c2">London</span><span class="btn-round glass glass-ctl sm" style="margin-left:6px"><svg class="ic"><use href="./icons.svg#chev-d"></use></svg></span></div>
+<div style="position:absolute;right:18px;top:18px;display:flex;gap:10px">
+<span class="btn-round glass glass-ctl"><svg class="ic"><use href="./icons.svg#shuffle"></use></svg></span>
+<span class="btn-round glass glass-ctl is-hover"><svg class="ic"><use href="./icons.svg#search"></use></svg></span>
+<span class="btn-round glass glass-ctl is-pressed on"><svg class="ic"><use href="./icons.svg#layers"></use></svg></span>
+</div>
+<div class="glass" style="position:absolute;left:206px;right:18px;bottom:18px;height:92px;border-radius:28px;padding:16px 20px;display:flex;flex-direction:column;gap:10px;justify-content:center">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="t-headline">Paris · CDG</div><div class="mono c2" style="font-size:13px">41 min</div></div>
+<div style="display:flex;gap:10px"><button class="btn btn-primary btn-sm">Check in</button><button class="btn btn-secondary btn-sm">Quick start <span class="kbd">⌘⏎</span></button></div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<!-- glass states + a11y -->
+<section style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;position:relative">
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="t-headline">Glass control states <span class="c3 t-callout" style="font-weight:400">· +6% white on hover</span></div>
+<div class="mapbox" style="height:150px;background:var(--m-sea)">
+<dc-import name="MapLayer" w="420" h="150" zoom="2.4" lat="50.6" lon="1.5" labels="false" hint-size="420px,150px"></dc-import>
+<div class="over" style="display:flex;align-items:center;justify-content:space-around;padding:0 14px">
+<sc-for list="{{states}}" as="s" hint-placeholder-count="5"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><span class="{{s.cls}}"><svg class="ic"><use href="./icons.svg#sound"></use></svg></span><span class="mono c2" style="font-size:10px">{{s.n}}</span></div></sc-for>
+</div>
+</div>
+<p class="t-callout c2" style="margin:0">Hover adds a 6% white wash (50% white in Daybreak), pressed 3%, focus draws a 2 pt accent ring with a 2 pt offset, disabled drops to 38% and loses hit-testing.</p>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="t-headline">Reduce Transparency <span class="c3 t-callout" style="font-weight:400">· glass → solid bg-2</span></div>
+<div class="mapbox" data-a11y="reduce-transparency" style="height:150px;background:var(--m-sea)">
+<dc-import name="MapLayer" w="420" h="150" zoom="2.4" lat="50.6" lon="1.5" labels="false" hint-size="420px,150px"></dc-import>
+<div class="over" style="display:flex;align-items:center;justify-content:center;gap:12px">
+<div class="glass" style="height:60px;padding:0 20px;border-radius:30px;display:flex;align-items:center;gap:10px"><span class="tag"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span><span class="t-callout">41 min</span><button class="btn btn-primary btn-sm">Check in</button></div>
+</div>
+</div>
+<p class="t-callout c2" style="margin:0">Blur and tint are dropped; panels use <span class="mono" style="font-size:12px">bg-2</span> with the hairline kept. Text contrast rises from 11.6:1 to 14.9:1.</p>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="t-headline">Increase Contrast <span class="c3 t-callout" style="font-weight:400">· 1 pt white edge</span></div>
+<div class="mapbox" data-a11y="increase-contrast" style="height:150px;background:var(--m-sea)">
+<dc-import name="MapLayer" w="420" h="150" zoom="2.4" lat="50.6" lon="1.5" labels="false" hint-size="420px,150px"></dc-import>
+<div class="over" style="display:flex;align-items:center;justify-content:center;gap:12px">
+<div class="glass" style="height:60px;padding:0 20px;border-radius:30px;display:flex;align-items:center;gap:10px"><span class="tag"><svg class="ic"><use href="./icons.svg#plane"></use></svg>CDG</span><span class="tag is-disabled"><svg class="ic"><use href="./icons.svg#plane"></use></svg>AMS</span><span class="t-callout">41 min</span></div>
+</div>
+</div>
+<p class="t-callout c2" style="margin:0">Glass gains a 60% white border; tags gain a black-and-white double outline; disabled tags invert to black with a white outline so they never rely on opacity alone.</p>
+</div>
+</section>
+
+<!-- ============ ELEVATION + PAPER ============ -->
+<section style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;position:relative">
+<div>
+<div class="t-headline" style="margin-bottom:16px">Elevation <span class="c3 t-callout" style="font-weight:400">· y-offset and blur grow together</span></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:28px 24px 36px;border-radius:24px;background:var(--m-land-2);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<sc-for list="{{elev}}" as="e" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:14px"><div style="{{e.s}}"></div><div><div class="mono" style="font-size:13px;font-weight:600">{{e.n}}</div><div class="mono c3" style="font-size:10.5px;margin-top:3px;line-height:1.4">{{e.v}}</div><div class="t-callout c2" style="margin-top:6px">{{e.u}}</div></div></div>
+</sc-for>
+</div>
+</div>
+<div>
+<div class="t-headline" style="margin-bottom:16px">Thermal paper <span class="c3 t-callout" style="font-weight:400">· the second material</span></div>
+<div style="display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center;padding:28px;border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)">
+<div style="position:relative;width:200px;height:200px">
+<div class="paper" style="position:absolute;left:0;top:0;width:200px;height:200px;border-radius:22px;box-shadow:0 24px 48px rgba(0,0,0,.45)">
+<div class="cond ink" style="position:absolute;left:18px;top:18px;font-size:46px;line-height:1">LHR</div>
+<div class="mono ink" style="position:absolute;left:18px;bottom:18px;font-size:12px">42 min · 348 km</div>
+<div style="position:absolute;right:18px;top:24px;width:46px;height:3px;border-radius:2px;background:var(--sc-code)"></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{paper}}" as="p" hint-placeholder-count="5"><div style="display:flex;gap:10px;align-items:baseline"><span class="callout-dot">{{p.n}}</span><div><div class="t-callout" style="font-weight:600">{{p.t}}</div><div class="lbl3">{{p.v}}</div></div></div></sc-for>
+</div>
+</div>
+<p class="t-callout c2" style="margin:14px 0 0">Tickets and cards look identical in dark and Daybreak: paper never inverts. Native build: layered rounded rectangles, a Metal grain shader at 3%, and <span class="mono" style="font-size:12px">.shadow(color:radius:y:)</span> for the contact shadow.</p>
+</div>
+</section>
+
+<!-- ============ MOTION ============ -->
+<section style="position:relative;display:flex;flex-direction:column;gap:28px">
+<div class="t-headline">Motion <span class="c3 t-callout" style="font-weight:400">· durations, easing, springs. Every bar below is live.</span></div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:40px">
+<div>
+<div class="cap3" style="margin-bottom:6px">Durations</div>
+<sc-for list="{{durs}}" as="d" hint-placeholder-count="5">
+<div class="demo-row"><div><div class="mono" style="font-size:13px;font-weight:600">{{d.n}}</div><div class="t-callout c2">{{d.u}}</div></div><div class="demo-track"><div class="demo-dot" style="{{d.s}}"></div></div><div class="mono c2" style="font-size:12px;text-align:right">{{d.ms}}</div></div>
+</sc-for>
+</div>
+<div>
+<div class="cap3" style="margin-bottom:6px">Easing</div>
+<sc-for list="{{eases}}" as="e" hint-placeholder-count="2">
+<div style="padding:12px 0;border-bottom:1px solid var(--stroke-hair)">
+<div style="display:flex;gap:16px;align-items:center">
+<svg width="120" height="120" viewBox="0 0 120 120" style="flex:none;border-radius:14px;background:var(--fill-1)"><path d="M10 110H110M10 10V110" stroke="var(--stroke-glow)" stroke-width="1" fill="none"/><path d="{{e.path}}" stroke="var(--accent-1)" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="10" cy="110" r="3" fill="var(--text-2)"/><circle cx="110" cy="10" r="3" fill="var(--text-2)"/></svg>
+<div><div class="mono" style="font-size:13px;font-weight:600">{{e.n}}</div><div class="mono c3" style="font-size:11px;margin:3px 0 6px">{{e.v}}</div><div class="t-callout c2">{{e.u}}</div></div>
+</div>
+<div class="demo-track" style="margin-top:12px"><div class="demo-dot" style="{{e.s}}"></div></div>
+</div>
+</sc-for>
+</div>
+<div>
+<div class="cap3" style="margin-bottom:6px">Springs <span class="c3" style="text-transform:none;letter-spacing:0">response · damping</span></div>
+<sc-for list="{{springs}}" as="e" hint-placeholder-count="4">
+<div style="display:flex;gap:14px;align-items:center;padding:9px 0;border-bottom:1px solid var(--stroke-hair)">
+<svg width="116" height="64" viewBox="0 0 116 64" style="flex:none;border-radius:10px;background:var(--fill-1)"><path d="M6 18H110" stroke="var(--stroke-glow)" stroke-width="1" stroke-dasharray="2 3"/><path d="{{e.path}}" stroke="var(--accent-2)" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span class="mono" style="font-size:13px;font-weight:600">{{e.n}}</span><span class="mono c2" style="font-size:11px">{{e.v}}</span></div><div class="t-callout c2" style="margin-top:2px">{{e.u}}</div><div class="demo-track" style="height:14px;margin-top:6px"><div class="demo-dot" style="{{e.s}}"></div></div></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;margin-top:8px">
+<div style="padding:24px;border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:flex;gap:22px;align-items:center">
+<div style="display:flex;flex-direction:column;gap:12px;flex:none;width:210px">
+<div class="cap3">Reduce Motion</div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:44px;height:44px;border-radius:14px;background:var(--fill-2);position:relative;overflow:hidden"><div style="position:absolute;left:6px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--accent-grad);animation:mx-demo2 2.8s var(--spring-bouncy) infinite alternate"></div></div><span class="t-callout c2">Spring, travel, tilt</span></div>
+<div style="display:flex;gap:10px;align-items:center"><div style="width:44px;height:44px;border-radius:14px;background:var(--fill-2);position:relative;overflow:hidden"><div style="position:absolute;left:15px;top:15px;width:14px;height:14px;border-radius:50%;background:var(--accent-grad);animation:mx-fade 2.4s ease-in-out infinite"></div></div><span class="t-callout c2">200 ms cross-fade</span></div>
+</div>
+<p class="t-callout c2" style="margin:0">All movement is replaced by 200 ms cross-fades. The paper tear plays a fade and keeps the rip sound; take-off becomes a plain cross-fade; card tilt is disabled and the glare rests at the top-left. Haptics and sound are separate switches and stay on.</p>
+</div>
+<div style="padding:24px;border-radius:24px;background:var(--bg-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:flex;flex-direction:column;gap:12px">
+<div class="cap3">Dynamic-Type-style scaling · 100% and 130%</div>
+<div style="display:flex;gap:28px;align-items:flex-end">
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font:600 17px/22px var(--font-ui)">Check in</div><div style="font:400 15px/22px var(--font-ui);color:var(--text-2)">Pick a destination.</div><div class="mono" style="font-size:13px">41 min · 348 km</div></div>
+<div style="display:flex;flex-direction:column;gap:8px"><div style="font:600 22.1px/28.6px var(--font-ui)">Check in</div><div style="font:400 19.5px/28.6px var(--font-ui);color:var(--text-2)">Pick a destination.</div><div class="mono" style="font-size:16.9px">41 min · 348 km</div></div>
+</div>
+<p class="t-callout c2" style="margin:0">Every size in the type scale multiplies by 1.3 at the largest setting. Layouts are built with min-widths and wrapping rows, so German and Turkish strings (about 30% longer) fit without truncation; right-to-left mirrors the sidebar, ruler direction and chevrons.</p>
+</div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const springs = [['Snappy', .32, .82, 'Toggles, chips, tag select'], ['Smooth', .5, .86, 'Sheets, card return, ticket settle'], ['Bouncy', .55, .68, 'Card flip, stamps, unlock'], ['Heavy', .7, .9, 'Panels, wallet-in, big travel']];
+    const spring = (r, z) => { const w = 2 * Math.PI / r, wd = w * Math.sqrt(Math.max(1e-6, 1 - z * z)); return t => z < 1 ? 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t)) : 1 - Math.exp(-w * t) * (1 + w * t); };
+    const peak = (r, z) => { const f = spring(r, z); let m = 0; for (let i = 0; i < 400; i++) m = Math.max(m, f(i / 400 * 1.5)); return Math.max(0, Math.round((m - 1) * 100)); };
+    const mkSpring = (r, z) => { const f = spring(r, z), T = 1.0, pts = []; for (let i = 0; i <= 60; i++) { const t = i / 60 * T; pts.push((6 + i / 60 * 104).toFixed(1) + ' ' + (50 - f(t) * 32).toFixed(1)); } return 'M' + pts.join(' L'); };
+    const bez = (a, b, c, d) => 'M10 110C' + (10 + a * 100).toFixed(1) + ' ' + (110 - b * 100).toFixed(1) + ' ' + (10 + c * 100).toFixed(1) + ' ' + (110 - d * 100).toFixed(1) + ' 110 10';
+    const durs = [['d1', '120 ms', 'Hover wash, press scale, UI tap', '--d1'], ['d2', '200 ms', 'Control state, cross-fade, toggle', '--d2'], ['d3', '320 ms', 'Chip pop, tag select, route draw', '--d3'], ['d4', '520 ms', 'Sheet, card return, phase change', '--d4'], ['d5–d6', '900–1400 ms', 'Printing feed, flip, unlock, cinematic', '--d5']];
+    const ms = [120, 200, 320, 520, 1100];
+    return {
+      layers: [
+        { n: 6, t: 'Edges', v: 'inner stroke-glow 1 px, outer stroke-hair 1 px' },
+        { n: 5, t: 'Specular', v: '135° white 10% → 1.5% → 5%' },
+        { n: 4, t: 'Tint', v: 'glass-tint · rgba(18,26,46,.55)' },
+        { n: 3, t: 'Blur + saturate', v: '40 px · 160%' },
+        { n: 2, t: 'Backdrop', v: 'whatever is under: map, wallpaper' },
+        { n: 1, t: 'Shadow', v: 'e3 · 0 20 60 rgba(0,0,0,.45)' }
+      ].map((l, i) => Object.assign({}, l, { s: 'position:absolute;right:22px;top:' + (46 + i * 74) + 'px;width:210px' })),
+      themes: [{ k: 'dark', map: 'terra' }, { k: 'light', map: 'standard' }],
+      states: [{ n: 'default', cls: 'btn-round glass glass-ctl' }, { n: 'hover', cls: 'btn-round glass glass-ctl is-hover' }, { n: 'pressed', cls: 'btn-round glass glass-ctl is-pressed' }, { n: 'focus', cls: 'btn-round glass glass-ctl is-focus' }, { n: 'disabled', cls: 'btn-round glass glass-ctl is-disabled' }],
+      elev: [
+        { n: 'e0', v: 'none', u: 'Map, ground, inline', s: 'height:96px;border-radius:18px;background:var(--bg-2)' },
+        { n: 'e1', v: '0 2 8 / .25', u: 'Chips, tags, pills', s: 'height:96px;border-radius:18px;background:var(--bg-2);box-shadow:var(--e1)' },
+        { n: 'e2', v: '0 8 24 / .35', u: 'Popovers, menus, hover lift', s: 'height:96px;border-radius:18px;background:var(--bg-2);box-shadow:var(--e2)' },
+        { n: 'e3', v: '0 20 60 / .45', u: 'Glass panels, sheets, mini window', s: 'height:96px;border-radius:18px;background:var(--bg-2);box-shadow:var(--e3)' }
+      ],
+      paper: [
+        { n: 1, t: 'Base', v: 'paper #F5F0E6, radius 22' }, { n: 2, t: 'Sheen', v: 'white 6% → 0 over the top 40%' }, { n: 3, t: 'Grain', v: '3% noise, multiply, 240 px tile' },
+        { n: 4, t: 'Top highlight', v: '1 px rgba(255,255,255,.9)' }, { n: 5, t: 'Thermal ink', v: 'ink #14110F at 92%, 0.3 px bleed at 20%' }
+      ],
+      durs: durs.map((d, i) => ({ n: d[0], ms: d[1], u: d[2], s: 'animation:mx-dur' + (i + 1) + ' 2.4s var(--ease) infinite' })),
+      eases: [
+        { n: 'standard', v: 'cubic-bezier(.2, 0, 0, 1)', u: 'Default for everything that is not a spring. Fast out, long settle.', path: bez(.2, 0, 0, 1), s: 'animation-timing-function:cubic-bezier(.2,0,0,1);animation-duration:2.4s' },
+        { n: 'accelerate', v: 'cubic-bezier(.3, 0, .8, .15)', u: 'Exits only: things leaving the screen, the stub flying off.', path: bez(.3, 0, .8, .15), s: 'animation-timing-function:cubic-bezier(.3,0,.8,.15);animation-duration:2.4s' }
+      ],
+      springs: springs.map(s => ({ n: s[0], v: s[1] + ' · ' + s[2], u: s[3] + ' · overshoot ' + peak(s[1], s[2]) + '%', path: mkSpring(s[1], s[2]), s: 'animation-duration:2.6s;animation-timing-function:var(--spring-' + s[0].toLowerCase() + ')' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

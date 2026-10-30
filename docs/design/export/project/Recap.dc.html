@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Year in flight frame</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.rc-f{position:relative;width:360px;height:640px;border-radius:28px;overflow:hidden;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);-webkit-font-smoothing:antialiased;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.rc-top{position:absolute;left:28px;right:28px;top:26px;display:flex;align-items:center;justify-content:space-between}
+.rc-top span{font:600 10px/1 var(--font-ui);letter-spacing:.2em;text-transform:uppercase;color:var(--text-2)}
+.rc-bot{position:absolute;left:28px;right:28px;bottom:26px;display:flex;align-items:center;justify-content:space-between;font:500 10px/1 var(--font-mono);letter-spacing:.06em;color:var(--text-3)}
+.rc-serif{font-family:var(--font-serif);font-weight:500;letter-spacing:-.025em}
+.rc-grad{background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.rc-lbl{font:500 11px/14px var(--font-ui);letter-spacing:.14em;text-transform:uppercase;color:var(--text-2)}
+.rc-p{font:400 16px/24px var(--font-ui);color:var(--text-2);margin:0}
+.rc-row{display:flex;align-items:center;gap:10px;height:30px}
+.rc-row .n{width:64px;font:500 12px/1 var(--font-ui);color:var(--text-2)}
+.rc-row .b{flex:1;height:6px;border-radius:3px;background:var(--fill-2);overflow:hidden}
+.rc-row .b i{display:block;height:100%;border-radius:3px}
+.rc-row .v{width:26px;text-align:right;font:500 12px/1 var(--font-mono);color:var(--text-1)}
+</style>
+</helmet>
+<div class="rc-f" data-theme="dark">
+<!-- 0 cover -->
+<sc-if value="{{f0}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 50% at 50% 78%,rgba(70,92,190,.4),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:-30px;top:250px;width:420px;height:420px"><dc-import name="Globe" size="420" lon="8" lat="38" grat="false" routes="{{allRoutes}}" pins="{{allPins}}" hint-size="420px,420px"></dc-import></div>
+<div style="position:absolute;left:28px;top:96px"><div class="rc-lbl">Year in flight</div><div class="rc-serif" style="font-size:66px;line-height:66px;margin-top:16px">Your 2026,<br><span style="font-style:italic" class="rc-grad">in flight.</span></div></div>
+</sc-if>
+<!-- 1 hours -->
+<sc-if value="{{f1}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(90% 50% at 20% 30%,rgba(106,183,255,.22),transparent 70%),radial-gradient(70% 40% at 100% 100%,rgba(139,243,216,.14),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:110px"><div class="rc-lbl">Time in the air</div>
+<div class="rc-serif rc-grad" style="font-size:150px;line-height:140px;margin-top:20px;letter-spacing:-.05em">94.5</div>
+<div class="rc-serif" style="font-size:38px;line-height:42px;margin-top:2px">hours of focus.</div>
+<p class="rc-p" style="margin-top:28px;max-width:280px">Nearly four days in the air, one flight at a time.</p></div>
+<div style="position:absolute;left:28px;right:28px;bottom:80px;display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="border-radius:18px;padding:14px 16px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)"><div class="rc-lbl" style="font-size:10px">Flights</div><div class="rc-serif" style="font-size:34px;line-height:38px;margin-top:6px">87</div></div><div style="border-radius:18px;padding:14px 16px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)"><div class="rc-lbl" style="font-size:10px">Average</div><div class="rc-serif" style="font-size:34px;line-height:38px;margin-top:6px">65<span style="font:500 13px/1 var(--font-ui);color:var(--text-2);margin-left:4px">min</span></div></div></div>
+</sc-if>
+<!-- 2 distance -->
+<sc-if value="{{f2}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(70% 40% at 50% 40%,rgba(106,183,255,.2),transparent 70%),var(--bg-0)"></div>
+<svg width="360" height="360" viewBox="0 0 360 360" style="position:absolute;left:0;top:70px"><defs><linearGradient id="rc-a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs>
+<circle cx="180" cy="180" r="128" fill="none" style="stroke:var(--fill-3)" stroke-width="3" stroke-dasharray="1 6" stroke-linecap="round"/>
+<circle cx="180" cy="180" r="128" fill="none" stroke="url(#rc-a)" stroke-width="4" stroke-linecap="round" stroke-dasharray="{{orbit}}" transform="rotate(-90 180 180)"/>
+<circle cx="180" cy="180" r="82" style="fill:var(--gl-sea-a)"/><path d="M130 150q22-30 56-20t30 36q-10 26-40 38t-52-20z" style="fill:var(--gl-land)"/>
+<circle cx="{{px}}" cy="{{py}}" r="6" fill="#fff"/><circle cx="{{px}}" cy="{{py}}" r="14" fill="#fff" opacity=".16"/></svg>
+<div style="position:absolute;left:28px;right:28px;top:460px"><div class="rc-lbl">Distance</div><div class="rc-serif" style="font-size:64px;line-height:68px;margin-top:10px">12,022<span style="font:500 18px/1 var(--font-ui);color:var(--text-2);margin-left:8px;letter-spacing:0">km</span></div><p class="rc-p" style="margin-top:8px">0.3× around the world.</p></div>
+</sc-if>
+<!-- 3 favourite scenario -->
+<sc-if value="{{f3}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 45% at 30% 24%,rgba(180,156,255,.3),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:96px"><div class="rc-lbl">Favourite scenario</div>
+<div style="display:flex;align-items:center;gap:16px;margin-top:20px"><span style="width:64px;height:64px;border-radius:22px;background:rgba(180,156,255,.2);box-shadow:inset 0 0 0 1.5px #B49CFF,0 0 36px rgba(180,156,255,.4);color:#B49CFF;display:flex;align-items:center;justify-content:center"><svg class="ic ic24"><use href="./icons.svg#code"></use></svg></span></div>
+<div class="rc-serif" style="font-size:76px;line-height:76px;margin-top:20px;color:#B49CFF">Coding.</div>
+<p class="rc-p" style="margin-top:12px">31 flights, 34% of your year.</p></div>
+<div style="position:absolute;left:28px;right:28px;top:380px"><sc-for list="{{mix}}" as="m" hint-placeholder-count="6"><div class="rc-row"><span class="n">{{m.t}}</span><span class="b"><i style="{{m.s}}"></i></span><span class="v">{{m.n}}</span></div></sc-for></div>
+</sc-if>
+<!-- 4 longest flight -->
+<sc-if value="{{f4}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 40% at 70% 70%,rgba(255,184,107,.2),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:96px"><div class="rc-lbl">Longest flight</div>
+<div class="cond" style="font-size:104px;line-height:96px;margin-top:18px;letter-spacing:.005em">FRA<br><span style="color:var(--text-3);font-size:44px;line-height:44px">→</span> IST</div>
+<div class="mono" style="font-size:15px;margin-top:14px">1,838 km · 2 h 37 min</div><div class="t-callout c2" style="margin-top:4px">Frankfurt to Istanbul · Fri 18 Sep</div></div>
+<div style="position:absolute;left:30px;top:400px;width:300px;height:300px"><dc-import name="Globe" size="300" lon="22" lat="44" grat="false" atmo="false" routes="{{longRoute}}" pins="{{longPins}}" hint-size="300px,300px"></dc-import></div>
+</sc-if>
+<!-- 5 busiest day -->
+<sc-if value="{{f5}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 45% at 80% 20%,rgba(255,143,177,.22),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:96px"><div class="rc-lbl">Busiest day</div>
+<div class="rc-serif" style="font-size:72px;line-height:72px;margin-top:18px">Tuesday,<br><span style="font-style:italic;color:#FF8FB1">14 April.</span></div>
+<p class="rc-p" style="margin-top:14px">4 flights and 3 h 10 min without a break longer than a coffee.</p></div>
+<div style="position:absolute;left:28px;right:28px;top:420px;display:grid;grid-template-columns:repeat(14,1fr);gap:5px"><sc-for list="{{days}}" as="d" hint-placeholder-count="56"><i style="{{d.s}}"></i></sc-for></div>
+<div class="mono c3" style="position:absolute;left:28px;top:572px;font-size:10px;letter-spacing:.08em">8 WEEKS AROUND 14 APR</div>
+</sc-if>
+<!-- 6 map -->
+<sc-if value="{{f6}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 45% at 50% 50%,rgba(70,92,190,.3),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:96px"><div class="rc-lbl">Every route</div><div class="rc-serif" style="font-size:52px;line-height:54px;margin-top:14px">Your year,<br>drawn in light.</div></div>
+<div style="position:absolute;left:0;top:296px;width:360px;height:290px;overflow:hidden"><div style="position:absolute;left:-190px;top:0"><dc-import name="WorldFlat" w="760" lat-top="80" lat-bot="-56" visited="true" routes="{{flatRoutes}}" pins="{{flatPins}}" hint-size="760px,287px"></dc-import></div></div>
+<div style="position:absolute;left:28px;right:28px;bottom:70px;display:flex;gap:28px"><div><div class="rc-serif" style="font-size:34px;line-height:36px">41</div><div class="rc-lbl" style="font-size:10px">airports</div></div><div><div class="rc-serif" style="font-size:34px;line-height:36px">19</div><div class="rc-lbl" style="font-size:10px">countries</div></div><div><div class="rc-serif" style="font-size:34px;line-height:36px">87</div><div class="rc-lbl" style="font-size:10px">stamps</div></div></div>
+</sc-if>
+<!-- 7 card -->
+<sc-if value="{{f7}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(80% 45% at 50% 30%,rgba(139,243,216,.2),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:28px;right:28px;top:96px"><div class="rc-lbl">Card reached</div><div class="rc-serif rc-grad" style="font-size:72px;line-height:72px;margin-top:14px">Jetstream.</div></div>
+<div style="position:absolute;left:10px;top:240px;width:340px;height:214px;transform:rotate(-4deg)"><dc-import name="Card" tier="jetstream" size="list" hint-size="340px,214px"></dc-import></div>
+<div style="position:absolute;left:28px;right:28px;top:490px"><p class="rc-p">Next up: Meridian Gold, 7,978 km away. See you in 2027.</p><div class="bar" style="--p:60;margin-top:16px"><i></i></div><div style="display:flex;justify-content:space-between;margin-top:8px" class="mono c3"><span style="font-size:10px">12,022 km</span><span style="font-size:10px">20,000 km</span></div></div>
+</sc-if>
+<div class="rc-top"><span>Meridian</span><span>{{idx}} / 8</span></div>
+<div class="rc-bot"><span>ELIF KAYA</span><span>2026</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"frame":{"editor":"int","default":0},"$preview":{"width":360,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, fr = (typeof p.frame === 'string' || typeof p.frame === 'number') ? +p.frame : 0;
+    const f = ((fr % 8) + 8) % 8;
+    const allR = [['LHR', 'CDG'], ['LHR', 'AMS'], ['LHR', 'DUB'], ['LHR', 'FRA'], ['LHR', 'IST'], ['LHR', 'MAD'], ['LHR', 'CAI'], ['LHR', 'JFK'], ['LHR', 'DXB'], ['IST', 'ESB'], ['FRA', 'IST'], ['JFK', 'BOS'], ['BOS', 'YYZ'], ['YYZ', 'SFO'], ['DXB', 'DOH'], ['AMS', 'BCN']];
+    const circ = 2 * Math.PI * 128, fr2 = 12022 / 40075, ang = fr2 * 2 * Math.PI - Math.PI / 2;
+    const mixD = [['Coding', 31, '#B49CFF'], ['Work', 22, '#FFB86B'], ['Study', 15, '#7AA2FF'], ['Read', 11, '#7ADDB2'], ['Create', 5, '#FF8FB1'], ['Meditate', 3, '#8EE3E8']];
+    const r = K.rng(21), days = [];
+    for (let i = 0; i < 56; i++) { const hot = i === 29, v = hot ? 1 : (r() < .35 ? 0 : r() * .55); days.push({ s: 'aspect-ratio:1;border-radius:5px;display:block;background:' + (hot ? '#FF8FB1' : 'rgba(255,143,177,' + (.08 + v * .5).toFixed(2) + ')') + (hot ? ';box-shadow:0 0 18px rgba(255,143,177,.7)' : '') }); }
+    return {
+      f0: f === 0, f1: f === 1, f2: f === 2, f3: f === 3, f4: f === 4, f5: f === 5, f6: f === 6, f7: f === 7, idx: f + 1,
+      allRoutes: allR.map((a, i) => ({ a: a[0], b: a[1], c: i % 3 ? '#6AB7FF' : '#8BF3D8', w: 1.3, o: .8, h: .08 })), allPins: [{ code: 'LHR', c: '#FFB547', r: 3.6, lbl: false }, { code: 'JFK', c: '#FFB547', r: 3, lbl: false }, { code: 'IST', c: '#FFB547', r: 3, lbl: false }],
+      orbit: (circ * fr2).toFixed(1) + ' ' + circ.toFixed(1), px: (180 + 128 * Math.cos(ang)).toFixed(1), py: (180 + 128 * Math.sin(ang)).toFixed(1),
+      mix: mixD.map(m => ({ t: m[0], n: m[1], s: 'width:' + (m[1] / 31 * 100).toFixed(0) + '%;background:' + m[2] })), days,
+      longRoute: [{ a: 'FRA', b: 'IST', c: '#FFB86B', w: 2.4, o: .95, h: .12 }], longPins: [{ code: 'FRA', c: '#FFB547', r: 4, lbl: true }, { code: 'IST', c: '#FFB547', r: 4, lbl: true }],
+      flatRoutes: allR.map((a, i) => ({ a: a[0], b: a[1], c: i % 3 ? '#6AB7FF' : '#8BF3D8', w: 1.2, o: .85, h: .9 })), flatPins: [{ code: 'LHR', c: '#FFB547', r: 3, label: false }, { code: 'JFK', c: '#FFB547', r: 3, label: false }, { code: 'IST', c: '#FFB547', r: 3, label: false }]
+    };
+  }
+}
+</script>
+</body>
+</html>

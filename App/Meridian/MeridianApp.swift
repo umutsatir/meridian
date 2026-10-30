@@ -6,9 +6,13 @@ struct MeridianApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environment(model)
-                .frame(minWidth: 960, minHeight: 640)
+            if let launch = DebugLaunch.current {
+                DebugHost(launch: launch)   // screenshot harness (App/Meridian/Debug)
+            } else {
+                RootView()
+                    .environment(model)
+                    .frame(minWidth: 960, minHeight: 640)
+            }
         }
         .defaultSize(width: 1280, height: 800)
         .windowStyle(.hiddenTitleBar)

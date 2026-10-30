@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ob-h1{font:500 104px/100px var(--font-serif);letter-spacing:-.03em;margin:0}
+.ob-h1 em{font-style:italic;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.06em}
+.ob-h2{font:500 48px/52px var(--font-serif);letter-spacing:-.02em;margin:0}
+.ob-sub{font:400 17px/26px var(--font-ui);color:var(--text-2);margin:0}
+.ob-link{font:500 13px/1 var(--font-ui);color:var(--text-3);cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:6px 2px;border-radius:6px}
+.ob-link:hover,.ob-link.is-hover{color:var(--text-1)}
+.ob-link:focus-visible{outline:2px solid var(--accent-1);outline-offset:2px}
+.ob-foot{position:absolute;left:96px;right:96px;bottom:44px;height:52px;display:flex;align-items:center;justify-content:space-between}
+.ob-dots{display:flex;gap:8px;align-items:center}
+.ob-dots i{width:6px;height:6px;border-radius:3px;background:var(--fill-3);transition:width var(--d3) var(--spring-snappy),background var(--d2)}
+.ob-dots i.on{width:22px;background:var(--accent-grad)}
+.ob-dots i.done{background:var(--text-3)}
+.ob-row{display:flex;align-items:center;gap:14px;height:58px;padding:0 14px;border-radius:16px;cursor:pointer;transition:background var(--d2) var(--ease)}
+.ob-row:hover,.ob-row.is-hover{background:var(--fill-1)}
+.ob-row.sel{background:linear-gradient(135deg,rgba(106,183,255,.18),rgba(139,243,216,.07));box-shadow:0 0 0 1px rgba(106,183,255,.34)}
+[data-theme="light"] .ob-row.sel{background:rgba(30,107,255,.08);box-shadow:0 0 0 1px rgba(30,107,255,.3)}
+.ob-iata{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;border-radius:8px;background:var(--amber);color:var(--ink);font:700 14px/1 var(--font-cond);letter-spacing:.05em}
+.ob-tile{position:relative;border-radius:24px;overflow:hidden;cursor:pointer;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--stroke-hair);transition:transform var(--d3) var(--spring-snappy),box-shadow var(--d2) var(--ease)}
+.ob-tile:hover,.ob-tile.is-hover{transform:translateY(-2px)}
+.ob-tile.sel{box-shadow:0 0 0 2px var(--accent-1),0 0 36px rgba(106,183,255,.28)}
+.ob-tile:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+.ob-chip{position:absolute;touch-action:none;user-select:none;transition:box-shadow var(--d2) var(--ease)}
+.ob-chip.lifted{z-index:5}
+.ob-step{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;transition:background var(--d2)}
+.ob-step .n{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:600 13px/1 var(--font-mono);background:var(--fill-2);color:var(--text-2);flex:none}
+.ob-step.cur{background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair)}
+.ob-step.cur .n{background:var(--accent-grad);color:#04101A;box-shadow:0 0 16px rgba(106,183,255,.5)}
+.ob-step.done .n{background:rgba(91,227,160,.18);color:var(--ok)}
+.ob-dlg{width:268px;border-radius:14px;padding:16px 16px 12px;background:rgba(40,44,56,.82);color:#F3F5FA;box-shadow:0 20px 50px rgba(0,0,0,.5),inset 0 0 0 .5px rgba(255,255,255,.22);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);text-align:center}
+[data-theme="light"] .ob-dlg{background:rgba(246,246,248,.9);color:#14161C;box-shadow:0 20px 50px rgba(40,34,20,.25),inset 0 0 0 .5px rgba(0,0,0,.18)}
+.ob-dlg b{font:600 13px/17px var(--font-ui);display:block}
+.ob-dlg p{font:400 11px/15px var(--font-ui);margin:4px 0 12px;opacity:.75}
+.ob-dlg .b{display:flex;gap:8px}.ob-dlg .b>span{flex:1;height:24px;border-radius:7px;background:rgba(255,255,255,.14);font:500 12px/24px var(--font-ui)}
+[data-theme="light"] .ob-dlg .b>span{background:rgba(0,0,0,.07)}
+.ob-dlg .b>span.p{background:#0A6CE0;color:#fff}
+.ob-apple{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;min-width:300px;padding:0 24px;border-radius:14px;background:#fff;color:#000;font:600 17px/1 var(--font-ui);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform var(--d2) var(--ease),filter var(--d2)}
+.ob-apple:hover,.ob-apple.is-hover{filter:brightness(.94)}.ob-apple:active{transform:scale(.97)}
+.ob-apple:focus-visible{outline:2px solid var(--accent-1);outline-offset:3px}
+[data-theme="light"] .ob-apple{background:#000;color:#fff}
+@keyframes ob-burst{from{transform:scale(.4);opacity:0}30%{opacity:1}to{transform:scale(1);opacity:.0}}
+@keyframes ob-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ob-in{animation:ob-rise var(--d5) var(--ease) both}
+</style>
+</helmet>
+<div class="win" style="background:var(--bg-0)" tabindex="0" onKeyDown="{{onKey}}">
+<div class="tl"><i></i><i></i><i></i></div>
+
+<!-- ===== S01 Welcome ===== -->
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;inset:0;background:radial-gradient(60% 90% at 78% 46%,rgba(70,92,190,.34),transparent 72%),radial-gradient(40% 50% at 12% 100%,rgba(106,183,255,.10),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:470px;top:-100px;width:1000px;height:1000px"><dc-import name="Globe" size="1000" lon="{{gLon}}" lat="34" live="{{live}}" speed="2.6" grat="true" routes="{{gRoutes}}" pins="{{gPins}}" plane="{{gPlane}}" hint-size="1000px,1000px"></dc-import></div>
+<div class="ob-in" style="position:absolute;left:96px;top:150px;width:640px">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:34px"><svg class="ic ic24" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg><span class="eyebrow" style="letter-spacing:.2em;color:var(--text-1)">Meridian</span></div>
+<h1 class="ob-h1">{{h1a}}<br><em>{{h1b}}</em></h1>
+<p class="ob-sub" style="margin-top:28px;font-size:21px;line-height:30px;max-width:420px">{{sub1}}</p>
+<div style="display:flex;align-items:center;gap:26px;margin-top:44px"><button class="btn btn-primary btn-lg {{h1Cls}}" onClick="{{next}}">{{cta1}}<svg class="ic ic18"><use href="./icons.svg#chev-r"></use></svg></button><span class="ob-link" role="button" tabindex="0" onClick="{{skip}}">{{skipLbl}}</span></div>
+</div>
+<div style="position:absolute;left:96px;bottom:44px" class="mono c3"><span style="font-size:12px">{{fine1}}</span></div>
+</sc-if>
+
+<!-- ===== chrome for steps 2–6 ===== -->
+<sc-if value="{{chrome}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(70% 60% at 85% 0%,rgba(70,92,190,.22),transparent 70%),var(--bg-0)"></div>
+<div style="position:absolute;left:96px;top:52px" class="eyebrow">{{stepLbl}}</div>
+<div style="position:absolute;right:96px;top:44px"><span class="ob-link" role="button" tabindex="0" onClick="{{skip}}">{{skipLbl}}</span></div>
+<div class="ob-foot">
+<button class="btn btn-secondary btn-pill {{backCls}}" onClick="{{back}}"><svg class="ic ic18"><use href="./icons.svg#chev-l"></use></svg>{{backLbl}}</button>
+<div class="ob-dots"><sc-for list="{{dots}}" as="d" hint-placeholder-count="7"><i class="{{d.c}}"></i></sc-for></div>
+<button class="btn btn-primary btn-lg" onClick="{{next}}">{{nextLbl}}<svg class="ic ic18"><use href="./icons.svg#chev-r"></use></svg></button>
+</div>
+</sc-if>
+
+<!-- ===== S02 Home airport ===== -->
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:96px;top:96px;width:520px"><h2 class="ob-h2">Where do you<br>take off?</h2><p class="ob-sub" style="margin-top:12px">Your home airport is where every flight starts by default.</p></div>
+<div class="glass e3" style="position:absolute;left:96px;top:288px;width:480px;height:340px;border-radius:28px;overflow:hidden">
+<div style="position:absolute;left:0;top:0;width:480px;height:176px"><dc-import name="MapLayer" w="480" h="176" map-style="terra" zoom="3.4" lat="51.5" lon="-0.45" labels="true" hint-size="480px,176px"></dc-import></div>
+<div style="position:absolute;left:0;top:0;width:480px;height:176px;background:linear-gradient(180deg,transparent 55%,var(--glass-tint))"></div>
+<div style="position:absolute;left:240px;top:88px;width:0;height:0"><span style="position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;background:rgba(255,181,71,.22);animation:mx-pulse 2s ease-in-out infinite"></span><span class="origin" style="left:0;top:0"></span></div>
+<div style="position:absolute;left:24px;top:190px;right:24px">
+<div class="eyebrow" style="display:flex;align-items:center;gap:6px"><svg class="ic ic12"><use href="./icons.svg#pin"></use></svg>Detected from your Mac</div>
+<div style="display:flex;align-items:baseline;gap:10px;margin-top:8px"><span class="serif" style="font-size:36px;line-height:40px;letter-spacing:-.015em">London</span><span class="ob-iata">LHR</span></div>
+<div class="t-callout c2" style="margin-top:4px">We think you're in London. <span style="color:var(--accent-1);cursor:pointer;font-weight:600">Change?</span></div>
+</div>
+<div style="position:absolute;left:24px;right:24px;bottom:20px;display:flex;align-items:center;gap:8px" class="t-callout c3"><svg class="ic ic14"><use href="./icons.svg#info"></use></svg>You can change this anytime.</div>
+</div>
+<div style="position:absolute;left:648px;top:96px;width:536px">
+<div class="field" style="height:44px;border-radius:14px"><svg class="ic ic18 c3"><use href="./icons.svg#search"></use></svg><input placeholder="Search airports, cities, countries" value="{{q2}}" aria-label="Search airports"><span class="kbd">⌘F</span></div>
+<div class="eyebrow" style="margin:22px 0 8px 14px">Near you</div>
+<sc-for list="{{apRows}}" as="a" hint-placeholder-count="7"><div class="ob-row {{a.cls}}" role="button" tabindex="0" onClick="{{a.pick}}"><span class="ob-iata">{{a.code}}</span><div style="flex:1;min-width:0"><div style="font:600 15px/18px var(--font-ui)">{{a.city}}</div><div class="t-callout c2" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{a.name}} · {{a.country}}</div></div><span class="mono c3" style="font-size:12px">{{a.dist}}</span><sc-if value="{{a.on}}" hint-placeholder-val="{{ false }}"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#check"></use></svg></sc-if></div></sc-for>
+</div>
+</sc-if>
+
+<!-- ===== S03 Scenarios ===== -->
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:96px;top:96px;width:700px"><h2 class="ob-h2">What do you focus on?</h2><p class="ob-sub" style="margin-top:12px">Pick the kinds of work you'll fly. Drag them around. Change this any time.</p></div>
+<div style="position:absolute;right:96px;top:112px"><span class="pill accent" style="height:32px;padding:0 14px;font-size:12px"><svg class="ic ic14"><use href="./icons.svg#check"></use></svg>{{selCount}} selected</span></div>
+<div id="ob-tray" style="position:absolute;left:96px;top:236px;width:1088px;height:430px;border-radius:30px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair),inset 0 18px 40px rgba(0,0,0,.18);overflow:hidden" onPointerMove="{{pm}}" onPointerUp="{{pu}}" onPointerCancel="{{pu}}">
+<sc-for list="{{chips}}" as="c" hint-placeholder-count="14"><div class="ob-chip {{c.lift}}" style="{{c.s}}" onPointerDown="{{c.pd}}"><span class="chip lg {{c.sel}}" style="{{c.cs}}" role="button" tabindex="0" aria-pressed="{{c.on}}"><svg class="ic ic18"><use href="{{c.ic}}"></use></svg>{{c.t}}</span></div></sc-for>
+</div>
+</sc-if>
+
+<!-- ===== S04 Map style ===== -->
+<sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:96px;top:96px;width:700px"><h2 class="ob-h2">Choose your map.</h2><p class="ob-sub" style="margin-top:12px">Four ways to watch the flight. You can switch while flying.</p></div>
+<div style="position:absolute;left:96px;top:226px;width:1088px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="4"><div class="ob-tile {{t.cls}}" role="radio" aria-checked="{{t.on}}" tabindex="0" onClick="{{t.pick}}" style="height:188px">
+<div style="position:absolute;left:0;top:0;width:536px;height:132px;overflow:hidden"><dc-import name="MapLayer" w="536" h="132" map-style="{{t.k}}" zoom="1.7" lat="49.6" lon="3.5" labels="{{labels}}" hint-size="536px,132px"></dc-import></div>
+<div style="position:absolute;left:0;top:0;width:536px;height:132px;pointer-events:none"><svg width="536" height="132" viewBox="0 0 536 132"><path d="M190 100 Q 300 14 400 46" fill="none" stroke="#6AB7FF" stroke-width="2" stroke-linecap="round"/><circle cx="190" cy="100" r="4.5" fill="#fff" stroke="#06080D" stroke-width="2"/><circle cx="400" cy="46" r="4.5" fill="#FFB547" stroke="#06080D" stroke-width="2"/></svg></div>
+<div style="position:absolute;left:20px;right:20px;top:142px;display:flex;align-items:center;gap:12px"><div style="flex:1"><div style="font:600 16px/20px var(--font-ui)">{{t.n}}</div><div class="t-callout c2">{{t.d}}</div></div><sc-if value="{{t.on}}" hint-placeholder-val="{{ false }}"><span class="pill accent"><svg class="ic ic12"><use href="./icons.svg#check"></use></svg>Selected</span></sc-if></div>
+</div></sc-for>
+</div>
+<div class="glass e1" style="position:absolute;left:96px;top:628px;width:1088px;height:56px;border-radius:18px;padding:0 20px;display:flex;align-items:center;gap:14px"><svg class="ic ic20 c2"><use href="./icons.svg#map"></use></svg><div style="flex:1"><div style="font:600 14px/18px var(--font-ui)">Place names</div><div class="t-callout c2">Show city and sea names on the map</div></div><span class="toggle {{lblCls}}" role="switch" tabindex="0" aria-label="Place names" onClick="{{toggleLabels}}"></span></div>
+</sc-if>
+
+<!-- ===== S05 Permissions ===== -->
+<sc-if value="{{s5}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:96px;top:96px;width:700px"><h2 class="ob-h2">Stay in the moment.</h2><p class="ob-sub" style="margin-top:12px">Three quick asks. Each one is optional, and you can change them later.</p></div>
+<div style="position:absolute;left:96px;top:236px;width:300px;display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{pSteps}}" as="s" hint-placeholder-count="3"><div class="ob-step {{s.cls}}"><span class="n"><sc-if value="{{s.done}}" hint-placeholder-val="{{ false }}"><svg class="ic ic14"><use href="./icons.svg#check"></use></svg></sc-if><sc-if value="{{s.todo}}" hint-placeholder-val="{{ true }}">{{s.n}}</sc-if></span><div><div style="font:600 15px/18px var(--font-ui)">{{s.t}}</div><div class="t-callout c2">{{s.d}}</div></div></div></sc-for>
+</div>
+<div class="glass e3" style="position:absolute;left:428px;top:236px;width:756px;height:430px;border-radius:30px">
+<div style="position:absolute;left:36px;top:34px;width:392px">
+<div style="display:flex;gap:18px;align-items:center"><span style="width:56px;height:56px;border-radius:18px;background:var(--accent-grad);color:#04101A;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 10px 30px rgba(106,183,255,.35)"><svg class="ic ic24"><use href="{{pIcon}}"></use></svg></span><div class="eyebrow">{{pEyebrow}}</div></div>
+<div class="t-title2" style="margin-top:20px">{{pTitle}}</div><p class="t-body c2" style="margin:10px 0 0">{{pBody}}</p>
+<sc-if value="{{pRead}}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px">
+<div style="border-radius:16px;padding:12px 14px;background:rgba(91,227,160,.08);box-shadow:inset 0 0 0 1px rgba(91,227,160,.24)"><div class="eyebrow" style="color:var(--ok);display:flex;gap:6px;align-items:center"><svg class="ic ic12"><use href="./icons.svg#eye"></use></svg>Reads</div><div class="t-callout" style="margin-top:6px;line-height:19px">The name of the app in front. Nothing else.</div></div>
+<div style="border-radius:16px;padding:12px 14px;background:rgba(255,107,107,.07);box-shadow:inset 0 0 0 1px rgba(255,107,107,.24)"><div class="eyebrow" style="color:var(--danger);display:flex;gap:6px;align-items:center"><svg class="ic ic12"><use href="./icons.svg#lock"></use></svg>Never reads</div><div class="t-callout" style="margin-top:6px;line-height:19px">Window contents, keystrokes or your screen.</div></div>
+</div></sc-if>
+<sc-if value="{{pNotRead}}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap"><sc-for list="{{pBullets}}" as="b" hint-placeholder-count="3"><span class="chip" style="--sc:var(--accent-1);--sc-ink:var(--text-1);height:34px"><svg class="ic ic14"><use href="{{b.ic}}"></use></svg>{{b.t}}</span></sc-for></div>
+</sc-if>
+</div>
+<div style="position:absolute;left:36px;bottom:32px;display:flex;gap:10px;align-items:center"><button class="btn btn-primary">{{pCta}}</button><button class="btn btn-tertiary">{{pAlt}}</button></div>
+<div style="position:absolute;right:28px;top:28px;bottom:28px;width:268px;border-radius:22px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px"><div class="eyebrow" style="color:var(--text-3)">You'll see next</div><div class="ob-dlg" style="width:232px"><b>{{dTitle}}</b><p>{{dBody}}</p><div class="b"><span>{{dNo}}</span><span class="p">{{dYes}}</span></div></div></div>
+</div>
+</sc-if>
+
+<!-- ===== S06 Account ===== -->
+<sc-if value="{{s6}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:96px;top:96px;width:560px"><h2 class="ob-h2">Take your flights<br>with you.</h2><p class="ob-sub" style="margin-top:14px;max-width:460px">Sign in to fly with friends and keep your wallet, passport and cards in sync across your Apple devices. It's optional.</p>
+<div style="margin-top:44px;display:flex;flex-direction:column;align-items:flex-start;gap:14px"><span class="ob-apple" role="button" tabindex="0"><svg class="ic ic20"><use href="./icons.svg#apple"></use></svg>Sign in with Apple</span><button class="btn btn-tertiary" style="margin-left:-10px">Not now</button></div>
+<div class="t-callout c3" style="margin-top:20px;max-width:420px;display:flex;gap:10px"><svg class="ic ic14" style="margin-top:2px;flex:none"><use href="./icons.svg#shield"></use></svg>Friends see your flight status, never your task or location. Hide My Email works.</div></div>
+<div style="position:absolute;left:700px;top:96px;width:484px;display:flex;flex-direction:column;gap:14px">
+<div class="glass e2" style="border-radius:24px;padding:20px 22px"><div style="display:flex;align-items:center;gap:10px"><svg class="ic ic20" style="color:var(--accent-1)"><use href="./icons.svg#users"></use></svg><span style="font:600 15px/18px var(--font-ui)">Together</span><span class="pill accent" style="margin-left:auto">Needs sign in</span></div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+<div style="display:flex;align-items:center;gap:12px"><span class="av" style="--avc:#FFB86B">A<span class="pr"></span></span><div style="flex:1"><div style="font:600 14px/17px var(--font-ui)">Anna</div><div class="t-callout c2">At the gate · IST → NRT</div></div><span class="mono c3" style="font-size:12px">06:12</span></div>
+<div style="display:flex;align-items:center;gap:12px"><span class="av" style="--avc:#7ADDB2">M<span class="pr idle"></span></span><div style="flex:1"><div style="font:600 14px/17px var(--font-ui)">Mert</div><div class="t-callout c2">Idle</div></div></div></div></div>
+<div class="glass e2" style="border-radius:24px;padding:20px 22px"><div style="display:flex;align-items:center;gap:10px"><svg class="ic ic20" style="color:var(--accent-2)"><use href="./icons.svg#cloud"></use></svg><span style="font:600 15px/18px var(--font-ui)">iCloud sync</span><span class="pill ok" style="margin-left:auto">Mac · iPhone · iPad</span></div>
+<div class="bar" style="--p:100;margin-top:16px"><i></i></div><div class="t-callout c2" style="margin-top:10px">87 tickets, 19 stamps and your cards, everywhere you sign in.</div></div>
+<div class="glass e1" style="border-radius:24px;padding:16px 22px;display:flex;align-items:center;gap:12px"><svg class="ic ic20 c2"><use href="./icons.svg#lock"></use></svg><div class="t-callout c2">Skipping keeps everything on this Mac. You can sign in later from Settings.</div></div>
+</div>
+</sc-if>
+
+<!-- ===== S07 Ready ===== -->
+<sc-if value="{{s7}}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:radial-gradient(50% 60% at 50% 38%,rgba(106,183,255,.2),transparent 70%),radial-gradient(40% 40% at 50% 100%,rgba(139,243,216,.1),transparent 70%),var(--bg-0)"></div>
+<svg width="1280" height="800" viewBox="0 0 1280 800" style="position:absolute;left:0;top:0;pointer-events:none"><defs><linearGradient id="ob-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6AB7FF"/><stop offset="1" stop-color="#8BF3D8"/></linearGradient></defs>
+<sc-for list="{{rays}}" as="r" hint-placeholder-count="28"><line x1="{{r.x1}}" y1="{{r.y1}}" x2="{{r.x2}}" y2="{{r.y2}}" stroke="{{r.c}}" stroke-width="{{r.w}}" stroke-linecap="round" opacity="{{r.o}}"/></sc-for>
+<circle cx="640" cy="300" r="250" fill="none" stroke="url(#ob-bg)" stroke-width="1" opacity=".35"/><circle cx="640" cy="300" r="330" fill="none" stroke="url(#ob-bg)" stroke-width="1" opacity=".16"/></svg>
+<div class="ob-in" style="position:absolute;left:0;right:0;top:60px;display:flex;flex-direction:column;align-items:center">
+<div style="position:relative;width:252px;height:316px;opacity:.9"><dc-import name="Ticket" state="locked" scale=".7" label="Your first flight prints here" hint-size="252px,316px"></dc-import></div>
+<h2 class="ob-h2" style="font-size:68px;line-height:72px;margin-top:34px;text-align:center">Ready for take-off.</h2>
+<p class="ob-sub" style="margin-top:14px;text-align:center;max-width:520px">Home airport London. Soft blocking is set to Nudge. Your first ticket is one tap away.</p>
+<div style="display:flex;gap:16px;align-items:center;margin-top:34px"><button class="btn btn-primary btn-lg" onClick="{{done}}"><svg class="ic ic18"><use href="./icons.svg#plane"></use></svg>Plan my first flight</button></div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"step":{"editor":"int","default":1},"sub":{"editor":"int","default":1},"lang":{"editor":"enum","options":["en","tr"],"default":"en"},"live":{"editor":"boolean","default":false},"map":{"editor":"text","default":"terra"},"hover":{"editor":"text","default":""},"onDone":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { step: null, sub: null, home: 'LHR', mapSel: null, labels: true, sel: null, pos: null, drag: null };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  live() { return this.flag(this.props.live, false); }
+  CH() {
+    const K = window.MeridianKit, out = [];
+    ['study', 'work', 'read', 'create', 'code', 'meditate', 'fitness', 'other'].forEach(k => out.push({ k, t: K.scenarios[k][0], c: K.scenarios[k][1], ic: K.scenarios[k][2] }));
+    [['Write', '#FF8FB1', 'pencil'], ['Design', '#B49CFF', 'spark'], ['Research', '#7AA2FF', 'search'], ['Language', '#FFB86B', 'book'], ['Plan', '#7ADDB2', 'calendar'], ['Admin', '#C7CCDA', 'case']].forEach(a => out.push({ k: a[0].toLowerCase(), t: a[0], c: a[1], ic: a[2] }));
+    out.forEach(c => { c.w = 44 + Math.round(c.t.length * 8.4) + 14; c.h = 44; });
+    return out;
+  }
+  initPos() {
+    const K = window.MeridianKit, r = K.rng(11), ch = this.CH(), W = 1088, H = 430;
+    const pos = ch.map((c, i) => ({ x: 60 + r() * (W - 120 - c.w), y: 50 + r() * (H - 120), vx: 0, vy: 0, w: c.w, h: c.h, rot: (r() - .5) * 12 }));
+    for (let n = 0; n < 110; n++) this.step(pos, W, H, null);
+    return pos;
+  }
+  step(pos, W, H, dragIdx) {
+    const cx = W / 2, cy = H / 2 + 6;
+    for (let i = 0; i < pos.length; i++) { const p = pos[i]; if (i === dragIdx) continue; p.x += (cx - (p.x + p.w / 2)) * .0016; p.y += (cy - (p.y + p.h / 2)) * .0022 + .12; }
+    for (let it = 0; it < 3; it++) for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) {
+      const a = pos[i], b = pos[j], ox = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x) + 14, oy = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y) + 14;
+      if (ox > 0 && oy > 0) { let dx = 0, dy = 0; if (ox < oy) dx = ox / 2 * ((a.x + a.w / 2) < (b.x + b.w / 2) ? -1 : 1); else dy = oy / 2 * ((a.y + a.h / 2) < (b.y + b.h / 2) ? -1 : 1);
+        if (i !== dragIdx) { a.x += dx; a.y += dy; } if (j !== dragIdx) { b.x -= dx; b.y -= dy; } if (i === dragIdx) { b.x -= dx; b.y -= dy; } if (j === dragIdx) { a.x += dx; a.y += dy; } }
+    }
+    pos.forEach(p => { p.x = Math.max(10, Math.min(W - 10 - p.w, p.x)); p.y = Math.max(10, Math.min(H - 10 - p.h, p.y)); });
+  }
+  componentDidMount() { if (this.live() && this.cur() === 3) this.run(); }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  run() { cancelAnimationFrame(this._raf); const L = () => { const st = this.state; if (!st.pos) return; const d = st.drag ? st.drag.i : null; this.step(st.pos, 1088, 430, d); this.setState({ pos: st.pos }); this._n = (this._n || 0) + 1; if (this._n < 90 || st.drag) this._raf = requestAnimationFrame(L); else this._n = 0; }; this._n = 0; this._raf = requestAnimationFrame(L); }
+  cur() { return this.state.step !== null ? this.state.step : +(this.props.step || 1); }
+  go(n) { n = Math.max(1, Math.min(7, n)); this.setState({ step: n, sub: 1 }); if (n === 3 && this.live()) setTimeout(() => this.run(), 50); const cb = this.props.onDone; if (n > 7 && typeof cb === 'function') cb(); }
+  renderVals() {
+    const K = window.MeridianKit, p = this.props, st = this.state, step = this.cur(), tr = (p.lang === 'tr'), live = this.live();
+    const sub = st.sub !== null ? st.sub : +(p.sub || 1);
+    const mapSel = st.mapSel || p.map || 'terra';
+    const sel = st.sel || ['study', 'read', 'code'];
+    const dots = [1, 2, 3, 4, 5, 6, 7].map(i => ({ c: i === step ? 'on' : (i < step ? 'done' : '') }));
+    // S02 airports
+    const near = ['LHR', 'LGW', 'STN', 'LCY', 'LTN', 'SEN'].filter(c => K.ap(c));
+    const dist = { LHR: '24 km', LGW: '41 km', STN: '49 km', LCY: '14 km', LTN: '53 km', SEN: '63 km' };
+    const apRows = near.map(c => { const a = K.ap(c); return { code: c, city: a.city, name: a.name, country: K.countries[a.cc] || a.cc, dist: dist[c] || '', on: c === st.home, cls: (c === st.home ? 'sel' : '') + (p.hover === c ? ' is-hover' : ''), pick: () => this.setState({ home: c }) }; });
+    // S03 chips
+    const ch = this.CH(), pos = st.pos || (step === 3 ? (this._pos0 || (this._pos0 = this.initPos())) : this.CH().map(() => ({ x: 0, y: 0, rot: 0 })));
+    const chips = ch.map((c, i) => {
+      const q = pos[i], on = sel.indexOf(c.k) >= 0, lift = on ? 6 : 0, dragging = st.drag && st.drag.i === i;
+      return { t: c.t, ic: './icons.svg#' + (c.ic === 'dot' ? 'dot' : c.ic), on, sel: on ? 'is-selected' : '', lift: (on || dragging) ? 'lifted' : '',
+        s: 'left:' + q.x.toFixed(1) + 'px;top:' + q.y.toFixed(1) + 'px;transform:translateY(' + (-lift) + 'px) rotate(' + (on ? 0 : q.rot).toFixed(1) + 'deg) scale(' + (on ? 1.06 : 1) + ');transition:transform var(--d3) var(--spring-bouncy)',
+        cs: '--sc:' + c.c + ';cursor:' + (dragging ? 'grabbing' : 'grab'),
+        pd: e => { if (!live) return; const tray = document.getElementById('ob-tray'); const rc = tray.getBoundingClientRect(); if (!this.state.pos) this.state.pos = this._pos0 || (this._pos0 = this.initPos()); this._drag = { i, ox: e.clientX - rc.left - q.x, oy: e.clientY - rc.top - q.y, sx: e.clientX, sy: e.clientY, moved: false }; this.setState({ drag: { i } }); this.run(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} } };
+    });
+    // S04 tiles
+    const tiles = [['terra', 'Terra', 'Day and night shading on a quiet globe'], ['mono', 'Monochrome', 'Paper and ink. The calmest option'], ['standard', 'Standard', 'Familiar coastlines and borders'], ['satellite', 'Satellite', 'Terrain seen from above']].map(t => ({ k: t[0], n: t[1], d: t[2], on: mapSel === t[0], cls: (mapSel === t[0] ? 'sel' : '') + (p.hover === t[0] ? ' is-hover' : ''), pick: () => this.setState({ mapSel: t[0] }) }));
+    // S05
+    const pdata = [
+      { t: 'Notifications', d: 'Boarding call, landing soon', ic: 'bell', eb: 'Step 1 of 3 · Notifications', title: 'Boarding calls and landing alerts', body: 'We tell you when boarding opens and when you are five minutes out. Nothing else, no marketing, and you can mute any of it.', cta: 'Turn on notifications', alt: 'Not now', dT: '“Meridian” would like to send you notifications', dB: 'Notifications may include alerts and sounds.', no: 'Don’t Allow', yes: 'Allow', bl: [['./icons.svg#bell', 'Boarding call'], ['./icons.svg#seatbelt', 'Prepare for landing'], ['./icons.svg#users', 'Friends joining']] },
+      { t: 'Focus filter', d: 'Do Not Disturb in flight', ic: 'moon', eb: 'Step 2 of 3 · Focus filter', title: 'Quiet while you fly', body: 'Meridian can switch on a Focus when you take off and switch it off when you land. You choose which Focus, and you can turn it off per flight.', cta: 'Choose a Focus', alt: 'Not now', dT: 'Allow Meridian to use Focus filters', dB: 'Meridian can turn a Focus on and off.', no: 'Don’t Allow', yes: 'Allow', bl: [['./icons.svg#moon', 'On at take-off'], ['./icons.svg#sun', 'Off at landing'], ['./icons.svg#settings', 'Pick your Focus']] },
+      { t: 'Soft blocking', d: 'Accessibility access', ic: 'shield', eb: 'Step 3 of 3 · Accessibility', title: 'A gentle nudge back to focus', body: 'To nudge you back, Meridian needs to know which app is in front. That is all this access is used for.', cta: 'Open System Settings', alt: 'Use Nudge only', dT: 'Privacy & Security › Accessibility', dB: 'Allow Meridian to control this computer.', no: 'Deny', yes: 'Allow', bl: [] }
+    ];
+    const cp = pdata[Math.max(0, Math.min(2, sub - 1))];
+    const pSteps = pdata.map((s, i) => ({ t: s.t, d: s.d, n: i + 1, cls: i + 1 === sub ? 'cur' : (i + 1 < sub ? 'done' : ''), done: i + 1 < sub, todo: !(i + 1 < sub) }));
+    // S07 rays
+    const rr = K.rng(5), rays = [];
+    for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2 + rr() * .1, r0 = 270 + rr() * 40, r1 = r0 + 30 + rr() * 90; rays.push({ x1: (640 + Math.cos(a) * r0).toFixed(1), y1: (300 + Math.sin(a) * r0).toFixed(1), x2: (640 + Math.cos(a) * r1).toFixed(1), y2: (300 + Math.sin(a) * r1).toFixed(1), c: i % 3 === 0 ? '#FFB547' : (i % 3 === 1 ? '#6AB7FF' : '#8BF3D8'), w: (1 + rr() * 1.6).toFixed(1), o: (.25 + rr() * .5).toFixed(2) }); }
+    return {
+      s1: step === 1, s2: step === 2, s3: step === 3, s4: step === 4, s5: step === 5, s6: step === 6, s7: step === 7, chrome: step >= 2 && step <= 6,
+      h1a: tr ? 'Odağa' : 'Fly into', h1b: tr ? 'uç.' : 'focus.', sub1: tr ? 'Bir varış noktası seç. İşini yere indir.' : 'Pick a destination. Land your work.',
+      cta1: tr ? 'Hadi başlayalım' : 'Let’s get started', skipLbl: tr ? 'Kurulumu atla' : 'Skip setup', fine1: tr ? 'Ücretsiz başla · Hesap gerekmez' : 'Free to start · No account needed', h1Cls: p.hover === 'cta' ? 'is-hover' : '',
+      gLon: -36, gRoutes: [{ a: 'LHR', b: 'JFK', c: '#6AB7FF', w: 1.8, o: .85, h: .09 }, { a: 'LHR', b: 'DXB', c: '#8BF3D8', w: 1.2, o: .45, h: .08 }, { a: 'JFK', b: 'LAX', c: '#B49CFF', w: 1.2, o: .4, h: .08 }], gPins: [{ code: 'LHR', c: '#FFB547', r: 4.2, lbl: true }, { code: 'JFK', c: '#FFB547', r: 4.2, lbl: true }, { code: 'DXB', c: '#FFB547', r: 3, lbl: false }, { code: 'LAX', c: '#FFB547', r: 3, lbl: false }], gPlane: { a: 'LHR', b: 'JFK', t: .46 },
+      live, stepLbl: tr ? 'Adım ' + step + ' / 7' : 'Step ' + step + ' of 7', dots, backLbl: tr ? 'Geri' : 'Back', nextLbl: tr ? 'Devam' : 'Continue', backCls: step <= 1 ? 'is-disabled' : '',
+      q2: '', apRows, chips, selCount: sel.length, tiles, labels: st.labels, lblCls: st.labels ? 'on' : '', toggleLabels: () => this.setState({ labels: !st.labels }),
+      pSteps, pIcon: './icons.svg#' + cp.ic, pEyebrow: cp.eb, pTitle: cp.title, pBody: cp.body, pCta: cp.cta, pAlt: cp.alt, dTitle: cp.dT, dBody: cp.dB, dNo: cp.no, dYes: cp.yes,
+      pRead: sub === 3, pNotRead: sub !== 3, pBullets: cp.bl.map(b => ({ ic: b[0], t: b[1] })), rays,
+      next: () => { if (step >= 7) { const cb = this.props.onDone; if (typeof cb === 'function') cb(); } else this.go(step + 1); }, back: () => this.go(step - 1), skip: () => this.go(7), done: () => { const cb = this.props.onDone; if (typeof cb === 'function') cb(); },
+      pm: e => { const d = this._drag; if (!d) return; const tray = document.getElementById('ob-tray'); const rc = tray.getBoundingClientRect(); const q = this.state.pos[d.i]; if (Math.abs(e.clientX - d.sx) + Math.abs(e.clientY - d.sy) > 4) d.moved = true; q.x = e.clientX - rc.left - d.ox; q.y = e.clientY - rc.top - d.oy; },
+      pu: () => { const d = this._drag; if (!d) return; this._drag = null; const k = this.CH()[d.i].k; if (!d.moved) { const s2 = (this.state.sel || ['study', 'read', 'code']).slice(); const ix = s2.indexOf(k); if (ix >= 0) s2.splice(ix, 1); else s2.push(k); this.setState({ sel: s2, drag: null }); const A = window.MeridianAudio; if (A && A.enabled) A.click(); } else this.setState({ drag: null }); },
+      onKey: e => { if (!live) return; if (e.key === 'ArrowRight' || e.key === 'Enter') this.go(step + 1); if (e.key === 'ArrowLeft') this.go(step - 1); }
+    };
+  }
+}
+</script>
+</body>
+</html>

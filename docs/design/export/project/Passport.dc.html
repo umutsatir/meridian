@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Passport spread</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.pp-page{position:absolute;left:0;top:0;width:486px;height:600px;color:var(--ink);overflow:hidden}
+.pp-cap{font:600 10px/12px var(--font-ui);letter-spacing:.2em;text-transform:uppercase;color:rgba(20,17,15,.64)}
+.pp-slot{position:absolute;transition:transform var(--d3) var(--spring-snappy)}
+.pp-slot:hover{transform:scale(1.04)!important}
+.pp-gz{position:absolute;top:0;width:54px;height:600px;z-index:30;touch-action:none;outline:none}
+.pp-gz.on{cursor:grab}.pp-gz.drag{cursor:grabbing}
+.pp-peel{position:absolute;bottom:0;width:18px;height:18px;opacity:0;transition:width var(--d2) var(--ease-out),height var(--d2) var(--ease-out),opacity var(--d2)}
+.pp-gz.on:hover .pp-peel,.pp-gz.on:focus-visible .pp-peel,.pp-gz.drag .pp-peel{opacity:1;width:46px;height:46px}
+.pp-gz:focus-visible{box-shadow:inset 0 0 0 2px var(--accent-1);border-radius:6px}
+.pp-pr{right:0;border-radius:0 0 18px 0;background:linear-gradient(to top left,#F4ECDA 0 46%,rgba(40,28,10,.34) 54%,transparent 74%)}
+.pp-pl{left:0;border-radius:0 0 0 18px;background:linear-gradient(to top right,#F4ECDA 0 46%,rgba(40,28,10,.34) 54%,transparent 74%)}
+</style>
+</helmet>
+<div style="{{rootStyle}}" role="group" aria-label="Passport, spread {{spreadNo}} of {{nSp}}">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><pattern id="pp-g-{{uid}}" width="44" height="44" patternUnits="userSpaceOnUse"><circle cx="22" cy="22" r="20" fill="none" stroke="#243F8F" stroke-width=".7"/><circle cx="22" cy="22" r="14" fill="none" stroke="#243F8F" stroke-width=".7"/><circle cx="22" cy="22" r="8" fill="none" stroke="#243F8F" stroke-width=".7"/><circle cx="0" cy="0" r="20" fill="none" stroke="#243F8F" stroke-width=".7"/><circle cx="44" cy="44" r="20" fill="none" stroke="#243F8F" stroke-width=".7"/></pattern></defs></svg>
+<sc-for list="{{faces}}" as="pg" hint-placeholder-count="2">
+<div style="{{pg.wrap}}"><div class="paper pp-page" style="{{pg.pageStyle}}" role="group" aria-label="{{pg.aria}}">
+<svg width="486" height="600" style="position:absolute;inset:0;opacity:.07" aria-hidden="true"><rect width="486" height="600" fill="url(#pp-g-{{uid}})"/></svg>
+<div style="{{pg.spineGrad}}"></div>
+<div style="position:absolute;left:34px;right:34px;top:28px;display:flex;justify-content:space-between"><span class="pp-cap">{{pg.tl}}</span><span class="pp-cap">{{pg.tr}}</span></div>
+<sc-if value="{{pg.hasH}}" hint-placeholder-val="{{ true }}"><div class="serif it" style="position:absolute;left:34px;top:52px;font-size:30px;line-height:34px;color:rgba(20,17,15,.88)">Entries</div></sc-if>
+<div style="position:absolute;left:34px;right:34px;bottom:24px;display:flex;justify-content:space-between"><span class="pp-cap">{{pg.bl}}</span><span class="pp-cap">{{pg.br}}</span></div>
+<sc-for list="{{pg.stamps}}" as="s" hint-placeholder-count="6"><div class="pp-slot" style="{{s.s}}" title="{{s.tip}}"><dc-import name="Stamp" shape="{{s.shape}}" country="{{s.country}}" cc="{{s.cc}}" code="{{s.code}}" date="{{s.date}}" ink="{{s.ink}}" rot="{{s.rot}}" seed="{{s.seed}}" size="{{s.size}}" anim="{{s.anim}}" locked="{{s.locked}}" hint-size="130px,130px"></dc-import></div></sc-for>
+<div style="{{pg.shade}}"></div>
+</div></div>
+</sc-for>
+<div style="position:absolute;left:480px;top:0;width:26px;height:600px;background:linear-gradient(90deg,transparent,rgba(30,20,8,.34) 46%,rgba(30,20,8,.44) 50%,rgba(30,20,8,.34) 54%,transparent);pointer-events:none;z-index:20"></div>
+<div class="pp-gz {{gzL}}" style="left:0" role="button" tabindex="{{tabL}}" aria-label="Turn back to the previous spread. Drag the page edge, or press Enter." aria-disabled="{{offL}}" onPointerDown="{{dnL}}" onPointerMove="{{mv}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onKeyDown="{{keyL}}"><i class="pp-peel pp-pl" style="left:0"></i></div>
+<div class="pp-gz {{gzR}}" style="left:928px" role="button" tabindex="{{tabR}}" aria-label="Turn to the next spread. Drag the page edge, or press Enter." aria-disabled="{{offR}}" onPointerDown="{{dnR}}" onPointerMove="{{mv}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onKeyDown="{{keyR}}"><i class="pp-peel pp-pr" style="right:0"></i></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"year":{"editor":"text","default":"all"},"scenario":{"editor":"text","default":"all"},"spread":{"editor":"int","default":0},"animIndex":{"editor":"int","default":-1},"flip":{"editor":"float","default":0},"flipDir":{"editor":"int","default":1},"onSpread":{"editor":null},"$preview":{"width":982,"height":600}}'>
+class Component extends DCLogic {
+  uid = Math.random().toString(36).slice(2, 8);
+  state = { shown: null, flip: null, drag: false };
+  num(v, d) { return typeof v === 'number' ? v : (typeof v === 'string' && v !== '' && !isNaN(+v) ? +v : d); }
+  reduced() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  data() {
+    const p = this.props, K = window.MeridianKit, year = typeof p.year === 'string' && p.year ? p.year : 'all', scn = typeof p.scenario === 'string' && p.scenario ? p.scenario : 'all';
+    const REC = [['CDG', '14 Apr 2025', 'code', 'round'], ['AMS', '02 May 2025', 'work', 'octagon'], ['DUB', '19 May 2025', 'read', 'oval'], ['BRU', '08 Jun 2025', 'study', 'rosette'], ['BCN', '21 Jun 2025', 'create', 'round'], ['LIS', '12 Jul 2025', 'read', 'octagon'], ['FCO', '30 Jul 2025', 'meditate', 'oval'], ['ZRH', '17 Aug 2025', 'work', 'rosette'], ['CPH', '03 Sep 2025', 'code', 'round'], ['ARN', '24 Sep 2025', 'study', 'octagon'], ['VIE', '11 Oct 2025', 'create', 'oval'], ['ATH', '02 Nov 2025', 'read', 'rosette'], ['IST', '20 Nov 2025', 'code', 'round'], ['JFK', '09 Dec 2025', 'work', 'octagon'], ['DXB', '15 Jan 2026', 'study', 'oval'], ['NRT', '11 Feb 2026', 'create', 'rosette'], ['OSL', '04 Mar 2026', 'fitness', 'round'], ['HEL', '28 Apr 2026', 'meditate', 'octagon'], ['WAW', '17 Jun 2026', 'read', 'oval']];
+    const LOCK = [['GRU', 'round'], ['SIN', 'octagon'], ['SYD', 'oval'], ['YYZ', 'rosette'], ['CMN', 'round'], ['CAI', 'octagon'], ['DOH', 'oval'], ['KEF', 'rosette']];
+    const all = REC.map((r, i) => ({ r, i })).filter(o => (year === 'all' || o.r[1].endsWith(year)) && (scn === 'all' || o.r[2] === scn));
+    return { K, year, scn, all, REC, LOCK, per: 12, nSp: all.length > 12 ? Math.ceil(all.length / 12) : 1 };
+  }
+  page(D, spread, side, ai) {
+    const { K, all, LOCK, per, year, scn } = D;
+    const INK = { study: '#243F8F', work: '#8C4B08', read: '#08613F', create: '#A82A24', code: '#4B2FA0', meditate: '#0C6A74', fitness: '#B0401F', other: '#4A5163' };
+    const HH = { round: 1, rosette: 1, oval: .725, octagon: .775 };
+    const slice = all.slice(spread * per, spread * per + per);
+    const items = slice.map(o => ({ code: o.r[0], date: o.r[1], sc: o.r[2], shape: o.r[3], locked: false, idx: o.i }));
+    for (let i = 0; items.length < per && year === 'all' && scn === 'all' && i < LOCK.length; i++) items.push({ code: LOCK[i][0], date: '', sc: 'other', shape: LOCK[i][1], locked: true, idx: -1 });
+    const slots = [[76, 138], [256, 143], [64, 302], [258, 307], [74, 462], [254, 470]], pick = side === 'L' ? items.slice(0, 6) : items.slice(6, 12);
+    const stamps = pick.map((it, n) => { const A = K.ap(it.code), h = K.hash(it.code + (it.date || 'x')), rot = ((h % 25) - 12), sz = 150, sl = slots[n], jx = ((h >> 3) % 15) - 7, jy = ((h >> 6) % 13) - 6, hh = Math.round(150 * HH[it.shape]);
+      return { shape: it.shape, country: K.countries[A.cc] || A.cc, cc: A.cc, code: it.code, date: it.date, ink: INK[it.sc] || INK.other, rot, seed: (h % 13) + 2, size: sz, locked: it.locked, anim: it.idx === ai && ai >= 0, tip: it.locked ? 'Not yet visited' : (K.countries[A.cc] + ' · ' + it.code + ' · ' + it.date + ' · ' + K.scenarios[it.sc][0]), s: 'left:' + (sl[0] + jx - 10) + 'px;top:' + (sl[1] + jy - hh / 2 + 14) + 'px;width:' + sz + 'px;height:' + hh + 'px' }; });
+    const filt = year === 'all' && scn === 'all', no = spread * 2 + (side === 'L' ? 14 : 15);
+    const o = side === 'L' ? { tl: 'Meridian · Passport', tr: 'No. 0048 1317 2204', hasH: true, bl: 'Page ' + no, br: filt ? '19 countries' : all.length + ' shown' } : { tl: (year === 'all' ? 'All years' : year) + ' · ' + (scn === 'all' ? 'All scenarios' : K.scenarios[scn][0]), tr: 'Visas', hasH: false, bl: 'Page ' + no, br: filt ? '41 airports' : (year === 'all' ? '' : year) };
+    const spine = side === 'L' ? 'linear-gradient(90deg,transparent 78%,rgba(70,50,20,.16) 98%,rgba(70,50,20,.28))' : 'linear-gradient(270deg,transparent 78%,rgba(70,50,20,.16) 98%,rgba(70,50,20,.28))';
+    return Object.assign({ stamps, aria: 'Page ' + no + (side === 'L' ? ', Entries' : ', Visas') + ', ' + stamps.filter(s => !s.locked).length + ' stamps', pageStyle: 'border-radius:' + (side === 'L' ? '18px 4px 4px 18px' : '4px 18px 18px 4px') + ';box-shadow:0 30px 60px rgba(0,0,0,.45),0 2px 0 rgba(255,255,255,.4) inset', spineGrad: 'position:absolute;inset:0;background:' + spine }, o);
+  }
+  // ---- motion ----
+  tween(dir, from, to, dur, done) {
+    cancelAnimationFrame(this._raf); const t0 = performance.now(), ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    const step = n => { const k = Math.min(1, (n - t0) / Math.max(1, dur)), u = from + (to - from) * ease(k); this.setState({ flip: { dir, u } }); if (k < 1) this._raf = requestAnimationFrame(step); else done(); };
+    this._raf = requestAnimationFrame(step);
+  }
+  commit(dir) { const n = this._shown + dir; this._shown = n; this.setState({ shown: n, flip: null, drag: false }); const cb = this.props.onSpread; if (typeof cb === 'function') cb(n); }
+  turn(dir, from) {
+    const D = this.data(), n = this._shown + dir; if (n < 0 || n >= D.nSp || this._busy) return; this._busy = true;
+    if (this.reduced()) { this._busy = false; this.commit(dir); return; }
+    this.tween(dir, from || 0, 1, 520 * (1 - (from || 0) * .6), () => { this._busy = false; this.commit(dir); });
+  }
+  componentDidMount() { this._shown = this.num(this.props.spread, 0); this.setState({ shown: this._shown }); }
+  componentDidUpdate(prev) {
+    const p = this.props, ns = this.num(p.spread, 0), ps = this.num(prev.spread, 0);
+    if (this._shown === undefined) return;
+    if (prev.year !== p.year || prev.scenario !== p.scenario) { this._shown = ns; if (this.state.shown !== ns) this.setState({ shown: ns, flip: null }); return; }
+    if (ns !== ps && ns !== this._shown && !this._busy) { if (Math.abs(ns - this._shown) === 1) this.turn(ns - this._shown, 0); else { this._shown = ns; this.setState({ shown: ns, flip: null }); } }
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  grab(e, dir) { const D = this.data(), n = (this._shown === undefined ? 0 : this._shown) + dir; if (n < 0 || n >= D.nSp || this._busy || this.reduced()) return; const r = e.currentTarget.parentNode.getBoundingClientRect(); this._g = { dir, x0: e.clientX, k: r.width / 982 || 1, left: r.left, t: performance.now(), v: 0, lx: e.clientX, u: 0 }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this.setState({ drag: true, flip: { dir, u: 0.001 } }); }
+  move(e) { const g = this._g; if (!g) return; const x = (e.clientX - g.left) / g.k, x0 = (g.x0 - g.left) / g.k, ax = g.dir === 1 ? x : 982 - x, a0 = g.dir === 1 ? x0 : 982 - x0, ex = Math.max(5, Math.min(977, ax - (a0 - 977))), u = Math.acos(Math.max(-1, Math.min(1, (ex - 491) / 486))) / Math.PI; const now = performance.now(), dt = Math.max(1, now - g.t); g.v = (e.clientX - g.lx) / g.k / dt * g.dir; g.lx = e.clientX; g.t = now; g.u = u; this.setState({ flip: { dir: g.dir, u: Math.max(.001, u) } }); }
+  release() { const g = this._g; if (!g) return; this._g = null; const done = g.u > .5 || (g.v < -.5 && g.u > .08); this._busy = true; if (done) this.tween(g.dir, g.u, 1, 380 * (1 - g.u * .6), () => { this._busy = false; this.commit(g.dir); }); else this.tween(g.dir, g.u, 0, 260 * (g.u + .3), () => { this._busy = false; this.setState({ flip: null, drag: false }); }); }
+  renderVals() {
+    const p = this.props, D = this.data(), st = this.state, ai = this.num(p.animIndex, -1);
+    const shown = st.shown === null || st.shown === undefined ? Math.max(0, Math.min(D.nSp - 1, this.num(p.spread, 0))) : Math.max(0, Math.min(D.nSp - 1, st.shown));
+    const fU = this.num(p.flip, 0), fD = this.num(p.flipDir, 1) === -1 ? -1 : 1;
+    let flip = st.flip || (fU > 0 ? { dir: fD, u: fU } : null);
+    if (flip && (shown + flip.dir < 0 || shown + flip.dir >= D.nSp)) flip = null;
+    const faces = [], sin = Math.sin, PI = Math.PI;
+    const wrap = (left, rot, z, ox) => 'position:absolute;left:' + left + 'px;top:0;width:486px;height:600px;z-index:' + z + ';transform-origin:' + ox + 'px 50%;transform:' + (rot === null ? 'none' : 'rotateY(' + rot.toFixed(2) + 'deg)') + ';backface-visibility:hidden;-webkit-backface-visibility:hidden';
+    const add = (spread, side, left, rot, z, ox, shade) => { const f = this.page(D, spread, side, ai); f.wrap = wrap(left, rot, z, ox); f.shade = shade || 'display:none'; faces.push(f); };
+    if (!flip) { add(shown, 'L', 0, null, 1, 0); add(shown, 'R', 496, null, 1, 0); }
+    else {
+      const a = flip.u * 180, s = sin(flip.u * PI), cast = 'position:absolute;inset:0;pointer-events:none;background:linear-gradient(' + (flip.dir === 1 ? '270deg' : '90deg') + ',rgba(20,12,4,' + (.36 * s).toFixed(3) + '),transparent 62%)';
+      const leafShade = 'position:absolute;inset:0;pointer-events:none;background:linear-gradient(' + (flip.dir === 1 ? '90deg' : '270deg') + ',rgba(20,12,4,' + (.42 * s).toFixed(3) + '),rgba(255,248,230,' + (.14 * s).toFixed(3) + '))';
+      if (flip.dir === 1) { add(shown, 'L', 0, null, 1, 0); add(shown + 1, 'R', 496, null, 1, 0, cast); add(shown, 'R', 496, -a, 6, -5, leafShade); add(shown + 1, 'L', 0, 180 - a, 6, 491, leafShade); }
+      else { add(shown - 1, 'L', 0, null, 1, 0, cast); add(shown, 'R', 496, null, 1, 0); add(shown, 'L', 0, a, 6, 491, leafShade); add(shown - 1, 'R', 496, a - 180, 6, -5, leafShade); }
+    }
+    const canL = shown > 0, canR = shown < D.nSp - 1, reduce = this.reduced();
+    const key = dir => e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.turn(dir, 0); } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); this.turn(e.key === 'ArrowRight' ? 1 : -1, 0); } };
+    return {
+      uid: this.uid, faces, spreadNo: shown + 1, nSp: D.nSp,
+      rootStyle: 'position:relative;width:982px;height:600px;perspective:2400px;perspective-origin:491px 300px',
+      gzL: (canL && !reduce ? 'on ' : '') + (st.drag && st.flip && st.flip.dir === -1 ? 'drag' : ''), gzR: (canR && !reduce ? 'on ' : '') + (st.drag && st.flip && st.flip.dir === 1 ? 'drag' : ''),
+      tabL: canL ? '0' : '-1', tabR: canR ? '0' : '-1', offL: !canL, offR: !canR,
+      dnL: e => this.grab(e, -1), dnR: e => this.grab(e, 1), mv: e => this.move(e), up: () => this.release(), keyL: key(-1), keyR: key(1)
+    };
+  }
+}
+</script>
+</body>
+</html>

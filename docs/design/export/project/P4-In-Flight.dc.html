@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>P4 In-flight</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.p4-bar{position:absolute;left:0;top:800px;width:1280px;height:84px;display:flex;align-items:center;gap:10px;padding:0 24px;box-sizing:border-box;background:var(--bg-2);border-radius:0 0 22px 22px;border-top:1px solid var(--stroke-hair);font:500 12px/1 var(--font-ui);color:var(--text-2)}
+.p4-bar b{color:var(--text-1);font-weight:600;margin-right:4px}
+.p4-hint{display:inline-flex;align-items:center;gap:6px;padding:0 10px;height:26px;border-radius:13px;background:var(--fill-1)}
+.p4-ctl{display:flex;align-items:center;gap:8px}
+</style>
+</helmet>
+<div style="position:relative;width:1280px;height:884px">
+<div style="position:absolute;left:0;top:0;width:1280px;height:800px;border-radius:22px 22px 0 0;overflow:hidden">
+<sc-if value="{{isFly}}" hint-placeholder-val="{{ true }}"><dc-import name="Flight" from="LHR" to="CDG" total="42" p="{{p0}}" km="348" live="true" speed="{{speed}}" on-land="{{onLand}}" hint-size="1280px,800px"></dc-import></sc-if>
+<sc-if value="{{isLanded}}" hint-placeholder-val="{{ false }}"><dc-import name="Landing" from="LHR" to="CDG" km="348" minutes="42" live="true" anim="true" on-fly-again="{{restart}}" on-wallet="{{restart}}" hint-size="1280px,800px"></dc-import></sc-if>
+</div>
+<div class="p4-bar"><b>Prototype</b><span class="p4-hint">Window view button</span><span class="p4-hint">Drag the shade down</span><span class="p4-hint">Pause, then hold “Hold to land early” 1.5 s</span><span style="flex:1"></span><div class="p4-ctl"><span>Sound</span><span class="toggle {{soundCls}}" role="switch" tabindex="0" aria-label="UI sounds" onClick="{{toggleSound}}"></span></div><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{lastMin}}"><svg class="ic ic14"><use href="./icons.svg#clock"></use></svg>Jump to last minute</span><span class="btn btn-secondary btn-sm" role="button" tabindex="0" onClick="{{restart}}"><svg class="ic ic14"><use href="./icons.svg#refresh"></use></svg>Restart</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":884}}'>
+class Component extends DCLogic {
+  state = { phase: 'fly', p0: .62, n: 0, sound: true };
+  renderVals() {
+    const st = this.state, A = window.MeridianAudio; if (A) A.enabled = st.sound;
+    return {
+      isFly: st.phase === 'fly', isLanded: st.phase === 'landed', p0: st.p0, speed: 24, soundCls: st.sound ? 'on' : '',
+      onLand: () => this.setState({ phase: 'landed' }),
+      lastMin: () => this.setState({ phase: 'fly', p0: .965, n: st.n + 1 }),
+      restart: () => this.setState({ phase: 'fly', p0: .62, n: st.n + 1 }),
+      toggleSound: () => this.setState({ sound: !st.sound })
+    };
+  }
+}
+</script>
+</body>
+</html>

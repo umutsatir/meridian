@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>M01 — Menu bar states and popover</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.m1{width:1280px;height:2470px;padding:56px 64px 64px;display:flex;flex-direction:column;gap:34px;background:var(--bg-0);color:var(--text-1);font-family:var(--font-ui);box-sizing:border-box;position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.m1 h1{font:500 44px/48px var(--font-serif);letter-spacing:-.02em;margin:0}
+.m1-cap{font:600 11px/14px var(--font-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2);margin-bottom:12px;display:flex;justify-content:space-between}
+.m1-cap span{font:400 11px/14px var(--font-mono);letter-spacing:0;text-transform:none;color:var(--text-3)}
+.m1-st{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.m1-cell{display:flex;flex-direction:column;gap:10px}
+.m1-bar{position:relative;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:flex-end;padding:0 8px;gap:10px;font:500 13px/1 var(--font-ui);overflow:hidden}
+.m1-bar.d{background:linear-gradient(90deg,rgba(18,22,40,.9),rgba(12,16,30,.9));color:rgba(255,255,255,.92)}
+.m1-bar.l{background:linear-gradient(90deg,rgba(244,238,230,.95),rgba(236,228,220,.95));color:rgba(20,22,28,.9)}
+.m1-bar .x{opacity:.85;font-weight:500}
+.m1-it{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;font:500 13px/1 var(--font-ui);font-feature-settings:"tnum" 1;position:relative}
+.m1-it.d.on{background:rgba(255,255,255,.26)}
+.m1-it.l.on{background:rgba(20,22,28,.16)}
+.m1-it.pulse{animation:m1-p 1.4s ease-in-out infinite}
+@keyframes m1-p{0%,100%{box-shadow:0 0 0 0 rgba(106,183,255,0)}50%{box-shadow:0 0 0 4px rgba(106,183,255,.45)}}
+.m1-dot{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+.m1-t{font:600 14px/18px var(--font-ui)}
+.m1-s{font:400 12px/16px var(--font-ui);color:var(--text-2)}
+.m1-wall{border-radius:28px;padding:34px 34px 30px;background:linear-gradient(160deg,#1B1F4B,#0F2A4F 42%,#143F55 72%,#1B2A3F);box-shadow:inset 0 0 0 1px var(--stroke-hair);display:grid;grid-template-columns:repeat(3,340px);gap:28px;justify-content:space-between}
+.m1-wall.lt{background:linear-gradient(160deg,#F6D9C4,#F2B8A2 40%,#C99ADA 75%,#8EA6E8)}
+.m1-pc{display:flex;flex-direction:column;gap:14px}
+.m1-pc .m1-tg{font:600 11px/14px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.m1-pc .m1-tg b{color:#fff}
+.m1-nat{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--fill-1);box-shadow:inset 0 0 0 1px var(--stroke-hair);font:400 12px/1.55 var(--font-mono);color:var(--text-2)}
+.m1-nat b{flex:none;font:700 10px/18px var(--font-ui);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-1)}
+</style>
+</helmet>
+<div class="m1" data-screen-label="M01 Menu bar states">
+<div style="display:flex;align-items:flex-end;justify-content:space-between"><div><div class="eyebrow">M01</div><h1 style="margin-top:6px">Menu bar item and popover</h1><div class="t-callout c2" style="margin-top:6px;max-width:640px">A monochrome plane glyph and the time left, updated every second. It is a template image, so macOS tints it for any wallpaper or appearance.</div></div><div class="t-callout c3" style="text-align:right;max-width:340px">Item height 22 pt, 8 pt side padding, 6 pt gap. Digits are tabular so the item never jitters.</div></div>
+
+<div><div class="m1-cap">Item states<span>dark and light menu bars</span></div>
+<div class="m1-st">
+<sc-for list="{{states}}" as="s" hint-placeholder-count="5">
+<div class="m1-cell">
+<div class="m1-bar d"><span class="x">Thu 29 Oct</span><span class="m1-it d {{s.cls}}" role="img" aria-label="{{s.aria}}"><sc-if value="{{s.dot}}" hint-placeholder-val="{{ false }}"><span class="m1-dot"></span></sc-if><svg class="ic ic14"><use href="{{s.ic}}"></use></svg><sc-if value="{{s.hasText}}" hint-placeholder-val="{{ true }}"><span>{{s.text}}</span></sc-if></span></div>
+<div class="m1-bar l"><span class="x">Thu 29 Oct</span><span class="m1-it l {{s.cls}}" role="img" aria-label="{{s.aria}}"><sc-if value="{{s.dot}}" hint-placeholder-val="{{ false }}"><span class="m1-dot"></span></sc-if><svg class="ic ic14"><use href="{{s.ic}}"></use></svg><sc-if value="{{s.hasText}}" hint-placeholder-val="{{ true }}"><span>{{s.text}}</span></sc-if></span></div>
+<div class="m1-t">{{s.name}}</div><div class="m1-s">{{s.note}}</div>
+</div>
+</sc-for>
+</div></div>
+
+<div><div class="m1-cap">Popover, 340 pt wide<span>every state, dark on a dim wallpaper</span></div>
+<div class="m1-wall">
+<div class="m1-pc"><div class="m1-tg"><b>Idle</b> · nothing booked</div><dc-import name="MenuPopover" state="idle" arrow="170" hint-size="340px,500px"></dc-import></div>
+<div class="m1-pc"><div class="m1-tg"><b>Boarding</b> · gate in 04:12</div><dc-import name="MenuPopover" state="boarding" arrow="170" hint-size="340px,520px"></dc-import></div>
+<div class="m1-pc"><div class="m1-tg"><b>In flight</b> · 42:18 left</div><dc-import name="MenuPopover" state="flight" p=".28" arrow="170" hint-size="340px,560px"></dc-import></div>
+<div class="m1-pc"><div class="m1-tg"><b>Last minute</b> · accent pulse</div><dc-import name="MenuPopover" state="last" p=".98" arrow="170" hint-size="340px,560px"></dc-import></div>
+<div class="m1-pc"><div class="m1-tg"><b>Landed</b> · check</div><dc-import name="MenuPopover" state="landed" p="1" arrow="170" hint-size="340px,520px"></dc-import></div>
+<div class="m1-pc"><div class="m1-tg"><b>In flight</b> · paused on a break</div><dc-import name="MenuPopover" state="flight" p=".5" paused="true" arrow="170" hint-size="340px,560px"></dc-import></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<div class="m1-wall lt" style="grid-template-columns:340px;padding:30px 34px"><div class="m1-pc"><div class="m1-tg" style="color:rgba(20,22,28,.7)"><b style="color:#14161C">In flight</b> · light appearance</div><dc-import name="MenuPopover" state="flight" theme="light" p=".55" arrow="170" hint-size="340px,560px"></dc-import></div></div>
+<div style="display:flex;flex-direction:column;gap:14px">
+<div class="m1-nat"><b>Native</b><span>MenuBarExtra with .menuBarExtraStyle(.window). The label is a SwiftUI view in an NSStatusItem: Image(systemName:) template plus Text with .monospacedDigit(), refreshed by TimelineView(.periodic(every: 1)). Popover glass = .glassEffect(.regular, in: .rect(cornerRadius: 22)).</span></div>
+<div class="m1-nat"><b>VoiceOver</b><span>“Meridian, in flight, 42 minutes 18 seconds left, button.” The seconds are announced only when the popover is open, so the menu bar never chatters.</span></div>
+<div class="m1-nat"><b>Keys</b><span>⌥⌘P pause or resume · ⌥⌘L hold to land early · ⌥⌘M mini map. The popover closes on Esc and when you click outside.</span></div>
+<div class="m1-nat"><b>Rules</b><span>No red in the menu bar, ever. Last minute pulses once every 1.4 s with a 4 pt accent ring; Reduce Motion replaces the pulse with a steady ring. Amber dot plus the time means boarding, never the dot alone.</span></div>
+<div class="m1-nat"><b>Reduce Transparency</b><span>The popover fills with solid bg-2 and a hairline; the arrow keeps its 6 pt notch.</span></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2470}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const P = './icons.svg#plane';
+    return { states: [
+      { name: 'Idle', note: 'Glyph only. Click opens the popover with “Plan a flight”.', ic: P, text: '', hasText: false, dot: false, cls: '', aria: 'Meridian, idle' },
+      { name: 'Boarding', note: 'Amber dot and the time until the gate closes.', ic: P, text: '04:12', hasText: true, dot: true, cls: '', aria: 'Meridian, boarding, 4 minutes 12 seconds to the gate' },
+      { name: 'In flight', note: 'The time left, mm:ss, every second.', ic: P, text: '42:18', hasText: true, dot: false, cls: '', aria: 'Meridian, in flight, 42 minutes 18 seconds left' },
+      { name: 'Last minute', note: 'Last 60 s: a soft accent ring pulses behind the item.', ic: P, text: '00:50', hasText: true, dot: false, cls: 'pulse', aria: 'Meridian, last minute, 50 seconds left' },
+      { name: 'Landed', note: 'A check and the word “Landed” for 10 s, then back to idle.', ic: './icons.svg#check', text: 'Landed', hasText: true, dot: false, cls: '', aria: 'Meridian, landed' }] };
+  }
+}
+</script>
+</body>
+</html>

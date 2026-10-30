@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search and surprise me</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-audio.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.sr-row{display:flex;align-items:center;gap:14px;height:52px;padding:0 14px;border-radius:14px;cursor:pointer}
+.sr-row:is(:hover,.is-hover){background:var(--fill-2)}
+.sr-row.is-sel{--text-3:var(--text-2);background:linear-gradient(135deg,rgba(106,183,255,.22),rgba(139,243,216,.10));box-shadow:0 0 0 1px rgba(106,183,255,.34)}
+[data-theme="light"] .sr-row.is-sel{--text-3:var(--text-2);background:linear-gradient(135deg,rgba(30,107,255,.12),rgba(24,199,160,.08));box-shadow:0 0 0 1px rgba(30,107,255,.3)}
+.sr-in{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--text-1);font:400 18px/1 var(--font-ui)}
+.sr-in::placeholder{color:var(--text-3)}
+@keyframes sr-pop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+.sr-pal{animation:sr-pop 260ms var(--ease) both}
+</style>
+</helmet>
+<div class="win" data-theme="{{theme}}" tabindex="0" style="background:{{winBg}}">
+<sc-if value="{{bg}}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;filter:blur(6px) brightness(.7)"><dc-import name="Planner" stage="plan" origin="{{origin}}" minutes="{{minutes}}" hint-size="1280px,800px"></dc-import></div></sc-if>
+<div style="position:absolute;inset:0;background:rgba(5,7,13,{{scrim}});backdrop-filter:blur(4px)"></div>
+<div class="glass e3 sr-pal" style="position:absolute;left:320px;top:120px;width:640px;border-radius:28px;padding:10px;box-sizing:border-box">
+<div style="display:flex;align-items:center;gap:12px;height:56px;padding:0 14px"><svg class="ic ic20 c2"><use href="./icons.svg#search"></use></svg><input class="sr-in" value="{{q}}" placeholder="Search airports, cities, countries" aria-label="Search airports" onInput="{{onQ}}" onKeyDown="{{onKey}}"><span class="kbd">esc</span></div>
+<div class="hr" style="margin:2px 8px 8px"></div>
+<sc-if value="{{showList}}" hint-placeholder-val="{{ true }}">
+<div class="eyebrow" style="padding:4px 14px 8px">{{listLabel}}</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="6"><div class="sr-row {{r.cls}}" onClick="{{r.pick}}" onPointerEnter="{{r.enter}}"><span class="tag" style="min-width:48px;justify-content:center">{{r.code}}</span><div style="flex:1;min-width:0"><div style="font:500 15px/20px var(--font-ui)">{{r.city}}</div><div class="t-callout c3">{{r.name}} · {{r.country}}</div></div><div style="text-align:right"><div class="mono" style="font-size:14px">{{r.dur}}</div><div class="mono c3" style="font-size:11px">{{r.km}} km</div></div></div></sc-for>
+<sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div style="padding:26px 14px;text-align:center" class="c2">No airports match “{{q}}”. Try a city or a three-letter code.</div></sc-if>
+<div class="hr" style="margin:8px 8px"></div>
+<div class="sr-row" onClick="{{surprise}}" role="button" tabindex="0"><span style="width:48px;display:flex;justify-content:center;color:var(--accent-1)"><svg class="ic ic20"><use href="./icons.svg#shuffle"></use></svg></span><div style="flex:1"><div style="font:600 15px/20px var(--font-ui)">Surprise me</div><div class="t-callout c3">A random destination near {{minutes}} minutes away</div></div><span class="kbd">⌘R</span></div>
+</sc-if>
+<sc-if value="{{showReveal}}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 22px 14px;display:flex;flex-direction:column;gap:18px">
+<div class="eyebrow">Your destination</div>
+<div style="background:#0B1020;border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start"><dc-import name="SplitFlap" text="{{revealCity}}" len="12" size="m" live="{{live}}" sound="{{live}}" hint-size="520px,56px"></dc-import><dc-import name="SplitFlap" text="{{revealRow}}" len="22" size="xs" tone="white" live="{{live}}" hint-size="420px,30px"></dc-import></div>
+<div style="display:flex;gap:10px;align-items:center"><span class="btn btn-primary" role="button" tabindex="0" onClick="{{choose}}">Set destination</span><span class="btn btn-secondary" role="button" tabindex="0" onClick="{{surprise}}"><svg class="ic ic16"><use href="./icons.svg#shuffle"></use></svg>Spin again</span><span style="flex:1"></span><span class="t-callout c3">{{revealCountry}} · {{revealKm}} km</span></div>
+</div>
+</sc-if>
+<div style="display:flex;gap:18px;padding:10px 16px 6px" class="c3"><span style="font-size:12px"><span class="kbd">↑</span> <span class="kbd">↓</span> navigate</span><span style="font-size:12px"><span class="kbd">⏎</span> choose</span><span style="font-size:12px"><span class="kbd">esc</span> close</span></div>
+</div>
+<sc-if value="{{chosen}}" hint-placeholder-val="{{ false }}"><div class="glass e3 toast" style="position:absolute;left:50%;bottom:36px;transform:translateX(-50%);z-index:20"><span style="width:34px;height:34px;border-radius:50%;background:rgba(91,227,160,.16);color:var(--ok);display:flex;align-items:center;justify-content:center;flex:none"><svg class="ic ic18"><use href="./icons.svg#check"></use></svg></span><div><div style="font:600 14px/18px var(--font-ui)">Destination set to {{chosenCity}}</div><div class="t-callout c2">Press Check in to print your boarding pass.</div></div></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"text","default":"dark"},"bg":{"editor":"boolean","default":true},"live":{"editor":"boolean","default":false},"query":{"editor":"text","default":""},"reveal":{"editor":"text","default":""},"sel":{"editor":"int","default":0},"origin":{"editor":"text","default":"LHR"},"minutes":{"editor":"int","default":42},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  state = { q: null, sel: 0, reveal: null, chosen: '' };
+  flag(v, d) { return v === undefined || v === null || v === '' ? d : !(v === false || v === 'false'); }
+  componentDidMount() { if (this.flag(this.props.live, false)) setTimeout(() => { const el = document.querySelector('.sr-in'); if (el) el.focus(); }, 60); this._h = e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'r' && this.flag(this.props.live, false)) { e.preventDefault(); this.surprise(); } }; window.addEventListener('keydown', this._h); }
+  componentWillUnmount() { window.removeEventListener('keydown', this._h); }
+  list() {
+    const K = window.MeridianKit, p = this.props, o = p.origin || 'LHR', min = +(p.minutes || 42), q = (this.state.q !== null ? this.state.q : (p.query || '')).trim().toLowerCase();
+    let all = Object.keys(K.airports).filter(c => c !== o).map(c => { const a = K.ap(c), km = Math.round(K.gc(o, c)); return { c, a, km, mn: K.minutes(km), country: K.countries[a.cc] || a.cc }; });
+    if (q) all = all.filter(r => (r.c + ' ' + r.a.city + ' ' + r.a.name + ' ' + r.country).toLowerCase().includes(q)).sort((x, y) => (x.c.toLowerCase() === q ? -1 : 0) - (y.c.toLowerCase() === q ? -1 : 0) || (x.a.city.toLowerCase().startsWith(q) ? -1 : 0) - (y.a.city.toLowerCase().startsWith(q) ? -1 : 0));
+    else all = all.sort((x, y) => Math.abs(x.mn - min) - Math.abs(y.mn - min));
+    return all;
+  }
+  surprise() {
+    const K = window.MeridianKit, min = +(this.props.minutes || 42), pool = this.list().filter(r => Math.abs(r.mn - min) <= 12);
+    const pick = pool[Math.floor(Math.random() * pool.length)] || this.list()[0]; const A = window.MeridianAudio; if (A && A.enabled) A.init();
+    this.setState({ reveal: pick.c, chosen: '' });
+  }
+  renderVals() {
+    const p = this.props, K = window.MeridianKit, st = this.state, live = this.flag(p.live, false), o = p.origin || 'LHR';
+    const q = st.q !== null ? st.q : (p.query || ''), sel = Math.min(st.sel, 5);
+    const revealCode = st.reveal !== null ? st.reveal : (p.reveal || ''), showReveal = !!revealCode;
+    const all = this.list(), rows = all.slice(0, 6).map((r, i) => ({ code: r.c, city: r.a.city, name: r.a.name, country: r.country, dur: K.fmtShort(r.mn), km: K.fmtKm(r.km), cls: i === sel ? 'is-sel' : '', pick: () => { this.setState({ chosen: r.a.city, reveal: null }); const cb = this.props.onChoose; if (typeof cb === 'function') cb(r.c); }, enter: () => { if (live) this.setState({ sel: i }); } }));
+    const R = revealCode ? K.ap(revealCode) : null, rkm = R ? Math.round(K.gc(o, revealCode)) : 0;
+    return {
+      theme: p.theme === 'light' ? 'light' : 'dark', winBg: this.flag(p.bg, true) ? 'var(--bg-1)' : 'transparent', bg: this.flag(p.bg, true), live, origin: o, minutes: p.minutes || 42, scrim: this.flag(p.bg, true) ? '.42' : '.38', q,
+      showList: !showReveal, showReveal, rows, noRows: rows.length === 0, listLabel: q ? 'Airports' : 'Near ' + (p.minutes || 42) + ' minutes from ' + o,
+      revealCity: R ? R.city.toUpperCase() : '', revealRow: R ? (revealCode + ' · ' + K.fmtShort(K.minutes(rkm)).toUpperCase() + ' · ' + R.cc).toUpperCase() : '', revealCountry: R ? (K.countries[R.cc] || R.cc) : '', revealKm: K.fmtKm(rkm),
+      chosen: !!st.chosen, chosenCity: st.chosen,
+      onQ: e => this.setState({ q: e.target.value, sel: 0 }),
+      onKey: e => { if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ sel: Math.min(5, sel + 1) }); } else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ sel: Math.max(0, sel - 1) }); } else if (e.key === 'Enter' && rows[sel]) rows[sel].pick(); },
+      surprise: () => this.surprise(), choose: () => { this.setState({ chosen: R ? R.city : '', reveal: null }); const cb = this.props.onChoose; if (typeof cb === 'function' && R) cb(revealCode); }
+    };
+  }
+}
+</script>
+</body>
+</html>

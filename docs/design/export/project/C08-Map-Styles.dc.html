@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>C08 Map styles</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./meridian.css">
+<script src="./meridian-kit.js"></script>
+<script src="./meridian-world.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>body{margin:0}
+.c8-st{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.c8-tile{position:relative;width:280px;height:178px;border-radius:20px;overflow:hidden;cursor:pointer;box-shadow:inset 0 0 0 1px var(--stroke-hair);transition:transform var(--d3) var(--spring-snappy)}
+.c8-tile:is(:hover,.is-hover){transform:translateY(-3px)}
+.c8-tile.is-selected{box-shadow:0 0 0 2px var(--accent-1),0 0 26px rgba(106,183,255,.35)}
+.c8-tile.is-focus{outline:2px solid var(--accent-1);outline-offset:3px}
+.c8-sw{display:flex;gap:6px}.c8-sw i{width:34px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.c8-lock{position:absolute;right:10px;top:10px;height:22px;padding:0 9px;border-radius:11px;display:flex;align-items:center;gap:5px;font:600 10px/1 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;background:rgba(6,8,13,.6);color:#F3F5FA}
+</style>
+</helmet>
+<div class="sheet mx" data-theme="dark" style="width:1440px">
+<header style="display:flex;flex-direction:column;gap:10px">
+<div class="sh-eyebrow"><svg class="ic ic18" style="color:var(--accent-1)"><use href="./icons.svg#mark"></use></svg>Component library · C08 · §2.11</div>
+<h1 class="t-display" style="margin:0">Map styles</h1>
+<p class="t-body c2" style="margin:0;max-width:900px">Four ways to look at the same sky: Monochrome, Terra, Standard and Satellite, plus a Labels toggle and a dot-matrix world for tickets and widgets. Each is a set of five tokens, so the whole app reskins with the map and glass stays legible on every one.</p>
+</header>
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<section class="sh-panel" data-theme="{{t.k}}">
+<div class="sh-title"><h2>Four previews</h2><span class="th">{{t.label}}</span></div>
+<div class="sh-row" style="gap:28px">
+<sc-for list="{{styles}}" as="s" hint-placeholder-count="4">
+<div class="c8-st"><div class="c8-tile {{s.cls}}" role="button" tabindex="0" aria-label="{{s.t}} map style"><dc-import name="MapLayer" w="280" h="178" map-style="{{s.k}}" zoom=".55" lat="49.6" lon="2.2" labels="{{s.labels}}" hint-size="280px,178px"></dc-import><sc-if value="{{s.pro}}" hint-placeholder-val="{{ false }}"><div class="c8-lock"><svg class="ic ic12"><use href="./icons.svg#lock"></use></svg>Pro</div></sc-if>
+<div style="position:absolute;left:0;right:0;bottom:0;height:50px;background:linear-gradient(0deg,rgba(6,8,13,.7),transparent)"></div><div style="position:absolute;left:14px;bottom:12px;font:600 14px/1 var(--font-ui);color:#F3F5FA">{{s.t}}</div></div>
+<div class="sh-cap">{{s.state}}</div><div class="sh-note" style="max-width:280px">{{s.n}}</div></div>
+</sc-for>
+</div>
+<sc-if value="{{t.full}}" hint-placeholder-val="{{ true }}">
+<div class="sh-title"><h2>Palette per style</h2></div>
+<div style="display:grid;grid-template-columns:140px 190px 1fr 1fr;width:100%;font:400 13px/1.45 var(--font-ui)">
+<div style="font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding-bottom:10px">Style</div><div style="font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding-bottom:10px">Sea · land · land-2 · border</div><div style="font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding-bottom:10px">Character</div><div style="font:600 11px/14px var(--font-ui);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);padding-bottom:10px">Used for</div>
+<sc-for list="{{pal}}" as="r" hint-placeholder-count="4"><div style="padding:12px 14px 12px 0;border-top:1px solid var(--stroke-hair);display:flex;align-items:center;font-weight:600">{{r.t}}</div><div style="padding:12px 14px 12px 0;border-top:1px solid var(--stroke-hair);display:flex;align-items:center"><div class="c8-sw"><sc-for list="{{r.sw}}" as="c" hint-placeholder-count="4"><i style="background:{{c}}"></i></sc-for></div></div><div style="padding:12px 14px 12px 0;border-top:1px solid var(--stroke-hair);display:flex;align-items:center;color:var(--text-2)">{{r.c}}</div><div style="padding:12px 14px 12px 0;border-top:1px solid var(--stroke-hair);display:flex;align-items:center;color:var(--text-2)">{{r.u}}</div></sc-for>
+</div>
+<div class="sh-title"><h2>Labels toggle</h2></div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<div class="c8-st"><div class="c8-tile" style="width:420px;height:240px"><dc-import name="MapLayer" w="420" h="240" map-style="terra" zoom=".78" lat="49.6" lon="2.2" labels="true" hint-size="420px,240px"></dc-import></div><div class="sh-cap">Labels on</div><div class="sh-note" style="max-width:420px">Sea names in italic caps, cities in sentence case, 11 pt, 46% white. Labels thin out as you zoom out; collisions are resolved by city size.</div></div>
+<div class="c8-st"><div class="c8-tile" style="width:420px;height:240px"><dc-import name="MapLayer" w="420" h="240" map-style="terra" zoom=".78" lat="49.6" lon="2.2" labels="false" hint-size="420px,240px"></dc-import></div><div class="sh-cap">Labels off</div><div class="sh-note" style="max-width:420px">Pure shape. Airport tags and your route are the only text left, which is the point of the focus view.</div></div>
+<div class="c8-st" style="gap:14px"><div class="sh-sub">Control</div><div style="display:flex;align-items:center;gap:14px"><span class="toggle on" role="switch" aria-checked="true" aria-label="Labels"></span><span style="font:500 14px/1 var(--font-ui)">Labels</span></div><div style="display:flex;align-items:center;gap:14px"><span class="toggle" role="switch" aria-checked="false" aria-label="Show both names for disputed places"></span><span style="font:500 14px/1 var(--font-ui)">Show both names for disputed places</span></div><div class="sh-note" style="max-width:300px">Labels default to English or your system language; disputed places show one name unless you ask for both. Never a hamburger, always a plain toggle.</div></div>
+</div>
+<div class="sh-title"><h2>Dot-matrix world</h2></div>
+<div class="sh-row" style="gap:36px;align-items:flex-start">
+<div class="c8-st"><div style="width:620px;height:236px;border-radius:20px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--stroke-hair);background:var(--bg-2);position:relative"><dc-import name="WorldFlat" w="620" dots="true" visited="false" grat="false" labels="false" routes="{{dotRoutes}}" pins="{{dotPins}}" hint-size="620px,234px"></dc-import></div><div class="sh-cap">Dark · widget and ticket variant</div></div>
+<div class="c8-st"><div style="width:620px;height:236px;border-radius:20px;overflow:hidden;position:relative" class="paper"><div class="dotmap" style="position:absolute;left:0;top:-4px;width:620px;height:310px;--ms:620px;--mx:0;--my:0;color:rgba(20,17,15,.55)"></div></div><div class="sh-cap">Ink on paper · boarding-pass watermark</div></div>
+</div>
+<div class="sh-note" style="max-width:760px">Dot spacing is world-width ÷ 220, dot radius 38% of the cell. The same mask drives the ticket watermark, the widgets and the Year in flight card.</div>
+<div class="sh-native"><b>Native</b><span>Each style is a <span style="color:var(--text-1)">MapStyle</span> plus a Metal color-ramp overlay: <span style="color:var(--text-1)">.imagery</span> for Satellite with an edge-darkening gradient so glass stays legible, a custom <span style="color:var(--text-1)">MKMapConfiguration</span> for Terra and Monochrome. Dot-matrix is a Metal compute pass over the land mask.</span></div>
+</sc-if>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const styles = [{ k: 'mono', t: 'Monochrome', n: 'Ink and paper-white land. The calmest, and the best in sunlight.', cls: '', state: 'Default', labels: false }, { k: 'terra', t: 'Terra', n: 'Dark globe with terrain relief and an atmosphere rim. The default.', cls: 'is-selected', state: 'Selected', labels: false }, { k: 'standard', t: 'Standard', n: 'Muted modern land and sea, familiar and readable.', cls: 'is-hover', state: 'Hover', labels: false }, { k: 'satellite', t: 'Satellite', n: 'Real imagery, darkened at the edges. Pro.', cls: 'is-focus', state: 'Focus', labels: false, pro: true }];
+    styles.forEach(s => { s.labels = s.k !== 'satellite' ? 'true' : 'false'; });
+    const pal = [{ t: 'Monochrome', sw: ['#090C13', '#D8D6CE', '#ECEAE3', '#14110F'], c: 'Ink sea, paper-white land, soft borders.', u: 'Daylight, print, accessibility high-contrast' }, { t: 'Terra', sw: ['#080D1A', '#18213B', '#1F2A49', '#2C3658'], c: 'Deep night with subtle relief and a violet rim.', u: 'Default, Plan, Flight' }, { t: 'Standard', sw: ['#0E2133', '#1D3835', '#2B4C44', '#4A6A63'], c: 'Muted teal and green, like a late atlas.', u: 'Orientation, long flights' }, { t: 'Satellite', sw: ['#0A2536', '#26402C', '#31503A', '#8AA08C'], c: 'Real imagery under a darkening gradient.', u: 'Free preview, Pro' }];
+    return { themes: [{ k: 'dark', label: 'Dark', full: true }, { k: 'light', label: 'Light — Daybreak', full: false }], styles, pal, dotRoutes: [{ a: 'LHR', b: 'JFK', c: '#B49CFF' }, { a: 'LHR', b: 'DXB', c: '#FFB86B' }, { a: 'IST', b: 'NRT', c: '#FF8FB1' }], dotPins: ['LHR', 'JFK', 'DXB', 'IST', 'NRT'].map(c => ({ code: c, label: false, r: 2.6 })) };
+  }
+}
+</script>
+</body>
+</html>
