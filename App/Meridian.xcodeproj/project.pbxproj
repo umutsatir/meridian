@@ -149,68 +149,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		000000000000000200000000 /* XCLocalSwiftPackageReference "../Packages/MeridianCore" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianCore;
-		};
-		000000000000000200000001 /* XCLocalSwiftPackageReference "../Packages/MeridianUI" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianUI;
-		};
-		000000000000000200000002 /* XCLocalSwiftPackageReference "../Packages/MeridianPlan" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianPlan;
-		};
-		000000000000000200000003 /* XCLocalSwiftPackageReference "../Packages/MeridianData" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianData;
-		};
-		000000000000000200000004 /* XCLocalSwiftPackageReference "../Packages/MeridianCruise" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianCruise;
-		};
-		000000000000000200000005 /* XCLocalSwiftPackageReference "../Packages/MeridianFocus" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianFocus;
-		};
-		000000000000000200000006 /* XCLocalSwiftPackageReference "../Packages/MeridianPro" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../Packages/MeridianPro;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		000000000000000400000000 /* MeridianCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianCore;
-		};
-		000000000000000400000001 /* MeridianUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianUI;
-		};
-		000000000000000400000002 /* MeridianPlan */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianPlan;
-		};
-		000000000000000400000003 /* MeridianData */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianData;
-		};
-		000000000000000400000004 /* MeridianCruise */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianCruise;
-		};
-		000000000000000400000005 /* MeridianFocus */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianFocus;
-		};
-		000000000000000400000006 /* MeridianPro */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = MeridianPro;
-		};
-/* End XCSwiftPackageProductDependency section */
-
 /* Begin XCBuildConfiguration section */
 		000000000000000011000000 /* Debug configuration for PBXProject "Meridian" */ = {
 			isa = XCBuildConfiguration;
@@ -438,6 +376,68 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		000000000000000200000000 /* XCLocalSwiftPackageReference "../Packages/MeridianCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianCore;
+		};
+		000000000000000200000001 /* XCLocalSwiftPackageReference "../Packages/MeridianUI" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianUI;
+		};
+		000000000000000200000002 /* XCLocalSwiftPackageReference "../Packages/MeridianPlan" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianPlan;
+		};
+		000000000000000200000003 /* XCLocalSwiftPackageReference "../Packages/MeridianData" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianData;
+		};
+		000000000000000200000004 /* XCLocalSwiftPackageReference "../Packages/MeridianCruise" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianCruise;
+		};
+		000000000000000200000005 /* XCLocalSwiftPackageReference "../Packages/MeridianFocus" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianFocus;
+		};
+		000000000000000200000006 /* XCLocalSwiftPackageReference "../Packages/MeridianPro" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../Packages/MeridianPro;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		000000000000000400000000 /* MeridianCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianCore;
+		};
+		000000000000000400000001 /* MeridianUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianUI;
+		};
+		000000000000000400000002 /* MeridianPlan */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianPlan;
+		};
+		000000000000000400000003 /* MeridianData */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianData;
+		};
+		000000000000000400000004 /* MeridianCruise */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianCruise;
+		};
+		000000000000000400000005 /* MeridianFocus */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianFocus;
+		};
+		000000000000000400000006 /* MeridianPro */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MeridianPro;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 000000000000000000000000 /* Project object */;
 }
