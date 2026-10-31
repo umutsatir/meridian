@@ -79,6 +79,7 @@ enum ScreenRegistry {
         register("paper-tear") { PaperTearSheet(poses: [.init(p: 0.3, grab: .right), .init(p: 0.55, grab: .left)]) }
         // register("wallet") { WalletView() }
         registerSettingsRoutes()
+        TogetherRoutes.register()
     }
 }
 

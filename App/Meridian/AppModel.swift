@@ -41,6 +41,8 @@ enum AppSection: String, CaseIterable, Identifiable {
 @Observable
 final class AppModel {
     var section: AppSection = .fly
+    /// Full-bleed screens inside a section (Together in-flight) hide the floating sidebar.
+    var sidebarHidden = false
     /// First-run onboarding done (or skipped). Written by `completeOnboarding` (Features/Onboarding).
     var hasOnboarded: Bool = UserDefaults.standard.bool(forKey: "onboarding.completed")
     /// Fly section: the globe Home or the Plan map (canvas `stage`).
