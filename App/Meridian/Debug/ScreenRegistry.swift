@@ -1,4 +1,5 @@
 import SwiftUI
+import MeridianUI
 
 /// Built-in debug routes. Other routes are plain strings registered in `ScreenRegistry.registerAll()`.
 enum DebugRoute: String, CaseIterable {
@@ -52,6 +53,17 @@ enum ScreenRegistry {
     private static func registerAll() {
         register(DebugRoute.plan.rawValue) { PlanView() }
         register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { InFlightView() }
+        register("paper-pass") { PaperPassSheet(variant: 1) }
+        register("paper-pass2") { PaperPassSheet(variant: 2) }
+        register("paper-pass3") { PaperPassSheet(variant: 3) }
+        register("paper-pass4") { PaperPassSheet(variant: 4) }
+        register("paper-card") { PaperCardSheet(variant: 1) }
+        register("paper-card2") { PaperCardSheet(variant: 2) }
+        register("paper-card3") { PaperCardSheet(variant: 3) }
+        register("paper-stamp") { PaperStampSheet() }
+        register("paper-flap") { PaperFlapSheet() }
+        register("paper-print") { PaperPrintSheet(times: [900, 1700]) }
+        register("paper-tear") { PaperTearSheet(poses: [.init(p: 0.3, grab: .right), .init(p: 0.55, grab: .left)]) }
         // register("wallet") { WalletView() }
     }
 }
