@@ -205,6 +205,14 @@ public actor FlightStore {
         try modelContext.save()
     }
 
+    /// Edits the notes of a finished flight (ticket back, COL-4).
+    public func updateNotes(flightID: UUID, notes: String) throws {
+        guard let record = try record(id: flightID), var flight = record.flight else { return }
+        flight.notes = notes
+        try record.apply(flight, isActive: record.isActive)
+        try modelContext.save()
+    }
+
     /// "Delete all data" in Settings (PRD §10.5).
     public func deleteAllData() throws {
         try modelContext.delete(model: FlightRecord.self)

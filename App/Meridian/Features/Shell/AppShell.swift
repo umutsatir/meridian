@@ -31,7 +31,9 @@ struct AppShell: View {
                         if model.activeFlight != nil { InFlightView() } else { PlanScreen() }
                     case .together where TogetherAvailability.isEnabled:
                         TogetherRoot()
-                    case .wallet, .cards, .passport, .map, .stats, .together:
+                    case .wallet:
+                        WalletView()
+                    case .cards, .passport, .map, .stats, .together:
                         ComingSoonView(section: model.section)
                     }
                 }

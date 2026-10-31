@@ -265,6 +265,19 @@ final class AppModel {
         }
     }
 
+    /// Ticket detail: deletes one finished flight (cards and stamps stay).
+    func deleteFlight(id: UUID) {
+        walletFlights.removeAll { $0.id == id }
+        enqueue { store in try? await store.delete(flightID: id) }
+        refreshCollections()
+    }
+
+    /// Ticket back: saves the edited notes.
+    func updateNotes(flightID: UUID, notes: String) {
+        if let i = walletFlights.firstIndex(where: { $0.id == flightID }) { walletFlights[i].notes = notes }
+        enqueue { store in try? await store.updateNotes(flightID: flightID, notes: notes) }
+    }
+
     /// Settings > Data and privacy > "Delete all Meridian data": flights, cards, stamps and profile
     /// (`FlightStore.deleteAllData`). Added by the Settings feature.
     func deleteAllData() {
