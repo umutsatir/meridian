@@ -67,6 +67,7 @@ enum ScreenRegistry {
         SystemRoutes.register()
         // register("wallet") { WalletView() }
         registerSettingsRoutes()
+        TogetherRoutes.register()
     }
 }
 
