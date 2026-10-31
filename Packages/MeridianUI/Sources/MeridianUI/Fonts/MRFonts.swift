@@ -50,8 +50,7 @@ public enum MRFonts {
         case .mono:
             return variable("JetBrains Mono", size: size, weight: weight, opsz: nil, features: [])
         case .serif:
-            let name = italic ? "Newsreader Italic" : "Newsreader"
-            return variable(name, size: size, weight: weight, opsz: min(72, max(6, Double(size))), features: [])
+            return variable("Newsreader", size: size, weight: weight, opsz: min(72, max(6, Double(size))), features: [], italic: italic)
         case .condensed:
             let ps = weight >= 650 ? "BarlowCondensed-Bold" : weight >= 550 ? "BarlowCondensed-SemiBold" : "BarlowCondensed-Medium"
             return CTFontCreateWithName(ps as CFString, size, nil)
@@ -61,13 +60,14 @@ public enum MRFonts {
     /// `.mx{font-feature-settings:"tnum" 1,"cv11" 1}`
     private static let uiFeatures: [(String, Int)] = [("tnum", 1), ("cv11", 1)]
 
-    private static func variable(_ name: String, size: CGFloat, weight: Int, opsz o: Double?, features: [(String, Int)]) -> CTFont {
+    private static func variable(_ name: String, size: CGFloat, weight: Int, opsz o: Double?, features: [(String, Int)], italic: Bool = false) -> CTFont {
         var variation: [Int: Double] = [wght: Double(weight)]
         if let o { variation[opsz] = o }
         var attrs: [CFString: Any] = [
             kCTFontFamilyNameAttribute: name,
             kCTFontVariationAttribute: variation,
         ]
+        if italic { attrs[kCTFontTraitsAttribute] = [kCTFontSymbolicTrait: CTFontSymbolicTraits.traitItalic.rawValue] }
         if !features.isEmpty {
             attrs[kCTFontFeatureSettingsAttribute] = features.map { [kCTFontOpenTypeFeatureTag: $0.0, kCTFontOpenTypeFeatureValue: $0.1] as [CFString: Any] }
         }
