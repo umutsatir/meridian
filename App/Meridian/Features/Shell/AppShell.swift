@@ -29,7 +29,9 @@ struct AppShell: View {
                     switch model.section {
                     case .fly:
                         if model.activeFlight != nil { InFlightView() } else { PlanScreen() }
-                    case .wallet, .cards, .passport, .map, .stats, .together:
+                    case .wallet:
+                        WalletView()
+                    case .cards, .passport, .map, .stats, .together:
                         ComingSoonView(section: model.section)
                     }
                 }

@@ -21,7 +21,7 @@ public enum BoardingPassCabin: String, Sendable, CaseIterable {
     }
 
     /// `--foil-*` gradient stops (horizontal), `meridian.css`.
-    var foilStops: [(Double, String)] {
+    public var foilStops: [(Double, String)] {
         switch self {
         case .economy: [(0, "#868FA0"), (0.28, "#D6DCE6"), (0.52, "#9AA3B3"), (0.78, "#CBD1DC"), (1, "#868FA0")]
         case .premium: [(0, "#79BDFB"), (0.38, "#DCF0FF"), (0.68, "#6FAEEA"), (1, "#BFE2FF")]
@@ -92,7 +92,7 @@ public enum PaperColorBy: String, Sendable, CaseIterable { case scenario, `class
 
 public enum PaperContinent: String, Sendable, CaseIterable {
     case eu, na, sa, asia, af, oc
-    var hex: String {
+    public var hex: String {
         switch self {
         case .eu: "#7AA2FF"   // --ct-eu = --sc-study
         case .na: "#B49CFF"   // --sc-code
