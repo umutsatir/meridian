@@ -48,13 +48,17 @@ struct PlanHomeView: View {
             p.bg0.color
             if dark && !realistic { Stars(width: W, height: H) }
             if realistic {
-                SatelliteGlobeView(home: o.coordinate, tilt: 30, distance: 2.6e7 * (H / 800)) {
+                SatelliteGlobeView(home: o.coordinate, tilt: 32, distance: 2.2e7 * (H / 800)) {
                     PulsePin()
                 }
                 .frame(width: W, height: H)
                 // top scrim so the greeting reads over bright imagery
                 LinearGradient(stops: [.init(color: p.bg0.color.opacity(dark ? 0.78 : 0.6), location: 0),
                                        .init(color: p.bg0.color.opacity(0), location: 0.34)], startPoint: .top, endPoint: .bottom)
+                    .allowsHitTesting(false)
+                // bottom scrim under "Start flight" and the list
+                LinearGradient(stops: [.init(color: p.bg0.color.opacity(0), location: 0.62),
+                                       .init(color: p.bg0.color.opacity(dark ? 0.7 : 0.5), location: 1)], startPoint: .top, endPoint: .bottom)
                     .allowsHitTesting(false)
             } else {
                 Circle()

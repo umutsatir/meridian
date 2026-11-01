@@ -90,13 +90,13 @@ public struct MapSurface: View {
             }
         }
         .frame(width: size?.width, height: size?.height)
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: .top) {
             if wantsApple && health.failed && wide {
                 Text("The map didn’t load. Your plane is still flying. We’re showing the simple route until the map is back.")
                     .font(.system(size: 12, weight: .medium)).foregroundStyle(.white.opacity(0.9))
                     .padding(.horizontal, 12).padding(.vertical, 7)
                     .background(.black.opacity(0.55), in: Capsule())
-                    .padding(.bottom, 10).allowsHitTesting(false)
+                    .padding(.top, 76).allowsHitTesting(false)
             }
         }
     }
