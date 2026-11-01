@@ -45,7 +45,7 @@ struct MiniMapView: View {
         let W = size.width, H = size.height
         let geo = Geometry(info: info, width: W, height: H)
         ZStack(alignment: .topLeading) {
-            EuropeMapView(style: .terra, theme: .dark, center: geo.mid, zoom: geo.zoom, size: size, showsLabels: W >= 480)
+            MapSurface(style: .terra, theme: .dark, center: geo.mid, zoom: geo.zoom, size: size, showsLabels: W >= 480)
             LinearGradient(stops: [.init(color: sysRGBA(6, 8, 13, 0), location: 0.5),
                                    .init(color: sysRGBA(6, 8, 13, 0.5), location: 1)], startPoint: .top, endPoint: .bottom)
             route(geo)

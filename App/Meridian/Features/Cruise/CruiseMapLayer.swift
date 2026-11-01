@@ -24,7 +24,7 @@ struct CruiseMapLayer: View {
         let dark = scheme == .dark
         let camAnim: Animation? = reduceMotion || panStart != nil ? nil : EuropeMapView.cameraAnimation
         ZStack(alignment: .topLeading) {
-            EuropeMapView(style: ui.style, center: cam.center, zoom: cam.zoom, offset: cam.offset)
+            MapSurface(style: MapStyleAccess.resolved(ui.style), center: cam.center, zoom: cam.zoom, offset: cam.offset, animatesCamera: false)
                 .animation(camAnim, value: CamKey(c: cam.center, z: cam.zoom))
                 .frame(width: W, height: H)
 

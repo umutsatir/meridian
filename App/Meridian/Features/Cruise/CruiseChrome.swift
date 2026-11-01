@@ -104,7 +104,7 @@ struct CruiseMapControls: View {
                            ("Monochrome", [cruiseRGBA(0x2A, 0x2F, 0x3A), cruiseRGBA(0xC9, 0xCE, 0xD8)], .mono),
                            ("Standard", [cruiseRGBA(0x9E, 0xC5, 0xE8), cruiseRGBA(0xE9, 0xE4, 0xD6)], .standard),
                            ("Satellite", [cruiseRGBA(0x1D, 0x3A, 0x5A), cruiseRGBA(0x3E, 0x5C, 0x3A)], .satellite)],
-                   selected: ui.style, diagonal: true, a11y: "Map style") { ui.style = $0; ui.menu = nil }
+                   selected: ui.style, diagonal: true, a11y: "Map style") { if MapStyleAccess.isUnlocked($0) { ui.style = $0 }; ui.menu = nil }
             .padding(.trailing, ui.capLabels ? 244 : 78).padding(.top, 100)
     }
 

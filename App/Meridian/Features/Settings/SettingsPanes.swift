@@ -1,4 +1,5 @@
 import MeridianCore
+import MeridianMaps
 import MeridianPlan
 import MeridianPro
 import MeridianUI
@@ -115,6 +116,10 @@ struct MapsPane: View {
                 SettingsCard {
                     PrefSegmentedRow(SettingsKeys.mapStyle, L("Map style"), L("Terra is the default in dark, Standard in light."),
                                      options: ["Terra", "Mono", "Standard", "Satellite"])
+                    PrefSegmentedRow(SettingsKeys.mapEngine, L("Map engine"), L("Apple Maps is the default. Illustrated is the drawn map of the design and the fallback when the map cannot load."),
+                                     options: [L("Apple Maps"), L("Illustrated")])
+                    PrefSegmentedRow(SettingsKeys.homeGlobe, L("Home globe"), L("Realistic shows satellite imagery. It needs Apple Maps."),
+                                     options: [L("Realistic"), L("Illustrated")])
                     PrefSegmentedRow(SettingsKeys.labelLanguage, L("Label language"), options: [L("Local"), L("English"), L("Both")])
                 }
             }
@@ -147,6 +152,13 @@ struct MapsPreview: View {
             SettingsCap(text: L("Preview"))
             ZStack(alignment: .topLeading) {
                 m.sea.color
+                if MapEngine.current == .appleMaps {
+                    let all = MapStyle.allCases
+                    let style = MapStyleAccess.resolved(all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))])
+                    MapSurface(style: style, center: Coordinate(latitude: -51.7, longitude: -59.5), zoom: 12,
+                               size: CGSize(width: 260, height: 300), showsLabels: false)
+                        .frame(width: 260, height: 300)
+                } else {
                 Canvas { ctx, _ in
                     var land = Path()
                     land.move(to: CGPoint(x: -10, y: 190))
@@ -161,6 +173,7 @@ struct MapsPreview: View {
                     dashed.addCurve(to: CGPoint(x: 150, y: 190), control1: CGPoint(x: 90, y: 196), control2: CGPoint(x: 120, y: 206))
                     ctx.stroke(dashed, with: .color(m.label.color), style: StrokeStyle(lineWidth: 1.4, dash: [5, 4]))
                     ctx.fill(Path(ellipseIn: CGRect(x: 100, y: 202, width: 8, height: 8)), with: .color(p.accent1.color))
+                }
                 }
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Falkland Islands").foregroundStyle(p.text1.color)
