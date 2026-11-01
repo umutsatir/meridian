@@ -79,7 +79,7 @@ struct SidebarView: View {
                     Text("\(PlanKit.fmtKm(shownKm)) km").font(.mr(.mono, size: 11, weight: 500)).foregroundStyle(p.text2.color).frame(height: 14)
                 }
                 Spacer(minLength: 0)
-                Button { NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) } label: {
+                SettingsLink {
                     MRIcon(.settings, size: 18).foregroundStyle(p.text2.color)
                 }
                 .buttonStyle(MRRoundButtonStyle(small: true, glass: false)).help("Settings ⌘,")

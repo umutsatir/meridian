@@ -56,7 +56,7 @@ enum SettingsEffects {
 
     /// Asks for permission the first time a notification type is switched on.
     static func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .timeSensitive]) { _, _ in }
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
     // MARK: Map cache

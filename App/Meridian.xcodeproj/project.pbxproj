@@ -46,6 +46,16 @@
 		000000000000000500000001 /* MeridianWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MeridianWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		000000000000000500000030 /* Exceptions for "MeridianWidgets" folder in "MeridianWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 000000000000000500000004 /* MeridianWidgets */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		000000000000000000000010 /* Meridian */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -54,6 +64,9 @@
 		};
 		000000000000000500000002 /* MeridianWidgets */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				000000000000000500000030 /* Exceptions for "MeridianWidgets" folder in "MeridianWidgets" target */,
+			);
 			path = MeridianWidgets;
 			sourceTree = "<group>";
 		};

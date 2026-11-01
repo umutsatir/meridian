@@ -143,16 +143,16 @@ struct MenuBarItemLabel: View {
         }
     }
 
-    @MainActor private static func render(_ view: some View, template: Bool) -> NSImage {
+    @MainActor private static func render(_ view: AnyView, template: Bool) -> NSImage {
         let r = ImageRenderer(content: view)
         r.scale = 2
         let image = r.nsImage ?? NSImage()
         image.isTemplate = template
         return image
     }
-    @MainActor static let plane = render(MRIcon(.plane, size: 14).foregroundStyle(.black), template: true)
-    @MainActor static let check = render(MRIcon(.check, size: 14).foregroundStyle(.black), template: true)
-    @MainActor static let dot = render(Circle().fill(MRPalette.dark.amber.color).frame(width: 6, height: 6), template: false)
+    @MainActor static let plane = render(AnyView(MRIcon(.plane, size: 14).foregroundStyle(.black)), template: true)
+    @MainActor static let check = render(AnyView(MRIcon(.check, size: 14).foregroundStyle(.black)), template: true)
+    @MainActor static let dot = render(AnyView(Circle().fill(MRPalette.dark.amber.color).frame(width: 6, height: 6)), template: false)
 }
 
 struct MenuPopoverHost: View {
@@ -229,12 +229,13 @@ final class SeatTVController {
         w.makeFirstResponder(host)
         window = w
         // Hide the cursor after 3 s without movement.
-        var last = NSEvent.mouseLocation
-        var still = 0
+        let watch = CursorWatch()
         cursorTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            let m = NSEvent.mouseLocation
-            if m == last { still += 1 } else { still = 0; last = m; NSCursor.unhide() }
-            if still >= 3 { NSCursor.setHiddenUntilMouseMoves(true) }
+            MainActor.assumeIsolated {
+                let m = NSEvent.mouseLocation
+                if m == watch.last { watch.still += 1 } else { watch.still = 0; watch.last = m; NSCursor.unhide() }
+                if watch.still >= 3 { NSCursor.setHiddenUntilMouseMoves(true) }
+            }
         }
     }
 
@@ -245,6 +246,12 @@ final class SeatTVController {
         window?.orderOut(nil)
         window = nil
     }
+}
+
+/// Mouse-idle state for the seat-TV cursor timer (the timer closure cannot capture mutable locals).
+private final class CursorWatch: @unchecked Sendable {
+    var last = NSEvent.mouseLocation
+    var still = 0
 }
 
 final class SeatTVWindow: NSWindow {

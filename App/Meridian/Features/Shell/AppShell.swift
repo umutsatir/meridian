@@ -95,7 +95,9 @@ struct WindowStyler: NSViewRepresentable {
             place(w)
             observers = [NSWindow.didResizeNotification, NSWindow.didEndLiveResizeNotification, NSWindow.didBecomeKeyNotification].map {
                 NotificationCenter.default.addObserver(forName: $0, object: w, queue: .main) { [weak self, weak w] _ in
-                    if let w { self?.place(w) }
+                    MainActor.assumeIsolated {
+                        if let w { self?.place(w) }
+                    }
                 }
             }
         }
