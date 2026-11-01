@@ -107,7 +107,7 @@ public struct MapZoomModel: Equatable, Sendable {
     public func labelBudget(total: Int, base: Int = 5) -> Int {
         let n: Int
         switch scale {
-        case ..<0.8: n = max(1, base - 2)
+        case ..<0.8: n = 1
         case ..<1.15: n = base
         case ..<1.6: n = base + 1
         case ..<2.2: n = base + 2

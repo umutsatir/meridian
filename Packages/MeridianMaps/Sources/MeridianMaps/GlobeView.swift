@@ -83,17 +83,28 @@ public struct GlobeView: View {
     public var speed: Double
     public var isDraggable: Bool
     public var colorOverride: GlobeColorOverride?
+    /// Optional external rotation offset in degrees (width = longitude, height = latitude), so a parent can also turn the globe
+    /// (trackpad scroll) and keep it across redraws. Without it the globe keeps its own drag state.
+    public var rotation: Binding<CGSize>?
+    /// Multiplies the drag-to-rotate speed (the World map passes `1 / zoom`: the closer, the slower).
+    public var dragSpeed: Double
 
     @Environment(\.colorScheme) private var scheme
-    @State private var drag: CGSize = .zero
+    @State private var ownDrag: CGSize = .zero
+    private var drag: CGSize {
+        get { rotation?.wrappedValue ?? ownDrag }
+        nonmutating set { if let rotation { rotation.wrappedValue = newValue } else { ownDrag = newValue } }
+    }
     @State private var dragStart: CGSize? = nil
     @State private var epoch = Date()
 
     public init(lon: Double = 10, lat: Double = 28, size: CGFloat = 560, theme: MapTheme? = nil,
                 routes: [GlobeRoute] = [], pins: [GlobePin] = [], plane: GlobePlane? = nil, visited: Bool = false,
                 showsGraticule: Bool = true, showsAtmosphere: Bool = true, showsLabels: Bool = true,
-                live: Bool = false, speed: Double = 6, isDraggable: Bool = false, colorOverride: GlobeColorOverride? = nil) {
+                live: Bool = false, speed: Double = 6, isDraggable: Bool = false, colorOverride: GlobeColorOverride? = nil,
+                rotation: Binding<CGSize>? = nil, dragSpeed: Double = 1) {
         self.colorOverride = colorOverride
+        self.rotation = rotation; self.dragSpeed = dragSpeed
         self.lon = lon; self.lat = lat; self.size = size; self.theme = theme
         self.routes = routes; self.pins = pins; self.plane = plane; self.visited = visited
         self.showsGraticule = showsGraticule; self.showsAtmosphere = showsAtmosphere; self.showsLabels = showsLabels
@@ -118,7 +129,9 @@ public struct GlobeView: View {
                 if dragStart == nil { dragStart = drag }
                 let s = dragStart ?? .zero
                 // JS: lon = start.lon - dx * .4; lat = clamp(start.lat + dy * .3, -70, 70)
-                drag = CGSize(width: s.width - g.translation.width * 0.4, height: s.height + g.translation.height * 0.3)
+                // the latitude offset is limited so that lat + offset stays within +-70 (no dead zone when dragging past the pole)
+                let h = s.height + g.translation.height * 0.3 * dragSpeed
+                drag = CGSize(width: s.width - g.translation.width * 0.4 * dragSpeed, height: max(-70 - lat, min(70 - lat, h)))
             }
             .onEnded { _ in dragStart = nil } : nil)
         .accessibilityElement()

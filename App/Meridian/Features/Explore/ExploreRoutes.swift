@@ -15,6 +15,19 @@ enum ExploreRoutes {
         reg.register("world-replay", setup: { $0.section = .map }) {
             frame(rail: true) { WorldMapView(data: .design, initialT: 0.46, initialHoverRow: 1, live: false) }
         }
+        // zoom states (the canvas has no zoom): globe 2x and 0.5x about the globe centre, flat 3x about the middle of the window
+        reg.register("world-globe-zoom2", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, live: false, initialZoom: 2) }
+        }
+        reg.register("world-globe-zoom05", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, live: false, initialZoom: 0.5) }
+        }
+        reg.register("world-globe-zoom6", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, live: false, initialZoom: 6) }
+        }
+        reg.register("world-flat-zoom3", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, initialMode: .flat, initialBy: .scenario, live: false, initialZoom: 3) }
+        }
         reg.register("stats", setup: { $0.section = .stats }) { frame(rail: false) { StatsView(data: .design) } }
         reg.register("stats-hover", setup: { $0.section = .stats }) { frame(rail: false) { StatsView(data: .design, initialHover: 2) } }
         reg.register("stats-light", setup: { $0.section = .stats }) { frame(rail: false) { StatsView(data: .design) } }

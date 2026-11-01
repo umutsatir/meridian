@@ -22,6 +22,8 @@ struct WorldMapView: View {
     var initialT: Double = 1
     var initialHoverRow = -1
     var live = true
+    /// Debug/screenshot routes: start zoomed (about the middle of the map) so zoom states can be rendered and compared.
+    var initialZoom: Double = 1
 
     @State private var mode: ExMapMode?
     @State private var by: ExMapBy?
@@ -29,6 +31,20 @@ struct WorldMapView: View {
     @State private var playing = false
     @State private var speed = 1
     @State private var seekDrag = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    // zoom
+    @State private var zoom = MapZoomModel()
+    @State private var pinchStart: MapZoomModel?
+    @State private var viewport = CGSize(width: 1280, height: 800)
+    @State private var mapHover: CGPoint?
+    @State private var rotation: CGSize = .zero
+    @State private var seededZoom = false
+
+    /// Zoom-1 layout of the map in the canvas (`WorldMap.dc.html`): the globe frame and the flat world rectangle.
+    private static let globeFrame = CGRect(x: 90, y: -50, width: 900, height: 900)
+    private static let flatFrame = CGRect(x: 0, y: 152, width: 1280, height: 484)
+    private static let globeRadius = 0.43 * 900.0
+    private static let globeCenter = CGPoint(x: globeFrame.midX, y: globeFrame.midY)
 
     private var d: ExploreData {
         data ?? ExploreData.real(flights: model.walletFlights, totalKm: model.totalKm, streak: model.streak, stamps: model.stamps, index: model.index,
@@ -46,12 +62,17 @@ struct WorldMapView: View {
             map.sea.color
             ExGlow(rx: 0.7, ry: 0.7, cx: 0.45, cy: 0.5, color: Color(.sRGB, red: 70 / 255, green: 92 / 255, blue: 190 / 255, opacity: scheme == .dark ? 0.22 : 0.12)).frame(maxWidth: .infinity, maxHeight: .infinity)
             Color.clear.overlay(alignment: .topLeading) {
-                if mode == .globe {
-                    GlobeView(lon: -8, lat: 36, size: 900, routes: routes, pins: pins, visited: showVisited, isDraggable: live).exAt(90, -50)
-                } else {
-                    WorldFlatView(w: 1280, latTop: 80, latBot: -56, visited: showVisited, routes: routes, pins: pins).exAt(0, 152)
-                }
+                ExZoomLayer(scale: zoom.scale, ox: zoom.offset.x, oy: zoom.offset.y, mode: mode, routes: routes, pins: pins, visited: showVisited,
+                            isDraggable: live, rotation: $rotation, globeFrame: Self.globeFrame, flatFrame: Self.flatFrame)
             }
+            .contentShape(Rectangle())
+            .onContinuousHover { phase in
+                switch phase { case .active(let p): mapHover = p; case .ended: mapHover = nil }
+            }
+            .simultaneousGesture(SpatialTapGesture(count: 2).onEnded { v in
+                let out = NSEvent.modifierFlags.contains(.option)
+                setZoom(out ? zoom.steppedOut(about: v.location) : (zoom.canZoomIn ? zoom.steppedIn(about: v.location) : zoom.reset()), mode: mode, animated: true)
+            })
             if d.isEmpty && !d.isFixture {
                 ExEmptyState(icon: .globe, title: "Nothing on the map yet", message: "Every landed flight draws its route here.")
                     .frame(maxWidth: .infinity, maxHeight: .infinity).padding(.leading, 72)
@@ -76,14 +97,105 @@ struct WorldMapView: View {
             if !(d.isEmpty && !d.isFixture) {
                 scrubber(d, t: tt).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading).padding(.leading, 96).padding(.bottom, 28)
             }
+            zoomButtons(mode: mode).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing).padding(.trailing, 24).padding(.bottom, 28)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .clipped()
+        .background(GeometryReader { g in Color.clear.onAppear { viewportChanged(g.size, mode: mode) }.onChange(of: g.size) { _, n in viewportChanged(n, mode: mode) } })
+        .background(MapScrollMonitor { handleScroll($0, mode: mode) })
+        .onChange(of: mode) { _, m in modeChanged(m) }
+        .gesture(MagnifyGesture()
+            .onChanged { v in
+                let start = pinchStart ?? zoom
+                pinchStart = start
+                setZoom(start.pinched(magnification: v.magnification, about: v.startLocation), mode: mode, animated: false)
+            }
+            .onEnded { _ in pinchStart = nil })
+        .onKeyPress(characters: CharacterSet(charactersIn: "+=-_0"), phases: [.down, .repeat]) { press in
+            let c = mapCenter(mode)
+            switch press.characters {
+            case "+", "=": setZoom(zoom.steppedIn(about: c), mode: mode, animated: true)
+            case "-", "_": setZoom(zoom.steppedOut(about: c), mode: mode, animated: true)
+            case "0": setZoom(zoom.reset(), mode: mode, animated: true)
+            default: return .ignored
+            }
+            return .handled
+        }
         .focusable().focusEffectDisabled()
         .onKeyPress(.rightArrow) { t = min(1, (t ?? initialT) + 0.05); playing = false; return .handled }
         .onKeyPress(.leftArrow) { t = max(0, (t ?? initialT) - 0.05); playing = false; return .handled }
         .onKeyPress(.space) { togglePlay(); return .handled }
         .task(id: playing) { await runPlayback() }
+    }
+
+    // MARK: zoom
+
+    /// Where "the middle of the map" is on screen: the globe centre, or the viewport centre of the flat map.
+    private func mapCenter(_ mode: ExMapMode) -> CGPoint {
+        mode == .globe ? zoom.apply(Self.globeCenter) : CGPoint(x: viewport.width / 2, y: viewport.height / 2)
+    }
+
+    /// Clamps for the active mode (globe: bounded drift; flat: the world's edges stop at the viewport edges).
+    private func limited(_ m: MapZoomModel, mode: ExMapMode, viewport: CGSize? = nil) -> MapZoomModel {
+        mode == .globe ? m.clamped(toGlobeCenter: Self.globeCenter, radius: Self.globeRadius) : m.clamped(toRect: Self.flatFrame, viewport: viewport ?? self.viewport)
+    }
+
+    private func setZoom(_ m: MapZoomModel, mode: ExMapMode, animated: Bool) {
+        let next = limited(m, mode: mode)
+        if animated && !reduceMotion { withAnimation(MRMotion.smooth) { zoom = next } } else { zoom = next }
+    }
+
+    private func viewportChanged(_ size: CGSize, mode: ExMapMode) {
+        guard size.width > 0, size.height > 0 else { return }
+        viewport = size
+        var m = zoom
+        if !seededZoom {
+            seededZoom = true
+            if initialZoom != 1 {
+                let c = mode == .globe ? Self.globeCenter : CGPoint(x: size.width * 0.55, y: 280)   // flat: about Europe
+                m = MapZoomModel().zoomed(to: initialZoom, about: c)
+            }
+        }
+        zoom = limited(m, mode: mode, viewport: size)
+    }
+
+    /// The zoom level is kept when switching between globe and flat; the offset restarts centred, since each mode limits it differently.
+    private func modeChanged(_ m: ExMapMode) {
+        let c = m == .globe ? Self.globeCenter : CGPoint(x: viewport.width / 2, y: viewport.height / 2)
+        setZoom(MapZoomModel().zoomed(to: zoom.scale, about: c), mode: m, animated: true)
+    }
+
+    /// Mouse wheel and Option/Control + scroll zoom about the pointer. Plain two-finger trackpad scroll turns the globe
+    /// (flat: pans). Returns whether the event was used.
+    private func handleScroll(_ e: MapScrollEvent, mode: ExMapMode) -> Bool {
+        guard mapHover != nil else { return false }   // pointer over a panel: let it be
+        if e.zoomModifier || !e.precise {
+            let dy = abs(e.dy) >= abs(e.dx) ? e.dy : e.dx
+            guard dy != 0 else { return true }
+            setZoom(zoom.zoomed(by: MapZoomModel.wheelFactor(deltaY: dy, precise: e.precise), about: e.location), mode: mode, animated: !e.precise)
+            return true
+        }
+        if mode == .globe {
+            guard live else { return false }
+            // same mapping as a drag (0.4 deg/pt horizontally, 0.3 vertically), slower when zoomed in; latitude 36 +- 70 limit
+            let f = zoom.rotationFactor
+            rotation = CGSize(width: rotation.width - e.dx * 0.4 * f, height: max(-70 - 36, min(70 - 36, rotation.height + e.dy * 0.3 * f)))
+        } else {
+            setZoom(zoom.panned(by: CGSize(width: e.dx, height: e.dy)), mode: mode, animated: false)
+        }
+        return true
+    }
+
+    private func zoomButtons(mode: ExMapMode) -> some View {
+        VStack(spacing: 8) {
+            Button { setZoom(zoom.steppedIn(about: mapCenter(mode)), mode: mode, animated: true) } label: { MRIcon(.plus, size: 18) }
+                .buttonStyle(MRRoundButtonStyle()).disabled(!zoom.canZoomIn)
+                .accessibilityLabel("Zoom in")
+            Button { setZoom(zoom.steppedOut(about: mapCenter(mode)), mode: mode, animated: true) } label: { MRIcon(.minus, size: 18) }
+                .buttonStyle(MRRoundButtonStyle()).disabled(!zoom.canZoomOut)
+                .accessibilityLabel("Zoom out")
+        }
+        .help("Zoom: pinch, scroll wheel, Option + scroll, + / - keys, double-click. 0 resets.")
     }
 
     // MARK: data -> map layers
@@ -98,8 +210,8 @@ struct WorldMapView: View {
 
     private func pins(_ d: ExploreData) -> [GlobePin] {
         let mx = Double(max(1, d.topAirportMax))
-        return d.topAirports.enumerated().compactMap { i, a in
-            GlobePin(code: a.code, showsLabel: i < 5, color: amberPin, radius: 2.6 + Double(a.visits) / mx * 2.4)
+        return d.topAirports.compactMap { a in
+            GlobePin(code: a.code, showsLabel: true, color: amberPin, radius: 2.6 + Double(a.visits) / mx * 2.4)
         }
     }
 
@@ -293,4 +405,41 @@ struct ExFlow: Layout {
 extension ExploreData {
     /// City names of the canvas airports used by the fixture when the bundled database lacks them.
     static let designCity: [String: String] = ["LHR": "London", "CDG": "Paris", "AMS": "Amsterdam", "IST": "Istanbul", "JFK": "New York", "FRA": "Frankfurt", "DUB": "Dublin", "MAD": "Madrid"]
+}
+
+/// The map layer: redraws the globe / flat map at the zoomed size (vector, never a scaled bitmap). It is `Animatable`, so a
+/// `withAnimation` zoom re-evaluates it every frame with the interpolated scale and offset.
+private struct ExZoomLayer: View, Animatable {
+    var scale: Double, ox: Double, oy: Double
+    var mode: ExMapMode
+    var routes: [GlobeRoute]
+    var pins: [GlobePin]
+    var visited: Bool
+    var isDraggable: Bool
+    var rotation: Binding<CGSize>
+    var globeFrame: CGRect
+    var flatFrame: CGRect
+
+    var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
+        get { .init(scale, .init(ox, oy)) }
+        set { scale = newValue.first; ox = newValue.second.first; oy = newValue.second.second }
+    }
+
+    var body: some View {
+        let m = MapZoomModel(scale: scale, offset: CGPoint(x: ox, y: oy))
+        // labels: more of them the closer you are, fewer far away; pins and route widths follow gently
+        let budget = m.labelBudget(total: pins.count)
+        let pins = pins.enumerated().map { i, p -> GlobePin in
+            var q = p; if i >= budget { q.label = nil }; q.radius *= m.markScale; return q
+        }
+        let routes = routes.map { r -> GlobeRoute in var q = r; q.width *= m.markScale; return q }
+        if mode == .globe {
+            let o = m.apply(globeFrame.origin)
+            GlobeView(lon: -8, lat: 36, size: globeFrame.width * m.scale, routes: routes, pins: pins, visited: visited, isDraggable: isDraggable,
+                      rotation: rotation, dragSpeed: m.rotationFactor).offset(x: o.x, y: o.y)
+        } else {
+            let o = m.apply(flatFrame.origin)
+            WorldFlatView(w: flatFrame.width * m.scale, latTop: 80, latBot: -56, visited: visited, routes: routes, pins: pins).offset(x: o.x, y: o.y)
+        }
+    }
 }
