@@ -84,6 +84,9 @@ enum ScreenRegistry {
         TogetherRoutes.register()
         registerRitualRoutes()
         registerCardsPassportRoutes()
+        #if DEBUG
+        registerDebugFlow()
+        #endif
     }
 }
 

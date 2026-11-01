@@ -18,6 +18,7 @@ final class RitualCoordinator {
     /// Check in (`quick: false`) or Quick start (`quick: true`) from the Plan screen.
     func checkIn(_ model: AppModel, quick: Bool) {
         guard session == nil, model.activeFlight == nil else { return }
+        TakeoffImages.prewarm()
         let replay = quick && model.plan.preferences.lastRoute != nil
         if !replay && !model.plan.canConfirm { return }
         if RitualPolicy.skips(plan: model.plan, quick: quick) {

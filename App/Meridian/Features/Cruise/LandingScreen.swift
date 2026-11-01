@@ -65,8 +65,8 @@ struct LandingTicketSlot: View {
 
     private var pass: BoardingPassModel {
         if var m = info.pass { m.landTime = info.touchdown; return m }
-        return BoardingPassModel(originCode: info.origin.iata, originCity: info.origin.city,
-                                 destinationCode: info.destination.iata, destinationCity: info.destination.city,
+        return BoardingPassModel(originCode: info.origin.iata, originCity: info.origin.shortCity,
+                                 destinationCode: info.destination.iata, destinationCity: info.destination.shortCity,
                                  durationMinutes: info.minutes, distanceKm: info.km, topic: info.topic, landTime: info.touchdown)
     }
 
@@ -122,8 +122,8 @@ struct LandingScreen: View {
                 Color(.sRGB, red: 5 / 255, green: 7 / 255, blue: 13 / 255, opacity: 0.40)
 
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("\(info.destination.name.hasPrefix(info.destination.city + " ") ? String(info.destination.name.dropFirst(info.destination.city.count + 1)) : info.destination.name) · Touchdown \(info.touchdown)").mrEyebrow().frame(height: 14)
-                    Text("Landed in \(info.destination.city).")
+                    Text("\(info.destination.shortName) · Touchdown \(info.touchdown)").mrEyebrow().frame(height: 14)
+                    Text("Landed in \(info.destination.shortCity).")
                         .font(.mr(.serif, size: 52, weight: 500)).tracking(-0.78)
                         .foregroundStyle(p.text1.color).frame(height: 58, alignment: .leading).padding(.top, 6)
                 }
@@ -148,6 +148,7 @@ struct LandingScreen: View {
                 Task { @MainActor in try? await Task.sleep(for: .milliseconds(500)); notesArmed = true }
             }
             .onDisappear { flyTask?.cancel(); model.landingFly = 0 }
+            .onChange(of: model.landingAddRequests) { _, _ in add() }
         }
     }
 

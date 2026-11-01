@@ -60,6 +60,8 @@ final class AppModel {
     /// 0...1 progress of the landing ticket's flight into the wallet (S23). The sidebar reads it for the "+1" badge,
     /// the miles counter and the ring pulse.
     var landingFly: Double = 0
+    /// Incremented to press "Add to wallet" from outside the landing screen (debug flow, shortcuts).
+    var landingAddRequests = 0
     private(set) var lastLanded: Flight?
     let index: AirportIndex
 

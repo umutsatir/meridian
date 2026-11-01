@@ -169,8 +169,8 @@ enum WalletBuilder {
             let flown = f.finalFocusedSec.map { Int(($0 / 60).rounded()) }
             let scenario = PaperScenario(rawValue: f.scenarioID) ?? .other
             let model = BoardingPassModel(
-                originCode: f.originIata, originCity: a?.city ?? f.originIata,
-                destinationCode: to, destinationCity: b?.city ?? to,
+                originCode: f.originIata, originCity: a?.shortCity ?? f.originIata,
+                destinationCode: to, destinationCity: b?.shortCity ?? to,
                 originCoordinate: coordinate(a), destinationCoordinate: coordinate(b),
                 flightNumber: number, gate: identity.gate, seat: "1A",
                 durationMinutes: planned, distanceKm: Int(f.routeDistanceKm.rounded()),
@@ -196,5 +196,21 @@ enum WalletSummary {
         let km = flights.reduce(0.0) { $0 + $1.creditedKm }
         let hours = (sec / 3600 * 10).rounded() / 10
         return "\(count) \(noun) · \(hours.formatted(.number.precision(.fractionLength(1)))) hours · \(PlanKit.fmtKm(km)) km"
+    }
+}
+
+
+extension Airport {
+    /// City without the data set's disambiguating suffix ("Paris (Roissy-en-France, Val-d'Oise)" is "Paris").
+    var shortCity: String {
+        if let i = city.firstIndex(of: "("), i > city.startIndex { return String(city[..<i]).trimmingCharacters(in: .whitespaces) }
+        return city
+    }
+
+    /// Airport name without "International Airport" / "Airport" ("Charles de Gaulle International Airport" is "Charles de Gaulle").
+    var shortName: String {
+        var n = name
+        for suffix in [" International Airport", " Airport"] where n.hasSuffix(suffix) { n = String(n.dropLast(suffix.count)); break }
+        return n
     }
 }

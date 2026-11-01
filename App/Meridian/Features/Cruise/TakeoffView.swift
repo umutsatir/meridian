@@ -1,4 +1,5 @@
 import AppKit
+import ImageIO
 import MeridianCore
 import MeridianUI
 import SwiftUI
@@ -44,7 +45,10 @@ struct TakeoffView: View {
         return h >= 18 || h < 6
     }
 
-    private func finish() { guard !finished else { return }; finished = true; onDone() }
+    private func finish() {
+        guard !finished else { return }; finished = true
+        onDone()
+    }
 
     // MARK: frame
 
@@ -132,14 +136,34 @@ struct TakeoffView: View {
 
 // MARK: - Scene
 
-private struct TakeoffImages {
+enum TakeoffImages {
     @MainActor static var cache: [String: CGImage] = [:]
+    private static let files = [("sat-regional", "jpg"), ("sat-farm", "jpg"), ("sat-grain", "png")]
+
     @MainActor static func image(_ name: String, _ ext: String) -> CGImage? {
         if let c = cache[name] { return c }
-        guard let url = Bundle.main.url(forResource: name, withExtension: ext), let ns = NSImage(contentsOf: url),
-              let cg = ns.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
+        guard let cg = decode(name, ext) else { return nil }
         cache[name] = cg
         return cg
+    }
+
+    /// Decodes the satellite imagery off the main thread (4096 pt JPEGs take seconds in a debug build and would freeze the first
+    /// take-off). Called when the ritual starts and at launch of a check-in; harmless to call again.
+    @MainActor static func prewarm() {
+        let todo = files.filter { cache[$0.0] == nil }
+        guard !todo.isEmpty else { return }
+        Task.detached(priority: .utility) {
+            for (name, ext) in todo {
+                guard let cg = decode(name, ext) else { continue }
+                await MainActor.run { if cache[name] == nil { cache[name] = cg } }
+            }
+        }
+    }
+
+    nonisolated private static func decode(_ name: String, _ ext: String) -> CGImage? {
+        guard let url = Bundle.main.url(forResource: name, withExtension: ext),
+              let src = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+        return CGImageSourceCreateImageAtIndex(src, 0, [kCGImageSourceShouldCacheImmediately: true] as CFDictionary)
     }
 }
 

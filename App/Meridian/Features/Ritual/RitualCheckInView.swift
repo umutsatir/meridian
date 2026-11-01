@@ -107,7 +107,7 @@ struct RitualCheckInView: View {
             // window seats (A, F) show the view they give (C06 "Window preview"), matched to the time of departure
             if type == "Window" {
                 WindowSeatPreview(scene: Self.scene(forBoarding: info.boardingTime), palette: p)
-                    .offset(x: 1030 + 226 - 76, y: 436)
+                    .offset(x: 1030 - 70, y: 44)
                     .transition(.opacity)
             }
 
@@ -303,13 +303,13 @@ private struct WindowSeatPreview: View {
             Text("Window view").font(.mr(.mono, size: 10, weight: 500)).foregroundStyle(palette.text3.color)
             CruiseWindowView(frame: .demo(p: 0.45), ui: ui, size: CGSize(width: 200, height: 250))
                 .frame(width: 200, height: 250)
-                .scaleEffect(0.38, anchor: .topLeading)
-                .frame(width: 76, height: 95, alignment: .topLeading)
+                .scaleEffect(0.32, anchor: .topLeading)
+                .frame(width: 64, height: 80, alignment: .topLeading)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .allowsHitTesting(false)
         }
         .fixedSize()
-        .frame(width: 76, alignment: .trailing)
+        .frame(width: 64, alignment: .trailing)
         .onAppear { ui.scene = scene }
         .onChange(of: scene) { _, v in ui.scene = v }
         .accessibilityLabel("Window view, \(scene)")

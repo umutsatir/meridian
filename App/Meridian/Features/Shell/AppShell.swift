@@ -67,6 +67,7 @@ struct AppShell: View {
             .overlay { RitualHost() }
         }
         .modifier(CardUnlockHost())
+        .onAppear { TakeoffImages.prewarm() }
         .mrWindowChrome()
     }
 }

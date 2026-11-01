@@ -71,7 +71,7 @@ struct DebugHost: View {
 }
 
 /// Invisible helper that sizes the window, waits, captures and quits.
-private struct WindowCapture: NSViewRepresentable {
+struct WindowCapture: NSViewRepresentable {
     let launch: DebugLaunch
     let restore: Data?
 
@@ -86,6 +86,8 @@ private struct WindowCapture: NSViewRepresentable {
             window.setContentSize(launch.size)
             window.center()
             window.makeKeyAndOrderFront(nil)
+            DebugSnap.window = window
+            DebugSnap.launch = launch
             DispatchQueue.main.asyncAfter(deadline: .now() + launch.delay) {
                 capture(window)
             }
@@ -96,16 +98,29 @@ private struct WindowCapture: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {}
 
     private func capture(_ window: NSWindow) {
-        guard let content = window.contentView else { fail("no content view") }
+        guard let png = Self.render(window, launch: launch) else { fail("png") }
+        // The app is sandboxed: it can only write inside its container, so the PNG goes to the
+        // container's tmp directory under the requested file name. Scripts/app-shot.sh copies it out.
+        let contained = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(launch.output.lastPathComponent)
+        do { try png.write(to: contained) } catch { fail("write \(contained.path): \(error)") }
+        let bounds = window.contentView?.bounds ?? .zero
+        let report = "screenshot: container=\(contained.path) "
+            + "content=\(Int(bounds.width))x\(Int(bounds.height)) window=\(Int(window.frame.width))x\(Int(window.frame.height))\n"
+        FileHandle.standardError.write(Data(report.utf8))
+        finish(0)
+    }
+
+    static func render(_ window: NSWindow, launch: DebugLaunch) -> Data? {
+        guard let content = window.contentView else { return nil }
         let bounds = content.bounds
         // 1x bitmap regardless of the display's backing scale.
         guard let rep = NSBitmapImageRep(
             bitmapDataPlanes: nil, pixelsWide: Int(launch.size.width), pixelsHigh: Int(launch.size.height),
             bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
             colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)
-        else { fail("bitmap") }
+        else { return nil }
         rep.size = bounds.size
-        if launch.capture == "window", let image = windowServerImage(of: window) {
+        if launch.capture == "window", let image = Self.windowServerImage(of: window) {
             rep.size = bounds.size
             NSGraphicsContext.saveGraphicsState()
             NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
@@ -114,21 +129,13 @@ private struct WindowCapture: NSViewRepresentable {
         } else {
             content.cacheDisplay(in: bounds, to: rep)
         }
-        guard let png = rep.representation(using: .png, properties: [:]) else { fail("png") }
-        // The app is sandboxed: it can only write inside its container, so the PNG goes to the
-        // container's tmp directory under the requested file name. Scripts/app-shot.sh copies it out.
-        let contained = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(launch.output.lastPathComponent)
-        do { try png.write(to: contained) } catch { fail("write \(contained.path): \(error)") }
-        let report = "screenshot: container=\(contained.path) "
-            + "content=\(Int(bounds.width))x\(Int(bounds.height)) window=\(Int(window.frame.width))x\(Int(window.frame.height))\n"
-        FileHandle.standardError.write(Data(report.utf8))
-        finish(0)
+        return rep.representation(using: .png, properties: [:])
     }
 
     /// Composite of our own window as the WindowServer drew it (includes blur/materials, Metal, Map).
     /// Own-window capture needs no screen-recording permission. Looked up dynamically because the
     /// symbol is deprecated in recent SDKs.
-    private func windowServerImage(of window: NSWindow) -> CGImage? {
+    private static func windowServerImage(of window: NSWindow) -> CGImage? {
         typealias Fn = @convention(c) (CGRect, UInt32, UInt32, UInt32) -> Unmanaged<CGImage>?
         guard let sym = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGWindowListCreateImage") else { return nil }
         let fn = unsafeBitCast(sym, to: Fn.self)
@@ -148,5 +155,22 @@ private struct WindowCapture: NSViewRepresentable {
         if let restore { UserDefaults.standard.set(restore, forKey: key) } else { UserDefaults.standard.removeObject(forKey: key) }
         UserDefaults.standard.synchronize()
         exit(code)
+    }
+}
+
+
+/// Mid-run snapshots for `--screen live-flow` (Debug/DebugFlow.swift): writes `<name>.png` next to the final screenshot.
+@MainActor
+enum DebugSnap {
+    static var window: NSWindow?
+    static var launch: DebugLaunch?
+
+    static func save(_ name: String) {
+        guard let window, let launch, let data = WindowCapture.render(window, launch: launch) else {
+            FileHandle.standardError.write(Data("snap \(name): failed\n".utf8)); return
+        }
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("\(name).png")
+        try? data.write(to: url)
+        FileHandle.standardError.write(Data("snap: \(name)\n".utf8))
     }
 }
