@@ -38,7 +38,8 @@ public struct MRButtonStyle: ButtonStyle {
         let forcedHover: Bool
         let configuration: Configuration
         @Environment(\.isEnabled) private var isEnabled
-        @Environment(\.isFocused) private var isFocused
+        @Environment(\.isFocused) private var isFocusedEnv
+        @Environment(\.mrForcedState) private var forced
         @Environment(\.colorScheme) private var scheme
         @Environment(\.accessibilityReduceMotion) private var reduceMotion
         @State private var hovered = false
@@ -47,8 +48,9 @@ public struct MRButtonStyle: ButtonStyle {
             let p = MRPalette.resolve(scheme)
             let radius = pill ? 999 : size.cornerRadius
             let shape = RoundedRectangle(cornerRadius: radius, style: .continuous)
-            let pressed = configuration.isPressed
-            let hover = (hovered || forcedHover) && isEnabled
+            let pressed = configuration.isPressed || forced == .pressed
+            let isFocused = isFocusedEnv || forced == .focus
+            let hover = (hovered || forcedHover || forced == .hover) && isEnabled
             configuration.label
                 .font(.mr(.ui, size: size.fontSize, weight: 600))
                 .foregroundStyle(foreground(p))
@@ -102,7 +104,7 @@ public struct MRButtonStyle: ButtonStyle {
         @ViewBuilder
         private func decoration(_ p: MRPalette, shape: RoundedRectangle) -> some View {
             let dark = scheme == .dark
-            let hover = (hovered || forcedHover) && isEnabled
+            let hover = (hovered || forcedHover || forced == .hover) && isEnabled
             switch kind {
             case .primary:
                 let glow: Double = dark ? (hover ? 0.55 : 0.45) : 0.35
@@ -144,22 +146,25 @@ public struct MRRoundButtonStyle: ButtonStyle {
     private let isOn: Bool
     private let small: Bool
     private let glass: Bool
+    private let elevation: MRElevation
 
-    public init(on: Bool = false, small: Bool = false, glass: Bool = true) {
-        self.isOn = on; self.small = small; self.glass = glass
+    public init(on: Bool = false, small: Bool = false, glass: Bool = true, elevation: MRElevation = .e1) {
+        self.isOn = on; self.small = small; self.glass = glass; self.elevation = elevation
     }
 
     public func makeBody(configuration: Configuration) -> some View {
-        Label(isOn: isOn, small: small, glass: glass, configuration: configuration)
+        Label(isOn: isOn, small: small, glass: glass, elevation: elevation, configuration: configuration)
     }
 
     private struct Label: View {
         let isOn: Bool
         let small: Bool
         let glass: Bool
+        let elevation: MRElevation
         let configuration: Configuration
         @Environment(\.isEnabled) private var isEnabled
-        @Environment(\.isFocused) private var isFocused
+        @Environment(\.isFocused) private var isFocusedEnv
+        @Environment(\.mrForcedState) private var forced
         @Environment(\.colorScheme) private var scheme
         @Environment(\.accessibilityReduceMotion) private var reduceMotion
         @State private var hovered = false
@@ -167,12 +172,13 @@ public struct MRRoundButtonStyle: ButtonStyle {
         var body: some View {
             let p = MRPalette.resolve(scheme)
             let d: CGFloat = small ? 32 : 40
-            let pressed = configuration.isPressed
+            let pressed = configuration.isPressed || forced == .pressed
+            let isFocused = isFocusedEnv || forced == .focus
             configuration.label
                 .foregroundStyle(isOn ? p.accent1.color : p.text1.color)
                 .frame(width: d, height: d)
-                .modifier(OptionalGlass(glass: glass))
-                .mrGlassControlWash(Circle(), hovering: hovered && isEnabled, pressed: pressed, dark: scheme == .dark)
+                .modifier(OptionalGlass(glass: glass, elevation: elevation))
+                .mrGlassControlWash(Circle(), hovering: (hovered || forced == .hover) && isEnabled, pressed: pressed, dark: scheme == .dark)
                 .mrFocusRing(isFocused, cornerRadius: d / 2, color: p.accent1.color)
                 .scaleEffect(pressed && !reduceMotion ? 0.94 : 1)
                 .opacity(isEnabled ? 1 : 0.38)
@@ -185,8 +191,9 @@ public struct MRRoundButtonStyle: ButtonStyle {
 
     private struct OptionalGlass: ViewModifier {
         let glass: Bool
+        let elevation: MRElevation
         func body(content: Content) -> some View {
-            if glass { content.mrGlass(in: Circle(), elevation: .e1) } else { content }
+            if glass { content.mrGlass(in: Circle(), elevation: elevation) } else { content }
         }
     }
 }
