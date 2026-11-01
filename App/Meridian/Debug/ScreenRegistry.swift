@@ -66,6 +66,7 @@ enum ScreenRegistry {
         register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { InFlightView() }
         registerOnboarding()
         SystemRoutes.register()
+        ExploreRoutes.register()
         register("paper-pass") { PaperPassSheet(variant: 1) }
         register("paper-pass2") { PaperPassSheet(variant: 2) }
         register("paper-pass3") { PaperPassSheet(variant: 3) }
