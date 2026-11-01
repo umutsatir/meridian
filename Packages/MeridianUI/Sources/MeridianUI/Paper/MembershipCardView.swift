@@ -73,6 +73,7 @@ public struct MembershipCardView: View {
     let info: MembershipCardInfo
     let live: Bool
     let pose: CGPoint?
+    let idlePhase: Double?
     @Binding var flipped: Bool
     @State private var pointer: CGPoint? = nil      // -0.5...0.5
     @State private var entering = false             // first contact eases in; afterwards the tilt follows the pointer closely
@@ -82,9 +83,11 @@ public struct MembershipCardView: View {
     /// - Parameters:
     ///   - pose: fixed pointer position in -0.5...0.5 (for static renders); `live` cards track the real pointer.
     ///   - flipped: back face.
+    ///   - idlePhase: freezes the idle shimmer at a point of its 6 s loop (0...1) for static renders; nil runs it.
     public init(tier: MembershipTier, size: MembershipCardSize = .list, locked: Bool = false, info: MembershipCardInfo = .init(),
-                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil) {
+                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil, idlePhase: Double? = nil) {
         self.tier = tier; self.size = size; self.locked = locked; self.info = info; self.live = live; self.pose = pose
+        self.idlePhase = idlePhase
         self._flipped = flipped ?? .constant(false)
         self.usesExternalFlip = flipped != nil
     }
@@ -102,12 +105,12 @@ public struct MembershipCardView: View {
             RoundedRectangle(cornerRadius: 20).fill(Color.black.opacity(0.01))
                 .frame(width: 340, height: 214)
                 .shadow(color: .black.opacity(over ? 0.4 : 0.45), radius: (40 + lift * 2) / 2, x: CGFloat(-px * 60), y: 30 + lift * 1.6 - CGFloat(py * 30))
-            CardFlip(angle: isFlipped ? 180 : 0, rx: -py * 28, ry: px * 28, lift: lift,
-                     front: CardFront(tier: tier, locked: locked, info: info, px: px, py: py, over: over, reduceMotion: reduceMotion),
-                     back: CardBack(tier: tier, locked: locked, info: info, px: px, py: py, over: over))
+            CardFlip(angle: isFlipped ? 180 : 0, px: px, py: py, lift: lift,
+                     front: { x, y in CardFront(tier: tier, locked: locked, info: info, px: x, py: y, over: over, reduceMotion: reduceMotion, idlePhase: idlePhase) },
+                     back: { x, y in CardBack(tier: tier, locked: locked, info: info, px: x, py: y, over: over) })
         }
         .frame(width: 340, height: 214, alignment: .topLeading)
-        .animation(live && over && !entering ? .linear(duration: 0.09) : (reduceMotion ? nil : MRMotion.hoverTilt), value: pointer)
+        .animation(live && over && !entering ? .easeOut(duration: 0.16) : (reduceMotion ? nil : MRMotion.hoverTilt), value: pointer)
         .animation(reduceMotion ? .easeInOut(duration: 0.2) : MRMotion.bouncy, value: isFlipped)
         .scaleEffect(scale, anchor: .topLeading)
         .frame(width: 340 * scale, height: 214 * scale, alignment: .topLeading)
@@ -143,20 +146,24 @@ public struct MembershipCardView: View {
     }
 }
 
-/// Animates the flip angle and swaps faces at 90 degrees (both faces are backface-hidden in the canvas).
+/// Animates the flip angle and the pointer position, and swaps faces at 90 degrees (both faces are backface-hidden in the canvas).
+/// The pointer (px, py) is animatable so the glare, foil, parallax and bend shading ease with the tilt instead of stepping
+/// with every pointer event (the canvas moves those gradients instantly; the owner found that harsh).
 private struct CardFlip<Front: View, Back: View>: View, @preconcurrency Animatable {
     var angle: Double
-    var rx: Double, ry: Double, lift: CGFloat
-    let front: Front, back: Back
+    var px: Double, py: Double
+    var lift: CGFloat
+    let front: (Double, Double) -> Front, back: (Double, Double) -> Back
     var animatableData: AnimatablePair<Double, AnimatablePair<Double, Double>> {
-        get { .init(angle, .init(rx, ry)) }
-        set { angle = newValue.first; rx = newValue.second.first; ry = newValue.second.second }
+        get { .init(angle, .init(px, py)) }
+        set { angle = newValue.first; px = newValue.second.first; py = newValue.second.second }
     }
     var body: some View {
+        let rx = -py * 28, ry = px * 28
         let total = (ry + angle).truncatingRemainder(dividingBy: 360)
-        let showFront = abs(cos(total * .pi / 180)) >= 0 ? cos(total * .pi / 180) > 0 : true
+        let showFront = cos(total * .pi / 180) > 0
         Group {
-            if showFront { front } else { back.scaleEffect(x: -1, y: 1) }
+            if showFront { front(px, py) } else { back(px, py).scaleEffect(x: -1, y: 1) }
         }
         .frame(width: 340, height: 214)
         .modifier(PaperTilt(rx: rx, ry: ry + angle, lift: lift, size: CGSize(width: 340, height: 214)))
@@ -257,6 +264,7 @@ enum CSSGradient {
 private struct CardFront: View {
     let tier: MembershipTier, locked: Bool, info: MembershipCardInfo
     let px: Double, py: Double, over: Bool, reduceMotion: Bool
+    var idlePhase: Double? = nil
     private var R: TierRecipe { .of(tier) }
     private let size = CGSize(width: 340, height: 214)
 
@@ -294,19 +302,21 @@ private struct CardFront: View {
                                                 angle: atan2(py, px) * 180 / .pi + 90, size: size))
             glare(r)
             glint
-            if !over && !locked && !reduceMotion { idle }
+            if !locked && !reduceMotion { idle.opacity(over ? 0 : 1).animation(.easeOut(duration: 0.3), value: over) }
             // rim
             RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.12), lineWidth: 1)
             RoundedRectangle(cornerRadius: 20).fill(.clear)
                 .overlay(alignment: .top) { Rectangle().fill(r.edgeColor).frame(height: 1) }
+            RoundedRectangle(cornerRadius: 20).strokeBorder(Color(hex: r.edge).opacity(0.55), lineWidth: 1)
         }
         .frame(width: 340, height: 214, alignment: .topLeading)
         .compositingGroup()
-        .blur(radius: locked ? 1.5 : 0)
+        // the canvas frost is `backdrop-filter: blur(3px)` over the whole face including its edge light, with clamped edges
+        .blur(radius: locked ? 3 : 0)
+        .background { if locked { CSSGradient.linear(r.base.map { .init(color: Color(hex: $0.1), location: $0.0) }, angle: 135, size: size) } }
         .overlay { if locked { lockOverlay(r) } }
         .modifier(LockFilter(locked: locked))
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(r.edge.isEmpty ? .clear : Color(hex: r.edge).opacity(0.55), lineWidth: 1))
     }
 
     private func emboss(_ t: Text, _ r: TierRecipe) -> some View {
@@ -475,18 +485,28 @@ private struct CardFront: View {
         }
     }
 
+    /// The canvas band (clear 35 %, white .3 at 48 %, .06 at 52 %, clear 62 %) with eased ramps: the same peak and width,
+    /// but smoothstep intermediate stops so the sweep has no visible edge or banding.
+    private static let shimmerStops: [Gradient.Stop] = {
+        func ramp(_ l0: Double, _ a0: Double, _ l1: Double, _ a1: Double, n: Int = 6) -> [Gradient.Stop] {
+            (0...n).map { i in
+                let t = Double(i) / Double(n), e = t * t * (3 - 2 * t)
+                return .init(color: .white.opacity(a0 + (a1 - a0) * e), location: l0 + (l1 - l0) * t)
+            }
+        }
+        return ramp(0.35, 0, 0.48, 0.3) + ramp(0.48, 0.3, 0.52, 0.06, n: 3).dropFirst() + ramp(0.52, 0.06, 0.62, 0).dropFirst()
+    }()
+
     /// `cd-idle`: 6 s loop, 115 degree sweep during the last 38 %.
     private var idle: some View {
-        TimelineView(.animation) { tl in
-            let f = tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 6) / 6
+        TimelineView(.animation(paused: idlePhase != nil)) { tl in
+            let f = idlePhase ?? tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 6) / 6
             let u = f < 0.62 ? 0 : (f - 0.62) / 0.38
             let e = SplitFlapLogic.bezier(0.42, 0, 0.58, 1, u)
             let pos = 1.4 + (-0.4 - 1.4) * e
             let w: CGFloat = 340 * 2.6
             Rectangle()
-                .fill(CSSGradient.linear([.init(color: .clear, location: 0.35), .init(color: .white.opacity(0.3), location: 0.48),
-                                          .init(color: .white.opacity(0.06), location: 0.52), .init(color: .clear, location: 0.62)],
-                                         angle: 115, size: CGSize(width: w, height: 214)))
+                .fill(CSSGradient.linear(Self.shimmerStops, angle: 115, size: CGSize(width: w, height: 214)))
                 .frame(width: w, height: 214)
                 .offset(x: (340 - w) * pos)
                 .frame(width: 340, height: 214, alignment: .topLeading)

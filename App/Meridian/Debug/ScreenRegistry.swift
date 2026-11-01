@@ -79,6 +79,8 @@ enum ScreenRegistry {
         register("paper-card") { PaperCardSheet(variant: 1) }
         register("paper-card2") { PaperCardSheet(variant: 2) }
         register("paper-card3") { PaperCardSheet(variant: 3) }
+        register("card-pose") { CardPoseSheet(locked: false) }
+        register("card-lock") { CardPoseSheet(locked: true) }
         register("paper-stamp") { PaperStampSheet() }
         register("paper-flap") { PaperFlapSheet() }
         register("paper-print") { PaperPrintSheet(times: [900, 1700]) }
