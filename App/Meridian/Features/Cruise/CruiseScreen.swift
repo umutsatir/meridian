@@ -156,10 +156,19 @@ struct CruiseScreen: View {
 /// maps the controls to real `AppModel` actions.
 struct LiveCruiseScreen: View {
     @Environment(AppModel.self) private var model
-    @State private var ui: CruiseUI = { let u = CruiseUI(); u.sceneAuto = true; return u }()
+    @State private var ui: CruiseUI
     @State private var alert = LandingAlert()
     @State private var toastUntil: Date?
     @AppStorage("flight.landingAlert") private var alertEnabled = true
+
+    /// - Parameter style: map style to start with; `nil` follows Settings > Maps.
+    init(style: MapStyle? = nil) {
+        let all = MapStyle.allCases
+        let saved = all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))]
+        let u = CruiseUI(style: style ?? saved)
+        u.sceneAuto = true
+        _ui = State(initialValue: u)
+    }
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in

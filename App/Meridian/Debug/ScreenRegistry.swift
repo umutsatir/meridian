@@ -59,6 +59,10 @@ enum ScreenRegistry {
         register("plan-home") { PlanScreen(hour: 15).mrWindowChrome() }
         register(DebugRoute.plan.rawValue, setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code") }) { PlanScreen(hour: 15).mrWindowChrome() }
         register("plan-first-run", setup: { $0.planStage = .plan; $0.plan.setScenario(id: "code") }) { PlanScreen(hour: 15).mrWindowChrome() }
+        // Apple Maps satellite (phase-d/satellite)
+        register("home-satellite") { PlanScreen(hour: 15).mrWindowChrome() }
+        register("plan-satellite", setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code") }) { PlanScreen(hour: 15, mapStyle: .satellite).mrWindowChrome() }
+        register("cruise-satellite-live", setup: { $0.startFlight() }) { LiveCruiseScreen(style: .satellite).mrWindowChrome() }
         register("plan-light") { PlanScreen(hour: 15, mapStyle: .mono).mrWindowChrome() }
         register("search", setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code"); $0.searchOpen = true }) { PlanScreen(hour: 15).mrWindowChrome() }
         register("surprise", setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code"); $0.searchOpen = true }) { PlanScreen(hour: 15, initialReveal: "BRU").mrWindowChrome() }

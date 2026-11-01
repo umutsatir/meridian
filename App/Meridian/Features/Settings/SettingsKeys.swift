@@ -42,6 +42,8 @@ enum SettingsKeys {
     static let askWhatGotDone = SettingKey("settings.flight.notes", true)
     // Maps
     static let mapStyle = SettingKey("settings.maps.style", 0)                      // terra, mono, standard, satellite
+    static let mapEngine = SettingKey("settings.maps.engine", 0)                    // Apple Maps, Illustrated
+    static let homeGlobe = SettingKey("settings.maps.homeGlobe", 0)                 // Realistic, Illustrated
     static let labelLanguage = SettingKey("settings.maps.labelLanguage", 1)         // local, english, both
     static let bothNames = SettingKey("settings.maps.bothNames", true)
     static let borders = SettingKey("settings.maps.borders", true)
@@ -90,7 +92,7 @@ enum SettingsKeys {
         showInMenuBar.name, showInDock.name, keepFlyingOnClose.name, language.name, distanceUnit.name, timeFormat.name,
         resumeAfterSleep.name, holdToLand.name, homeAirport.name, defaultScenario.name, seatPreference.name,
         quickStartChecksIn.name, ticketPrinting.name, takeoffSequence.name, tearFeedback.name, landingStamp.name,
-        landingHeadsUp.name, askWhatGotDone.name, mapStyle.name, labelLanguage.name, bothNames.name, borders.name,
+        landingHeadsUp.name, askWhatGotDone.name, mapStyle.name, mapEngine.name, homeGlobe.name, labelLanguage.name, bothNames.name, borders.name,
         cityNames.name, planeTrail.name, theme.name, appIcon.name, accent.name, notifBoarding.name, notifGateOpens.name,
         notifPrepareLanding.name, notifLanded.name, notifFriendJoined.name, notifFriendLanded.name,
         notifInvitations.name, notifTimeSensitive.name, quietHours.name, anonymousUsage.name,

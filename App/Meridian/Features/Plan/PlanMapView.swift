@@ -35,7 +35,7 @@ struct PlanMapView: View {
         let cx = W / 2
 
         return ZStack(alignment: .topLeading) {
-            EuropeMapView(style: mapStyle, center: plan.origin.coordinate, zoom: scene.zoom,
+            MapSurface(style: MapStyleAccess.resolved(mapStyle), center: plan.origin.coordinate, zoom: scene.zoom,
                           offset: CGSize(width: 0, height: scene.center.y - H / 2))
                 .animation(EuropeMapView.cameraAnimation, value: MapKey(zoom: scene.zoom, origin: plan.origin.iata))
                 .frame(width: W, height: H)
@@ -180,7 +180,8 @@ struct PlanMapView: View {
 
     private func cycleStyle() {
         let all = MapStyle.allCases
-        mapStyle = all[(all.firstIndex(of: mapStyle)! + 1) % all.count]
+        let open = all.filter { MapStyleAccess.isUnlocked($0) }
+        mapStyle = open[((open.firstIndex(of: mapStyle) ?? -1) + 1) % open.count]
     }
 
     // MARK: scrubbing (DurationScrub owns the numbers)
