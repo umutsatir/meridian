@@ -73,6 +73,7 @@ public struct MembershipCardView: View {
     let info: MembershipCardInfo
     let live: Bool
     let pose: CGPoint?
+    let idlePhase: Double?
     @Binding var flipped: Bool
     @State private var pointer: CGPoint? = nil      // -0.5...0.5
     @State private var entering = false             // first contact eases in; afterwards the tilt follows the pointer closely
@@ -82,9 +83,11 @@ public struct MembershipCardView: View {
     /// - Parameters:
     ///   - pose: fixed pointer position in -0.5...0.5 (for static renders); `live` cards track the real pointer.
     ///   - flipped: back face.
+    ///   - idlePhase: freezes the idle shimmer at a point of its 6 s loop (0...1) for static renders; nil runs it.
     public init(tier: MembershipTier, size: MembershipCardSize = .list, locked: Bool = false, info: MembershipCardInfo = .init(),
-                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil) {
+                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil, idlePhase: Double? = nil) {
         self.tier = tier; self.size = size; self.locked = locked; self.info = info; self.live = live; self.pose = pose
+        self.idlePhase = idlePhase
         self._flipped = flipped ?? .constant(false)
         self.usesExternalFlip = flipped != nil
     }
@@ -103,7 +106,7 @@ public struct MembershipCardView: View {
                 .frame(width: 340, height: 214)
                 .shadow(color: .black.opacity(over ? 0.4 : 0.45), radius: (40 + lift * 2) / 2, x: CGFloat(-px * 60), y: 30 + lift * 1.6 - CGFloat(py * 30))
             CardFlip(angle: isFlipped ? 180 : 0, rx: -py * 28, ry: px * 28, lift: lift,
-                     front: CardFront(tier: tier, locked: locked, info: info, px: px, py: py, over: over, reduceMotion: reduceMotion),
+                     front: CardFront(tier: tier, locked: locked, info: info, px: px, py: py, over: over, reduceMotion: reduceMotion, idlePhase: idlePhase),
                      back: CardBack(tier: tier, locked: locked, info: info, px: px, py: py, over: over))
         }
         .frame(width: 340, height: 214, alignment: .topLeading)
@@ -257,6 +260,7 @@ enum CSSGradient {
 private struct CardFront: View {
     let tier: MembershipTier, locked: Bool, info: MembershipCardInfo
     let px: Double, py: Double, over: Bool, reduceMotion: Bool
+    var idlePhase: Double? = nil
     private var R: TierRecipe { .of(tier) }
     private let size = CGSize(width: 340, height: 214)
 
@@ -299,14 +303,16 @@ private struct CardFront: View {
             RoundedRectangle(cornerRadius: 20).strokeBorder(.white.opacity(0.12), lineWidth: 1)
             RoundedRectangle(cornerRadius: 20).fill(.clear)
                 .overlay(alignment: .top) { Rectangle().fill(r.edgeColor).frame(height: 1) }
+            RoundedRectangle(cornerRadius: 20).strokeBorder(Color(hex: r.edge).opacity(0.55), lineWidth: 1)
         }
         .frame(width: 340, height: 214, alignment: .topLeading)
         .compositingGroup()
-        .blur(radius: locked ? 1.5 : 0)
+        // the canvas frost is `backdrop-filter: blur(3px)` over the whole face including its edge light, with clamped edges
+        .blur(radius: locked ? 3 : 0)
+        .background { if locked { CSSGradient.linear(r.base.map { .init(color: Color(hex: $0.1), location: $0.0) }, angle: 135, size: size) } }
         .overlay { if locked { lockOverlay(r) } }
         .modifier(LockFilter(locked: locked))
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(r.edge.isEmpty ? .clear : Color(hex: r.edge).opacity(0.55), lineWidth: 1))
     }
 
     private func emboss(_ t: Text, _ r: TierRecipe) -> some View {
@@ -477,8 +483,8 @@ private struct CardFront: View {
 
     /// `cd-idle`: 6 s loop, 115 degree sweep during the last 38 %.
     private var idle: some View {
-        TimelineView(.animation) { tl in
-            let f = tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 6) / 6
+        TimelineView(.animation(paused: idlePhase != nil)) { tl in
+            let f = idlePhase ?? tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 6) / 6
             let u = f < 0.62 ? 0 : (f - 0.62) / 0.38
             let e = SplitFlapLogic.bezier(0.42, 0, 0.58, 1, u)
             let pos = 1.4 + (-0.4 - 1.4) * e
