@@ -35,7 +35,11 @@ struct AppShell: View {
                         WalletView()
                     case .map: WorldMapView()
                     case .stats: StatsView()
-                    case .cards, .passport, .together:
+                    case .cards:
+                        CardsScreen()
+                    case .passport:
+                        PassportScreen()
+                    case .together:
                         ComingSoonView(section: model.section)
                     }
                 }
@@ -49,6 +53,7 @@ struct AppShell: View {
             .animation(MRMotion.ease(MRMotion.d3), value: showsSidebar)
             .overlay { RitualHost() }
         }
+        .modifier(CardUnlockHost())
         .mrWindowChrome()
     }
 }

@@ -82,6 +82,7 @@ enum ScreenRegistry {
         registerSettingsRoutes()
         TogetherRoutes.register()
         registerRitualRoutes()
+        registerCardsPassportRoutes()
     }
 }
 
