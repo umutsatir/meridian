@@ -14,6 +14,7 @@ struct CardsScreen: View {
     @State private var idx: Int = 0
     @State private var didStart = false
     @State private var drag: CGFloat = 0
+    @State private var overSide = false
     @FocusState private var focused: Bool
 
     private var content: CardsContent { fixture ?? CardsContent.live(model) }
@@ -130,9 +131,22 @@ struct CardsScreen: View {
                     .modifier(CoverflowEffect(off: Double(off), reduceMotion: reduceMotion))
                     .opacity(a > 2 ? 0 : (isC ? 1 : (a == 1 ? 0.9 : 0.5)))
                     .blur(radius: isC || reduceMotion ? 0 : CGFloat(2 * a))
-                    .allowsHitTesting(a <= 2)
-                    .onTapGesture { if !isC { select(i) } }
+                    .allowsHitTesting(isC)   // side cards are hit-tested by `CoverflowHitTest` on the container
+                    .accessibilityAction(named: isC ? "Flip card" : "Show \(t.title) card") { if !isC { select(i) } }
                     .zIndex(Double(100 - a * 10))
+            }
+        }
+        .contentShape(Rectangle())
+        .simultaneousGesture(SpatialTapGesture().onEnded { v in
+            if let t = CoverflowHitTest.index(forX: v.location.x, y: v.location.y, selected: idx, count: tiers.count) { select(t) }
+        })
+        .onContinuousHover { phase in
+            switch phase {
+            case .active(let l):
+                let side = CoverflowHitTest.index(forX: l.x, y: l.y, selected: idx, count: tiers.count) != nil
+                if side != overSide { overSide = side; if side { NSCursor.pointingHand.push() } else { NSCursor.pop() } }
+            case .ended:
+                if overSide { overSide = false; NSCursor.pop() }
             }
         }
     }
@@ -227,45 +241,5 @@ struct CardsScreen: View {
         .padding(.horizontal, 30).padding(.vertical, 24)
         .frame(maxWidth: .infinity, alignment: .leading)
         .mrGlass(cornerRadius: 28, elevation: .e2)
-    }
-}
-
-/// CSS coverflow slot: `translateZ` / `rotateY` / `scale` about the card center inside a `perspective: 1100px`
-/// container (origin at its center). Driven by the continuous offset from the selected card so the spring
-/// animates positions smoothly (the canvas animates the transform only; left/top jump).
-struct CoverflowEffect: GeometryEffect {
-    var off: Double
-    var reduceMotion = false
-
-    var animatableData: Double {
-        get { off }
-        set { off = newValue }
-    }
-
-    private nonisolated struct Knot { var cx, cy, w, z, ry, s: Double }
-
-    private nonisolated static func knot(_ k: Int) -> Knot {
-        let a = abs(k)
-        if k == 0 { return Knot(cx: 530, cy: 171, w: 480, z: 40, ry: 0, s: 1) }
-        let mult = a == 1 ? 300.0 : 300.0 + Double(a - 1) * 120
-        return Knot(cx: 530 + Double(k) * mult, cy: 161, w: 340, z: -60 * Double(a), ry: k > 0 ? -28 : 28,
-                    s: a == 1 ? 0.84 : 0.7)
-    }
-
-    private nonisolated static func lerp(_ off: Double) -> Knot {
-        let o = max(-5, min(5, off)), lo = Int(floor(o)), t = o - Double(lo)
-        let x = knot(lo), y = knot(min(5, lo + 1))
-        func m(_ a: Double, _ b: Double) -> Double { a + (b - a) * t }
-        return Knot(cx: m(x.cx, y.cx), cy: m(x.cy, y.cy), w: m(x.w, y.w), z: m(x.z, y.z), ry: m(x.ry, y.ry), s: m(x.s, y.s))
-    }
-
-    nonisolated func effectValue(size s: CGSize) -> ProjectionTransform {
-        let sz = s
-        let k = Self.lerp(reduceMotion ? off.rounded() : off)
-        let vs = (k.w / Double(sz.width)) * k.s
-        let transform = CSSMat4.translate(0, 0, k.z) * CSSMat4.rotateY(k.ry) * CSSMat4.scale(vs)
-        let full = CSSMat4.translate(530, 170, 0) * CSSMat4.perspective(1100) * CSSMat4.translate(-530, -170, 0)
-            * CSSMat4.translate(k.cx, k.cy, 0) * transform * CSSMat4.translate(-Double(sz.width) / 2, -Double(sz.height) / 2, 0)
-        return full.projection()
     }
 }
