@@ -29,7 +29,11 @@ struct AppShell: View {
                     switch model.section {
                     case .fly:
                         if model.activeFlight != nil { InFlightView() } else { PlanScreen() }
-                    case .wallet, .cards, .passport, .map, .stats, .together:
+                    case .cards:
+                        CardsScreen()
+                    case .passport:
+                        PassportScreen()
+                    case .wallet, .map, .stats, .together:
                         ComingSoonView(section: model.section)
                     }
                 }
@@ -42,6 +46,7 @@ struct AppShell: View {
             }
             .animation(MRMotion.ease(MRMotion.d3), value: showsSidebar)
         }
+        .modifier(CardUnlockHost())
         .mrWindowChrome()
     }
 }
