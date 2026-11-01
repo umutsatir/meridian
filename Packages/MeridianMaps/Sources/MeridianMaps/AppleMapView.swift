@@ -80,10 +80,11 @@ public struct MapSurface: View {
         let wantsApple = MapEngine.current == .appleMaps
         let apple = wantsApple && !health.failed
         let dark = (theme.map { $0 == .dark }) ?? (scheme == .dark)
-        let wide = size.map { $0.width >= 480 } ?? true
+        let wide = size == nil
         Group {
             if apple {
                 AppleMapView(style: style, dark: dark, center: center, zoom: zoom, offset: offset, animates: animatesCamera)
+                    .grayscale(style == .mono ? 1 : 0)
             } else {
                 EuropeMapView(style: style, theme: theme, center: center, zoom: zoom, offset: offset, size: nil,
                               showsLabels: showsLabels, showsGraticule: showsGraticule)
@@ -135,8 +136,20 @@ public struct AppleMapView: NSViewRepresentable {
     public func makeCoordinator() -> Coordinator { Coordinator() }
 
     @MainActor public final class Coordinator: NSObject, MKMapViewDelegate {
-        public func mapViewDidFailLoadingMap(_ mapView: MKMapView, withError error: any Error) { MapHealth.shared.tiles(failed: true) }
-        public func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) { if fullyRendered { MapHealth.shared.tiles(failed: false) } }
+        private var pending: Task<Void, Never>?
+        /// A failure report is often transient (tiles retry), so it only counts when no render completes within 8 s.
+        public func mapViewDidFailLoadingMap(_ mapView: MKMapView, withError error: any Error) {
+            pending?.cancel()
+            pending = Task { @MainActor in
+                try? await Task.sleep(for: .seconds(8))
+                if !Task.isCancelled { MapHealth.shared.tiles(failed: true) }
+            }
+        }
+        public func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
+            guard fullyRendered else { return }
+            pending?.cancel()
+            MapHealth.shared.tiles(failed: false)
+        }
     }
 
     public final class Host: MKMapView {
@@ -161,9 +174,6 @@ public struct AppleMapView: NSViewRepresentable {
                 c.pointOfInterestFilter = .excludingAll
                 preferredConfiguration = c
             }
-            wantsLayer = true
-            layer?.backgroundFilters = nil
-            if style == .mono, let f = CIFilter(name: "CIColorControls", parameters: [kCIInputSaturationKey: 0.0]) { layer?.backgroundFilters = [f] }
         }
 
         func setCamera(center: Coordinate, zoom: Double, offset: CGSize, animated: Bool) {
