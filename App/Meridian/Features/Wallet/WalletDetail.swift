@@ -120,8 +120,8 @@ struct TicketDetailView: View {
         .modifier(ProjectedTilt(rx: reduceMotion ? 0 : ex, ry: reduceMotion ? 0 : ey + ang, size: CGSize(width: 432, height: 542),
                                 vanishing: CGPoint(x: 216, y: H / 2 - 84)))
         .shadow(color: .black.opacity(0.45), radius: 25, y: 40)
-        .animation(reduceMotion ? nil : MRMotion.ease(MRMotion.d2), value: rx)
-        .animation(reduceMotion ? nil : MRMotion.ease(MRMotion.d2), value: ry)
+        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: rx)
+        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: ry)
         .overlay {
             if live && !editing {
                 Color.clear.contentShape(Rectangle())
@@ -268,7 +268,7 @@ private struct DetailRound: View {
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovering = hv } }
         .simultaneousGesture(DragGesture(minimumDistance: 0).updating($pressed) { _, s, _ in s = true })
     }
 }
@@ -298,7 +298,7 @@ private struct DetailPill: View {
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovering = hv } }
         .simultaneousGesture(DragGesture(minimumDistance: 0).updating($pressed) { _, s, _ in s = true })
     }
 }

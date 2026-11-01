@@ -111,7 +111,7 @@ struct TGFriendRow: View {
         }
         .padding(.horizontal, 18).frame(height: 64)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(hot ? p.fill1.color : .clear))
-        .onHover { hover = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
         .contextMenu {
             Button("Report…") { model.reportTarget = friend }
             Button("Block…", role: .destructive) { model.blockTarget = friend }

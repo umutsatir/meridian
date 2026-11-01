@@ -96,7 +96,7 @@ struct OriginPopover: View {
                 .background(hovered ? p.fill2.color : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain).onHover { hovered = $0 }
+            .buttonStyle(.plain).onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         }
     }
 }
@@ -286,7 +286,7 @@ struct SearchPalette: View {
                 }
                 .contentShape(shape)
             }
-            .buttonStyle(.plain).onHover { hovered = $0; if $0 { hover() } }
+            .buttonStyle(.plain).onHover { hv in withAnimation(MRMotion.hover) { hovered = hv; if hv { hover() } } }
         }
     }
 }

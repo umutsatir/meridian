@@ -377,7 +377,7 @@ private struct WalletTile: View {
         .mrFocusRing(focused.wrappedValue == ticket.id, cornerRadius: 12, offset: 6, color: p.accent1.color)
         .offset(y: lifted ? -6 : 0)
         .animation(reduceMotion ? nil : .spring(response: MRMotion.snappyParams.response, dampingFraction: MRMotion.snappyParams.damping), value: lifted)
-        .onHover { if live { hovering = $0 } }
+        .onHover { hv in withAnimation(MRMotion.hover) { if live { hovering = hv } } }
         .accessibilityLabel(ticket.accessibilityLabel)
         .accessibilityAddTraits(.isButton)
     }
@@ -406,7 +406,7 @@ private struct WalletSearchField: View {
         .background((focused.wrappedValue || hovering) ? p.fill2.color : p.fill1.color, in: shape)
         .overlay(shape.strokeBorder(p.strokeHair.color, lineWidth: 1))
         .mrFocusRing(focused.wrappedValue, cornerRadius: 12, color: p.accent1.color)
-        .onHover { hovering = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovering = hv } }
         .onExitCommand { text = ""; focused.wrappedValue = false }
     }
 }
@@ -441,7 +441,7 @@ private struct WalletDropdown: View {
             .contentShape(shape)
         }
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
-        .onHover { hovering = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovering = hv } }
         .accessibilityLabel("\(label): \(selection)")
     }
 }

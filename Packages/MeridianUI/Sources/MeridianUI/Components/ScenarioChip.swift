@@ -76,7 +76,7 @@ public struct ScenarioChip: View {
             .offset(y: hover && !isSelected ? -1 : 0)
         }
         .buttonStyle(ChipPressStyle())
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .opacity(isEnabled ? 1 : 0.38)
         .animation(MRMotion.snappy, value: isSelected)
         .animation(MRMotion.ease(MRMotion.d2), value: hover)

@@ -43,7 +43,7 @@ struct CruiseRoundButton: View {
         Button(action: action) { MRIcon(icon, size: 18) }
             .buttonStyle(MRRoundButtonStyle(on: on))
             .accessibilityLabel(a11y)
-            .onHover { hover = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
             .overlay(alignment: .top) {
                 CruiseTip(text: label, kbd: kbd)
                     .offset(y: 40 + 8)
@@ -93,7 +93,7 @@ struct CruiseMapControls: View {
             .padding(4)
             .fixedSize()
             .cruiseGlass(26, .e2, amber: frame.isAmber)
-            .onHover { hover = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
             .animation(MRMotion.ease(MRMotion.d2), value: expanded)
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Map controls")
@@ -153,7 +153,7 @@ private struct CapItem: View {
             .contentShape(shape)
         }
         .buttonStyle(.plain)
-        .onHover { hover = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
         .animation(MRMotion.ease(MRMotion.d2), value: hover)
         .accessibilityLabel(a11y)
         .accessibilityAddTraits(on ? .isSelected : [])
@@ -186,7 +186,7 @@ struct CruiseZoomCapsule: View {
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)
-            .onHover { hover = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
             .accessibilityLabel(a11y)
             .overlay(alignment: .trailing) {
                 CruiseTip(text: tip, kbd: kbd).offset(x: -(40 + 10)).opacity(hover ? 1 : 0)
@@ -229,7 +229,7 @@ struct CruiseMenu<V: Hashable>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .onHover { h in hovered = h ? item.2 : (hovered == item.2 ? nil : hovered) }
+                .onHover { h in withAnimation(MRMotion.hover) { hovered = h ? item.2 : (hovered == item.2 ? nil : hovered) } }
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }
@@ -316,7 +316,7 @@ struct HoldToLand: View {
         }
         .scaleEffect(pressed && !reduceMotion ? 0.97 : 1)
         .animation(MRMotion.ease(MRMotion.d1), value: pressed)
-        .onHover { hover = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
         .contentShape(Capsule())
         .gesture(DragGesture(minimumDistance: 0)
             .onChanged { _ in if !pressed { begin() } }

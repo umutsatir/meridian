@@ -86,7 +86,7 @@ struct OBLink: View {
             .mrFocusRing(focused, cornerRadius: 6, color: p.accent1.color)
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .animation(MRMotion.ease(MRMotion.d2), value: hovered)
     }
 }

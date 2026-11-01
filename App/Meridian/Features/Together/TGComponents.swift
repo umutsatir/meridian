@@ -75,7 +75,7 @@ struct TGOption: View {
                 }
                 .overlay { if on { shape.strokeBorder(scheme == .dark ? MRColorToken(106, 183, 255, 0.4).color : MRColorToken(30, 107, 255, 0.3).color, lineWidth: 1) } else { shape.strokeBorder(p.strokeHair.color, lineWidth: 1) } }
         }
-        .buttonStyle(.plain).onHover { hover = $0 }
+        .buttonStyle(.plain).onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
         .accessibilityAddTraits(on ? .isSelected : [])
     }
 }

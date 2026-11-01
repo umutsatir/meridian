@@ -425,7 +425,7 @@ struct CruiseWindowControls: View {
             .padding(4)
             .fixedSize()
             .cruiseGlass(26, .e2, amber: frame.isAmber)
-            .onHover { hover = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
             .animation(MRMotion.ease(MRMotion.d2), value: expanded)
             .padding(.trailing, 20).padding(.top, 18)
             if ui.menu == .scene {
@@ -469,7 +469,7 @@ private struct WindowCapItem: View {
             .contentShape(shape)
         }
         .buttonStyle(.plain)
-        .onHover { hover = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
         .accessibilityLabel(a11y)
     }
 }

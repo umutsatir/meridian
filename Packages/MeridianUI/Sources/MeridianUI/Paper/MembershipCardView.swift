@@ -75,6 +75,7 @@ public struct MembershipCardView: View {
     let pose: CGPoint?
     @Binding var flipped: Bool
     @State private var pointer: CGPoint? = nil      // -0.5...0.5
+    @State private var entering = false             // first contact eases in; afterwards the tilt follows the pointer closely
     @State private var localFlip = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -106,7 +107,7 @@ public struct MembershipCardView: View {
                      back: CardBack(tier: tier, locked: locked, info: info, px: px, py: py, over: over))
         }
         .frame(width: 340, height: 214, alignment: .topLeading)
-        .animation(live && over ? .linear(duration: 0.09) : (reduceMotion ? nil : MRMotion.smooth), value: pointer)
+        .animation(live && over && !entering ? .linear(duration: 0.09) : (reduceMotion ? nil : MRMotion.hoverTilt), value: pointer)
         .animation(reduceMotion ? .easeInOut(duration: 0.2) : MRMotion.bouncy, value: isFlipped)
         .scaleEffect(scale, anchor: .topLeading)
         .frame(width: 340 * scale, height: 214 * scale, alignment: .topLeading)
@@ -114,7 +115,13 @@ public struct MembershipCardView: View {
         .onContinuousHover { phase in
             guard live else { return }
             switch phase {
-            case .active(let l): pointer = CGPoint(x: min(0.5, max(-0.5, l.x / (340 * scale) - 0.5)), y: min(0.5, max(-0.5, l.y / (214 * scale) - 0.5)))
+            case .active(let l):
+                if pointer == nil, !reduceMotion {
+                    // first contact: ease towards the pointer pose, then follow it closely
+                    entering = true
+                    Task { @MainActor in try? await Task.sleep(for: .milliseconds(480)); entering = false }
+                }
+                pointer = CGPoint(x: min(0.5, max(-0.5, l.x / (340 * scale) - 0.5)), y: min(0.5, max(-0.5, l.y / (214 * scale) - 0.5)))
             case .ended: pointer = nil
             }
         }

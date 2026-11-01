@@ -213,7 +213,7 @@ private struct SettingsNavItem: View {
         .buttonStyle(.plain)
         .focused($focused)
         .mrFocusRing(focused, cornerRadius: 12, color: p.accent1.color)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .help(pane.title)
         .accessibilityLabel(pane.title)
         .accessibilityAddTraits(isActive ? [.isSelected, .isButton] : .isButton)

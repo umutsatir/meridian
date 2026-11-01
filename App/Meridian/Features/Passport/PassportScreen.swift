@@ -139,7 +139,7 @@ private struct PassportNavStyle: ButtonStyle {
                 .mrGlassControlWash(Circle(), hovering: hovered && isEnabled, pressed: configuration.isPressed, dark: scheme == .dark)
                 .mrFocusRing(isFocused, cornerRadius: 17, offset: 2, color: p.accent1.color)
                 .opacity(isEnabled ? 1 : 0.38)
-                .onHover { hovered = $0 }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
                 .contentShape(Circle())
         }
     }
@@ -182,7 +182,7 @@ private struct PassportChip: View {
         }
         .buttonStyle(.plain)
         .focused($focused)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .animation(MRMotion.ease(MRMotion.d2), value: hovered)
         .accessibilityAddTraits(selected ? .isSelected : [])
         .accessibilityLabel(title)

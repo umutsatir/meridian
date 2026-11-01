@@ -64,7 +64,7 @@ public struct MRButtonStyle: ButtonStyle {
                 .opacity(isEnabled ? 1 : 0.38)
                 .animation(reduceMotion ? nil : MRMotion.ease(MRMotion.d2), value: pressed)
                 .animation(reduceMotion ? nil : MRMotion.ease(MRMotion.d2), value: hover)
-                .onHover { hovered = $0 }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
                 .contentShape(shape)
                 .allowsHitTesting(isEnabled)
         }
@@ -183,7 +183,7 @@ public struct MRRoundButtonStyle: ButtonStyle {
                 .scaleEffect(pressed && !reduceMotion ? 0.94 : 1)
                 .opacity(isEnabled ? 1 : 0.38)
                 .animation(reduceMotion ? nil : MRMotion.ease(MRMotion.d2), value: pressed)
-                .onHover { hovered = $0 }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
                 .contentShape(Circle())
                 .allowsHitTesting(isEnabled)
         }

@@ -116,7 +116,7 @@ struct RitualSeatMap: View {
             cursor = code
             onSeat(code, z); onZone(z)
         }
-        .onHover { inside in if live { hover = inside ? code : (hover == code ? "" : hover) } }
+        .onHover { inside in withAnimation(MRMotion.hover) { if live { hover = inside ? code : (hover == code ? "" : hover) } } }
         .offset(x: Self.xc(r) - Self.SZ / 2, y: Self.cy + Self.lanes[li] - Self.SZ / 2)
         .zIndex(sel ? 5 : 0)
         .accessibilityLabel("Seat \(code), \(type), \(z.label) zone" + (friend.map { ", taken by \($0.name)" } ?? (off ? ", unavailable" : "")) + (sel ? ", selected" : ""))
@@ -298,7 +298,7 @@ private struct ZoneTab: View {
             .animation(MRMotion.ease(MRMotion.d2), value: hovered)
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .accessibilityLabel("\(zone.label) zone, rows \(zone.firstRow) to \(zone.firstRow + 2)")
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
     }

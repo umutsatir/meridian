@@ -130,7 +130,7 @@ private struct HomeItem: View {
             .overlay(alignment: .top) { if !first { p.strokeHair.color.frame(height: 1).padding(.horizontal, 19).offset(y: -1) } }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain).onHover { hovered = $0 }
+        .buttonStyle(.plain).onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
     }
 }
 

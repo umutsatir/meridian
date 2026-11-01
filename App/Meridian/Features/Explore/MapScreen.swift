@@ -173,7 +173,7 @@ struct WorldMapView: View {
         .padding(.horizontal, 10).frame(height: 44)
         .background(hov ? p.fill1.color : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: 12))
-        .onHover { h in hoverSeen = true; hoverRow = h ? i : (hoverRow == i ? nil : hoverRow) }
+        .onHover { h in withAnimation(MRMotion.hover) { hoverSeen = true; hoverRow = h ? i : (hoverRow == i ? nil : hoverRow) } }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(city), \(n) visits")
         .accessibilityAddTraits(.isButton)

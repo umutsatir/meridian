@@ -180,6 +180,11 @@ public enum MRMotion {
     public static let durations: [TimeInterval] = [d1, d2, d3, d4, d5, d6]
 
     /// `--ease: cubic-bezier(.2,0,0,1)`
+    /// Hover enter/leave for state changes (color, lift, scale): soft spring, so nothing snaps when the pointer arrives.
+    public static var hover: Animation { .spring(response: 0.42, dampingFraction: 0.9) }
+    /// Pointer-driven tilt/lift of cards and tickets: the first contact eases in instead of jumping to the pointer pose.
+    public static var hoverTilt: Animation { .spring(response: 0.55, dampingFraction: 0.86) }
+
     public static func ease(_ duration: TimeInterval = d2) -> Animation { .timingCurve(0.2, 0, 0, 1, duration: duration) }
     /// `--ease-accel: cubic-bezier(.3,0,.8,.15)`
     public static func easeAccel(_ duration: TimeInterval = d2) -> Animation { .timingCurve(0.3, 0, 0.8, 0.15, duration: duration) }

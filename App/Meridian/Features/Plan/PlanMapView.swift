@@ -157,7 +157,7 @@ struct PlanMapView: View {
                     .fixedSize().offset(y: -42)
                 }
             }
-            .onHover { hover = $0 ? t.airport.iata : (hover == t.airport.iata ? nil : hover) }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv ? t.airport.iata : (hover == t.airport.iata ? nil : hover) } }
             .onTapGesture { if t.kind != .out { model.plan.select(iata: t.airport.iata) } }
     }
 

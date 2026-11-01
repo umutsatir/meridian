@@ -41,8 +41,9 @@ public struct BoardingPassView: View {
         .frame(width: state == .locked ? 360 * scale : 360, height: state == .locked ? h * scale : h)
         .scaleEffect(state == .locked ? 1 : scale, anchor: .topLeading)
         .frame(width: 360 * scale, height: h * scale, alignment: .topLeading)
-        .animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.82), value: tilt)
-        .animation(reduceMotion ? nil : .spring(response: 0.32, dampingFraction: 0.82), value: lift)
+        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: tilt)
+        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: lift)
+        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: hoverPose)
         .onContinuousHover { phase in
             guard live else { return }
             switch phase {

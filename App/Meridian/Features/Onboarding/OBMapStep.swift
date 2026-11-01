@@ -114,7 +114,7 @@ struct OBMapStep: View {
                 .contentShape(shape)
             }
             .buttonStyle(.plain)
-            .onHover { hovered = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
             .animation(MRMotion.snappy, value: hovered)
             .animation(MRMotion.ease(MRMotion.d2), value: on)
             .accessibilityLabel(Text(tile.name, tableName: "Onboarding"))

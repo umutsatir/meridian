@@ -71,7 +71,7 @@ struct OBAccountStep: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .accessibilityLabel(Text("Sign in with Apple", tableName: "Onboarding"))
     }
 

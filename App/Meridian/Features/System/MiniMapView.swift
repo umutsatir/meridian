@@ -65,7 +65,7 @@ struct MiniMapView: View {
         }
         .shadow(color: drawsShadow ? .black.opacity(0.55) : .clear, radius: 28, y: 24)
         .opacity(opacity)
-        .onHover { if interactive { hovering = $0 } }
+        .onHover { hv in withAnimation(MRMotion.hover) { if interactive { hovering = hv } } }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Mini map. \(info.route). \(info.paused ? "Paused" : info.timeString + " left")")
     }
@@ -249,7 +249,7 @@ struct MiniMapButtonStyle: ButtonStyle {
                 .overlay { if focused { Circle().strokeBorder(MRPalette.dark.accent1.color, lineWidth: 2).padding(-4) } }
                 .animation(MRMotion.ease(MRMotion.d1), value: hovered)
                 .animation(MRMotion.ease(MRMotion.d1), value: configuration.isPressed)
-                .onHover { hovered = $0 }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         }
     }
 }

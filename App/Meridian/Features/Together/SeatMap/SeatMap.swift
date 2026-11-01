@@ -142,7 +142,7 @@ struct SeatMap: View {
         .zIndex(sel ? 5 : 0)
         .animation(.spring(response: MRMotion.snappyParams.response, dampingFraction: MRMotion.snappyParams.damping), value: sel)
         .contentShape(shape)
-        .onHover { inside in if interactive { hover = inside ? code : (hover == code ? nil : hover) } }
+        .onHover { inside in withAnimation(MRMotion.hover) { if interactive { hover = inside ? code : (hover == code ? nil : hover) } } }
         .onTapGesture {
             guard interactive, !off else { return }
             internalSeat = code; internalZone = zoneOf(r).key

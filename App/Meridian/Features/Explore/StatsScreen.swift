@@ -66,7 +66,7 @@ struct ExBarsChart: View {
                     .offset(x: x, y: inH - height - (hv == i ? 2 : 0))
                     .animation(MRMotion.ease(MRMotion.d2), value: hv)
                     .contentShape(Rectangle().inset(by: -4))
-                    .onHover { inside in hover = inside ? i : (hover == i ? nil : hover) }
+                    .onHover { inside in withAnimation(MRMotion.hover) { hover = inside ? i : (hover == i ? nil : hover) } }
                     .accessibilityElement().accessibilityLabel("\(b.xLabel.isEmpty ? "Item \(i + 1)" : b.xLabel): \(ExFmt.hours(b.hours))")
                     if !b.xLabel.isEmpty {
                         let sel = i == series.selected
@@ -149,7 +149,7 @@ struct ExHeatMap: View {
                     .overlay { if hover == i { RoundedRectangle(cornerRadius: 3).stroke(p.text2.color, lineWidth: 1).scaleEffect(1.35) } }
                     .zIndex(hover == i ? 3 : 0)
                     .animation(MRMotion.ease(MRMotion.d2), value: hover)
-                    .onHover { hover = $0 ? i : (hover == i ? nil : hover) }
+                    .onHover { hv in withAnimation(MRMotion.hover) { hover = hv ? i : (hover == i ? nil : hover) } }
                     .help(c.tip)
                     .exAt(28 + CGFloat(c.week) * (cs + gp), 22 + CGFloat(c.day) * (cs + gp))
             }

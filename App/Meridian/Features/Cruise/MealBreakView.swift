@@ -292,7 +292,7 @@ private struct MealChip: View {
                 .overlay(Capsule().strokeBorder(p.strokeHair.color, lineWidth: on ? 0 : 1))
         }
         .buttonStyle(.plain)
-        .onHover { hover = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
     }
 }
 

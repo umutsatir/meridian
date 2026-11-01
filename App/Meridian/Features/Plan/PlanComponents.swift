@@ -110,7 +110,7 @@ private struct DestCard: View {
             .animation(MRMotion.snappy, value: hovered)
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .accessibilityLabel("\(airport.city), \(airport.iata), \(minutes) minutes\(selected ? ", selected" : "")")
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
@@ -229,7 +229,7 @@ struct ScenarioMenu: View {
                 .background(hovered ? p.accent1.color : .clear, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain).onHover { hovered = $0 }
+            .buttonStyle(.plain).onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         }
     }
 }

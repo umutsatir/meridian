@@ -273,7 +273,7 @@ private struct AppTile: View {
         .buttonStyle(.plain)
         .focused($focused)
         .mrFocusRing(focused, cornerRadius: 16, offset: 1, color: p.accent1.color)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .accessibilityLabel("\(name), \(on ? L("blocked") : L("allowed"))")
         .accessibilityAddTraits(.isToggle)
     }

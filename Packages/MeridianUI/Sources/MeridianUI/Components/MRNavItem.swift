@@ -61,7 +61,7 @@ public struct MRNavItem: View {
             .animation(MRMotion.ease(MRMotion.d2), value: hover)
         }
         .buttonStyle(.plain)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .help(title)
         .accessibilityLabel(title)
         .accessibilityAddTraits(isActive ? [.isButton, .isSelected] : .isButton)

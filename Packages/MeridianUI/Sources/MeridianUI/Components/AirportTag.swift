@@ -102,7 +102,7 @@ public struct AirportTag: View {
         .scaleEffect(isSelected ? 1.15 : 1)
         .animation(MRMotion.snappy, value: isSelected)
         .animation(MRMotion.snappy, value: hover)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Self.spokenLabel(code: code, city: city, minutes: minutes))
         .accessibilityAddTraits(isSelected ? .isSelected : [])

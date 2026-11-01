@@ -287,7 +287,7 @@ private struct StampSlot: View {
             .frame(width: s.size, height: s.h)
             .scaleEffect(hover && !reduceMotion ? 1.04 : 1)
             .animation(MRMotion.snappy, value: hover)
-            .onHover { hover = $0 }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
             .help(s.tip)
             .offset(x: s.x, y: s.y)
     }

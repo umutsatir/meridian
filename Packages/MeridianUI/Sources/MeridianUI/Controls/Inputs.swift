@@ -58,7 +58,7 @@ public struct MRSegmented<Value: Hashable>: View {
                 }
                 .buttonStyle(.plain)
                 .focused($focused, equals: opt.value)
-                .onHover { hovered = $0 ? opt.value : (hovered == opt.value ? nil : hovered) }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv ? opt.value : (hovered == opt.value ? nil : hovered) } }
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }
@@ -110,7 +110,7 @@ public struct MRToggleStyle: ToggleStyle {
                     .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
-                .onHover { hovered = $0 }
+                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
                 .animation(MRMotion.snappy, value: on)
                 .animation(MRMotion.ease(MRMotion.d2), value: hovered)
                 .opacity(isEnabled ? 1 : 0.38)
@@ -166,7 +166,7 @@ public struct MRSlider: View {
         .focusable(isEnabled)
         .focused($focusedState)
         .focusEffectDisabled()
-        .onHover { hoveredState = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hoveredState = hv } }
         .animation(MRMotion.ease(MRMotion.d1), value: hovered)
         .onMoveCommand { dir in
             let k = step * 1
@@ -234,7 +234,7 @@ public struct MRField: View {
         .background(isError ? Color(red: 1, green: 107 / 255, blue: 107 / 255, opacity: 0.08) : (focused || hovered || pinnedHover) ? p.fill2.color : p.fill1.color, in: shape)
         .overlay(shape.strokeBorder(isError ? Color(red: 1, green: 107 / 255, blue: 107 / 255, opacity: 0.7) : p.strokeHair.color, lineWidth: 1))
         .mrFocusRing(focused, cornerRadius: 12, color: p.accent1.color)
-        .onHover { hoveredState = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hoveredState = hv } }
         .opacity(isEnabled ? 1 : 0.4)
         .animation(MRMotion.ease(MRMotion.d2), value: focused)
     }

@@ -26,7 +26,7 @@ struct SettingsOption<Content: View>: View {
         .buttonStyle(.plain)
         .focused($focused)
         .mrFocusRing(focused, cornerRadius: 18, color: p.accent1.color)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .animation(MRMotion.ease(MRMotion.d2), value: hovered)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
@@ -175,7 +175,7 @@ private struct AccentSwatch: View {
         .buttonStyle(.plain)
         .focused($focused)
         .mrFocusRing(focused, cornerRadius: 17, offset: 3, color: p.accent1.color)
-        .onHover { hovered = $0 }
+        .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv } }
         .animation(MRMotion.snappy, value: hovered)
         .accessibilityLabel(choice.title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
