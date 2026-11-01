@@ -24,6 +24,8 @@ struct WorldMapView: View {
     var live = true
     /// Debug/screenshot routes: start zoomed (about the middle of the map) so zoom states can be rendered and compared.
     var initialZoom: Double = 1
+    /// Map engine of the globe / flat map. `nil`: the Settings choice in the real app, Illustrated in the design-comparison routes.
+    var engine: MapEngine?
 
     @State private var mode: ExMapMode?
     @State private var by: ExMapBy?
@@ -39,6 +41,13 @@ struct WorldMapView: View {
     @State private var mapHover: CGPoint?
     @State private var rotation: CGSize = .zero
     @State private var seededZoom = false
+    @State private var homeNonce = 0
+    @AppStorage(MapEngine.defaultsKey) private var engineRaw = 0
+
+    private var usesApple: Bool {
+        let _ = engineRaw
+        return (engine ?? (live ? MapEngine.current : .illustrated)) == .appleMaps && !MapHealth.shared.failed
+    }
 
     /// Zoom-1 layout of the map in the canvas (`WorldMap.dc.html`): the globe frame and the flat world rectangle.
     private static let globeFrame = CGRect(x: 90, y: -50, width: 900, height: 900)
@@ -62,8 +71,14 @@ struct WorldMapView: View {
             map.sea.color
             ExGlow(rx: 0.7, ry: 0.7, cx: 0.45, cy: 0.5, color: Color(.sRGB, red: 70 / 255, green: 92 / 255, blue: 190 / 255, opacity: scheme == .dark ? 0.22 : 0.12)).frame(maxWidth: .infinity, maxHeight: .infinity)
             Color.clear.overlay(alignment: .topLeading) {
+                if usesApple {
+                    ExAppleWorld(mode: mode, scale: zoom.scale, viewportHeight: viewport.height, routes: routes, pins: pins, marks: zoom.markScale,
+                                 labelBudget: zoom.labelBudget(total: pins.count), homeNonce: homeNonce)
+                        .frame(width: viewport.width, height: viewport.height)
+                } else {
                 ExZoomLayer(scale: zoom.scale, ox: zoom.offset.x, oy: zoom.offset.y, mode: mode, routes: routes, pins: pins, visited: showVisited,
                             isDraggable: live, rotation: $rotation, globeFrame: Self.globeFrame, flatFrame: Self.flatFrame)
+                }
             }
             .contentShape(Rectangle())
             .onContinuousHover { phase in
@@ -142,6 +157,7 @@ struct WorldMapView: View {
 
     private func setZoom(_ m: MapZoomModel, mode: ExMapMode, animated: Bool) {
         let next = limited(m, mode: mode)
+        if m.isDefault && !zoom.isDefault { homeNonce += 1 }
         if animated && !reduceMotion { withAnimation(MRMotion.smooth) { zoom = next } } else { zoom = next }
     }
 
@@ -168,7 +184,8 @@ struct WorldMapView: View {
     /// Mouse wheel and Option/Control + scroll zoom about the pointer. Plain two-finger trackpad scroll turns the globe
     /// (flat: pans). Returns whether the event was used.
     private func handleScroll(_ e: MapScrollEvent, mode: ExMapMode) -> Bool {
-        guard mapHover != nil else { return false }   // pointer over a panel: let it be
+        guard mapHover != nil else { return false }
+        if usesApple && !(e.zoomModifier || !e.precise) { return false }   // Apple Maps pans / turns itself   // pointer over a panel: let it be
         if e.zoomModifier || !e.precise {
             let dy = abs(e.dy) >= abs(e.dx) ? e.dy : e.dx
             guard dy != 0 else { return true }

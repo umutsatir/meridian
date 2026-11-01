@@ -1,3 +1,4 @@
+import MeridianMaps
 import SwiftUI
 
 /// Debug routes of the Explore screens (Map, Stats, Year in flight). They draw the canvas' sample persona
@@ -27,6 +28,15 @@ enum ExploreRoutes {
         }
         reg.register("world-flat-zoom3", setup: { $0.section = .map }) {
             frame(rail: true) { WorldMapView(data: .design, initialMode: .flat, initialBy: .scenario, live: false, initialZoom: 3) }
+        }
+        reg.register("world-globe-apple", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, live: false, engine: .appleMaps) }
+        }
+        reg.register("world-globe-apple-zoom3", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, live: false, initialZoom: 3, engine: .appleMaps) }
+        }
+        reg.register("world-flat-apple", setup: { $0.section = .map }) {
+            frame(rail: true) { WorldMapView(data: .design, initialMode: .flat, live: false, engine: .appleMaps) }
         }
         reg.register("stats", setup: { $0.section = .stats }) { frame(rail: false) { StatsView(data: .design) } }
         reg.register("stats-hover", setup: { $0.section = .stats }) { frame(rail: false) { StatsView(data: .design, initialHover: 2) } }
