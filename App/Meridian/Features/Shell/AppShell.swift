@@ -21,7 +21,7 @@ struct AppShell: View {
 
     var body: some View {
         GeometryReader { geo in
-            let rail = geo.size.width < 1000
+            let rail = geo.size.width < 1000 || model.section == .map
             let showsSidebar = !(model.section == .fly)
             let inset: CGFloat = showsSidebar ? (rail ? 72 : 236) : 0
             ZStack(alignment: .topLeading) {
@@ -29,7 +29,9 @@ struct AppShell: View {
                     switch model.section {
                     case .fly:
                         if model.activeFlight != nil { InFlightView() } else { PlanScreen() }
-                    case .wallet, .cards, .passport, .map, .stats, .together:
+                    case .map: WorldMapView()
+                    case .stats: StatsView()
+                    case .wallet, .cards, .passport, .together:
                         ComingSoonView(section: model.section)
                     }
                 }
