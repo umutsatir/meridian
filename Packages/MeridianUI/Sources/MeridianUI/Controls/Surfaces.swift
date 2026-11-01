@@ -107,7 +107,7 @@ private struct MRGlassSurface<S: InsettableShape>: ViewModifier {
                         shape.fill(p.bg2.color)
                     } else {
                         // backdrop-filter: blur(40px) saturate(1.6) — SwiftUI materials stand in for the configurable blur.
-                        shape.fill(.ultraThinMaterial)
+                        MRBackdrop().clipShape(shape)
                         shape.fill(p.glassTint.color)
                         shape.fill(LinearGradient(
                             stops: [.init(color: p.glassSpec.color, location: 0), .init(color: MRGlass.specMid.color, location: MRGlass.specMidAt), .init(color: MRGlass.specEnd.color, location: 1)],

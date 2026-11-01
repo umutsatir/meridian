@@ -87,6 +87,8 @@ enum ScreenRegistry {
         #if DEBUG
         registerDebugFlow()
         #endif
+        register("ui-kit") { UIKitScreen() }
+        for i in 0..<4 { register("ui-kit-\(i)") { UIKitScreen(slice: i) } }
     }
 }
 

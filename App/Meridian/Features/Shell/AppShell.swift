@@ -126,9 +126,22 @@ struct WindowStyler: NSViewRepresentable {
         /// Close / minimise / zoom: horizontal position of the canvas dots (x = 20, 20 pt pitch).
         private func place(_ w: NSWindow) {
             let kinds: [NSWindow.ButtonType] = [.closeButton, .miniaturizeButton, .zoomButton]
+            // Canvas `.tl{left:20px;top:18px}` with 12 pt dots: centre 24 pt from the top. The system title bar is only
+            // ~28 pt tall, so grow it to 48 pt (top aligned) and centre the dots at y = 24 inside it.
+            if let titlebar = w.standardWindowButton(.closeButton)?.superview, let container = titlebar.superview, !w.styleMask.contains(.fullScreen) {
+                var cf = container.frame
+                cf.size.height = 48
+                cf.origin.y = w.frame.height - 48
+                container.frame = cf
+                var tf = titlebar.frame
+                tf.size.height = 48
+                tf.origin.y = 0
+                titlebar.frame = tf
+            }
             for (i, k) in kinds.enumerated() {
-                guard let b = w.standardWindowButton(k) else { continue }
+                guard let b = w.standardWindowButton(k), let host = b.superview else { continue }
                 var f = b.frame
+                f.origin.y = host.bounds.height - 24 - f.height / 2
                 f.origin.x = 20 + CGFloat(i) * 20 - (f.width - 12) / 2
                 b.setFrameOrigin(f.origin)
             }

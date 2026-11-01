@@ -47,7 +47,7 @@ struct SidebarView: View {
             Spacer(minLength: 0)
             footer(p)
         }
-        .padding(.top, 53).padding(.bottom, 10).padding(.horizontal, isRail ? 7 : 10)
+        .padding(.top, 53).padding(.bottom, 11).padding(.horizontal, isRail ? 7 : 10)
         .frame(width: width)
         .frame(maxHeight: .infinity)
         .mrGlass(cornerRadius: MRRadius.sidebar, elevation: .e3)
@@ -56,7 +56,7 @@ struct SidebarView: View {
 
     @ViewBuilder private func label(_ t: String) -> some View {
         if !isRail {
-            Text(t).mrEyebrow().padding(.horizontal, 10).padding(.top, 14).padding(.bottom, 6).frame(maxWidth: .infinity, alignment: .leading)
+            Text(t).mrText(.eyebrow).foregroundStyle(MRPalette.resolve(scheme).text3.color).lineLimit(1).frame(height: 14, alignment: .center).padding(.horizontal, 10).padding(.top, 14).padding(.bottom, 6).frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

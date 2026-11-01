@@ -279,14 +279,14 @@ public struct MRToast: View {
                 .frame(width: 34, height: 34)
                 .background(Circle().fill(t.opacity(0.16)))
             VStack(alignment: .leading, spacing: 0) {
-                Text(title).font(.mr(.ui, size: 14, weight: 600)).lineSpacing(0)
+                Text(title).font(.mr(.ui, size: 14, weight: 600)).lineSpacing(0).frame(height: 18)
                 if let message {
-                    Text(message).font(.mr(.ui, size: 12, weight: 400)).foregroundStyle(p.text2.color)
+                    Text(message).font(.mr(.ui, size: 13, weight: 400)).foregroundStyle(p.text2.color).frame(height: 18)
                 }
             }
             .foregroundStyle(p.text1.color)
         }
-        .padding(.leading, 14).padding(.trailing, 16).padding(.vertical, 12)
+        .padding(.leading, 14).padding(.trailing, 16).padding(.vertical, 12).padding(1)
         .mrGlass(cornerRadius: 18, elevation: .e3)
     }
 }

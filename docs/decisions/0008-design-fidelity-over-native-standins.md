@@ -20,3 +20,7 @@ The first Plan screen used MapKit, system fonts and a plain slider. The owner re
 - Every screen is verified by rendering the canvas artboard and the running app at the same size and comparing them (`Scripts/design-ref.sh`, `Scripts/compare.py`).
 - More custom drawing code and bundled font files; fewer system-native behaviors for free (Dynamic Type, system map labels). Accessibility labels and Reduce Motion/Transparency still apply.
 - Disputed-name labels (PRD §10.6) become the app's responsibility because the labels are drawn by us.
+
+## Update: private backdrop filter
+
+`MeridianUI/Controls/Backdrop.swift` reproduces the canvas `backdrop-filter: blur(40px) saturate(1.6)` with a Core Animation backdrop layer found by class name (private API). It falls back to `NSVisualEffectView` when unavailable. Mac App Store builds must define the Swift condition `MR_APP_STORE` to compile the private path out (the glass then looks slightly different). Direct distribution keeps the exact look. Decide per distribution channel (PRD Q13) before the first submission.

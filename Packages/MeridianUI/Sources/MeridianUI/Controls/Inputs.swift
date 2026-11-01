@@ -21,8 +21,11 @@ public struct MRSegmented<Value: Hashable>: View {
     @State private var hovered: Value?
     @FocusState private var focused: Value?
 
-    public init(selection: Binding<Value>, options: [Option], pinnedHover: Value? = nil) {
-        self._selection = selection; self.options = options; self.pinnedHover = pinnedHover
+    private let fill: Bool
+
+    /// `fill`: items share the track width (`flex:1` on each, as in the C12 popover).
+    public init(selection: Binding<Value>, options: [Option], pinnedHover: Value? = nil, fill: Bool = false) {
+        self._selection = selection; self.options = options; self.pinnedHover = pinnedHover; self.fill = fill
     }
 
     public var body: some View {
@@ -41,6 +44,7 @@ public struct MRSegmented<Value: Hashable>: View {
                     }
                     .foregroundStyle(on || hover ? p.text1.color : p.text2.color)
                     .padding(.horizontal, 14)
+                    .frame(maxWidth: fill ? .infinity : nil)
                     .frame(height: 28)
                     .background {
                         if on {
@@ -82,12 +86,14 @@ public struct MRToggleStyle: ToggleStyle {
         let pinnedHover: Bool
         @Environment(\.colorScheme) private var scheme
         @Environment(\.isEnabled) private var isEnabled
-        @Environment(\.isFocused) private var isFocused
+        @Environment(\.isFocused) private var isFocusedEnv
+        @Environment(\.mrForcedState) private var forced
         @State private var hovered = false
 
         var body: some View {
             let p = MRPalette.resolve(scheme)
             let on = configuration.isOn
+            let isFocused = isFocusedEnv || forced == .focus
             HStack {
                 configuration.label
                 Button { configuration.isOn.toggle() } label: {
@@ -99,7 +105,7 @@ public struct MRToggleStyle: ToggleStyle {
                             .offset(x: on ? 18 : 0)
                     }
                     .frame(width: 44, height: 26)
-                    .brightness(hovered || pinnedHover ? 0.05 : 0) // filter: brightness(1.12)
+                    .brightness(hovered || pinnedHover || forced == .hover ? 0.05 : 0) // filter: brightness(1.12)
                     .mrFocusRing(isFocused, cornerRadius: 13, color: p.accent1.color)
                     .contentShape(Capsule())
                 }
@@ -123,8 +129,11 @@ public struct MRSlider: View {
     private let step: Double
     @Environment(\.colorScheme) private var scheme
     @Environment(\.isEnabled) private var isEnabled
-    @FocusState private var focused: Bool
-    @State private var hovered = false
+    @FocusState private var focusedState: Bool
+    @Environment(\.mrForcedState) private var forced
+    @State private var hoveredState = false
+    private var focused: Bool { focusedState || forced == .focus }
+    private var hovered: Bool { hoveredState || forced == .hover }
 
     public init(value: Binding<Double>, in range: ClosedRange<Double> = 0...1, step: Double = 0.01) {
         self._value = value; self.range = range; self.step = step
@@ -150,14 +159,14 @@ public struct MRSlider: View {
             .gesture(DragGesture(minimumDistance: 0).onChanged { g in
                 let f = min(1, max(0, g.location.x / max(1, w)))
                 set(range.lowerBound + f * (range.upperBound - range.lowerBound))
-                focused = true
+                focusedState = true
             })
         }
         .frame(height: 16)
         .focusable(isEnabled)
-        .focused($focused)
+        .focused($focusedState)
         .focusEffectDisabled()
-        .onHover { hovered = $0 }
+        .onHover { hoveredState = $0 }
         .animation(MRMotion.ease(MRMotion.d1), value: hovered)
         .onMoveCommand { dir in
             let k = step * 1
@@ -195,30 +204,37 @@ public struct MRField: View {
     private let pinnedHover: Bool
     @Environment(\.colorScheme) private var scheme
     @Environment(\.isEnabled) private var isEnabled
-    @FocusState private var focused: Bool
-    @State private var hovered = false
+    @FocusState private var focusedState: Bool
+    @Environment(\.mrForcedState) private var forced
+    @State private var hoveredState = false
+    private var focused: Bool { focusedState || forced == .focus }
+    private var hovered: Bool { hoveredState || forced == .hover }
 
-    public init(_ placeholder: String, text: Binding<String>, icon: MRIconName? = nil, pinnedHover: Bool = false) {
-        self.placeholder = placeholder; self._text = text; self.icon = icon; self.pinnedHover = pinnedHover
+    private let isError: Bool
+
+    private let iconSize: CGFloat
+
+    public init(_ placeholder: String, text: Binding<String>, icon: MRIconName? = nil, iconSize: CGFloat = 16, pinnedHover: Bool = false, isError: Bool = false) {
+        self.placeholder = placeholder; self._text = text; self.icon = icon; self.pinnedHover = pinnedHover; self.isError = isError; self.iconSize = iconSize
     }
 
     public var body: some View {
         let p = MRPalette.resolve(scheme)
         let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
         HStack(spacing: 8) {
-            if let icon { MRIcon(icon, size: 16).foregroundStyle(p.text3.color) }
+            if let icon { MRIcon(icon, size: iconSize).foregroundStyle(p.text3.color) }
             TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(p.text3.color))
                 .textFieldStyle(.plain)
                 .font(.mr(.ui, size: 14, weight: 400))
                 .foregroundStyle(p.text1.color)
-                .focused($focused)
+                .focused($focusedState)
         }
         .padding(.horizontal, 12)
         .frame(height: 36)
-        .background((focused || hovered || pinnedHover) ? p.fill2.color : p.fill1.color, in: shape)
-        .overlay(shape.strokeBorder(p.strokeHair.color, lineWidth: 1))
+        .background(isError ? Color(red: 1, green: 107 / 255, blue: 107 / 255, opacity: 0.08) : (focused || hovered || pinnedHover) ? p.fill2.color : p.fill1.color, in: shape)
+        .overlay(shape.strokeBorder(isError ? Color(red: 1, green: 107 / 255, blue: 107 / 255, opacity: 0.7) : p.strokeHair.color, lineWidth: 1))
         .mrFocusRing(focused, cornerRadius: 12, color: p.accent1.color)
-        .onHover { hovered = $0 }
+        .onHover { hoveredState = $0 }
         .opacity(isEnabled ? 1 : 0.4)
         .animation(MRMotion.ease(MRMotion.d2), value: focused)
     }
