@@ -22,13 +22,13 @@ struct AppShell: View {
     var body: some View {
         GeometryReader { geo in
             let rail = geo.size.width < 1000 || model.section == .map
-            let showsSidebar = !(model.section == .fly) && !model.sidebarHidden
+            let showsSidebar = (!(model.section == .fly) || (model.landingPresented && model.activeFlight == nil)) && !model.sidebarHidden
             let inset: CGFloat = showsSidebar ? (rail ? 72 : 236) : 0
             ZStack(alignment: .topLeading) {
                 Group {
                     switch model.section {
                     case .fly:
-                        if model.activeFlight != nil { InFlightView() } else { PlanScreen() }
+                        FlySectionView()
                     case .together where TogetherAvailability.isEnabled:
                         TogetherRoot()
                     case .wallet:
