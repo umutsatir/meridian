@@ -24,3 +24,7 @@ The first Plan screen used MapKit, system fonts and a plain slider. The owner re
 ## Update: private backdrop filter
 
 `MeridianUI/Controls/Backdrop.swift` reproduces the canvas `backdrop-filter: blur(40px) saturate(1.6)` with a Core Animation backdrop layer found by class name (private API). It falls back to `NSVisualEffectView` when unavailable. Mac App Store builds must define the Swift condition `MR_APP_STORE` to compile the private path out (the glass then looks slightly different). Direct distribution keeps the exact look. Decide per distribution channel (PRD Q13) before the first submission.
+
+## Update 2026-11-01: maps use MapKit (owner instruction)
+
+The owner reversed point 3: **all map surfaces use MapKit** (flight selection, Home globe, cruise, mini map, previews), with Satellite as real MapKit imagery. The four styles are mapped to MapKit: Terra = dark muted standard, Mono = desaturated muted standard, Standard = standard, Satellite = `.imagery` / `.hybrid` (realistic elevation). The canvas-drawn maps (`MeridianMaps` `EuropeMapView`/`GlobeView`) stay as the optional "Illustrated" engine (Settings > Maps) and for design comparisons. Consequences: map labels and disputed names are controlled by Apple (PRD §10.6 / Q5 becomes a known limitation); maps need a network connection (fallback: Illustrated engine); Satellite is a Pro feature in the PRD and is unlocked for now through `MapStyleAccess.satelliteUnlockedForNow`.
