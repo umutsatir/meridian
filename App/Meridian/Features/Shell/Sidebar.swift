@@ -1,4 +1,5 @@
 import MeridianCore
+import MeridianData
 import MeridianUI
 import SwiftUI
 
@@ -13,6 +14,9 @@ struct SidebarView: View {
     var km: Double?
     /// "+1" on the Tickets row while the ritual's stub lands in the wallet (Features/Ritual).
     var ticketsBadge: String?
+    /// Ring pulse (`sb-ring-pulse`); also on while the landing ticket arrives.
+    var ringPulse = false
+    @State private var pulse = false
 
     private struct Item: Identifiable {
         let id: AppSection, title: String, icon: MRIconName, shortcut: String?, sub: Bool
@@ -32,7 +36,7 @@ struct SidebarView: View {
             label("Fly")
             row(.fly, "Plan", .plane, "⌘1")
             label("Wallet")
-            row(.wallet, "Tickets", .ticket, "⌘2", badge: ticketsBadge)
+            row(.wallet, "Tickets", .ticket, "⌘2", badge: ticketsBadge ?? (model.landingFly > 0.96 ? "+1" : nil))
                 .background(GeometryReader { g in Color.clear.preference(key: SidebarTicketsFrameKey.self, value: g.frame(in: .named("ritual"))) })
             row(.cards, "Cards", .card, nil, sub: true)
             row(.passport, "Passport", .passport, nil, sub: true)
@@ -63,7 +67,11 @@ struct SidebarView: View {
     }
 
     private func footer(_ p: MRPalette) -> some View {
-        let shownKm = km ?? model.totalKm
+        let landed = model.landingPresented ? (model.latestLanding?.creditedKm ?? 0) : 0
+        // the landing flight's km are counted as the ticket arrives (canvas: 12022 + km * e)
+        let e = model.landingFly * model.landingFly * (3 - 2 * model.landingFly)
+        let shownKm = km ?? (model.landingPresented ? model.totalKm - landed * (1 - e) : model.totalKm)
+        let pulsing = ringPulse || model.landingFly > 0.9
         let frac = min(1, shownKm / 20000)
         return HStack(spacing: 10) {
             ZStack {
@@ -75,6 +83,15 @@ struct SidebarView: View {
                 MRAvatar(String(profileName.prefix(1)), tint: MRScenarioColor.create.color, size: .sm)
             }
             .frame(width: 34, height: 34)
+            .background(
+                Circle().fill(.clear)
+                    .shadow(color: MRColorToken("#6AB7FF").color.opacity(pulsing && pulse ? 0.22 : 0), radius: 0, x: 0, y: 0)
+                    .overlay(Circle().stroke(MRColorToken("#6AB7FF").color.opacity(pulsing && pulse ? 0.22 : 0), lineWidth: 7).padding(-7 / 2 - 0.0))
+                    .shadow(color: MRColorToken("#8BF3D8").color.opacity(pulsing && pulse ? 0.55 : 0), radius: 9)
+            )
+            .animation(pulsing ? .easeInOut(duration: 1.1).repeatForever(autoreverses: true) : .default, value: pulse)
+            .onChange(of: pulsing) { _, on in pulse = on }
+            .onAppear { pulse = pulsing }
             .accessibilityLabel("\(Int(shownKm)) kilometres flown")
             if !isRail {
                 VStack(alignment: .leading, spacing: 0) {

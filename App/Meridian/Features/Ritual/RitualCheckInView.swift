@@ -104,6 +104,13 @@ struct RitualCheckInView: View {
             .frame(width: 226)
             .offset(x: 1030, y: 668)
 
+            // window seats (A, F) show the view they give (C06 "Window preview"), matched to the time of departure
+            if type == "Window" {
+                WindowSeatPreview(scene: Self.scene(forBoarding: info.boardingTime), palette: p)
+                    .offset(x: 1030 + 226 - 76, y: 436)
+                    .transition(.opacity)
+            }
+
             if let code = flyCode { SeatFlyer(code: code, progress: flyProgress, palette: p).allowsHitTesting(false) }
 
             // hidden actions: Quick start (⌘⏎) and Escape
@@ -111,6 +118,17 @@ struct RitualCheckInView: View {
             Button("Cancel", action: onCancel).keyboardShortcut(.cancelAction).opacity(0).frame(width: 0, height: 0).accessibilityHidden(true)
         }
         .frame(width: 1280, height: 800, alignment: .topLeading)
+    }
+
+    /// The window scene for the departure clock ("HH:mm"): day, sunset, blue hour or night.
+    static func scene(forBoarding time: String) -> String {
+        let h = Int(time.prefix(2)) ?? 12
+        switch h {
+        case 6..<17: return "day"
+        case 17..<19: return "sunset"
+        case 19..<21: return "blue"
+        default: return "night"
+        }
     }
 
     // MARK: pieces
@@ -271,4 +289,29 @@ private struct LegendHatch: View {
 private struct PinnedHover: ViewModifier {
     let on: Bool
     func body(content: Content) -> some View { content.brightness(on ? 0.06 : 0) }
+}
+
+
+/// The oval window preview of the seat step: `WindowView` (200 x 250 in the canvas) drawn at 0.38 with a caption.
+private struct WindowSeatPreview: View {
+    let scene: String
+    let palette: MRPalette
+    @State private var ui = CruiseUI()
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            Text("Window view").font(.mr(.mono, size: 10, weight: 500)).foregroundStyle(palette.text3.color)
+            CruiseWindowView(frame: .demo(p: 0.45), ui: ui, size: CGSize(width: 200, height: 250))
+                .frame(width: 200, height: 250)
+                .scaleEffect(0.38, anchor: .topLeading)
+                .frame(width: 76, height: 95, alignment: .topLeading)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .allowsHitTesting(false)
+        }
+        .fixedSize()
+        .frame(width: 76, alignment: .trailing)
+        .onAppear { ui.scene = scene }
+        .onChange(of: scene) { _, v in ui.scene = v }
+        .accessibilityLabel("Window view, \(scene)")
+    }
 }

@@ -11,6 +11,9 @@ struct TakeoffView: View {
     /// Frozen time in ms (artboards) or nil to run live.
     var frozenT: Double?
     var reduce = false
+    /// Dusk / night variant (`tod: "dusk"` of `Takeoff.dc.html`): sepia-dark imagery, warm tint, runway edge lights.
+    /// Live take-offs use it between 18:00 and 06:00 local time.
+    var dusk: Bool = TakeoffView.isDuskNow()
     var onDone: () -> Void = {}
 
     @State private var t0 = Date()
@@ -34,6 +37,11 @@ struct TakeoffView: View {
         .onAppear { t0 = Date(); MRSound.shared.play(.chime(.board)) }
         .onKeyPress(.escape) { finish(); return .handled }
         .focusable().focusEffectDisabled()
+    }
+
+    static func isDuskNow(_ date: Date = .now) -> Bool {
+        let h = Calendar.current.component(.hour, from: date)
+        return h >= 18 || h < 6
     }
 
     private func finish() { guard !finished else { return }; finished = true; onDone() }
@@ -65,7 +73,7 @@ struct TakeoffView: View {
             ZStack(alignment: .topLeading) {
                 Color(.sRGB, red: 6 / 255, green: 8 / 255, blue: 13 / 255)
                 if cine {
-                    TakeoffScene(s: s, camY: camY, camX: 0, dist: dist, sec: sec, h: h, ru: ru, lu: lu, shake: shake, fade: fade, size: geo.size)
+                    TakeoffScene(dusk: dusk, s: s, camY: camY, camX: 0, dist: dist, sec: sec, h: h, ru: ru, lu: lu, shake: shake, fade: fade, size: geo.size)
                     // HUD
                     HStack(spacing: 16) {
                         hud("SPD", "\(kt)", "kt"); hud("ALT", "\(ft)", "ft"); hudRwy
@@ -137,6 +145,7 @@ private struct TakeoffImages {
 
 /// The chase camera drawing: satellite layers, the airport in metres, shadow and plane. All numbers from `Takeoff.dc.html`.
 private struct TakeoffScene: View {
+    let dusk: Bool
     let s: Double, camY: Double, camX: Double
     let dist: Double, sec: Double, h: Double, ru: Double, lu: Double, shake: Double, fade: Double
     let size: CGSize
@@ -158,10 +167,12 @@ private struct TakeoffScene: View {
                 ctx.translateBy(x: -vx * s, y: -vy * s)
                 ctx.scaleBy(x: s, y: s)
                 TakeoffAirport.draw(&ctx, scale: s)
+                if dusk { TakeoffAirport.drawLights(&ctx) }
             }
             .opacity(1)
             grain(opacity: 0.42 * cl(s / 1.6, 0.25, 1) * fade)
-            LinearGradient(colors: [cruiseRGBA(255, 250, 235, 0.06), cruiseRGBA(10, 20, 40, 0.12)], startPoint: .top, endPoint: .bottom).allowsHitTesting(false)
+            LinearGradient(colors: dusk ? [cruiseRGBA(255, 130, 70, 0.18), cruiseRGBA(40, 20, 70, 0.32)] : [cruiseRGBA(255, 250, 235, 0.06), cruiseRGBA(10, 20, 40, 0.12)],
+                           startPoint: .top, endPoint: .bottom).allowsHitTesting(false)
             // plane shadow, then plane
             PlaneMarker(size: pS, heading: 0, lights: false, shadow: false)
                 .colorMultiply(.black)
@@ -194,7 +205,8 @@ private struct TakeoffScene: View {
                 var y = y0
                 while y < sz.height { var x = x0; while x < sz.width { ctx.draw(resolved, in: CGRect(x: x, y: y, width: tile + 0.5, height: tile + 0.5)); x += tile }; y += tile }
             }
-            .saturation(1.02).blur(radius: blur).opacity(opacity)
+            .modifier(DuskTone(dusk: dusk))
+            .blur(radius: blur).opacity(opacity)
         }
     }
 
@@ -207,6 +219,20 @@ private struct TakeoffScene: View {
                 while y < sz.height { var x = 0.0; while x < sz.width { ctx.draw(r, in: CGRect(x: x, y: y, width: 256, height: 256)); x += 256 }; y += 256 }
             }
             .blendMode(.overlay).opacity(opacity).allowsHitTesting(false)
+        }
+    }
+}
+
+/// `filter: saturate(1.02)` by day; at dusk `sepia(.45) saturate(1.25) brightness(.72) hue-rotate(-10deg)`.
+private struct DuskTone: ViewModifier {
+    let dusk: Bool
+    func body(content: Content) -> some View {
+        if dusk {
+            content
+                .colorMultiply(Color(.sRGB, red: 1, green: 0.9, blue: 0.76))   // sepia .45
+                .saturation(1.25).brightness(-0.2).hueRotation(.degrees(-10))
+        } else {
+            content.saturation(1.02)
         }
     }
 }
@@ -247,6 +273,21 @@ private enum TakeoffAirport {
         }
         return p
     }()
+
+    /// Runway edge lights at dusk: a warm glow every 60 m on both edges (`lights` of `Takeoff.dc.html`).
+    static func drawLights(_ ctx: inout GraphicsContext) {
+        let glow = Gradient(stops: [.init(color: cruiseRGBA(0xFF, 0xF2, 0xCF), location: 0), .init(color: cruiseRGBA(0xFF, 0xD9, 0x8A, 0.8), location: 0.4),
+                                    .init(color: cruiseRGBA(0xFF, 0xB5, 0x47, 0), location: 1)])
+        var y = 40.0
+        while y > -1700 {
+            for x in [-23.4, 23.4] {
+                let r = 2.6
+                ctx.fill(Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)),
+                         with: .radialGradient(glow, center: CGPoint(x: x, y: y), startRadius: 0, endRadius: r))
+            }
+            y -= 60
+        }
+    }
 
     static func draw(_ ctx: inout GraphicsContext, scale s: Double) {
         // grass strips with the horizontal fade, pattern 400 x 40 of two 20 m bars

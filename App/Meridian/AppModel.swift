@@ -57,6 +57,9 @@ final class AppModel {
     var takeoffPlaying = false
     /// The landing summary screen (S22) is showing in the Fly section.
     var landingPresented = false
+    /// 0...1 progress of the landing ticket's flight into the wallet (S23). The sidebar reads it for the "+1" badge,
+    /// the miles counter and the ring pulse.
+    var landingFly: Double = 0
     private(set) var lastLanded: Flight?
     let index: AirportIndex
 
@@ -232,8 +235,20 @@ final class AppModel {
         // An idempotent repeat returns an empty summary; keep the richer one.
         if latestLanding?.flight.id != summary.flight.id || !summary.unlockedTiers.isEmpty || summary.newStampCountry != nil {
             latestLanding = summary
+            presentUnlocks(summary)
         }
         refreshCollections()
+    }
+
+    /// New membership tiers of a landing (`MembershipTier.unlocked(from:to:)`, computed by the store) open the card moment (S33),
+    /// shortly after the landing summary has shown.
+    private func presentUnlocks(_ summary: LandingSummary) {
+        let tiers = summary.unlockedTiers
+        guard !tiers.isEmpty else { return }
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(1600))
+            CardUnlockPresenter.shared.present(tiers: tiers)
+        }
     }
 
     // MARK: Resume (launch and wake)
@@ -265,6 +280,7 @@ final class AppModel {
             lastLanded = summary.flight
             if activeFlight?.id == summary.flight.id { activeFlight = nil }
             latestLanding = summary
+            presentUnlocks(summary)
             landingPresented = true
             if let banner = ResumeBanner.select(flight: summary.flight, cause: cause, lastActiveAt: lastActiveAt, now: now,
                                                 destinationCity: airport(summary.flight.destinationIata)?.city) {

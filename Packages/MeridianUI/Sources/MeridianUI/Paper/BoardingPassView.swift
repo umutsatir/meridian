@@ -378,7 +378,7 @@ struct PassFrontContent: View {
     // MARK: stamps
     @ViewBuilder private var stamps: some View {
         if state == .landed {
-            InkStampBox(title: "Landed", subtitle: "\(model.destinationCity) · \(model.landTime)", color: PaperInk.stampOK, seed: 5)
+            LandedInkStamp(title: "Landed", subtitle: "\(model.destinationCity) · \(model.landTime)")
                 .rotationEffect(.degrees(-6)).at(156, 314)
         } else if state == .diverted {
             let flown = model.flownMinutes ?? Int(Double(model.durationMinutes ?? 42) * 0.74)
@@ -651,4 +651,53 @@ struct PassBackContent: View {
         }.padding(40)
     }
     .background(MRPalette.dark.bg0.color).preferredColorScheme(.dark)
+}
+
+
+// MARK: - Landed stamp animation (Ticket.dc.html `tk-stamp`)
+
+private struct StampAnimationKey: EnvironmentKey { static let defaultValue: (animated: Bool, onThump: (@MainActor @Sendable () -> Void)?) = (false, nil) }
+extension EnvironmentValues {
+    var paperStampAnimation: (animated: Bool, onThump: (@MainActor @Sendable () -> Void)?) {
+        get { self[StampAnimationKey.self] }
+        set { self[StampAnimationKey.self] = newValue }
+    }
+}
+
+public extension View {
+    /// Plays the LANDED ink stamp entrance of a `.landed` boarding pass inside this view: 60 ms thump (scale 160 % to 96 %, ink in),
+    /// 120 ms bleed to 100 %. `onThump` fires at the thump (sound and haptic).
+    func paperLandedStampAnimation(_ on: Bool = true, onThump: (@MainActor @Sendable () -> Void)? = nil) -> some View {
+        environment(\.paperStampAnimation, (on, onThump))
+    }
+}
+
+private struct LandedInkStamp: View {
+    let title: String, subtitle: String
+    @Environment(\.paperStampAnimation) private var anim
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var start = false
+
+    private struct Pose { var scale = 1.0, opacity = 1.0, blur = 0.0 }
+
+    var body: some View {
+        let box = InkStampBox(title: title, subtitle: subtitle, color: PaperInk.stampOK, seed: 5)
+        if anim.animated && !reduceMotion {
+            box
+                .keyframeAnimator(initialValue: Pose(scale: 1.6, opacity: 0, blur: 1.5), trigger: start) { v, pose in
+                    v.scaleEffect(pose.scale).opacity(pose.opacity).blur(radius: pose.blur)
+                } keyframes: { _ in
+                    KeyframeTrack(\.scale) { CubicKeyframe(0.96, duration: 0.061); CubicKeyframe(1, duration: 0.119) }
+                    KeyframeTrack(\.opacity) { CubicKeyframe(1, duration: 0.061); CubicKeyframe(1, duration: 0.119) }
+                    KeyframeTrack(\.blur) { CubicKeyframe(0.2, duration: 0.061); CubicKeyframe(0, duration: 0.119) }
+                }
+                .task {
+                    start = true
+                    try? await Task.sleep(for: .milliseconds(60))
+                    anim.onThump?()
+                }
+        } else {
+            box.task { anim.onThump?() }
+        }
+    }
 }

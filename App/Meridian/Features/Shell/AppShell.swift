@@ -12,12 +12,22 @@ extension EnvironmentValues {
     }
 }
 
+/// Frame of the sidebar's Tickets row in the shell's `ritual` coordinate space (the landing ticket flies to its icon).
+private struct ShellTicketsFrameKey: EnvironmentKey { static let defaultValue: CGRect = .zero }
+extension EnvironmentValues {
+    var shellTicketsFrame: CGRect {
+        get { self[ShellTicketsFrameKey.self] }
+        set { self[ShellTicketsFrameKey.self] = newValue }
+    }
+}
+
 /// The window content: section view plus the floating sidebar. Home, Plan and the in-flight screen are full bleed
 /// (no sidebar), as in the canvas.
 struct AppShell: View {
     @Environment(AppModel.self) private var model
     /// Harness: the canvas persona for the sidebar footer.
     var persona: (name: String, km: Double)?
+    @State private var ticketsFrame: CGRect = .zero
 
     var body: some View {
         GeometryReader { geo in
@@ -44,12 +54,15 @@ struct AppShell: View {
                     }
                 }
                 .environment(\.shellSidebarInset, inset)
+                .environment(\.shellTicketsFrame, ticketsFrame)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 if showsSidebar {
                     SidebarView(isRail: rail, profileName: persona?.name ?? (NSFullUserName().isEmpty ? "You" : NSFullUserName()), km: persona?.km).padding(8).transition(.opacity)
                 }
             }
+            .coordinateSpace(name: "ritual")
+            .onPreferenceChange(SidebarTicketsFrameKey.self) { if $0 != .zero { ticketsFrame = $0 } }
             .animation(MRMotion.ease(MRMotion.d3), value: showsSidebar)
             .overlay { RitualHost() }
         }

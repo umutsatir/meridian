@@ -23,6 +23,13 @@ struct WindowSceneSpec {
     let sun: (Double, Double, [Gradient.Stop])?   // centre x, y (fractions) and stops of the radial glow
     let sky: (Double, Double, Double)
     let rain: Bool, storm: Bool, runway: Bool
+    /// `takeoff` (tilt -9, zoom 1.28, no sky) and `landing` (tilt 5, runway lights) of `WindowView.dc.html`.
+    var tilt = 0.0, zoom = 1.0, hideSky = false
+
+    /// The scene box in the pane: `left, top, width, height` as fractions (canvas `sceneStyle`).
+    var box: (x: Double, y: Double, w: Double, h: Double) {
+        tilt != 0 || key == "takeoff" ? (-0.14, -0.14, 1.28, 1.28) : (-0.04, 0, 1.08, 1.04)
+    }
 
     static func spec(_ key: String) -> WindowSceneSpec {
         func c(_ r: Double, _ g: Double, _ b: Double, _ a: Double) -> Color { cruiseRGBA(r, g, b, a) }
@@ -32,6 +39,13 @@ struct WindowSceneSpec {
             return .init(key: key, image: "sunset", brightness: 0, contrast: 1, saturation: 1,
                          sun: (0.18, 0.64, [.init(color: c(255, 240, 200, 0.62), location: 0), .init(color: c(255, 176, 110, 0.30), location: 0.14), .init(color: .clear, location: 0.42)]),
                          sky: (255, 216, 180), rain: false, storm: false, runway: false)
+        case "takeoff":
+            return .init(key: key, image: "day", brightness: 0, contrast: 1, saturation: 1, sun: nil, sky: (238, 241, 240), rain: false, storm: false, runway: false,
+                         tilt: -9, zoom: 1.28, hideSky: true)
+        case "landing":
+            return .init(key: key, image: "blue", brightness: 0.12, contrast: 1, saturation: 1.1,
+                         sun: (0.28, 0.66, [.init(color: c(255, 225, 170, 0.5), location: 0), .init(color: .clear, location: 0.36)]),
+                         sky: (212, 226, 240), rain: false, storm: false, runway: true, tilt: 5)
         case "night": return .init(key: key, image: "night", brightness: 0, contrast: 1, saturation: 1, sun: nil, sky: (12, 18, 34), rain: false, storm: false, runway: false)
         case "rain": return .init(key: key, image: "rain", brightness: 0, contrast: 1, saturation: 0.9, sun: nil, sky: (168, 176, 186), rain: true, storm: false, runway: false)
         case "storm": return .init(key: key, image: "rain", brightness: -0.38, contrast: 1.12, saturation: 0.7, sun: nil, sky: (58, 66, 82), rain: true, storm: true, runway: false)
@@ -172,41 +186,41 @@ struct CruiseWindowView: View {
         let primary = layers.max(by: { $0.opacity < $1.opacity })?.spec ?? WindowSceneSpec.spec("day")
         return ZStack(alignment: .topLeading) {
             Color.black
-            // scene box: left -4%, width 108%, height 104%
-            ZStack {
+            // scene box: left -4%, width 108%, height 104% (tilted scenes: -14%, 128%)
+            ZStack(alignment: .topLeading) {
                 ForEach(layers, id: \.spec.key) { l in
-                    sceneBox(l.spec, w: Pw * 1.08, h: Ph * 1.04).opacity(l.opacity)
+                    let b = l.spec.box
+                    sceneBox(l.spec, w: Pw * b.w, h: Ph * b.h).opacity(l.opacity).offset(x: Pw * b.x, y: Ph * b.y)
                 }
             }
-            .frame(width: Pw * 1.08, height: Ph * 1.04)
-            .offset(x: -Pw * 0.04)
+            .frame(width: Pw, height: Ph, alignment: .topLeading)
 
             // glass: softened edges
-            ZStack {
+            ZStack(alignment: .topLeading) {
                 ForEach(layers, id: \.spec.key) { l in
-                    sceneBox(l.spec, w: Pw * 1.08 + 60, h: Ph * 1.04 + 60).opacity(l.opacity)
+                    let b = l.spec.box
+                    sceneBox(l.spec, w: Pw * b.w + 60, h: Ph * b.h + 60).opacity(l.opacity).offset(x: Pw * b.x - 30, y: Ph * b.y - 30)
                 }
             }
-            .frame(width: Pw * 1.08 + 60, height: Ph * 1.04 + 60).offset(x: -Pw * 0.04 - 30, y: -30)
             .frame(width: Pw, height: Ph, alignment: .topLeading)
             .blur(radius: 2.2)
             .mask { CSSEllipse(rx: 0.62, ry: 0.56, stops: [.init(color: .clear, location: 0.34), .init(color: .black, location: 0.92)]) }
-            ZStack {
+            ZStack(alignment: .topLeading) {
                 ForEach(layers, id: \.spec.key) { l in
-                    sceneBox(l.spec, w: Pw * 1.08 + 60, h: Ph * 1.04 + 60).opacity(l.opacity)
+                    let b = l.spec.box
+                    sceneBox(l.spec, w: Pw * b.w + 60, h: Ph * b.h + 60).opacity(l.opacity).offset(x: Pw * b.x - 30, y: Ph * b.y - 30)
                 }
             }
-            .frame(width: Pw * 1.08 + 60, height: Ph * 1.04 + 60).offset(x: -Pw * 0.04 - 30, y: -30)
             .frame(width: Pw, height: Ph, alignment: .topLeading)
             .blur(radius: 5)
             .mask { CSSEllipse(rx: 0.60, ry: 0.54, stops: [.init(color: .clear, location: 0.58), .init(color: .black, location: 1.08)]) }
 
             // sky gradient at the top
             let sky = primary.sky
-            LinearGradient(stops: [.init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0), .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0.38),
+            if !primary.hideSky { LinearGradient(stops: [.init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0), .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0.38),
                                    .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 0.4), location: 0.68), .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 0), location: 1)],
                            startPoint: .top, endPoint: .bottom)
-                .frame(height: Ph * 0.22).allowsHitTesting(false)
+                .frame(height: Ph * 0.22).allowsHitTesting(false) }
             // reflection and vignette
             LinearGradient(stops: [.init(color: .white.opacity(0), location: 0.30), .init(color: .white.opacity(0.10), location: 0.38),
                                    .init(color: .white.opacity(0.015), location: 0.46), .init(color: .white.opacity(0), location: 0.60)],
@@ -243,6 +257,9 @@ struct CruiseWindowView: View {
 
     /// The chosen scene, or the crossfade of the real sun elevation.
     private func sceneLayers() -> [SceneLayer] {
+        // automatic scene: the take-off roll and the final approach use the canvas' `takeoff` / `landing` scenes
+        if ui.sceneAuto, frame.progress < 0.03 { return [SceneLayer(spec: WindowSceneSpec.spec("takeoff"), opacity: 1)] }
+        if ui.sceneAuto, frame.progress > 0.96 { return [SceneLayer(spec: WindowSceneSpec.spec("landing"), opacity: 1)] }
         if ui.sceneAuto, let b = frame.windowBlend {
             let from = WindowSceneSpec.spec(WindowSceneSpec.key(b.from)), to = WindowSceneSpec.spec(WindowSceneSpec.key(b.to))
             if from.key == to.key { return [SceneLayer(spec: from, opacity: 1)] }
@@ -261,15 +278,18 @@ struct CruiseWindowView: View {
                     .frame(width: w, height: h, alignment: .top)
                     .brightness(s.brightness).contrast(s.contrast).saturation(s.saturation)
                     .blur(radius: 0.7)
-                    .modifier(DriftModifier(enabled: !reduceMotion))
+                    .modifier(DriftModifier(enabled: !reduceMotion && s.zoom == 1))
+                    .scaleEffect(s.zoom, anchor: .bottom)
             }
             if let sun = s.sun {
                 CSSEllipse(cx: sun.0, cy: sun.1, rx: 0.5, ry: 0.5, stops: sun.2).blendMode(.screen)
             }
             if s.rain { WindowRain(storm: s.storm) }
+            if s.runway { RunwayLights().frame(width: w, height: h) }
         }
         .frame(width: w, height: h)
         .clipped()
+        .rotationEffect(.degrees(s.tilt), anchor: s.key == "takeoff" ? UnitPoint(x: 0.5, y: 0.6) : .center)
     }
 }
 
@@ -287,6 +307,28 @@ private struct DriftModifier: ViewModifier {
         } else {
             content
         }
+    }
+}
+
+/// Approach lights of the `landing` scene: two converging rows of warm dots and the red / white PAPI (`rwy`, viewBox 200 x 300).
+private struct RunwayLights: View {
+    var body: some View {
+        Canvas { ctx, size in
+            let sx = size.width / 200, sy = size.height / 300
+            for i in 0..<11 {
+                let f = Double(i) / 10, y = 296 - f * 120, spread = 7 + (1 - f) * 70
+                let r = 1 + (1 - f) * 2.2, o = 0.5 + (1 - f) * 0.5
+                for x in [100 - spread, 100 + spread] {
+                    ctx.fill(Path(ellipseIn: CGRect(x: (x - r) * sx, y: (y - r) * sy, width: 2 * r * sx, height: 2 * r * sy)),
+                             with: .color(cruiseRGBA(0xFF, 0xE9, 0xB8, o)))
+                }
+            }
+            for (x, red) in [(86.0, true), (96, true), (106, false), (116, false)] {
+                ctx.fill(Path(ellipseIn: CGRect(x: (x - 2.6) * sx, y: (262 - 2.6) * sy, width: 5.2 * sx, height: 5.2 * sy)),
+                         with: .color(red ? cruiseRGBA(0xFF, 0x5C, 0x5C) : .white))
+            }
+        }
+        .allowsHitTesting(false)
     }
 }
 

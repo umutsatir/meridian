@@ -16,9 +16,9 @@ struct FlySectionView: View {
             }
         } else if model.landingPresented, let info = LandingInfo(model: model) {
             LandingScreen(info: info, onFlyAgain: { model.flyAgainFromLanding() }, onWallet: { notes in
-                // the wallet flight (S23) is built elsewhere: keep the notes on the ticket and close the summary
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { model.completeLanding(notes: notes) }
-            })
+                // the ticket has flown into the wallet (S23): keep the notes on it and close the summary
+                model.completeLanding(notes: notes)
+            }, animates: true)
         } else {
             PlanScreen()
         }
@@ -59,9 +59,9 @@ private struct MealDemo: View {
 extension ScreenRegistry {
     /// Cruise, take-off, window, dashboard, pause / land early, meal, descent and landing (S15 to S22).
     static func registerCruiseRoutes() {
-        register("takeoff-roll") { TakeoffView(frame: .demo(p: 0.03), frozenT: 1800).mrWindowChrome() }
-        register("takeoff-rotate") { TakeoffView(frame: .demo(p: 0.03), frozenT: 3900).mrWindowChrome() }
-        register("takeoff-reduced") { TakeoffView(frame: .demo(p: 0.03), frozenT: 700, reduce: true).mrWindowChrome() }
+        register("takeoff-roll") { TakeoffView(frame: .demo(p: 0.03), frozenT: 1800, dusk: false).mrWindowChrome() }
+        register("takeoff-rotate") { TakeoffView(frame: .demo(p: 0.03), frozenT: 3900, dusk: false).mrWindowChrome() }
+        register("takeoff-reduced") { TakeoffView(frame: .demo(p: 0.03), frozenT: 700, reduce: true, dusk: false).mrWindowChrome() }
 
         register("cruise-terra") { CruiseDemo(p: 0.45) }
         register("cruise-mono") { CruiseDemo(p: 0.45, style: .mono) }
@@ -88,8 +88,19 @@ extension ScreenRegistry {
         register("landing") {
             ZStack(alignment: .topLeading) {
                 LandingScreen(info: .demo(), animates: true)
-                SidebarView(isRail: false, profileName: "Elif Kaya", km: 12370).padding(8)
+                SidebarView(isRail: false, profileName: "Elif Kaya", km: 12022).padding(8)
             }
+            .mrWindowChrome()
+        }
+        // S23: the ticket on its way into the wallet (canvas `fly: .72`)
+        register("wallet-in") {
+            let e = 0.72 * 0.72 * (3 - 2 * 0.72)
+            ZStack(alignment: .topLeading) {
+                LandingScreen(info: .demo(), animates: true, fixedFly: 0.72)
+                SidebarView(isRail: false, profileName: "Elif Kaya", km: 12022 + Double((348 * e).rounded())).padding(8)
+            }
+            .environment(\.shellTicketsFrame, CGRect(x: 19, y: 221, width: 188, height: 38))
+            .coordinateSpace(name: "ritual")
             .mrWindowChrome()
         }
     }
