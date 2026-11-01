@@ -5,6 +5,10 @@ import SwiftUI
 /// and a saturation filter (the same layer NSVisualEffectView uses internally, but with the canvas numbers instead of
 /// a fixed system material). Looked up at runtime; if the classes are not there the view falls back to
 /// `NSVisualEffectView(.underWindowBackground, withinWindow)` so the surface still blurs.
+///
+/// **Mac App Store:** this path looks up private Core Animation classes by name. Build the packages with the
+/// `MR_APP_STORE` Swift condition (`SWIFT_ACTIVE_COMPILATION_CONDITIONS`) to compile it out; the surface then always
+/// uses the public `NSVisualEffectView`. Direct (Developer ID) builds keep the exact canvas blur.
 struct MRBackdrop: NSViewRepresentable {
     var blur: CGFloat = MRGlass.blur
     var saturation: Double = MRGlass.saturation
@@ -22,6 +26,9 @@ struct MRBackdrop: NSViewRepresentable {
 
     final class BackdropView: NSView {
         static func make(blur: CGFloat, saturation: Double) -> BackdropView? {
+            #if MR_APP_STORE
+            return nil
+            #else
             guard let layerClass = NSClassFromString("CABackdropLayer") as? CALayer.Type,
                   let filterClass = NSClassFromString("CAFilter") as? NSObject.Type else { return nil }
             let sel = NSSelectorFromString("filterWithType:")
@@ -42,6 +49,7 @@ struct MRBackdrop: NSViewRepresentable {
             l.setValue([sat, gauss], forKey: "filters")
             v.layer = l
             return v
+            #endif
         }
         override var isFlipped: Bool { true }
         override func hitTest(_ point: NSPoint) -> NSView? { nil }
