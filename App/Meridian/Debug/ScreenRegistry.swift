@@ -62,7 +62,8 @@ enum ScreenRegistry {
         register("search", setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code"); $0.searchOpen = true }) { PlanScreen(hour: 15).mrWindowChrome() }
         register("surprise", setup: { $0.planStage = .plan; $0.plan.dismissRulerCoachMark(); $0.plan.setScenario(id: "code"); $0.searchOpen = true }) { PlanScreen(hour: 15, initialReveal: "BRU").mrWindowChrome() }
         register("shell-sidebar", setup: { $0.section = .wallet }) { AppShell(persona: ("Elif Kaya", 12022)).mrWindowChrome() }
-        register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { InFlightView() }
+        register(DebugRoute.inflight.rawValue, setup: { $0.startFlight() }) { LiveCruiseScreen().mrWindowChrome() }
+        registerCruiseRoutes()
         registerOnboarding()
         SystemRoutes.register()
         // register("wallet") { WalletView() }

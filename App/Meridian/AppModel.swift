@@ -51,6 +51,10 @@ final class AppModel {
         didSet { savePreferences() }
     }
     private(set) var activeFlight: Flight?
+    /// The take-off sequence (S15) plays before the cruise screen; set by `begin`, cleared by the view.
+    var takeoffPlaying = false
+    /// The landing summary screen (S22) is showing in the Fly section.
+    var landingPresented = false
     private(set) var lastLanded: Flight?
     let index: AirportIndex
 
@@ -130,6 +134,8 @@ final class AppModel {
         } catch { return }
         plan.recordStarted(flight)
         activeFlight = flight
+        takeoffPlaying = true
+        landingPresented = false
         section = .fly
         resumeBanner = nil
         touchHeartbeat(.now)
@@ -146,6 +152,42 @@ final class AppModel {
         activeFlight = flight
         let saved = flight
         enqueue { store in try? await store.update(saved) }
+    }
+
+    /// Meal break (S20): holds the clock and slides the ETA. No-op when a hold is already running.
+    func startMealBreak(at now: Date = .now) {
+        guard var flight = activeFlight, flight.status == .inFlight else { return }
+        do { try flight.startBreak(at: now) } catch { return }
+        activeFlight = flight
+        let saved = flight
+        enqueue { store in try? await store.update(saved) }
+    }
+
+    /// Back from the meal break (or any hold).
+    func endHold(at now: Date = .now) {
+        guard var flight = activeFlight, flight.isHeld else { return }
+        do { try flight.resume(at: now) } catch { return }
+        activeFlight = flight
+        let saved = flight
+        enqueue { store in try? await store.update(saved) }
+    }
+
+    /// Landing screen "Add to wallet": keeps the notes on the ticket and closes the summary.
+    func completeLanding(notes: String) {
+        if var flight = lastLanded {
+            flight.notes = notes
+            lastLanded = flight
+            let saved = flight
+            enqueue { store in try? await store.update(saved) }
+        }
+        landingPresented = false
+    }
+
+    /// Landing screen "Fly again from <destination>": the next plan starts at the airport that was just reached.
+    func flyAgainFromLanding() {
+        _ = plan.continueFromLastLanding()
+        planStage = .plan
+        landingPresented = false
     }
 
     func landEarly() {
@@ -175,6 +217,8 @@ final class AppModel {
         plan.recordLanded(flight)
         lastLanded = flight
         activeFlight = nil
+        takeoffPlaying = false
+        landingPresented = true
         if let banner { show(banner) }
         enqueue { [weak self] store in
             guard let summary = try? await store.complete(flight) else { return }
@@ -219,6 +263,7 @@ final class AppModel {
             lastLanded = summary.flight
             if activeFlight?.id == summary.flight.id { activeFlight = nil }
             latestLanding = summary
+            landingPresented = true
             if let banner = ResumeBanner.select(flight: summary.flight, cause: cause, lastActiveAt: lastActiveAt, now: now,
                                                 destinationCity: airport(summary.flight.destinationIata)?.city) {
                 show(banner)
