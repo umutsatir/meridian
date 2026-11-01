@@ -1,6 +1,7 @@
 import MeridianCore
 import MeridianCruise
 import MeridianMaps
+import MeridianPlan
 import MeridianUI
 import SwiftUI
 
@@ -166,6 +167,12 @@ struct LiveCruiseScreen: View {
                 CruiseScreen(frame: frame, ui: ui, actions: actions,
                              showsToast: toastUntil.map { context.date < $0 } ?? false,
                              resumed: resumedText(frame))
+                    .overlay {
+                        // Together mode: the passenger strip rides on top of the cruise screen (S43)
+                        if model.plan.mode == .together && ui.view != .dash {
+                            GeometryReader { geo in TGFlightLayer(annaLanded: frame.progress > 0.9, width: geo.size.width) }
+                        }
+                    }
                     .onChange(of: context.date) { _, now in poll(flight, now) }
                     .onAppear { ui.mealOpen = flight.hold?.kind == .meal }
             }

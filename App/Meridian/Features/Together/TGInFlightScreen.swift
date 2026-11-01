@@ -77,19 +77,7 @@ struct TGInFlightScreen: View {
             }
             MRIcon(.plane, size: 30).foregroundStyle(.white).rotationEffect(.degrees(heading)).shadow(color: .black.opacity(0.5), radius: 4, y: 2).position(hp)
 
-            strip(annaLanded: annaLanded).position(x: W / 2, y: 14 + 28)
-            if annaLanded {
-                HStack(spacing: 12) {
-                    SeatAvatar(initial: "A", tintHex: "#FF8FB1", presence: .landed, diameter: 32, dot: 10)
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("Anna landed").font(.mr(.ui, size: 14, weight: 600)).foregroundStyle(p.text1.color).frame(height: 18)
-                        Text("Paris CDG · 42 min focused").font(.mr(.ui, size: 13)).foregroundStyle(p.text2.color).frame(height: 18)
-                    }
-                }
-                .padding(.leading, 12).padding(.trailing, 18).padding(.vertical, 12)
-                .tgCard(radius: 20, .e3).fixedSize().offset(x: W - 92 - 245, y: 84)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
+            TGFlightLayer(annaLanded: annaLanded, width: W)
 
             // controls
             HStack(spacing: 10) {
@@ -129,25 +117,6 @@ struct TGInFlightScreen: View {
         Circle().fill(p.bg1.color).frame(width: 10, height: 10).overlay(Circle().strokeBorder(c, lineWidth: 2).padding(-2)).position(q)
     }
 
-    private func strip(annaLanded: Bool) -> some View {
-        let pax: [(String, String, String, String, TGPresence)] = [("You", "E", "1A", "In flight", .inFlight), ("Anna", "A", "1C", annaLanded ? "Landed" : "In flight", annaLanded ? .landed : .inFlight),
-                                                                    ("Mert", "M", "2A", "Away 2 min", .idle), ("Jo", "J", "2C", "In flight", .inFlight)]
-        let hex = ["#7AA2FF", "#FF8FB1", "#7ADDB2", "#FFB86B"]
-        return HStack(spacing: 0) {
-            ForEach(Array(pax.enumerated()), id: \.offset) { i, a in
-                HStack(spacing: 8) {
-                    SeatAvatar(initial: a.1, tintHex: hex[i], presence: a.4, diameter: 32, dot: 10)
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(a.0).font(.mr(.ui, size: 12, weight: 600)).foregroundStyle(p.text1.color).frame(height: 14)
-                        Text("\(a.2) · \(a.3)").font(.mr(.mono, size: 10, weight: 500)).foregroundStyle(p.text3.color).frame(height: 12).fixedSize()
-                    }
-                }.padding(.leading, 4).padding(.trailing, 10)
-            }
-        }
-        .padding(.horizontal, 10).frame(height: 56).tgCard(radius: 28, .e2)
-        .accessibilityElement(children: .combine).accessibilityLabel("Passengers")
-    }
-
     private func capsule(_ items: [(MRIconName, Bool)]) -> some View {
         VStack(spacing: 2) {
             ForEach(Array(items.enumerated()), id: \.offset) { _, it in
@@ -167,4 +136,52 @@ struct TGInFlightScreen: View {
         }
         .foregroundStyle(p.text1.color).shadow(color: .black.opacity(0.4), radius: 7, y: 1)
     }
+}
+
+/// The Together layer of S43: passenger strip (top centre) and the "Anna landed" toast. No chat (TOG-4). Mounted over the map
+/// scaffold of `TGInFlightScreen` and over the real cruise screen (`LiveCruiseScreen`) of a flight started in Together mode.
+struct TGFlightLayer: View {
+    var annaLanded = false
+    let width: CGFloat
+    @Environment(\.mrPalette) private var p
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            strip.position(x: width / 2, y: 14 + 28)
+            if annaLanded {
+                HStack(spacing: 12) {
+                    SeatAvatar(initial: "A", tintHex: "#FF8FB1", presence: .landed, diameter: 32, dot: 10)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Anna landed").font(.mr(.ui, size: 14, weight: 600)).foregroundStyle(p.text1.color).frame(height: 18)
+                        Text("Paris CDG · 42 min focused").font(.mr(.ui, size: 13)).foregroundStyle(p.text2.color).frame(height: 18)
+                    }
+                }
+                .padding(.leading, 12).padding(.trailing, 18).padding(.vertical, 12)
+                .tgCard(radius: 20, .e3).fixedSize().offset(x: width - 92 - 245, y: 84)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .allowsHitTesting(false)
+    }
+
+    private var strip: some View {
+        let pax: [(String, String, String, String, TGPresence)] = [("You", "E", "1A", "In flight", .inFlight), ("Anna", "A", "1C", annaLanded ? "Landed" : "In flight", annaLanded ? .landed : .inFlight),
+                                                                    ("Mert", "M", "2A", "Away 2 min", .idle), ("Jo", "J", "2C", "In flight", .inFlight)]
+        let hex = ["#7AA2FF", "#FF8FB1", "#7ADDB2", "#FFB86B"]
+        return HStack(spacing: 0) {
+            ForEach(Array(pax.enumerated()), id: \.offset) { i, a in
+                HStack(spacing: 8) {
+                    SeatAvatar(initial: a.1, tintHex: hex[i], presence: a.4, diameter: 32, dot: 10)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(a.0).font(.mr(.ui, size: 12, weight: 600)).foregroundStyle(p.text1.color).frame(height: 14)
+                        Text("\(a.2) · \(a.3)").font(.mr(.mono, size: 10, weight: 500)).foregroundStyle(p.text3.color).frame(height: 12).fixedSize()
+                    }
+                }.padding(.leading, 4).padding(.trailing, 10)
+            }
+        }
+        .padding(.horizontal, 10).frame(height: 56).tgCard(radius: 28, .e2)
+        .accessibilityElement(children: .combine).accessibilityLabel("Passengers")
+    }
+
 }
