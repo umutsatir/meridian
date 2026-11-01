@@ -162,7 +162,6 @@ struct CardsScreen: View {
                                togo: Double, from: Double, to: Double, pct: Double, tint: Color) -> some View {
         let label = locked ? "To unlock \(T.title)" : (nxt.map { "Next card · \($0.title)" } ?? "Highest card reached")
         let unit = (nxt != nil || locked) ? " km to go" : " km flown"
-        let circ = 2 * Double.pi * 36
         let frac = min(1, c.km / 40075)
         let times = String(format: "%.1f", frac)
         return HStack(alignment: .top, spacing: 34) {

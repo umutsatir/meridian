@@ -283,7 +283,7 @@ private struct StampSlot: View {
         StampView(shape: s.shape, country: s.country, code: s.code, date: s.date, kind: "ARRIVAL", cc: s.cc, ink: s.ink,
                   rotation: s.rot, size: s.size, locked: s.locked, seed: s.seed,
                   animation: s.anim ? .passport : nil,
-                  onThump: s.anim ? { Task { @MainActor in MRSound.shared.play(.stamp) } } : nil)
+                  onThump: s.anim ? { @Sendable in Task { @MainActor in MRSound.shared.play(.stamp) } } : nil)
             .frame(width: s.size, height: s.h)
             .scaleEffect(hover && !reduceMotion ? 1.04 : 1)
             .animation(MRMotion.snappy, value: hover)
