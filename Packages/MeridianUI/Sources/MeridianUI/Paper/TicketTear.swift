@@ -304,7 +304,7 @@ public struct TearGesture: View {
         .onKeyPress(.space) { tear.tearWithButton(reduceMotion: reduceMotion); return .handled }
         .onKeyPress(.return) { tear.tearWithButton(reduceMotion: reduceMotion); return .handled }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Boarding pass printed. Stub, seat \(model.seat). Drag, or press Return, to tear.")
+        .accessibilityLabel(model.accessibilityDescription(canTear: true))
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(named: "Tear off the stub") { tear.tearWithButton(reduceMotion: reduceMotion) }
     }

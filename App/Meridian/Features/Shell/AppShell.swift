@@ -47,6 +47,7 @@ struct AppShell: View {
                 }
             }
             .animation(MRMotion.ease(MRMotion.d3), value: showsSidebar)
+            .overlay { RitualHost() }
         }
         .mrWindowChrome()
     }

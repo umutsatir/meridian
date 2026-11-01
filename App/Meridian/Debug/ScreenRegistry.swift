@@ -81,6 +81,7 @@ enum ScreenRegistry {
         WalletRoutes.register()
         registerSettingsRoutes()
         TogetherRoutes.register()
+        registerRitualRoutes()
     }
 }
 
