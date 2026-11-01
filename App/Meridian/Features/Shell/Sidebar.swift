@@ -11,6 +11,8 @@ struct SidebarView: View {
     var profileName: String = NSFullUserName().isEmpty ? "You" : NSFullUserName()
     /// Km shown under the name; `nil` uses the saved total.
     var km: Double?
+    /// "+1" on the Tickets row while the ritual's stub lands in the wallet (Features/Ritual).
+    var ticketsBadge: String?
 
     private struct Item: Identifiable {
         let id: AppSection, title: String, icon: MRIconName, shortcut: String?, sub: Bool
@@ -30,7 +32,8 @@ struct SidebarView: View {
             label("Fly")
             row(.fly, "Plan", .plane, "⌘1")
             label("Wallet")
-            row(.wallet, "Tickets", .ticket, "⌘2")
+            row(.wallet, "Tickets", .ticket, "⌘2", badge: ticketsBadge)
+                .background(GeometryReader { g in Color.clear.preference(key: SidebarTicketsFrameKey.self, value: g.frame(in: .named("ritual"))) })
             row(.cards, "Cards", .card, nil, sub: true)
             row(.passport, "Passport", .passport, nil, sub: true)
             label("Explore")
@@ -53,8 +56,8 @@ struct SidebarView: View {
         }
     }
 
-    private func row(_ section: AppSection, _ title: String, _ icon: MRIconName, _ shortcut: String?, sub: Bool = false) -> some View {
-        MRNavItem(title, icon: icon, shortcut: isRail ? nil : shortcut, isActive: model.section == section,
+    private func row(_ section: AppSection, _ title: String, _ icon: MRIconName, _ shortcut: String?, sub: Bool = false, badge: String? = nil) -> some View {
+        MRNavItem(title, icon: icon, shortcut: isRail ? nil : shortcut, badge: isRail ? nil : badge, isActive: model.section == section,
                   isSub: sub && !isRail, isRail: isRail) { model.section = section }
             .padding(.leading, sub && !isRail ? 12 : 0)
     }
@@ -90,4 +93,10 @@ struct SidebarView: View {
         .overlay(alignment: .top) { MRDivider() }
         .padding(.top, 6)
     }
+}
+
+/// Frame of the Tickets row in the `ritual` coordinate space (the stub flies to its icon).
+struct SidebarTicketsFrameKey: PreferenceKey {
+    static let defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) { let n = nextValue(); if n != .zero { value = n } }
 }

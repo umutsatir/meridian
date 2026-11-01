@@ -128,9 +128,12 @@ public struct TicketPrinterStage: View {
     let cx: CGFloat
     let slotTop: CGFloat
     let reduceMotion: Bool
+    let showsPass: Bool
 
+    /// `showsPass: false` draws the printer only (the interactive tear draws the pass itself).
     public init(model: BoardingPassModel, frame: TicketPrintTimeline.Frame, stage: CGSize = CGSize(width: 1280, height: 800),
-                centerX: CGFloat? = nil, slotTop: CGFloat = 56, reduceMotion: Bool = false) {
+                centerX: CGFloat? = nil, slotTop: CGFloat = 56, reduceMotion: Bool = false, showsPass: Bool = true) {
+        self.showsPass = showsPass
         self.model = model; self.frame = frame; self.stage = stage
         self.cx = centerX ?? stage.width / 2; self.slotTop = slotTop; self.reduceMotion = reduceMotion
     }
@@ -148,7 +151,7 @@ public struct TicketPrinterStage: View {
                 slit
             }
             // the pass: clipped at the slit's near lip while it feeds, rotating about its tail
-            ticket(feedY: feedY, pf: pf)
+            if showsPass { ticket(feedY: feedY, pf: pf) }
             if !reduceMotion { lip }
         }
         .frame(width: stage.width, height: stage.height, alignment: .topLeading)

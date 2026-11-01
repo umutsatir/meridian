@@ -80,12 +80,11 @@ struct PlanScreen: View {
     }
 }
 
-/// The single call site of "Check in" / "Quick start". The ritual (boarding pass, gate) replaces `startFlight()` later.
+/// The single call site of "Check in" / "Quick start". It starts the ritual (Features/Ritual: seat, printing, tear, gate), which
+/// is skipped when "Quick start checks in automatically" is on or the ritual is turned off (RIT-6).
 enum PlanActions {
     @MainActor static func checkIn(_ model: AppModel) -> (Bool) -> Void {
-        { quick in
-            if quick, model.plan.preferences.lastRoute != nil { model.quickStart() } else { model.startFlight() }
-        }
+        { quick in RitualCoordinator.shared.checkIn(model, quick: quick) }
     }
 }
 
