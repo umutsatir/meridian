@@ -390,7 +390,7 @@ private struct KitPopover: View {
             }
             MRSegmented(selection: $sel, options: ["25", "42", "60", "90"].map { .init($0, $0) }, fill: true)
         }
-        .padding(16)
+        .padding(16).padding(1)
         .frame(width: 260, alignment: .leading)
         .mrGlass(cornerRadius: 20, elevation: .e3)
     }
@@ -407,7 +407,7 @@ private struct KitMenu: View {
             p.strokeHair.color.frame(height: 1).padding(.horizontal, 4).padding(.vertical, 5)
             item(.trash, "Delete ticket", "⌫", color: p.danger.color)
         }
-        .padding(6)
+        .padding(6).padding(1)
         .frame(minWidth: 200)
         .fixedSize()
         .mrGlass(cornerRadius: 14, elevation: .e3)
@@ -444,7 +444,7 @@ private struct KitSheet: View {
                 Button("Save") {}.buttonStyle(MRButtonStyle(.primary, size: .sm))
             }
         }
-        .padding(24)
+        .padding(24).padding(1)
         .frame(width: 360, alignment: .leading)
         .mrGlass(cornerRadius: 26, elevation: .e3)
     }
@@ -463,7 +463,7 @@ private struct KitAlert: View {
                 Button("Land now") {}.buttonStyle(MRButtonStyle(.danger, size: .sm))
             }.padding(.top, 8)
         }
-        .padding(.horizontal, 24).padding(.vertical, 22)
+        .padding(.horizontal, 24).padding(.vertical, 22).padding(1)
         .frame(width: 300)
         .mrGlass(cornerRadius: 22, elevation: .e3)
     }
