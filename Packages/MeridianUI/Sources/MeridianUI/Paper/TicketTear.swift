@@ -51,9 +51,10 @@ public enum TicketTearGeometry {
     }
 
     /// Pose of the attached stub while it is dragged: rotation about the front, drift and drop.
-    public static func piecePose(progress p: Double, grab: TearGrabSide, dy: CGFloat) -> (degrees: Double, dx: CGFloat, dy: CGFloat) {
+    /// `pull` is the extra swing (degrees, positive = pulled down) from where the pointer is relative to where it grabbed.
+    public static func piecePose(progress p: Double, grab: TearGrabSide, dy: CGFloat, pull: Double = 0) -> (degrees: Double, dx: CGFloat, dy: CGFloat) {
         let s: Double = grab == .right ? 1 : -1
-        return (s * TearState.stubAngle(atProgress: p), CGFloat(s) * CGFloat(p) * 14, 4 + CGFloat(p) * 22 + dy * 0.5)
+        return (s * (TearState.stubAngle(atProgress: p) + pull), CGFloat(s) * CGFloat(p) * 14, 4 + CGFloat(p) * 22 + dy * 0.5)
     }
 }
 
@@ -88,6 +89,8 @@ public final class TicketTearModel {
     public private(set) var grab: TearGrabSide = .right
     public private(set) var phase: TearPhase = .ready
     public private(set) var dy: CGFloat = 0
+    /// Extra swing of the stub in degrees from the vertical pointer offset (positive = pulled down).
+    public private(set) var pullAngle: Double = 0
     public private(set) var velocity: Double = 0
     public private(set) var flyProgress: Double = 0
     public private(set) var particles: [TearParticle] = []
@@ -105,6 +108,10 @@ public final class TicketTearModel {
     @ObservationIgnored private var startX: CGFloat = 0
     @ObservationIgnored private var startY: CGFloat = 0
     @ObservationIgnored private var startRaw = 0.0
+    /// The tear runs the way the pointer is dragged: the side is chosen from the first horizontal movement,
+    /// not from where the stub was grabbed. A partial tear keeps its side.
+    @ObservationIgnored private var directionLocked = false
+    @ObservationIgnored private static let directionDeadZone: CGFloat = 5
     @ObservationIgnored private var lastX: CGFloat = 0
     @ObservationIgnored private var lastT = Date()
     @ObservationIgnored private var lastMove = Date()
@@ -124,14 +131,14 @@ public final class TicketTearModel {
     }
 
     public func reset() {
-        task?.cancel(); state = TearState(); phase = .ready; dy = 0; velocity = 0; flyProgress = 0; particles = []; isDragging = false
+        task?.cancel(); state = TearState(); phase = .ready; dy = 0; pullAngle = 0; velocity = 0; flyProgress = 0; particles = []; isDragging = false; directionLocked = false
     }
 
     // MARK: drag
 
     public func begin(x: CGFloat, y: CGFloat) {
         guard phase == .ready || phase == .dragging else { return }
-        if state.progress < 0.001 { grab = x < 180 ? .left : .right }
+        directionLocked = state.progress >= 0.001
         startX = x; startY = y; startRaw = state.raw; lastX = x; lastT = Date(); lastMove = Date(); velocity = 0
         isDragging = true; phase = .dragging
         onBegin?()
@@ -143,10 +150,18 @@ public final class TicketTearModel {
         let now = Date()
         velocity = TearState.smoothedVelocity(previous: velocity, dx: Double(x - lastX), dtMs: now.timeIntervalSince(lastT) * 1000)
         lastMove = now; lastX = x; lastT = now
+        dy = max(-6, min(46, (y - startY) * 0.6))
+        pullAngle = max(-6, min(12, Double(y - startY) * 0.1))
+        if !directionLocked {
+            let ddx = x - startX
+            guard abs(ddx) >= Self.directionDeadZone else { onVelocity?(velocity); return }
+            grab = ddx < 0 ? .right : .left
+            directionLocked = true
+            startRaw = state.raw
+        }
         let delta = Double(grab == .left ? x - startX : startX - x) / 360
         let before = state.progress
         let ticks = state.drag(to: startRaw + delta)
-        dy = max(-6, min(46, (y - startY) * 0.6))
         if ticks > 0, state.progress > 0 { onTick?(ticks) }
         onVelocity?(velocity)
         if Int(state.progress * 33) != Int(before * 33), state.progress > 0.1 { spawn() }
@@ -155,7 +170,7 @@ public final class TicketTearModel {
 
     public func end() {
         guard isDragging else { return }
-        isDragging = false; velocity = 0; dy = 0
+        isDragging = false; velocity = 0; dy = 0; pullAngle = 0
         onVelocity?(0)
         if phase == .dragging { phase = .ready; onRelease?(state.progress) }
     }
@@ -247,7 +262,7 @@ private func flyProgressNow(_ t0: Date) -> Double { min(1, Date().timeIntervalSi
 
 // MARK: - View
 
-/// The interactive tear-off: grab the stub, pull along the perforation, past 72 % it finishes itself and flies to `flyTarget`
+/// The interactive tear-off: grab the stub and pull; the tear runs the way you drag (left or right along the perforation), past 72 % it finishes itself and flies to `flyTarget`
 /// (pass-local coordinates; default is 142 pt left of and 300 pt above the pass, where the sidebar's Wallet icon sits in the printing screen).
 /// Keyboard: Space / Return tears. VoiceOver: custom action "Tear off the stub". Reduce Motion: no fly, quick fade.
 public struct TearGesture: View {
@@ -267,7 +282,7 @@ public struct TearGesture: View {
         let grab = tear.grab
         let done = tear.phase == .flying || tear.phase == .done
         let cut = TicketTearGeometry.cut(seed: model.seed, progress: p, grab: grab)
-        let pose = TicketTearGeometry.piecePose(progress: p, grab: grab, dy: tear.dy)
+        let pose = TicketTearGeometry.piecePose(progress: p, grab: grab, dy: tear.dy, pull: tear.pullAngle)
         let tension: CGFloat = tear.isDragging ? (grab == .right ? -1 : 1) * 1.5 * CGFloat(min(1, p * 4)) : 0
         ZStack(alignment: .topLeading) {
             if done {
