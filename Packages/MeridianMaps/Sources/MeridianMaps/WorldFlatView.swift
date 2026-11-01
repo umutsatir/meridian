@@ -92,7 +92,7 @@ struct FlatRenderer {
     func draw(_ ctx: GraphicsContext) {
         let pal = GlobePalette.resolve(theme: theme)
         let s = w / 360
-        var c = ctx
+        let c = ctx
         c.fill(Path(CGRect(x: 0, y: 0, width: w, height: h)), with: .color(pal.map.sea.color))
         // lon/lat degrees -> points: x = (lon + 180) * s, y = (top - lat) * s
         let t = CGAffineTransform(a: s, b: 0, c: 0, d: -s, tx: 180 * s, ty: top * s)
