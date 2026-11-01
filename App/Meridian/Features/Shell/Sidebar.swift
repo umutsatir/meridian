@@ -43,7 +43,7 @@ struct SidebarView: View {
             Spacer(minLength: 0)
             footer(p)
         }
-        .padding(.top, 53).padding(.bottom, 10).padding(.horizontal, isRail ? 7 : 10)
+        .padding(.top, 53).padding(.bottom, 11).padding(.horizontal, isRail ? 7 : 10)
         .frame(width: width)
         .frame(maxHeight: .infinity)
         .mrGlass(cornerRadius: MRRadius.sidebar, elevation: .e3)

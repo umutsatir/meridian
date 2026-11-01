@@ -21,8 +21,11 @@ public struct MRSegmented<Value: Hashable>: View {
     @State private var hovered: Value?
     @FocusState private var focused: Value?
 
-    public init(selection: Binding<Value>, options: [Option], pinnedHover: Value? = nil) {
-        self._selection = selection; self.options = options; self.pinnedHover = pinnedHover
+    private let fill: Bool
+
+    /// `fill`: items share the track width (`flex:1` on each, as in the C12 popover).
+    public init(selection: Binding<Value>, options: [Option], pinnedHover: Value? = nil, fill: Bool = false) {
+        self._selection = selection; self.options = options; self.pinnedHover = pinnedHover; self.fill = fill
     }
 
     public var body: some View {
@@ -41,6 +44,7 @@ public struct MRSegmented<Value: Hashable>: View {
                     }
                     .foregroundStyle(on || hover ? p.text1.color : p.text2.color)
                     .padding(.horizontal, 14)
+                    .frame(maxWidth: fill ? .infinity : nil)
                     .frame(height: 28)
                     .background {
                         if on {
@@ -208,15 +212,17 @@ public struct MRField: View {
 
     private let isError: Bool
 
-    public init(_ placeholder: String, text: Binding<String>, icon: MRIconName? = nil, pinnedHover: Bool = false, isError: Bool = false) {
-        self.placeholder = placeholder; self._text = text; self.icon = icon; self.pinnedHover = pinnedHover; self.isError = isError
+    private let iconSize: CGFloat
+
+    public init(_ placeholder: String, text: Binding<String>, icon: MRIconName? = nil, iconSize: CGFloat = 16, pinnedHover: Bool = false, isError: Bool = false) {
+        self.placeholder = placeholder; self._text = text; self.icon = icon; self.pinnedHover = pinnedHover; self.isError = isError; self.iconSize = iconSize
     }
 
     public var body: some View {
         let p = MRPalette.resolve(scheme)
         let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
         HStack(spacing: 8) {
-            if let icon { MRIcon(icon, size: 16).foregroundStyle(p.text3.color) }
+            if let icon { MRIcon(icon, size: iconSize).foregroundStyle(p.text3.color) }
             TextField("", text: $text, prompt: Text(placeholder).foregroundStyle(p.text3.color))
                 .textFieldStyle(.plain)
                 .font(.mr(.ui, size: 14, weight: 400))
