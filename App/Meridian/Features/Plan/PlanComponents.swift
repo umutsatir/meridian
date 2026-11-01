@@ -30,19 +30,34 @@ struct DestinationDock: View {
             .frame(width: width, alignment: .center)
         } else {
             let dests = plan.destinations
-            let selIdx = max(0, dests.firstIndex { $0.iata == plan.selectedDestinationIata } ?? 0)
-            let maxOff = max(0, CGFloat(dests.count) * 188 - width)
-            let off = max(0, min(maxOff, CGFloat(selIdx) * 188 - 188 * 1.6))
-            HStack(spacing: 0) {
-                ForEach(dests) { d in
-                    DestCard(airport: d, origin: plan.origin, selected: d.iata == plan.selectedDestinationIata) { model.plan.select(iata: d.iata) }
-                        .padding(.trailing, 12)
+            let pitch: CGFloat = 188, cardWidth: CGFloat = 176, trackHeight: CGFloat = 104
+            // The selected card rests at the 1.6th slot (canvas): scrollTo aligns the same unit point of the card and the viewport
+            let anchor = UnitPoint(x: max(0, min(1, pitch * 1.6 / max(1, width - cardWidth))), y: 0.5)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        ForEach(dests) { d in
+                            DestCard(airport: d, origin: plan.origin, selected: d.iata == plan.selectedDestinationIata) { model.plan.select(iata: d.iata) }
+                                .padding(.trailing, 12)
+                                .id(d.iata)
+                        }
+                    }
+                    .padding(.top, 8)
+                }
+                .scrollClipDisabled()           // the lifted card and its shadow may leave the strip vertically ...
+                .mask(Rectangle().padding(.vertical, -80))   // ... but the track is still cut at the strip's left and right edges
+                .frame(width: width, height: trackHeight, alignment: .leading)
+                .onAppear {
+                    if let id = plan.selectedDestinationIata { proxy.scrollTo(id, anchor: anchor) }
+                }
+                .onChange(of: plan.selectedDestinationIata) { _, id in
+                    guard let id else { return }
+                    withAnimation(MRMotion.smooth) { proxy.scrollTo(id, anchor: anchor) }
+                }
+                .onChange(of: dests.map(\.iata)) { _, ids in
+                    if let id = plan.selectedDestinationIata, ids.contains(id) { proxy.scrollTo(id, anchor: anchor) }
                 }
             }
-            .padding(.top, 8)
-            .offset(x: -off)
-            .animation(MRMotion.smooth, value: off)
-            .frame(width: width, alignment: .leading)
             .accessibilityElement(children: .contain)
         }
     }
@@ -207,7 +222,8 @@ struct ScenarioMenu: View {
                 }
             }
         }
-        .padding(6).frame(minWidth: 200)
+        .padding(6).frame(width: 200)   // canvas `.menu`: min-width 200, sized to its rows (rows contain a Spacer, so a minWidth alone fills the whole overlay)
+        .fixedSize(horizontal: true, vertical: false)
         .mrGlass(cornerRadius: 14, elevation: .e2)
     }
 
