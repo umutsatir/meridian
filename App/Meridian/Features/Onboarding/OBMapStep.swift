@@ -73,10 +73,10 @@ struct OBMapStep: View {
             let p = MRPalette.resolve(scheme)
             let shape = RoundedRectangle(cornerRadius: 24, style: .continuous)
             let on = model.mapStyle == tile.style
-            let locked = tile.style == .satellite
+            let locked = !MapStyleAccess.isUnlocked(tile.style)
             Button(action: pick) {
                 ZStack(alignment: .topLeading) {
-                    EuropeMapView(style: tile.style, center: Coordinate(latitude: 49.6, longitude: 3.5), zoom: 1.7,
+                    MapSurface(style: tile.style, center: Coordinate(latitude: 49.6, longitude: 3.5), zoom: 1.7,
                                   size: CGSize(width: 536, height: 132), showsLabels: model.showsLabels)
                         .frame(width: 536, height: 132).clipped()
                     route.frame(width: 536, height: 132)
@@ -123,7 +123,7 @@ struct OBMapStep: View {
         }
 
         private func pick() {
-            if tile.style == .satellite {
+            if !MapStyleAccess.isUnlocked(tile.style) {
                 proHint = true   // quiet hint, no purchase prompt here
             } else {
                 proHint = false

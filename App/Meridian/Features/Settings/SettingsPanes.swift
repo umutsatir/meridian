@@ -115,6 +115,10 @@ struct MapsPane: View {
                 SettingsCard {
                     PrefSegmentedRow(SettingsKeys.mapStyle, L("Map style"), L("Terra is the default in dark, Standard in light."),
                                      options: ["Terra", "Mono", "Standard", "Satellite"])
+                    PrefSegmentedRow(SettingsKeys.mapEngine, L("Map engine"), L("Apple Maps is the default. Illustrated is the drawn map of the design and the fallback when the map cannot load."),
+                                     options: [L("Apple Maps"), L("Illustrated")])
+                    PrefSegmentedRow(SettingsKeys.homeGlobe, L("Home globe"), L("Realistic shows satellite imagery. It needs Apple Maps."),
+                                     options: [L("Realistic"), L("Illustrated")])
                     PrefSegmentedRow(SettingsKeys.labelLanguage, L("Label language"), options: [L("Local"), L("English"), L("Both")])
                 }
             }

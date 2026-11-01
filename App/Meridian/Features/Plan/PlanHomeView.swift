@@ -10,6 +10,8 @@ struct PlanHomeView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var scheme
     @Binding var popOpen: Bool
+    @AppStorage(MapEngine.homeGlobeKey) private var homeGlobeRaw = 0
+    @AppStorage(MapEngine.defaultsKey) private var engineRaw = 0
     /// Hour of day for the greeting; `nil` uses the clock.
     var hour: Int?
 
@@ -27,6 +29,8 @@ struct PlanHomeView: View {
     private func content(W: CGFloat, H: CGFloat) -> some View {
         let p = MRPalette.resolve(scheme)
         let dark = scheme == .dark
+        let _ = (homeGlobeRaw, engineRaw)
+        let realistic = MapEngine.homeGlobeIsRealistic && !MapHealth.shared.failed
         let o = model.plan.origin
         let GS = 2200.0, GR = GS * 0.43, GC = GS / 2
         let gLat = max(-60, min(60, o.coordinate.latitude - 38)), gLon = o.coordinate.longitude
@@ -42,21 +46,33 @@ struct PlanHomeView: View {
 
         return ZStack(alignment: .topLeading) {
             p.bg0.color
-            if dark { Stars(width: W, height: H) }
-            Circle()
-                .fill(RadialGradient(stops: [.init(color: MRColorToken(130, 160, 255, 0).color, location: 0.84),
-                                             .init(color: MRColorToken(130, 165, 255, 0.32).color, location: 0.90),
-                                             .init(color: MRColorToken(130, 165, 255, 0).color, location: 1)],
-                                     center: .center, startRadius: 0, endRadius: GR * 1.16))
-                .frame(width: GR * 2.32, height: GR * 2.32)
-                .offset(x: gx + GC - GR * 1.16, y: gy + GC - GR * 1.16)
-                .allowsHitTesting(false)
-            GlobeView(lon: gLon, lat: gLat, size: GS, showsGraticule: false, showsAtmosphere: false, showsLabels: false,
-                      colorOverride: override)
-                .frame(width: GS, height: GS)
-                .offset(x: gx, y: gy)
-                .allowsHitTesting(false)
-            PulsePin().position(pin).allowsHitTesting(false)
+            if dark && !realistic { Stars(width: W, height: H) }
+            if realistic {
+                SatelliteGlobeView(home: o.coordinate, tilt: 30, distance: 2.6e7 * (H / 800)) {
+                    PulsePin()
+                }
+                .frame(width: W, height: H)
+                // top scrim so the greeting reads over bright imagery
+                LinearGradient(stops: [.init(color: p.bg0.color.opacity(dark ? 0.78 : 0.6), location: 0),
+                                       .init(color: p.bg0.color.opacity(0), location: 0.34)], startPoint: .top, endPoint: .bottom)
+                    .allowsHitTesting(false)
+            } else {
+                Circle()
+                    .fill(RadialGradient(stops: [.init(color: MRColorToken(130, 160, 255, 0).color, location: 0.84),
+                                                 .init(color: MRColorToken(130, 165, 255, 0.32).color, location: 0.90),
+                                                 .init(color: MRColorToken(130, 165, 255, 0).color, location: 1)],
+                                         center: .center, startRadius: 0, endRadius: GR * 1.16))
+                    .frame(width: GR * 2.32, height: GR * 2.32)
+                    .offset(x: gx + GC - GR * 1.16, y: gy + GC - GR * 1.16)
+                    .allowsHitTesting(false)
+                GlobeView(lon: gLon, lat: gLat, size: GS, showsGraticule: false, showsAtmosphere: false, showsLabels: false,
+                          colorOverride: override)
+                    .frame(width: GS, height: GS)
+                    .offset(x: gx, y: gy)
+                    .allowsHitTesting(false)
+                PulsePin().position(pin).allowsHitTesting(false)
+
+            }
             LinearGradient(stops: [.init(color: .clear, location: 0.62),
                                    .init(color: p.bg0.color.opacity(0.55), location: 1)], startPoint: .top, endPoint: .bottom)
                 .allowsHitTesting(false)
