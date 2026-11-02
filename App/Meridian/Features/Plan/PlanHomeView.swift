@@ -14,6 +14,13 @@ struct PlanHomeView: View {
     @AppStorage(MapEngine.defaultsKey) private var engineRaw = 0
     /// Hour of day for the greeting; `nil` uses the clock.
     var hour: Int?
+    /// Trackpad / pinch / keys move the globe. `false`: a fixed picture.
+    var interactive = true
+    /// The user's camera; `nil` = the home framing. The globe never moves on its own.
+    @State private var userCamera: GlobeCamera?
+    @State private var pinchStart: GlobeCamera?
+    @State private var seededDebug = false
+    @State private var viewSize = CGSize(width: 1280, height: 800)
 
     var body: some View {
         GeometryReader { geo in
@@ -26,20 +33,82 @@ struct PlanHomeView: View {
         return (h < 5 ? "Good night" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + "!"
     }
 
+    // MARK: globe camera
+
+    private static let satelliteTilt = 32.0
+    private static let illustratedTilt = 38.0
+    private static let globeSize = 2200.0
+    private var realisticGlobe: Bool { let _ = (homeGlobeRaw, engineRaw); return MapEngine.homeGlobeIsRealistic && !MapHealth.shared.failed }
+
+    /// The canvas framing (Home S10): the origin above the middle of the globe.
+    private func homeCamera() -> GlobeCamera {
+        let c = model.plan.origin.coordinate
+        if realisticGlobe { return SatelliteGlobeView<EmptyView>.homeCamera(home: c, tilt: Self.satelliteTilt) }
+        return GlobeCamera(lon: c.longitude, lat: max(-60, min(60, c.latitude - Self.illustratedTilt)))
+    }
+    private var camera: GlobeCamera { userCamera ?? homeCamera() }
+
+    /// Screen radius of the sphere in points (for finger-following pan speed).
+    private func screenRadius(_ cam: GlobeCamera, height H: Double) -> Double {
+        if realisticGlobe { return 6.371e6 / (2.2e7 * (H / 800) / cam.zoom * 0.536) * H }   // MapKit: visible height ~ 0.536 x distance
+        return 0.43 * Self.globeSize * cam.zoom
+    }
+
+    private func setCamera(_ c: GlobeCamera) {
+        userCamera = c.isDisplaced(from: homeCamera(), epsilon: 0.01) ? c : nil
+    }
+    private func pan(dx: Double, dy: Double) {
+        let c = camera
+        setCamera(c.panned(dx: dx, dy: dy, degreesPerPoint: GlobeCamera.degreesPerPoint(screenRadius: screenRadius(c, height: viewSize.height))))
+    }
+    private func recenter(animated: Bool) {
+        if animated { withAnimation(MRMotion.smooth) { userCamera = nil } } else { userCamera = nil }
+    }
+    private func handleScroll(_ e: MapScrollEvent) -> Bool {
+        guard interactive, !model.searchOpen, !popOpen else { return false }
+        // the Start flight / list panel keeps its own scrolling
+        if e.location.x < 330 && e.location.y > viewSize.height - 240 { return false }
+        if e.modifiers.contains(.command) {
+            let dy = abs(e.dy) >= abs(e.dx) ? e.dy : e.dx
+            if dy != 0 { setCamera(camera.zoomed(by: MapZoomModel.wheelFactor(deltaY: dy, precise: e.precise))) }
+            return true
+        }
+        let f = e.precise ? 1.0 : 8.0   // a notched wheel reports lines
+        pan(dx: e.dx * f, dy: e.dy * f)
+        return true
+    }
+    /// `--pan dx,dy` / `--pinch f` launch arguments apply one gesture at start (screenshots).
+    private func seedDebugGesture() {
+        guard !seededDebug else { return }
+        seededDebug = true
+        let a = CommandLine.arguments
+        if let i = a.firstIndex(of: "--pan"), i + 1 < a.count {
+            let v = a[i + 1].split(separator: ",").compactMap { Double($0) }
+            if v.count == 2 { pan(dx: v[0], dy: v[1]) }
+        }
+        if let i = a.firstIndex(of: "--pinch"), i + 1 < a.count, let f = Double(a[i + 1]) { setCamera(camera.zoomed(by: f)) }
+    }
+
     private func content(W: CGFloat, H: CGFloat) -> some View {
         let p = MRPalette.resolve(scheme)
         let dark = scheme == .dark
         let _ = (homeGlobeRaw, engineRaw)
-        let realistic = MapEngine.homeGlobeIsRealistic && !MapHealth.shared.failed
+        let realistic = realisticGlobe
         let o = model.plan.origin
-        let GS = 2200.0, GR = GS * 0.43, GC = GS / 2
-        let gLat = max(-60, min(60, o.coordinate.latitude - 38)), gLon = o.coordinate.longitude
-        let gx = W / 2 - GS / 2, gy = 190 - (GC - GR)
-        // orthographic point of the origin on the globe (`MeridianWorld.point`)
+        let cam = camera
+        let GS = Self.globeSize * cam.zoom, GR = GS * 0.43, GC = GS / 2
+        let gLat = cam.lat, gLon = cam.lon
+        // the sphere turns in place and grows about a point in the middle of the view (not about its own centre, which lies
+        // below the window): the sphere top sits at y = 190 at zoom 1
+        let anchorY = H * 0.56
+        let centerY = anchorY + (190 + 0.43 * Self.globeSize - anchorY) * cam.zoom
+        let gx = W / 2 - GS / 2, gy = centerY - GC
+        // orthographic point of the origin on the globe (`MeridianWorld.point`); hidden on the far side
         let d = Double.pi / 180
         let la = o.coordinate.latitude * d, lo = (o.coordinate.longitude - gLon) * d, ph = gLat * d
         let px = GR * cos(la) * sin(lo)
         let py = GR * (cos(ph) * sin(la) - sin(ph) * cos(la) * cos(lo))
+        let facing = sin(ph) * sin(la) + cos(ph) * cos(la) * cos(lo) > 0.02
         let pin = CGPoint(x: gx + GC + px, y: gy + GC - py)
         let override = dark ? GlobeColorOverride(seaA: 0x34678F, seaB: 0x12304F, land: 0x6B7A4E, shade: 0.62, rim: 0.5)
                             : GlobeColorOverride(seaA: 0xDCE8F3, seaB: 0xA8C2DB, land: 0xFBF9F4, shade: 0.2, rim: 0.25)
@@ -48,7 +117,7 @@ struct PlanHomeView: View {
             p.bg0.color
             if dark && !realistic { Stars(width: W, height: H) }
             if realistic {
-                SatelliteGlobeView(home: o.coordinate, tilt: 32, distance: 2.2e7 * (H / 800)) {
+                SatelliteGlobeView(home: o.coordinate, camera: cam, distance: 2.2e7 * (H / 800)) {
                     PulsePin()
                 }
                 .frame(width: W, height: H)
@@ -74,8 +143,7 @@ struct PlanHomeView: View {
                     .frame(width: GS, height: GS)
                     .offset(x: gx, y: gy)
                     .allowsHitTesting(false)
-                PulsePin().position(pin).allowsHitTesting(false)
-
+                if facing { PulsePin().position(pin).allowsHitTesting(false) }
             }
             LinearGradient(stops: [.init(color: .clear, location: 0.62),
                                    .init(color: p.bg0.color.opacity(0.55), location: 1)], startPoint: .top, endPoint: .bottom)
@@ -125,6 +193,38 @@ struct PlanHomeView: View {
         }
         .frame(width: W, height: H, alignment: .topLeading)
         .clipped()
+        .background(MapScrollMonitor { handleScroll($0) })
+        .gesture(MagnifyGesture()
+            .onChanged { v in
+                let start = pinchStart ?? camera
+                pinchStart = start
+                setCamera(start.pinched(magnification: v.magnification))
+            }
+            .onEnded { _ in pinchStart = nil }, isEnabled: interactive)
+        .simultaneousGesture(SpatialTapGesture(count: 2).onEnded { _ in recenter(animated: true) }, isEnabled: interactive)
+        .focusable(interactive).focusEffectDisabled()
+        .onKeyPress(characters: CharacterSet(charactersIn: "+=-_0"), phases: [.down, .repeat]) { press in
+            guard interactive else { return .ignored }
+            switch press.characters {
+            case "+", "=": setCamera(camera.steppedIn())
+            case "-", "_": setCamera(camera.steppedOut())
+            case "0": recenter(animated: true)
+            default: return .ignored
+            }
+            return .handled
+        }
+        .onChange(of: model.plan.origin.iata) { _, _ in userCamera = nil }
+        .onAppear { viewSize = CGSize(width: W, height: H); seedDebugGesture() }
+        .onChange(of: H) { _, _ in viewSize = CGSize(width: W, height: H) }
+        .overlay(alignment: .bottomTrailing) {
+            if interactive && userCamera != nil {
+                Button { recenter(animated: true) } label: { MRIcon(.target, size: 18) }
+                    .buttonStyle(MRRoundButtonStyle())
+                    .accessibilityLabel("Recenter home")
+                    .help("Recenter on home (double-click, 0)")
+                    .padding(.trailing, 24).padding(.bottom, 28)
+            }
+        }
     }
 }
 
