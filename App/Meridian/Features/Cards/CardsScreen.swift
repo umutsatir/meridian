@@ -15,6 +15,8 @@ struct CardsScreen: View {
     @State private var didStart = false
     @State private var drag: CGFloat = 0
     @State private var overSide = false
+    @State private var heroPointer: CGPoint?          // -0.5...0.5 over the hero, nil elsewhere (resolved on the container)
+    @State private var flipped: Set<Int> = []         // tiers shown from the back
     @FocusState private var focused: Bool
 
     private var content: CardsContent { fixture ?? CardsContent.live(model) }
@@ -57,7 +59,6 @@ struct CardsScreen: View {
                 .offset(x: L, y: 52)
 
                 coverflow(tiers: tiers, km: km, info: c.info)
-                    .frame(width: 1060, height: 340, alignment: .topLeading)
                     .offset(x: flowLeft, y: 150)
                     .gesture(DragGesture(minimumDistance: 12)
                         .onEnded { v in
@@ -97,6 +98,8 @@ struct CardsScreen: View {
         }
         .onKeyPress(.leftArrow) { go(-1); return .handled }
         .onKeyPress(.rightArrow) { go(1); return .handled }
+        .onKeyPress(.return) { flipHero(); return .handled }
+        .onKeyPress(.space) { flipHero(); return .handled }
         .onAppear {
             if !didStart {
                 didStart = true
@@ -117,37 +120,56 @@ struct CardsScreen: View {
         select(n)
     }
 
+    private func flipHero() { if flipped.contains(idx) { flipped.remove(idx) } else { flipped.insert(idx) } }
+
     private func select(_ i: Int) {
         withAnimation(reduceMotion ? MRMotion.ease(MRMotion.d2) : MRMotion.smooth) { idx = i }
     }
 
     // MARK: Coverflow
 
+    /// Pointer handling lives on the container, not on the cards. SwiftUI hit-tests a card (and delivers hover to it) by its
+    /// layout frame (480 x 302 / 340 x 214 at the container origin); `CoverflowEffect` only moves the drawing. Hover or click
+    /// where a card is drawn therefore missed it right of x = 480: the middle of the hero (hover cancelled, no flip) and the
+    /// whole right side (no selection), while the left side happened to lie inside the layout frame. On top of that the
+    /// container's own `.frame(1060 x 340)` was applied after its gestures, so its tap area was also only 480 x 302.
+    /// Now the container has its real frame first, the cards do not hit-test, and hover / tap are resolved against the
+    /// projected quads (`CoverflowHitTest`).
     private func coverflow(tiers: [UITier], km: Double, info: MembershipCardInfo) -> some View {
         ZStack(alignment: .topLeading) {
             ForEach(Array(tiers.enumerated()), id: \.offset) { i, t in
                 let off = i - idx, a = abs(off), isC = off == 0
-                MembershipCardView(tier: t, size: isC ? .hero : .list, locked: Double(t.thresholdKm) > km, info: info, live: isC)
+                MembershipCardView(tier: t, size: isC ? .hero : .list, locked: Double(t.thresholdKm) > km, info: info, live: isC,
+                                   flipped: Binding(get: { flipped.contains(i) }, set: { if $0 { flipped.insert(i) } else { flipped.remove(i) } }),
+                                   pointer: .external(isC ? heroPointer : nil))
                     .modifier(CoverflowEffect(off: Double(off), reduceMotion: reduceMotion))
                     .opacity(a > 2 ? 0 : (isC ? 1 : (a == 1 ? 0.9 : 0.5)))
                     .blur(radius: isC || reduceMotion ? 0 : CGFloat(2 * a))
-                    .allowsHitTesting(isC)   // side cards are hit-tested by `CoverflowHitTest` on the container
-                    .accessibilityAction(named: isC ? "Flip card" : "Show \(t.title) card") { if !isC { select(i) } }
+                    .allowsHitTesting(false)
+                    .accessibilityAction(named: isC ? "Flip card" : "Show \(t.title) card") { if isC { flipHero() } else { select(i) } }
                     .zIndex(Double(100 - a * 10))
             }
         }
-        .contentShape(Rectangle())
-        .simultaneousGesture(SpatialTapGesture().onEnded { v in
-            if let t = CoverflowHitTest.index(forX: v.location.x, y: v.location.y, selected: idx, count: tiers.count) { select(t) }
-        })
-        .onContinuousHover { phase in
-            switch phase {
-            case .active(let l):
-                let side = CoverflowHitTest.index(forX: l.x, y: l.y, selected: idx, count: tiers.count) != nil
-                if side != overSide { overSide = side; if side { NSCursor.pointingHand.push() } else { NSCursor.pop() } }
-            case .ended:
-                if overSide { overSide = false; NSCursor.pop() }
-            }
+        .frame(width: 1060, height: 340, alignment: .topLeading)
+        .overlay {
+            // One transparent layer over the whole coverflow receives every hover and tap.
+            Color.clear.contentShape(Rectangle())
+                .onContinuousHover { phase in
+                    switch phase {
+                    case .active(let l):
+                        let hero = CoverflowHitTest.heroPointer(at: l)
+                        if hero != heroPointer { heroPointer = hero }
+                        let side = hero == nil && CoverflowHitTest.index(forX: l.x, y: l.y, selected: idx, count: tiers.count) != nil
+                        if side != overSide { overSide = side; if side { NSCursor.pointingHand.push() } else { NSCursor.pop() } }
+                    case .ended:
+                        heroPointer = nil
+                        if overSide { overSide = false; NSCursor.pop() }
+                    }
+                }
+                .onTapGesture(coordinateSpace: .local) { l in
+                    if CoverflowHitTest.heroPointer(at: l) != nil { flipHero() }
+                    else if let t = CoverflowHitTest.index(forX: l.x, y: l.y, selected: idx, count: tiers.count) { select(t) }
+                }
         }
     }
 

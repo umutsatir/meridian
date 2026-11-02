@@ -82,6 +82,16 @@ nonisolated enum CoverflowHitTest {
         return nil
     }
 
+    /// Pointer position over the hero card in -0.5...0.5 (card-local, y down), or nil when `point` is not on the hero. At rest the
+    /// hero quad is an axis-aligned rectangle (no rotation), so the unit position is a plain division; it deliberately ignores the
+    /// card's own tilt so the hit area never moves under the pointer.
+    static func heroPointer(at point: CGPoint) -> CGPoint? {
+        let q = quad(offset: 0)
+        let w = q[2].x - q[0].x, h = q[2].y - q[0].y
+        guard w > 0, h > 0, point.x >= q[0].x, point.x <= q[2].x, point.y >= q[0].y, point.y <= q[2].y else { return nil }
+        return CGPoint(x: (point.x - q[0].x) / w - 0.5, y: (point.y - q[0].y) / h - 0.5)
+    }
+
     /// Index to select for a tap at (`x`, `y`); nil for the hero (it flips) or empty space.
     static func index(forX x: CGFloat, y: CGFloat, selected: Int, count: Int) -> Int? {
         guard let off = offset(at: CGPoint(x: x, y: y), selected: selected, count: count), off != 0 else { return nil }
