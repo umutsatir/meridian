@@ -245,4 +245,17 @@ import MeridianCore
         #expect(CloudMask.alpha(r: 0.05, g: 0.12, b: 0.25) < 0.01)      // sea
         #expect(CloudMask.alpha(r: 0.7, g: 0.55, b: 0.35) < 0.2)        // desert
     }
+
+    @Test func viewScaleSlowsTheGroundByAboutThreeAndAHalf() {
+        let pos = Coordinate(latitude: 48, longitude: 8)
+        let old = WindowCamera.spec(position: pos, heading: 90, side: .left, altitudeFt: 30_000, pitch: 35)
+        let new = WindowCamera.spec(position: pos, heading: 90, side: .left, altitudeFt: 30_000, pitch: 35, viewScale: WindowCamera.viewScale)
+        // the ground in view is as wide as the eye is high: the same ground speed crosses it that much slower
+        #expect(abs(new.eyeAltitudeM / old.eyeAltitudeM - WindowCamera.viewScale) < 1e-9)
+        #expect(WindowCamera.viewScale >= 3)
+        #expect(WindowCamera.viewScale <= 4)
+        // altitude still drives it: the climb is more crawl-like than the cruise
+        let low = WindowCamera.spec(position: pos, heading: 90, side: .left, altitudeFt: 5_000, pitch: 35, viewScale: WindowCamera.viewScale)
+        #expect(low.eyeAltitudeM < new.eyeAltitudeM)
+    }
 }

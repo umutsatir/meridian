@@ -66,8 +66,33 @@ public struct FollowCameraModel: Equatable, Sendable {
         Self.clamp(scale ?? (orientation == .headingUp ? max(fit, Self.headingUpDefaultScale) : fit), engine)
     }
 
-    /// Heading up is a "what is ahead of me" view (Google navigation): by default closer than the whole-route fit.
-    public static let headingUpDefaultScale = 6.0
+    /// Heading up is a "what is ahead of me" view (Google navigation): by default much closer than the whole-route fit.
+    public static let headingUpDefaultScale = followDefaultScale
+    /// The default follow zoom: city / district scale, about 25 to 45 km across a window (see `groundMetresPerPoint`).
+    public static let followDefaultScale = 80.0
+
+    /// Metres of ground per screen point at plane scale `scale` and `latitude` (Mercator: 1 plane unit is R cos(lat) / k metres).
+    public static func groundMetresPerPoint(scale: Double, latitude: Double) -> Double {
+        6_378_137.0 * cos(latitude * .pi / 180) / (EuropeProjection.k * max(scale, 1e-9))
+    }
+
+    // MARK: Remembered orientation
+
+    public static let orientationDefaultsKey = "cruise.follow.orientation"
+
+    /// North up / heading up as the owner last chose it (default: heading up, like Google Maps navigation).
+    public static var preferredOrientation: Orientation {
+        get { UserDefaults.standard.string(forKey: orientationDefaultsKey).flatMap(Orientation.init(rawValue:)) ?? .headingUp }
+        set { UserDefaults.standard.set(newValue.rawValue, forKey: orientationDefaultsKey) }
+    }
+
+    /// Following starts (or restarts with Recenter): the remembered orientation and the default close zoom.
+    public mutating func applyFollowDefaults(orientation preferred: Orientation) {
+        orientation = preferred
+        scale = preferred == .headingUp ? nil : Self.followDefaultScale
+        following = true
+        freeCenterP = nil
+    }
 
     /// Apple Maps refuses to rotate when the camera is higher than about 1.1 million metres (it keeps north up that far
     /// out). Below this plane scale the rotation is therefore dropped (north up), like Apple Maps does. `viewHeight` in
@@ -92,8 +117,8 @@ public struct FollowCameraModel: Equatable, Sendable {
     // MARK: Layout
 
     /// Where the plane sits on screen. North up: where the canvas puts it (45 % from the top, near the centre). Heading up (Google navigation): in the lower
-    /// third so most of the screen shows what is ahead.
-    public static func pivotFraction(headUp: Bool) -> Double { headUp ? 0.66 : 0.45 }
+    /// part (72 %) so most of the screen shows what is ahead.
+    public static func pivotFraction(headUp: Bool) -> Double { headUp ? 0.72 : 0.45 }
 
     public static func pivot(size: CGSize, fraction: Double) -> CGPoint { CGPoint(x: size.width / 2, y: size.height * fraction) }
 
@@ -233,7 +258,7 @@ public struct FollowCameraState: Equatable, Sendable {
     public var offset = CGPoint.zero
     public var initialized = false
 
-    public static let bearingTau = 0.28, headingTau = 0.3, pivotTau = 0.35, scaleTau = 0.09, recenterTau = 0.30
+    public static let bearingTau = 0.18, headingTau = 0.3, pivotTau = 0.2, scaleTau = 0.14, recenterTau = 0.30
 
     public init() {}
 

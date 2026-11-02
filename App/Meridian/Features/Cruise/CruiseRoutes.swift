@@ -97,6 +97,9 @@ extension ScreenRegistry {
                 if a.contains("--follow-heading") { u.camera.orientation = .headingUp }
             }.mrWindowChrome()
         }
+        // the live follow defaults: close city scale, heading up (the remembered orientation unless `--north-up`)
+        register("cruise-follow-default") { CruiseDemo(p: 0.45) { u in
+            u.camera.applyFollowDefaults(orientation: ProcessInfo.processInfo.arguments.contains("--north-up") ? .northUp : .headingUp) } }
         register("cruise-follow-world") { CruiseDemo(p: 0.45) { $0.camera.scale = 0.3 } }
 
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }

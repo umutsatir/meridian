@@ -237,10 +237,56 @@ final class FollowCameraModelTests: XCTestCase {
         var m = FollowCameraModel()
         XCTAssertEqual(m.effectiveScale(fit: 1.2, .appleMaps), 1.2)
         m.toggleOrientation()
-        XCTAssertEqual(m.effectiveScale(fit: 1.2, .appleMaps), 6)
-        XCTAssertEqual(m.effectiveScale(fit: 9, .appleMaps), 9)
+        XCTAssertEqual(m.effectiveScale(fit: 1.2, .appleMaps), 80)
+        XCTAssertEqual(m.effectiveScale(fit: 9, .appleMaps), 80)
         m.scale = 2                      // the user's choice always wins
         XCTAssertEqual(m.effectiveScale(fit: 9, .appleMaps), 2)
+    }
+
+    func testFollowDefaultsAreCityScaleHeadingUp() {
+        var m = FollowCameraModel(following: false, orientation: .northUp, scale: 3)
+        m.freeCenterP = CGPoint(x: 5, y: 5)
+        m.applyFollowDefaults(orientation: .headingUp)
+        XCTAssertTrue(m.following)
+        XCTAssertEqual(m.orientation, .headingUp)
+        XCTAssertNil(m.scale)
+        XCTAssertNil(m.freeCenterP)
+        let s = m.effectiveScale(fit: 2, .appleMaps)
+        XCTAssertEqual(s, FollowCameraModel.followDefaultScale)
+        // 20 to 45 km of ground across a 1000 to 1400 pt wide view over Europe
+        for lat in [40.0, 50.0, 60.0] {
+            let mpp = FollowCameraModel.groundMetresPerPoint(scale: s, latitude: lat)
+            XCTAssertGreaterThan(1000 * mpp, 15_000, "lat \(lat)")
+            XCTAssertLessThan(1400 * mpp, 45_000, "lat \(lat)")
+        }
+        // 3 to 4 times closer than the previous heading-up default (6) or more
+        XCTAssertGreaterThanOrEqual(s / 6, 3)
+        // rotation is allowed there (Apple Maps refuses below about 2.8)
+        XCTAssertGreaterThan(s, FollowCameraModel.minRotationScale(viewHeight: 800, latitude: 50))
+        // north up preference: same close zoom, north stays up
+        m.applyFollowDefaults(orientation: .northUp)
+        XCTAssertEqual(m.effectiveScale(fit: 2, .appleMaps), FollowCameraModel.followDefaultScale)
+        XCTAssertEqual(m.targetBearing(heading: 77), 0)
+    }
+
+    func testOrientationPreferenceIsRemembered() {
+        let old = UserDefaults.standard.string(forKey: FollowCameraModel.orientationDefaultsKey)
+        defer { if let old { UserDefaults.standard.set(old, forKey: FollowCameraModel.orientationDefaultsKey) } else { UserDefaults.standard.removeObject(forKey: FollowCameraModel.orientationDefaultsKey) } }
+        UserDefaults.standard.removeObject(forKey: FollowCameraModel.orientationDefaultsKey)
+        XCTAssertEqual(FollowCameraModel.preferredOrientation, .headingUp)
+        FollowCameraModel.preferredOrientation = .northUp
+        XCTAssertEqual(FollowCameraModel.preferredOrientation, .northUp)
+    }
+
+    func testRecenterTransitionTakesAboutHalfASecond() {
+        var st = FollowCameraState()
+        var m = FollowCameraModel(orientation: .northUp, scale: nil)
+        _ = st.advance(model: m, planeP: .zero, heading: 90, fit: 2, engine: .appleMaps, size: size, dt: 1 / 30)
+        m.applyFollowDefaults(orientation: .headingUp)
+        var c = FollowCamera(centerP: .zero, scale: 1, bearing: 0, pivot: .zero, size: size)
+        for _ in 0..<18 { c = st.advance(model: m, planeP: .zero, heading: 90, fit: 2, engine: .appleMaps, size: size, dt: 1 / 30, rotationMinScale: 3) }   // 0.6 s
+        XCTAssertEqual(log(c.scale), log(80), accuracy: 0.12 * log(80 / 2))      // within ~12 % of the log distance
+        XCTAssertEqual(c.bearing, 90, accuracy: 6)
     }
 
     func testRotationDroppedWhenTooFarOutForAppleMaps() {
@@ -258,6 +304,7 @@ final class FollowCameraModelTests: XCTestCase {
     func testPivotIsLowerInHeadingUp() {
         XCTAssertGreaterThan(FollowCameraModel.pivotFraction(headUp: true), FollowCameraModel.pivotFraction(headUp: false))
         XCTAssertGreaterThanOrEqual(FollowCameraModel.pivotFraction(headUp: true), 0.6)
+        XCTAssertEqual(FollowCameraModel.pivotFraction(headUp: true), 0.72)
         XCTAssertEqual(FollowCameraModel.pivotFraction(headUp: false), 0.45)   // the canvas
     }
 
