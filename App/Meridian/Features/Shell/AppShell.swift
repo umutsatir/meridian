@@ -95,6 +95,15 @@ private struct WindowChrome: ViewModifier {
     }
 }
 
+extension View {
+    /// macOS 26 draws a soft blur behind the title bar over the content; the shell shows the content sharp to the top pixel.
+    @ViewBuilder func mrNoTitlebarBlur() -> some View {
+        if #available(macOS 15.0, *) {
+            self.toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+        } else { self }
+    }
+}
+
 /// Hidden title bar, transparent window (the content draws the 26 pt rounded shell) and traffic lights at the
 /// canvas position (x = 20, y = 18).
 struct WindowStyler: NSViewRepresentable {
@@ -110,6 +119,7 @@ struct WindowStyler: NSViewRepresentable {
             guard let w = window else { return }
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
+            w.titlebarSeparatorStyle = .none
             w.styleMask.insert(.fullSizeContentView)
             w.isOpaque = false
             w.backgroundColor = .clear

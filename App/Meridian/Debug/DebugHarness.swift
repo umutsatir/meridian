@@ -13,6 +13,8 @@ struct DebugLaunch {
     let theme: ColorScheme
     /// "window" (default): WindowServer composite of our own window (glass blur, Map, Metal). "cache": NSView.cacheDisplay at 1x (misses materials and Map annotations).
     let capture: String
+    /// `--window chrome`: keep the real titled window (title bar container, traffic lights, `WindowStyler`) instead of the borderless harness window.
+    let chrome: Bool
 
     /// nil unless `--screenshot` and `--screen` are present.
     static let current: DebugLaunch? = {
@@ -30,7 +32,7 @@ struct DebugLaunch {
         let delay = value("--delay").flatMap(Double.init) ?? 1.5
         let theme: ColorScheme = value("--theme") == "light" ? .light : .dark
         return DebugLaunch(route: route, size: size, output: URL(fileURLWithPath: out), delay: delay, theme: theme,
-                           capture: value("--capture") ?? "window")
+                           capture: value("--capture") ?? "window", chrome: value("--window") == "chrome")
     }()
 }
 
@@ -64,9 +66,21 @@ struct DebugHost: View {
             }
         }
         .environment(model)
+        .ignoresSafeArea(edges: launch.chrome ? .all : [])
         .frame(width: launch.size.width, height: launch.size.height)
         .preferredColorScheme(launch.theme)
         .background(WindowCapture(launch: launch, restore: preferencesBackup))
+        .background { if launch.chrome { WindowStyler() } }
+        .modifier(ChromeBackground(on: launch.chrome))
+        .mrNoTitlebarBlur()
+    }
+}
+
+/// Chrome mode only: the same clear window background as the real app scene.
+private struct ChromeBackground: ViewModifier {
+    let on: Bool
+    func body(content: Content) -> some View {
+        if on, #available(macOS 15.0, *) { content.containerBackground(.clear, for: .window) } else { content }
     }
 }
 
@@ -82,8 +96,9 @@ struct WindowCapture: NSViewRepresentable {
             // Borderless: window content == window frame, no title bar inset, exactly <size> points.
             // Follow --theme regardless of the system appearance (materials and NSColors read the window appearance).
             NSApp.appearance = NSAppearance(named: launch.theme == .light ? .aqua : .darkAqua)
-            window.styleMask = [.borderless]
+            if launch.chrome { window.styleMask.insert(.fullSizeContentView) } else { window.styleMask = [.borderless] }
             window.setContentSize(launch.size)
+            if launch.chrome { window.setFrame(NSRect(origin: window.frame.origin, size: launch.size), display: true) }
             window.center()
             window.makeKeyAndOrderFront(nil)
             DebugSnap.window = window
