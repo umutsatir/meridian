@@ -91,7 +91,7 @@ struct FlightPane: View {
                 SettingsCard {
                     PrefSegmentedRow(SettingsKeys.ticketPrinting, L("Ticket printing"), L("The printer takes 2.4 s."), options: [L("Full"), L("Quick"), L("Off")])
                     PrefSegmentedRow(SettingsKeys.takeoffSequence, L("Take-off sequence"), L("Full is 6 s. Short is 2 s."), options: [L("Full"), L("Short"), L("Skip")])
-                    PrefToggleRow(SettingsKeys.tearFeedback, L("Tear sound and haptics"), L("Follows your hand: faster pull, louder rip."))
+                    PrefToggleRow(SettingsKeys.tearFeedback, L("Tear sound and haptics"), L("Follows your hand: faster pull, louder tear."))
                     PrefToggleRow(SettingsKeys.landingStamp, L("Landing stamp"), L("A 60 ms thump and a 120 ms bleed."))
                 }
             }
