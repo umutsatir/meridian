@@ -1,4 +1,5 @@
 import XCTest
+import AVFoundation
 #if canImport(MRAudio)
 @testable import MRAudio
 #else
@@ -51,13 +52,25 @@ final class MRCueRendererTests: XCTestCase {
         XCTAssertGreaterThan(tail, 1e-6, "the room tail must exist")
     }
 
-    func testChimeLandingIsReversedBoarding() {
-        func crossings(_ k: MRChime) -> Int {
-            let b = MRCueRenderer.render(.chime(k)); var c = 0
-            for i in 1..<4800 where (b.left[i - 1] < 0) != (b.left[i] < 0) { c += 1 }
-            return c
+    func testBoardingChimeIsTwoNotesAndLandingIsOne() {
+        let board = MRCueRenderer.render(.chime(.board)), land = MRCueRenderer.render(.chime(.land))
+        let sr = board.sampleRate
+        func win(_ b: MRStereoBuffer, _ t: Double) -> Float { rms(b.left, from: Int(t * sr), to: Int((t + 0.05) * sr)) }
+        XCTAssertGreaterThan(win(board, 0.6), win(land, 0.6), "boarding has a second note")
+        XCTAssertLessThanOrEqual(board.duration, 3.2); XCTAssertLessThanOrEqual(land.duration, 3.0)
+    }
+
+    func testOneShotEdgesAreSoft() {
+        for cue in allCues where MRCueRenderer.usesEdgeFades(cue) {
+            let b = MRCueRenderer.render(cue)
+            XCTAssertEqual(b.left[0], 0, accuracy: 1e-6, "\(cue) starts with a click")
+            XCTAssertEqual(b.left[b.frames - 1], 0, accuracy: 1e-6, "\(cue) ends with a click")
+            XCTAssertEqual(b.right[b.frames - 1], 0, accuracy: 1e-6)
+            let ms = Int(b.sampleRate / 1000)
+            let first = b.left[0..<ms].map(abs).max() ?? 0, later = b.left[(4 * ms)..<(5 * ms)].map(abs).max() ?? 0
+            XCTAssertLessThanOrEqual(first, later + 1e-6, "\(cue)")
         }
-        XCTAssertGreaterThan(crossings(.land), crossings(.board))
+        XCTAssertFalse(MRCueRenderer.usesEdgeFades(.click)); XCTAssertFalse(MRCueRenderer.usesEdgeFades(.tick(heavy: false)))
     }
 }
 
@@ -155,10 +168,11 @@ final class MRSoundEngineTests: XCTestCase {
             sound.settings.layerLevels = [:]
             sound.setMaster(1)
             sound.setLevel(layer, 1)
-            let out = try XCTUnwrap(sound.renderOffline(seconds: 1.5))
+            sound.setFlightActive(true)
+            let out = try XCTUnwrap(sound.renderOffline(seconds: 3.5))
             XCTAssertFalse(out.hasNonFinite, "\(layer)")
             XCTAssertLessThan(out.peak, 1, "\(layer)")
-            XCTAssertGreaterThan(rms(out.left, from: 24_000), 0.0005, "\(layer) is silent")
+            XCTAssertGreaterThan(rms(out.left, from: 120_000), 0.0005, "\(layer) is silent")
         }
     }
 
@@ -166,6 +180,7 @@ final class MRSoundEngineTests: XCTestCase {
         let sound = makeSound()
         sound.setMaster(1)
         for l in MRLayer.allCases { sound.setLevel(l, 1) }
+        sound.setFlightActive(true)
         let out = try XCTUnwrap(sound.renderOffline(seconds: 3))
         XCTAssertFalse(out.hasNonFinite); XCTAssertLessThan(out.peak, 1)
     }
@@ -176,10 +191,11 @@ final class MRSoundEngineTests: XCTestCase {
         XCTAssertEqual(sound.level(of: .rain), 0.64, accuracy: 1e-9)
         XCTAssertEqual(sound.settings.master, 0.68, accuracy: 1e-9)
         XCTAssertEqual(MRSoundPreset.named("rain"), .rainyRead)
-        let on = try XCTUnwrap(sound.renderOffline(seconds: 1))
-        XCTAssertGreaterThan(rms(on.left, from: 24_000), 0.0005)
+        sound.setFlightActive(true)
+        let on = try XCTUnwrap(sound.renderOffline(seconds: 3))
+        XCTAssertGreaterThan(rms(on.left, from: 120_000), 0.0005)
         sound.layersOff()
-        _ = sound.renderOffline(seconds: 1)
+        _ = sound.renderOffline(seconds: 2)
         let off = try XCTUnwrap(sound.renderOffline(seconds: 0.5))
         XCTAssertLessThan(rms(off.left), 1e-4)
         XCTAssertEqual(sound.level(of: .rain), 0.64, accuracy: 1e-9)
@@ -220,5 +236,149 @@ final class MRSoundEngineTests: XCTestCase {
         for a in Announcement.allCases { XCTAssertFalse(a.text.isEmpty) }
         XCTAssertEqual(Set(Announcement.allCases.map(\.group)), Set(AnnouncementGroup.allCases))
         XCTAssertNil(Announcement.atcChatter.fallbackCue)
+    }
+}
+
+
+// MARK: - Cabin sound lifecycle and fades
+
+@MainActor
+final class MRCabinSoundTests: XCTestCase {
+    private func makeSound(_ configure: (MRSoundSettings) -> Void = { _ in }) -> MRSound {
+        let suite = "meridian.test.\(UUID().uuidString)"
+        let d = UserDefaults(suiteName: suite)!
+        d.removePersistentDomain(forName: suite)
+        let s = MRSoundSettings(defaults: d)
+        configure(s)
+        let sound = MRSound(settings: s, library: AnnouncementLibrary(bundle: Bundle(for: MRCabinSoundTests.self)), mode: .offline)
+        sound.isDoNotDisturbActive = { false }
+        return sound
+    }
+    private func energy(_ b: MRStereoBuffer, from t: Double, to u: Double) -> Float {
+        rms(b.left, from: Int(t * b.sampleRate), to: Int(u * b.sampleRate))
+    }
+
+    func testCabinSoundIsOnByDefaultAndNothingPlaysBeforeAFlight() throws {
+        let sound = makeSound()
+        XCTAssertTrue(sound.settings.cabinSoundEnabled)
+        XCTAssertFalse(sound.ambientEnabled)
+        let idle = try XCTUnwrap(sound.renderOffline(seconds: 1))
+        XCTAssertEqual(idle.peak, 0, "plan / ritual screens have no ambient")
+    }
+
+    func testFlightStartMakesTheHumAudibleAndLayerGainPositive() throws {
+        let sound = makeSound()
+        sound.setFlightActive(true)
+        XCTAssertTrue(sound.ambientEnabled)
+        let hum = MRLayer.hum.index
+        XCTAssertGreaterThan(sound.ambientParams.gain[hum], 0)
+        XCTAssertGreaterThan(sound.ambientParams.level[hum], 0)
+        XCTAssertEqual(sound.ambientParams.fadeTarget, 1)
+        let out = try XCTUnwrap(sound.renderOffline(seconds: 4))
+        XCTAssertFalse(out.hasNonFinite); XCTAssertLessThan(out.peak, 1)
+        XCTAssertGreaterThan(energy(out, from: 3, to: 4), 0.001, "cabin hum must be audible once the fade-in is done")
+        XCTAssertLessThan(energy(out, from: 0, to: 0.05), energy(out, from: 3, to: 4), "starts from silence")
+    }
+
+    func testFinishLandedAndDeletedFadeTheBedOutAndItStaysOff() throws {
+        // finish / landed-while-away / early landing / delete all reach the engine as setFlightActive(false)
+        for _ in 0..<2 {
+            let sound = makeSound()
+            sound.setFlightActive(true)
+            _ = sound.renderOffline(seconds: 3)
+            sound.setFlightActive(false)
+            XCTAssertFalse(sound.ambientEnabled)
+            let fadeOut = try XCTUnwrap(sound.renderOffline(seconds: 1.5))
+            XCTAssertGreaterThan(energy(fadeOut, from: 0, to: 0.3), energy(fadeOut, from: 1.2, to: 1.5), "fading, not cut")
+            XCTAssertGreaterThan(energy(fadeOut, from: 0, to: 0.1), 0.0005, "not an instant cut")
+            let after = try XCTUnwrap(sound.renderOffline(seconds: 2))
+            XCTAssertLessThan(after.peak, 1e-4)
+            // a slider in the ritual does not bring it back
+            sound.setMaster(0.9); sound.setLevel(.rain, 0.5)
+            XCTAssertLessThan(try XCTUnwrap(sound.renderOffline(seconds: 1)).peak, 1e-4)
+            // a new flight brings it back
+            sound.setFlightActive(true)
+            XCTAssertGreaterThan(energy(try XCTUnwrap(sound.renderOffline(seconds: 4)), from: 3, to: 4), 0.001)
+        }
+    }
+
+    func testUserSwitchIsRespectedAndRemembered() throws {
+        let suite = "meridian.test.\(UUID().uuidString)"
+        let d = UserDefaults(suiteName: suite)!
+        let sound = MRSound(settings: MRSoundSettings(defaults: d), library: AnnouncementLibrary(bundle: Bundle(for: MRCabinSoundTests.self)), mode: .offline)
+        sound.setFlightActive(true)
+        _ = sound.renderOffline(seconds: 3)
+        sound.setCabinSound(false)
+        _ = sound.renderOffline(seconds: 2)
+        XCTAssertLessThan(try XCTUnwrap(sound.renderOffline(seconds: 0.5)).peak, 1e-4)
+        XCTAssertFalse(MRSoundSettings(defaults: d).cabinSoundEnabled, "choice is stored")
+        sound.setCabinSound(true)
+        XCTAssertGreaterThan(energy(try XCTUnwrap(sound.renderOffline(seconds: 4)), from: 3, to: 4), 0.001)
+        // a new flight with the switch off stays silent
+        sound.setCabinSound(false); sound.setFlightActive(false); _ = sound.renderOffline(seconds: 2)
+        sound.setFlightActive(true)
+        XCTAssertLessThan(try XCTUnwrap(sound.renderOffline(seconds: 2)).peak, 1e-4)
+        d.removePersistentDomain(forName: suite)
+    }
+
+    func testAmbientFadeCurveIsMonotonicEqualPowerAndTimed() throws {
+        let dsp = MRAmbientDSP(sampleRate: 48_000)
+        dsp.update { $0.gain[MRLayer.hum.index] = 0.1; $0.level[MRLayer.hum.index] = 0.5; $0.fadeTarget = 1; $0.fadeSeconds = MRFade.ambientIn }
+        var buf = [Float](repeating: 0, count: 480)
+        var inCurve: [Double] = []
+        for _ in 0..<(48_000 * 2 / 480) {
+            buf.withUnsafeMutableBufferPointer { dsp.render(frames: 480, into: $0.baseAddress!) }
+            XCTAssertFalse(buf.contains { !$0.isFinite }); XCTAssertLessThan(buf.map(abs).max() ?? 0, 1)
+            inCurve.append(dsp.fadePosition)
+        }
+        XCTAssertEqual(inCurve, inCurve.sorted(), "fade-in is monotonic")
+        XCTAssertEqual(try XCTUnwrap(inCurve.last), 1, accuracy: 1e-9)
+        let half = try XCTUnwrap(inCurve.firstIndex { $0 >= 0.5 })
+        XCTAssertEqual(Double(half + 1) * 0.01, MRFade.ambientIn / 2, accuracy: 0.05)
+        XCTAssertGreaterThan(MRFade.ambientIn, 1.4); XCTAssertLessThan(MRFade.ambientIn, 2.1)
+        for p in stride(from: 0.0, through: 1.0, by: 0.1) {
+            XCTAssertEqual(MRFade.equalPower(p) * MRFade.equalPower(p) + MRFade.equalPower(1 - p) * MRFade.equalPower(1 - p), 1, accuracy: 1e-9)
+        }
+        dsp.update { $0.fadeTarget = 0; $0.fadeSeconds = MRFade.ambientOut }
+        var outCurve: [Double] = []
+        for _ in 0..<(48_000 * 2 / 480) {
+            buf.withUnsafeMutableBufferPointer { dsp.render(frames: 480, into: $0.baseAddress!) }
+            outCurve.append(dsp.fadePosition)
+        }
+        XCTAssertEqual(outCurve, outCurve.sorted(by: >), "fade-out is monotonic")
+        XCTAssertEqual(try XCTUnwrap(outCurve.last), 0, accuracy: 1e-9)
+    }
+
+    func testMasterChangeRampsInsteadOfJumping() throws {
+        let sound = makeSound()
+        sound.setFlightActive(true)
+        _ = sound.renderOffline(seconds: 4)
+        sound.setMaster(0.1)
+        let ramp = try XCTUnwrap(sound.renderOffline(seconds: 1.2))
+        let a = energy(ramp, from: 0, to: 0.03), c = energy(ramp, from: 0.9, to: 1.2)
+        XCTAssertGreaterThan(a, c * 2, "starts loud, ends quiet")
+        // no jump: the first 30 ms are still near the old level (a hard cut would drop immediately)
+        XCTAssertGreaterThan(a, c * 3)
+        XCTAssertFalse(ramp.hasNonFinite); XCTAssertLessThan(ramp.peak, 1)
+    }
+
+    func testChimeFileOverridesSynthesis() throws {
+        let sound = makeSound()
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("test-chime-\(UUID().uuidString).caf")
+        let samples = (0..<24_000).map { Float(0.3 * sin(2 * .pi * 880 * Double($0) / 48_000)) }
+        let tone = MRStereoBuffer(left: samples, right: samples, sampleRate: 48_000)
+        do {
+            let file = try AVAudioFile(forWriting: url, settings: [AVFormatIDKey: kAudioFormatLinearPCM, AVSampleRateKey: 48_000,
+                                                                   AVNumberOfChannelsKey: 2, AVLinearPCMBitDepthKey: 32, AVLinearPCMIsFloatKey: true])
+            try file.write(from: MRSound.pcm(tone))
+        }
+        sound.library.registerChime(.board, url: url)
+        let loaded = try XCTUnwrap(MRSound.loadChime(url, sampleRate: 48_000))
+        XCTAssertEqual(loaded.duration, 0.5, accuracy: 0.05)
+        XCTAssertFalse(loaded.hasNonFinite)
+        sound.play(.chime(.board))
+        let out = try XCTUnwrap(sound.renderOffline(seconds: 0.8))
+        XCTAssertGreaterThan(out.peak, 0.05)
+        try? FileManager.default.removeItem(at: url)
     }
 }

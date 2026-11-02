@@ -52,7 +52,10 @@ final class AppModel {
     var plan: PlanState {
         didSet { savePreferences() }
     }
-    private(set) var activeFlight: Flight?
+    private(set) var activeFlight: Flight? {
+        // Single choke point: start, landing, early landing, landed-while-away, resume and delete-all all pass here.
+        didSet { if (oldValue == nil) != (activeFlight == nil) { CabinSound.flightChanged(active: activeFlight != nil) } }
+    }
     /// The take-off sequence (S15) plays before the cruise screen; set by `begin`, cleared by the view.
     var takeoffPlaying = false
     /// The landing summary screen (S22) is showing in the Fly section.

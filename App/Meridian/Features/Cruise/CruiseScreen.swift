@@ -170,6 +170,7 @@ struct LiveCruiseScreen: View {
         let saved = all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))]
         let u = CruiseUI(style: style ?? saved)
         u.sceneAuto = true
+        u.sound = MRSound.shared.settings.cabinSoundEnabled   // the button shows the truth
         u.offersAutoScene = true
         configure(u)
         _ui = State(initialValue: u)
@@ -188,7 +189,8 @@ struct LiveCruiseScreen: View {
                         }
                     }
                     .onChange(of: context.date) { _, now in poll(flight, now) }
-                    .onAppear { ui.mealOpen = flight.hold?.kind == .meal }
+                    .onAppear { ui.mealOpen = flight.hold?.kind == .meal; ui.sound = MRSound.shared.settings.cabinSoundEnabled }
+                    .onChange(of: MRSound.shared.settings.cabinSoundEnabled) { _, on in ui.sound = on }
             }
         }
     }
@@ -196,7 +198,7 @@ struct LiveCruiseScreen: View {
     private var actions: CruiseActions {
         CruiseActions(togglePause: { model.togglePause() }, landEarly: { model.landEarly() },
                       startBreak: { model.startMealBreak() }, endBreak: { model.endHold() },
-                      toggleSound: { on in if on { MRSound.shared.layersOn() } else { MRSound.shared.layersOff() } })
+                      toggleSound: { on in MRSound.shared.setCabinSound(on) })
     }
 
     private func resumedText(_ frame: CruiseFrame) -> (title: String, message: String)? {

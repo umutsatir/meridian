@@ -42,6 +42,16 @@ nonisolated private func makeNoise(seed: UInt64, sampleRate: Double) -> [Float] 
     return (0..<Int(sampleRate) * kNoiseSeconds).map { _ in Float(r.signed()) }
 }
 
+// MARK: Fades
+
+nonisolated enum MRFade {
+    /// Equal-power (quarter sine) gain for a linear progress 0...1. Monotonic, 0 at 0, 1 at 1.
+    static func equalPower(_ progress: Double) -> Double { sin(min(1, max(0, progress)) * .pi / 2) }
+    /// Raised-cosine gain 0...1 (click-free edges of one-shot cues).
+    static func raisedCosine(_ progress: Double) -> Double { 0.5 - 0.5 * cos(min(1, max(0, progress)) * .pi) }
+    static let ambientIn = 1.8, ambientOut = 1.5
+}
+
 // MARK: Ambient
 
 nonisolated final class MRAmbientDSP: @unchecked Sendable {
@@ -50,10 +60,13 @@ nonisolated final class MRAmbientDSP: @unchecked Sendable {
         var gain = [Double](repeating: 0, count: MRLayer.allCases.count)
         /// Raw level x master per layer (drives the forest birds).
         var level = [Double](repeating: 0, count: MRLayer.allCases.count)
-        /// Smoothing time constant per layer, seconds (0.08, 0.05 when switching everything off).
-        var tc = [Double](repeating: 0.08, count: MRLayer.allCases.count)
+        /// Smoothing time constant per layer, seconds. 0.13 s settles (95 %) in about 0.4 s: master / mute / level changes ramp, never jump.
+        var tc = [Double](repeating: 0.13, count: MRLayer.allCases.count)
         /// Ducking gain target (1 = no ducking, 0.5 = -6 dB).
         var duck = 1.0
+        /// Master fade of the whole ambient bed: 1 = flying (audible), 0 = off. Moves linearly in `fadeSeconds`, applied equal-power.
+        var fadeTarget = 0.0
+        var fadeSeconds = 1.8
     }
 
     let sampleRate: Double
@@ -64,6 +77,8 @@ nonisolated final class MRAmbientDSP: @unchecked Sendable {
     private var cur = [Double](repeating: 0, count: MRLayer.allCases.count)
     private var pos: [Int]
     private var duckCur = 1.0
+    private var fadeProg = 0.0
+    private let fadeLock = OSAllocatedUnfairLock(initialState: 0.0)
     private var cache = Params()
     private var samples = 0
     private var hum1: MRBiquad, hum2: MRBiquad, humSawLP: MRBiquad
@@ -101,6 +116,8 @@ nonisolated final class MRAmbientDSP: @unchecked Sendable {
 
     func update(_ body: (inout Params) -> Void) { lock.withLockUnchecked { body(&$0) } }
     func currentParams() -> Params { lock.withLock { $0 } }
+    /// Linear fade position 0...1 (0 = fully faded out, 1 = fully in); the applied gain is `MRFade.equalPower` of it. Updated per render block.
+    var fadePosition: Double { fadeLock.withLock { $0 } }
 
     /// Builds the render node. Created in a nonisolated context on purpose (the block runs on the audio thread).
     func makeNode(format: AVAudioFormat) -> AVAudioSourceNode {
@@ -122,9 +139,18 @@ nonisolated final class MRAmbientDSP: @unchecked Sendable {
         let sr = sampleRate
         let nLayers = MRLayer.allCases.count
         let coef = (0..<nLayers).map { 1 - exp(-1 / (max(p.tc[$0], 1e-4) * sr)) }
-        let duckDown = 1 - exp(-1 / (0.12 * sr)), duckUp = 1 - exp(-1 / (0.6 * sr))
+        let duckDown = 1 - exp(-1 / (0.25 * sr)), duckUp = 1 - exp(-1 / (0.9 * sr))
+        let fadeStep = 1 / (max(p.fadeSeconds, 0.01) * sr)
         let m = noise.count
+        if fadeProg <= 0 && p.fadeTarget <= 0 {   // fully faded out: no work, silence
+            for i in 0..<frames { out[i] = 0 }
+            samples += frames
+            return
+        }
         for i in 0..<frames {
+            if fadeProg < p.fadeTarget { fadeProg = min(p.fadeTarget, fadeProg + fadeStep) }
+            else if fadeProg > p.fadeTarget { fadeProg = max(p.fadeTarget, fadeProg - fadeStep) }
+            let fadeGain = MRFade.equalPower(fadeProg)
             var mix = 0.0
             for L in 0..<nLayers {
                 cur[L] += (p.gain[L] - cur[L]) * coef[L]
@@ -180,10 +206,11 @@ nonisolated final class MRAmbientDSP: @unchecked Sendable {
                 }
             }
             duckCur += (p.duck - duckCur) * (p.duck < duckCur ? duckDown : duckUp)
-            let x = mix * duckCur * 0.85
+            let x = mix * duckCur * fadeGain * 0.85
             out[i] = Float(abs(x) > 0.7 ? (x > 0 ? 1 : -1) * (0.7 + 0.28 * tanh((abs(x) - 0.7) / 0.28)) : x)
         }
         samples += frames
+        fadeLock.withLock { $0 = fadeProg }
     }
 }
 

@@ -89,6 +89,7 @@ final class AnnouncementLibrary {
     static let fileExtensions = ["caf", "m4a", "wav", "mp3"]
 
     private var registered: [Announcement: URL] = [:]
+    private var registeredChimes: [MRChime: URL] = [:]
     private let bundle: Bundle
 
     init(bundle: Bundle = .main) { self.bundle = bundle }
@@ -105,6 +106,19 @@ final class AnnouncementLibrary {
         }
         return nil
     }
+
+    /// A real boarding / landing chime recording, if the owner dropped one in: `Announcements/boarding-chime.(caf|m4a|wav|mp3)`
+    /// or `landing-chime.*`. Without it the synthesized PA bell plays.
+    func chimeFile(_ kind: MRChime) -> URL? {
+        let name = kind == .board ? "boarding-chime" : "landing-chime"
+        if let url = registeredChimes[kind], FileManager.default.fileExists(atPath: url.path) { return url }
+        for ext in Self.fileExtensions {
+            if let url = bundle.url(forResource: name, withExtension: ext, subdirectory: "Announcements")
+                ?? bundle.url(forResource: name, withExtension: ext) { return url }
+        }
+        return nil
+    }
+    func registerChime(_ kind: MRChime, url: URL) { registeredChimes[kind] = url }
 
     func hasRecording(for announcement: Announcement) -> Bool { recording(for: announcement) != nil }
 }

@@ -2,28 +2,16 @@ import MeridianUI
 import Observation
 import SwiftUI
 
-// MARK: - Engine seam
+// MARK: - Engine bridge
 
-/// What the mixer needs from the sound engine (built by another task). `CabinSound.engine` is
-/// replaced at launch by the real engine; the default does nothing, so the UI works without it.
-@MainActor
-protocol CabinSoundControlling: AnyObject {
-    /// Linear level 0...1 for one ambient layer (already multiplied by master and mute).
-    func setLayer(_ id: String, level: Double)
-    func play(chime: CabinChime)
-}
-
-enum CabinChime { case boarding, seatbelt }
-
-@MainActor
-final class SilentCabinSound: CabinSoundControlling {
-    func setLayer(_ id: String, level: Double) {}
-    func play(chime: CabinChime) {}
-}
-
+/// Connects the Sounds panel and the flight lifecycle to the real engine (`MRSound`).
 @MainActor
 enum CabinSound {
-    static var engine: CabinSoundControlling = SilentCabinSound()
+    /// A flight started or ended. Pushes the stored mixer to the engine first, so the bed fades in with the user's levels.
+    static func flightChanged(active: Bool) {
+        if active { MixerModel.shared.pushToEngine() }
+        MRSound.shared.setFlightActive(active)
+    }
 }
 
 // MARK: - Model
@@ -77,7 +65,9 @@ final class MixerModel {
     }
 
     func pushToEngine() {
-        for l in MixerLayer.all { CabinSound.engine.setLayer(l.id, level: muted.contains(l.id) ? 0 : Double(level(l.id)) / 100 * Double(master) / 100) }
+        var lv: [MRLayer: Double] = [:]
+        for l in MixerLayer.all { if let layer = MRLayer(rawValue: l.id) { lv[layer] = Double(level(l.id)) / 100 } }
+        MRSound.shared.setMixer(levels: lv, muted: Set(muted.compactMap(MRLayer.init(rawValue:))), master: Double(master) / 100)
     }
 
     private func persist() {
@@ -112,10 +102,10 @@ struct SoundsPane: View {
                 .mrGlass(cornerRadius: MRRadius.card, elevation: .e1)
                 .padding(.top, 16)
                 HStack(spacing: 10) {
-                    Button { CabinSound.engine.play(chime: .boarding) } label: {
+                    Button { MRSound.shared.play(.chime(.board)) } label: {
                         HStack(spacing: 8) { MRIcon(.play, size: 14); Text(L("Play boarding chime")) }
                     }.buttonStyle(MRButtonStyle(.secondary, size: .sm))
-                    Button(L("Play seatbelt chime")) { CabinSound.engine.play(chime: .seatbelt) }.buttonStyle(MRButtonStyle(.tertiary, size: .sm))
+                    Button(L("Play seatbelt chime")) { MRSound.shared.play(.seatbelt) }.buttonStyle(MRButtonStyle(.tertiary, size: .sm))
                 }.padding(.top, 14)
             }.frame(width: 408)
         }
@@ -132,6 +122,9 @@ struct MixerLayersCard: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(L("Cabin sound")).font(.mr(.ui, size: 17, weight: 600))
                 Spacer()
+                MRSwitch(L("Cabin sound"), isOn: Binding(get: { MRSound.shared.settings.cabinSoundEnabled },
+                                                         set: { MRSound.shared.setCabinSound($0) }))
+                    .padding(.trailing, 6)
                 Text("\(m.master)%").font(.mr(.mono, size: 12, weight: 500)).foregroundStyle(p.text2.color)
             }.padding(.horizontal, 4)
             HStack(spacing: 12) {

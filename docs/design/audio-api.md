@@ -15,7 +15,8 @@ MRSound.shared.applyPreset(.nightFlight)       // .deepWork, .nightFlight, .rain
 MRSound.shared.setLevel(.rain, 0.4)            // layers: hum rain ocean forest brown pink music, 0...1
 MRSound.shared.setMuted(.hum, true)
 MRSound.shared.setMaster(0.7)
-MRSound.shared.layersOff()                     // fade all out, stored levels kept; layersOn() or any setLevel brings them back
+MRSound.shared.setFlightActive(true)           // AppModel.activeFlight drives this: the cabin bed fades in (1.8 s) while flying, out (1.5 s) when the flight ends
+MRSound.shared.setCabinSound(false)            // the user's "Cabin sound" switch (default on, remembered); layersOff()/layersOn() are aliases
 
 MRSound.shared.announce(.landingHeadsUp)       // recording if registered, else chime-only fallback; ducks ambient 6 dB
 MRSound.shared.library.register(.captainWelcome, url: fileURL)
@@ -40,3 +41,10 @@ Deviation from the prototype: the forest bird chirps bypass the layer gain stage
 
 ## Tests
 `MRSound(settings:library:mode: .offline)` uses `AVAudioEngine.enableManualRenderingMode(.offline)` (no output device) and `renderOffline(seconds:)`. The app project has no test target and the pbxproj is owned elsewhere, so tests live in `App/MeridianTests/Audio/MRSoundTests.swift` and run with `Scripts/audio-test.sh` (throwaway SwiftPM package symlinking the sources, same MainActor default isolation). They check: every cue finite (no NaN), peak < 1 and audible, duration in `MRCue.expectedDuration`; FFT/envelope/biquad correctness; every layer and all layers together bounded; presets, layersOff, rip velocity gating, UI-sound/DND/announcement gating, settings persistence. If a test target is added later the same file works unchanged (`@testable import Meridian`). Cue rendering is slow in debug builds (a few seconds for the reverb cues); release is much faster and `prewarm()` does it off the main thread.
+
+## Cabin sound lifecycle and fades (phase F)
+- The ambient bed plays only while a flight is active and `settings.cabinSoundEnabled` (key `meridian.sound.cabin`, default on). `AppModel.activeFlight.didSet` calls `CabinSound.flightChanged` (SoundsPane.swift), which pushes the stored mixer and calls `setFlightActive`. Landing, early landing, landed-while-away, resume, delete-all all end up there. Mixer edits outside a flight change levels only; they never start sound.
+- Fades: ambient 1.8 s in / 1.5 s out, equal power (`MRFade.equalPower`, linear progress). Level, mute and master changes ramp (tc 0.13 s, about 0.4 s). Ducking attack 0.25 s, release 0.9 s. The engine is never stopped, so nothing is cut off.
+- One-shot cues get a 5 ms raised-cosine fade-in and a fade-out (30 ms, 250 ms for cues of 1 s or more); ticks, clicks, flaps and printer steps keep their own attack (`MRCueRenderer.usesEdgeFades`).
+- Chime: synthesized PA "ding-dong" (see docs/design/audio-credits.md); `Announcements/boarding-chime.*` / `landing-chime.*` in the bundle override it.
+- `startIfNeeded` retries when the first engine start failed.
