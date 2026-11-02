@@ -34,18 +34,47 @@ struct MiniMapView: View {
     var chip: String?
     var drawsShadow = true
     var interactive = true
+    /// Follow camera: closer, the plane stays in the middle and the map moves under it every frame (live surfaces only;
+    /// the artboards keep the whole-route framing of the design).
+    var follows = false
     var actions = MiniMapActions()
 
     @State private var hovering = false
+    @State private var stamp: (progress: Double, at: Date) = (0, .now)
+    @State private var windowVisible = true
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var over: Bool { pinnedHover ?? hovering }
 
     var body: some View {
+        if follows {
+            // 15 fps is plenty for a 310 x 140 map; the plane is advanced from the flight's own rate between the 1 Hz updates
+            TimelineView(.animation(minimumInterval: 1.0 / 15, paused: !windowVisible)) { tl in
+                mapBody(progress: liveProgress(at: tl.date))
+            }
+            .onChange(of: info.progress) { _, p in stamp = (p, .now) }
+            .onAppear { stamp = (info.progress, .now) }
+            .background(WindowActivity(visible: $windowVisible))
+        } else {
+            mapBody(progress: info.progress)
+        }
+    }
+
+    private func liveProgress(at now: Date) -> Double {
+        guard info.kind == .flight || info.kind == .last, !info.paused, !info.isFreeFlight, info.timeSec > 0, info.progress < 1 else { return info.progress }
+        let rate = (1 - info.progress) / info.timeSec
+        return min(1, stamp.progress + rate * max(0, min(2, now.timeIntervalSince(stamp.at))))
+    }
+
+    private func mapBody(progress: Double) -> some View {
         let W = size.width, H = size.height
-        let geo = Geometry(info: info, width: W, height: H)
-        ZStack(alignment: .topLeading) {
-            MapSurface(style: .terra, theme: .dark, center: geo.mid, zoom: geo.zoom, size: size, showsLabels: W >= 480)
+        let geo = Geometry(info: info, width: W, height: H, progress: progress, follows: follows)
+        return ZStack(alignment: .topLeading) {
+            if let cam = geo.camera {
+                MapSurface(style: .terra, theme: .dark, center: geo.mid, zoom: geo.zoom, size: size, showsLabels: W >= 480, animatesCamera: false, followCamera: cam)
+            } else {
+                MapSurface(style: .terra, theme: .dark, center: geo.mid, zoom: geo.zoom, size: size, showsLabels: W >= 480)
+            }
             LinearGradient(stops: [.init(color: sysRGBA(6, 8, 13, 0), location: 0.5),
                                    .init(color: sysRGBA(6, 8, 13, 0.5), location: 1)], startPoint: .top, endPoint: .bottom)
             route(geo)
@@ -80,25 +109,29 @@ struct MiniMapView: View {
         let here: CGPoint
         let heading: Double
         let hasRoute: Bool
+        var camera: FollowCamera?
 
-        init(info: SystemFlightInfo, width W: Double, height H: Double) {
+        init(info: SystemFlightInfo, width W: Double, height H: Double, progress: Double? = nil, follows: Bool = false) {
             guard let a = info.origin, let b = info.destination else {
                 mid = info.origin ?? SystemFlightInfo.lhr
-                zoom = 3; points = []; k0 = 0; hasRoute = false; heading = 0
+                zoom = 3; points = []; k0 = 0; hasRoute = false; heading = 0; camera = nil
                 here = CGPoint(x: W / 2, y: H / 2)
                 return
             }
             hasRoute = true
             let pts = systemArc(from: a, to: b, steps: 60)
-            let prog = min(1, max(0, info.progress))
+            let prog = min(1, max(0, progress ?? info.progress))
             let si = prog * Double(pts.count - 1)
             let k0 = Int(si.rounded(.down)), k1 = min(pts.count - 1, k0 + 1), f = si - Double(k0)
             let hereC = Coordinate(latitude: pts[k0].latitude + (pts[k1].latitude - pts[k0].latitude) * f,
                                    longitude: pts[k0].longitude + (pts[k1].longitude - pts[k0].longitude) * f)
             let A = EuropeProjection.xy(pts[0]), B = EuropeProjection.xy(pts[pts.count - 1])
-            let z = min(0.62 * W / max(abs(A.x - B.x), 1), 0.5 * H / max(abs(A.y - B.y), 1), 4)
-            let mid = pts[pts.count / 2]
+            let fit = min(0.62 * W / max(abs(A.x - B.x), 1), 0.5 * H / max(abs(A.y - B.y), 1), 4)
+            // follow: closer than the whole route, centred on the plane (continuous position, not the sampled one)
+            let z = follows ? max(fit * 2.4, 2.5) : fit
+            let mid = follows ? Geo.interpolate(from: a, to: b, fraction: prog) : pts[pts.count / 2]
             let C = EuropeProjection.xy(mid)
+            if follows { camera = FollowCamera(centerP: C, scale: z, bearing: 0, pivot: CGPoint(x: W / 2, y: H / 2), size: CGSize(width: W, height: H)) }
             func scr(_ c: Coordinate) -> CGPoint {
                 let q = EuropeProjection.xy(c)
                 return CGPoint(x: (q.x - C.x) * z + W / 2, y: (q.y - C.y) * z + H / 2)
@@ -109,7 +142,7 @@ struct MiniMapView: View {
             self.mid = mid
             self.zoom = z
             self.k0 = k0
-            self.here = scr(hereC)
+            self.here = follows ? CGPoint(x: W / 2, y: H / 2) : scr(hereC)
             self.heading = atan2(ahead.x - sp[k0].x, -(ahead.y - sp[k0].y)) * 180 / .pi
         }
     }

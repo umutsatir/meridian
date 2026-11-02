@@ -77,7 +77,7 @@ struct MenuPopoverView: View {
 
     private var map: some View {
         MiniMapView(info: info, size: CGSize(width: 310, height: 140), chip: chipText,
-                    drawsShadow: false, interactive: false)
+                    drawsShadow: false, interactive: false, follows: true)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .frame(width: 310, height: 140)
     }

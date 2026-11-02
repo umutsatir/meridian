@@ -165,11 +165,12 @@ struct LiveCruiseScreen: View {
     @AppStorage("flight.landingAlert") private var alertEnabled = true
 
     /// - Parameter style: map style to start with; `nil` follows Settings > Maps.
-    init(style: MapStyle? = nil) {
+    init(style: MapStyle? = nil, configure: (CruiseUI) -> Void = { _ in }) {
         let all = MapStyle.allCases
         let saved = all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))]
         let u = CruiseUI(style: style ?? saved)
         u.sceneAuto = true
+        configure(u)
         _ui = State(initialValue: u)
     }
 

@@ -86,6 +86,14 @@ extension ScreenRegistry {
             let a = ProcessInfo.processInfo.arguments
             if let i = a.firstIndex(of: "--scale"), let v = Double(a[i + 1]) { u.camera.scale = v }
             u.camera.orientation = .headingUp } }
+        // the live flight with a pinned zoom / orientation (`--follow-scale 3000 --follow-heading`), for CPU and motion checks
+        register("cruise-follow-live", setup: { $0.startFlight() }) {
+            LiveCruiseScreen { u in
+                let a = ProcessInfo.processInfo.arguments
+                if let i = a.firstIndex(of: "--follow-scale"), i + 1 < a.count, let v = Double(a[i + 1]) { u.camera.scale = v }
+                if a.contains("--follow-heading") { u.camera.orientation = .headingUp }
+            }.mrWindowChrome()
+        }
         register("cruise-follow-world") { CruiseDemo(p: 0.45) { $0.camera.scale = 0.3 } }
 
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }

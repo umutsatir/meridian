@@ -254,38 +254,43 @@ private struct RouteLayer: View {
     let size: CGSize
 
     var body: some View {
-        let view = CGRect(origin: .zero, size: size).insetBy(dx: -120, dy: -120)
-        let trailPts = [CGPoint](points[0...k0]) + [here]
-        let futurePts = [here] + [CGPoint](points[min(points.count - 1, k0 + 1)...])
-        let trailRuns = clippedRuns(trailPts, in: view)
-        let trailLen = length(trailPts)
-        let futureRuns = clippedRuns(futurePts, in: view, startDist: trailLen)
-        // gradientUnits="userSpaceOnUse": the shapes fill the whole map, so unit points are map fractions. At street zoom the
-        // ends are far off screen, so the visible part of the trail is pure blue-to-teal of its own span.
-        let gs = clampedUnit(points[0]), ge = clampedUnit(CGPoint(x: here.x + 1, y: here.y))
-        let grad = LinearGradient(colors: [Color(RGB(hex: "#6AB7FF")), Color(RGB(hex: "#8BF3D8"))], startPoint: gs, endPoint: ge)
-        let trail = Path { p in for r in trailRuns { p.addLines(r.pts) } }
-        ZStack {
-            ForEach(Array(futureRuns.enumerated()), id: \.offset) { _, r in
-                Path { $0.addLines(r.pts) }
-                    .stroke(Color(RGB(hex: "#F3F5FA")).opacity(0.46),
-                            style: StrokeStyle(lineWidth: 1.6, lineCap: .round, dash: [2, 7], dashPhase: CGFloat(r.startDist.truncatingRemainder(dividingBy: 9))))
+        // one Canvas instead of a view per stroke: the route is redrawn every frame
+        let (points, k0, here, size) = (points, k0, here, size)
+        Canvas { ctx, _ in
+            let view = CGRect(origin: .zero, size: size).insetBy(dx: -120, dy: -120)
+            let trailPts = [CGPoint](points[0...k0]) + [here]
+            let futurePts = [here] + [CGPoint](points[min(points.count - 1, k0 + 1)...])
+            let trailLen = length(trailPts)
+            // gradientUnits="userSpaceOnUse": from the origin to the plane. At street zoom the origin is far off screen, so the
+            // gradient is clamped to a span the visible part of the trail still spans.
+            let g0 = clamped(points[0], size), g1 = clamped(CGPoint(x: here.x + 1, y: here.y), size)
+            let grad = GraphicsContext.Shading.linearGradient(Gradient(colors: [Color(RGB(hex: "#6AB7FF")), Color(RGB(hex: "#8BF3D8"))]),
+                                                              startPoint: g0, endPoint: g1)
+            var trail = Path()
+            for r in clippedRuns(trailPts, in: view) { trail.addLines(r.pts) }
+            for r in clippedRuns(futurePts, in: view, startDist: trailLen) {
+                var p = Path(); p.addLines(r.pts)
+                ctx.stroke(p, with: .color(Color(RGB(hex: "#F3F5FA")).opacity(0.46)),
+                           style: StrokeStyle(lineWidth: 1.6, lineCap: .round, dash: [2, 7], dashPhase: CGFloat(r.startDist.truncatingRemainder(dividingBy: 9))))
             }
-            trail.stroke(Color(RGB(hex: "#6AB7FF")).opacity(0.3), style: StrokeStyle(lineWidth: 8, lineCap: .round)).blur(radius: 4)
-            trail.stroke(grad, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+            ctx.drawLayer { l in
+                l.addFilter(.blur(radius: 4))
+                l.stroke(trail, with: .color(Color(RGB(hex: "#6AB7FF")).opacity(0.3)), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+            }
+            ctx.stroke(trail, with: grad, style: StrokeStyle(lineWidth: 3, lineCap: .round))
         }
         .frame(width: size.width, height: size.height)
     }
 
-    private func clampedUnit(_ p: CGPoint) -> UnitPoint {
-        UnitPoint(x: max(-4, min(5, p.x / size.width)), y: max(-4, min(5, p.y / size.height)))
+    private func clamped(_ p: CGPoint, _ size: CGSize) -> CGPoint {
+        CGPoint(x: max(-4 * size.width, min(5 * size.width, p.x)), y: max(-4 * size.height, min(5 * size.height, p.y)))
     }
 }
 
 // MARK: - Window visibility
 
 /// Reports whether the window can be seen (on screen, not minimised, not fully covered) so the map stops redrawing when it cannot.
-private struct WindowActivity: NSViewRepresentable {
+struct WindowActivity: NSViewRepresentable {
     @Binding var visible: Bool
     func makeNSView(context: Context) -> NSView { Probe(update: { v in DispatchQueue.main.async { if visible != v { visible = v } } }) }
     func updateNSView(_ nsView: NSView, context: Context) {}
