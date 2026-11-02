@@ -2,16 +2,19 @@ import Foundation
 
 /// Pure logic of tearing off the boarding-pass stub (C03 "Tear-off stub", Ritual.dc.html).
 ///
-/// The tear front follows the pointer: `raw` is the drag distance projected on the perforation divided by the ticket width (360).
-/// `progress` is the resisted value: easeInCubic over the first 10 %, then 1:1. The front can retreat while the pointer is
-/// down; on release below `completionThreshold` (72 %) the partial tear stays and can be picked up again.
+/// The tear front follows the pointer: `raw` is the drag distance projected on the perforation divided by `dragSpan`
+/// (the perforation is already weakened, so the drag needed is well under the ticket width).
+/// `progress` is the resisted value: a light ease-in quadratic over the first 6 %, then 1:1. The front can retreat while the pointer is
+/// down; on release below `completionThreshold` (55 %) the partial tear stays and can be picked up again.
 public struct TearState: Equatable, Sendable {
-    public static let completionThreshold = 0.72
+    public static let completionThreshold = 0.55
     /// A haptic tick fires every 6 % of progress.
     public static let tickInterval = 0.06
     public static let maxStubAngleDegrees = 25.0
-    /// Resistance zone: easeInCubic below this progress.
-    public static let resistanceZone = 0.10
+    /// Resistance zone: ease-in quadratic below this progress (light: the first bridge gives after about 11 pt of drag).
+    public static let resistanceZone = 0.06
+    /// Drag distance in points that tears the whole 360 pt perforation (the original design needed 360).
+    public static let dragSpan: Double = 250
 
     public private(set) var raw: Double = 0
     public private(set) var isTorn = false
@@ -29,13 +32,13 @@ public struct TearState: Equatable, Sendable {
 
     public static func progress(forRawDrag raw: Double) -> Double {
         let p = min(1, max(0, raw))
-        return p < resistanceZone ? resistanceZone * pow(p / resistanceZone, 3) : p
+        return p < resistanceZone ? resistanceZone * pow(p / resistanceZone, 2) : p
     }
 
     /// Inverse of `progress(forRawDrag:)`, to resume a partial tear from where it stopped.
     public static func rawDrag(forProgress p: Double) -> Double {
         let q = min(1, max(0, p))
-        return q < resistanceZone ? resistanceZone * cbrt(q / resistanceZone) : q
+        return q < resistanceZone ? resistanceZone * (q / resistanceZone).squareRoot() : q
     }
 
     public static func tickCount(atProgress progress: Double) -> Int {
@@ -53,7 +56,7 @@ public struct TearState: Equatable, Sendable {
         return n
     }
 
-    /// Call when the pointer goes up. Returns whether the stub came off (>= 72 %).
+    /// Call when the pointer goes up. Returns whether the stub came off (>= 55 %).
     @discardableResult
     public mutating func release() -> Bool {
         guard !isTorn else { return true }

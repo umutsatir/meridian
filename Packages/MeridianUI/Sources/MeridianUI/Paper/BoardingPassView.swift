@@ -192,7 +192,7 @@ struct PassRim: View {
     let seed: UInt64
     var body: some View {
         Path { p in
-            let pts = TornEdge.polyline(seed: seed)
+            let pts = PerforationEdge(seed: seed).body
             for (i, q) in pts.enumerated() {
                 let pt = CGPoint(x: q.x, y: q.y - 446 - 0.5)
                 i == 0 ? p.move(to: pt) : p.addLine(to: pt)

@@ -3,61 +3,6 @@ import Observation
 
 public enum TearGrabSide: Sendable { case left, right }
 
-/// Geometry of a partial tear (Ritual.dc.html `renderVals`). All coordinates are in the 360 x 600 pass space.
-public enum TicketTearGeometry {
-    public struct Cut: Sendable {
-        public var front: CGPoint          // tear front (xf, yf)
-        public var body: [CGPoint]         // polygon that stays on the pass
-        public var piece: [CGPoint]        // polygon of the torn-away stub
-        public var rim: [CGPoint]          // fibrous rim along the new edge (y + .6)
-    }
-
-    /// Seeded tear line, closed with (0, 450) when the last point misses x = 0.
-    static func line(seed: UInt64) -> [CGPoint] {
-        var pts = TornEdge.polyline(seed: seed)
-        if let l = pts.last, l.x > 0 { pts.append(CGPoint(x: 0, y: 450)) }
-        return pts
-    }
-
-    static func yAt(_ pts: [CGPoint], x: CGFloat) -> CGFloat {
-        for i in 0..<(pts.count - 1) {
-            let a = pts[i], b = pts[i + 1]
-            if x <= a.x && x >= b.x {
-                let f = a.x == b.x ? 0 : (a.x - x) / (a.x - b.x)
-                return a.y + (b.y - a.y) * f
-            }
-        }
-        return 450
-    }
-
-    /// Front position: `x_f = 360 (1 - p)` pulling from the right, `360 p` from the left.
-    public static func frontX(progress p: Double, grab: TearGrabSide) -> CGFloat { grab == .right ? 360 * (1 - p) : 360 * p }
-
-    public static func cut(seed: UInt64, progress p: Double, grab: TearGrabSide) -> Cut {
-        let pts = line(seed: seed)
-        let xf = frontX(progress: p, grab: grab), yf = yAt(pts, x: xf)
-        let zone = pts.filter { grab == .right ? $0.x >= xf : $0.x <= xf }
-        let front = CGPoint(x: xf, y: yf)
-        let body: [CGPoint], piece: [CGPoint]
-        if grab == .right {
-            body = [CGPoint(x: 0, y: 0), CGPoint(x: 360, y: 0)] + zone + [front, CGPoint(x: xf, y: 600), CGPoint(x: 0, y: 600)]
-            piece = [front] + zone.reversed() + [CGPoint(x: 360, y: 600), CGPoint(x: xf, y: 600)]
-        } else {
-            body = [CGPoint(x: 0, y: 0), CGPoint(x: 360, y: 0), CGPoint(x: 360, y: 600), CGPoint(x: xf, y: 600), front] + zone
-            // the canvas starts this polygon at (0, 0), which would carry the top-left of the pass along; start on the tear line
-            piece = zone.reversed() + [front, CGPoint(x: xf, y: 600), CGPoint(x: 0, y: 600)]
-        }
-        return Cut(front: front, body: body, piece: piece, rim: ([front] + zone).map { CGPoint(x: $0.x, y: $0.y + 0.6) })
-    }
-
-    /// Pose of the attached stub while it is dragged: rotation about the front, drift and drop.
-    /// `pull` is the extra swing (degrees, positive = pulled down) from where the pointer is relative to where it grabbed.
-    public static func piecePose(progress p: Double, grab: TearGrabSide, dy: CGFloat, pull: Double = 0) -> (degrees: Double, dx: CGFloat, dy: CGFloat) {
-        let s: Double = grab == .right ? 1 : -1
-        return (s * (TearState.stubAngle(atProgress: p) + pull), CGFloat(s) * CGFloat(p) * 14, 4 + CGFloat(p) * 22 + dy * 0.5)
-    }
-}
-
 public struct TearParticle: Sendable, Equatable {
     var x: Double, y: Double, vx: Double, vy: Double, r: Double, vr: Double, size: Double, alpha: Double
     /// One physics step: gravity 900 pt/s2, fades over 0.9 s.
@@ -79,10 +24,11 @@ public enum TearPhase: Sendable, Equatable { case ready, dragging, finishing, fl
 /// State machine behind `TearGesture`. Everything the sound/haptic code needs is a closure:
 /// - `onBegin`: pointer down (start the rip noise, gated at 0)
 /// - `onTick(n)`: haptic tick, every 6 % of progress
+/// - `onBridges(n)`: n perforation bridges broke since the last call (the "tak" of the tear; fires while dragging and during the auto-finish)
 /// - `onVelocity(v)`: smoothed pointer speed 0...1 for the rip sound (0 when the pointer rests)
-/// - `onFinish`: the auto-finish starts (>= 72 %): rip accelerates
-/// - `onRelease(progress)`: released below 72 %, the partial tear stays
-/// - `onTorn`: the stub left (heavy release tick, 150 Hz thump when the fly ends)
+/// - `onFinish`: the auto-finish starts (>= 55 % or a fast flick): the remaining bridges give way in one stroke
+/// - `onRelease(progress)`: released below the threshold, the partial tear stays
+/// - `onTorn`: the stub came free (separation sound, heavy release tick); the fly starts, 150 Hz thump when it lands
 @MainActor @Observable
 public final class TicketTearModel {
     public private(set) var state = TearState()
@@ -98,6 +44,7 @@ public final class TicketTearModel {
 
     @ObservationIgnored public var onBegin: (() -> Void)?
     @ObservationIgnored public var onTick: ((Int) -> Void)?
+    @ObservationIgnored public var onBridges: ((Int) -> Void)?
     @ObservationIgnored public var onVelocity: ((Double) -> Void)?
     @ObservationIgnored public var onFinish: (() -> Void)?
     @ObservationIgnored public var onRelease: ((Double) -> Void)?
@@ -116,22 +63,38 @@ public final class TicketTearModel {
     @ObservationIgnored private var lastT = Date()
     @ObservationIgnored private var lastMove = Date()
     @ObservationIgnored private var rng = PaperRandom(seed: 99)
+    @ObservationIgnored private var bridgesSeen = 0
+    @ObservationIgnored private var beganAt = Date()
+    /// Smoothed speed (0...1) above which a pull past `flickProgress` finishes by itself ("one stroke").
+    @ObservationIgnored static let flickVelocity = 0.62
+    @ObservationIgnored static let flickProgress = 0.15
 
     public init() {}
 
     public var progress: Double { state.progress }
 
+    /// Bridges broken at the current front.
+    public var bridgeCount: Int {
+        state.isTorn ? PerforationEdge.bridgeCenters.count : PerforationEdge.brokenCount(frontX: TicketTearGeometry.frontX(progress: state.progress, grab: grab), grab: grab)
+    }
+
+    private func emitBridges() {
+        let n = bridgeCount
+        if n > bridgesSeen { onBridges?(n - bridgesSeen) }
+        bridgesSeen = n
+    }
+
     /// Static pose for previews, snapshots and design comparison (no animation, no callbacks).
     public func preview(progress: Double, grab: TearGrabSide = .right, flyProgress: Double = 0) {
         task?.cancel()
         self.grab = grab
-        state = TearState(); state.drag(to: TearState.rawDrag(forProgress: progress))
+        state = TearState(); state.drag(to: TearState.rawDrag(forProgress: progress)); bridgesSeen = bridgeCount
         self.flyProgress = flyProgress
         if flyProgress > 0 { state.complete(); phase = flyProgress >= 1 ? .done : .flying } else { phase = progress > 0 ? .dragging : .ready }
     }
 
     public func reset() {
-        task?.cancel(); state = TearState(); phase = .ready; dy = 0; pullAngle = 0; velocity = 0; flyProgress = 0; particles = []; isDragging = false; directionLocked = false
+        task?.cancel(); state = TearState(); phase = .ready; dy = 0; pullAngle = 0; velocity = 0; flyProgress = 0; particles = []; isDragging = false; directionLocked = false; bridgesSeen = 0
     }
 
     // MARK: drag
@@ -139,7 +102,7 @@ public final class TicketTearModel {
     public func begin(x: CGFloat, y: CGFloat) {
         guard phase == .ready || phase == .dragging else { return }
         directionLocked = state.progress >= 0.001
-        startX = x; startY = y; startRaw = state.raw; lastX = x; lastT = Date(); lastMove = Date(); velocity = 0
+        startX = x; startY = y; startRaw = state.raw; lastX = x; lastT = Date(); lastMove = Date(); beganAt = Date(); velocity = 0
         isDragging = true; phase = .dragging
         onBegin?()
         startLoop()
@@ -159,19 +122,27 @@ public final class TicketTearModel {
             directionLocked = true
             startRaw = state.raw
         }
-        let delta = Double(grab == .left ? x - startX : startX - x) / 360
+        let delta = Double(grab == .left ? x - startX : startX - x) / TearState.dragSpan
         let before = state.progress
         let ticks = state.drag(to: startRaw + delta)
         if ticks > 0, state.progress > 0 { onTick?(ticks) }
         onVelocity?(velocity)
         if Int(state.progress * 33) != Int(before * 33), state.progress > 0.1 { spawn() }
-        if state.hasPassedThreshold { isDragging = false; finishAuto(duration: 0.26, curve: { $0 * $0 }) }
+        emitBridges()
+        if state.hasPassedThreshold { isDragging = false; finishAuto(duration: 0.2, curve: { $0 * $0 }) }
+        else if isFlick(velocity) { isDragging = false; finishAuto(duration: 0.14, curve: { $0 }) }
+    }
+
+    private func isFlick(_ v: Double) -> Bool {
+        v >= Self.flickVelocity && state.progress >= Self.flickProgress && Date().timeIntervalSince(beganAt) > 0.05
     }
 
     public func end() {
         guard isDragging else { return }
+        let v = velocity
         isDragging = false; velocity = 0; dy = 0; pullAngle = 0
         onVelocity?(0)
+        if phase == .dragging, isFlick(v) { finishAuto(duration: 0.14, curve: { $0 }); return }
         if phase == .dragging { phase = .ready; onRelease?(state.progress) }
     }
 
@@ -181,7 +152,7 @@ public final class TicketTearModel {
     public func tearWithButton(reduceMotion: Bool = false) {
         guard phase == .ready || phase == .dragging else { return }
         isDragging = false
-        if reduceMotion { state.complete(); onFinish?(); phase = .flying; flyProgress = 0.999; startFly(); return }
+        if reduceMotion { state.complete(); emitBridges(); onFinish?(); phase = .flying; flyProgress = 0.999; startFly(); return }
         finishAuto(duration: 0.65, curve: { $0 * $0 * 0.6 + $0 * 0.4 })
     }
 
@@ -197,6 +168,7 @@ public final class TicketTearModel {
                 self.state.drag(to: TearState.rawDrag(forProgress: p))
                 self.velocity = 0.6 + u * 0.4
                 self.onVelocity?(self.velocity)
+                self.emitBridges()
                 if self.rng.next() < 0.5 { self.spawn() }
                 self.stepParticles(8)
                 if u >= 1 { break }
@@ -204,6 +176,7 @@ public final class TicketTearModel {
             }
             guard let self, !Task.isCancelled else { return }
             self.state.complete()
+            self.emitBridges()
             self.velocity = 0; self.onVelocity?(0)
             self.onTorn?()
             self.phase = .flying
@@ -258,13 +231,19 @@ public final class TicketTearModel {
     }
 }
 
-private func flyProgressNow(_ t0: Date) -> Double { min(1, Date().timeIntervalSince(t0) / 0.72) }
+/// The freed stub flies to the wallet over this long (seconds).
+let tearFlyDuration = 0.82
+private func flyProgressNow(_ t0: Date) -> Double { min(1, Date().timeIntervalSince(t0) / tearFlyDuration) }
 
 // MARK: - View
 
-/// The interactive tear-off: grab the stub and pull; the tear runs the way you drag (left or right along the perforation), past 72 % it finishes itself and flies to `flyTarget`
+/// The interactive tear-off: grab the stub and pull; the tear runs the way you drag (left or right along the perforation), the bridges of the
+/// perforation give way one by one, past 55 % (or on a quick flick) it finishes itself and the freed stub flies to `flyTarget`
 /// (pass-local coordinates; default is 142 pt left of and 300 pt above the pass, where the sidebar's Wallet icon sits in the printing screen).
-/// Keyboard: Space / Return tears. VoiceOver: custom action "Tear off the stub". Reduce Motion: no fly, quick fade.
+/// Keyboard: Space / Return tears. VoiceOver: custom action "Tear off the stub". Reduce Motion: no bend, no fly, quick fade.
+///
+/// Drawing: the printed pass is rasterised once; the body is that raster clipped above the perforation, the stub is the same raster sliced
+/// into 3 pt strips that are bent about the tear front (paper curl with a shade that follows the curvature).
 public struct TearGesture: View {
     let model: BoardingPassModel
     let tear: TicketTearModel
@@ -272,6 +251,10 @@ public struct TearGesture: View {
     let showHint: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var focused: Bool
+    @State private var raster: CGImage?
+
+    private static let canvasOrigin = CGPoint(x: 160, y: 160)
+    private static let canvasSize = CGSize(width: 680, height: 1250)
 
     public init(model: BoardingPassModel, tear: TicketTearModel, flyTarget: CGPoint = CGPoint(x: -142, y: -300), showHint: Bool = true) {
         self.model = model; self.tear = tear; self.flyTarget = flyTarget; self.showHint = showHint
@@ -281,22 +264,19 @@ public struct TearGesture: View {
         let p = tear.progress
         let grab = tear.grab
         let done = tear.phase == .flying || tear.phase == .done
-        let cut = TicketTearGeometry.cut(seed: model.seed, progress: p, grab: grab)
-        let pose = TicketTearGeometry.piecePose(progress: p, grab: grab, dy: tear.dy, pull: tear.pullAngle)
         let tension: CGFloat = tear.isDragging ? (grab == .right ? -1 : 1) * 1.5 * CGFloat(min(1, p * 4)) : 0
         ZStack(alignment: .topLeading) {
             if done {
                 PassPaper(model: model, state: .torn, side: .front)
                     .shadow(color: .black.opacity(0.42), radius: 12, y: 24)
+                if tear.flyProgress < 1 { flyingStub() }
+            } else if p > 0.002, let raster {
+                tornPass(raster)
+                    .offset(x: reduceMotion ? 0 : tension)
             } else {
-                ZStack(alignment: .topLeading) {
-                    PassPaper(model: model, state: .printed, side: .front)
-                        .mask(PolygonShape(points: p > 0.002 ? cut.body : [CGPoint(x: -20, y: -20), CGPoint(x: 400, y: -20), CGPoint(x: 400, y: 700), CGPoint(x: -20, y: 700)]))
-                    if p > 0.002 { Rim(points: cut.rim) }
-                }
-                .shadow(color: .black.opacity(0.42), radius: 12 + 12 * 0, y: 24)
-                .offset(x: reduceMotion ? 0 : tension)
-                if p > 0.002 { piece(cut: cut, pose: pose) }
+                PassPaper(model: model, state: .printed, side: .front)
+                    .shadow(color: .black.opacity(0.42), radius: 12, y: 24)
+                    .offset(x: reduceMotion ? 0 : tension)
                 if p < 0.002 && showHint && tear.phase == .ready { PerforationGlow() }
             }
             particles
@@ -315,6 +295,7 @@ public struct TearGesture: View {
             if inside && tear.phase == .ready { NSCursor.openHand.set() } else { NSCursor.arrow.set() }
             #endif
         }
+        .onAppear { if raster == nil { raster = Self.rasterise(model) } }
         .focusable().focused($focused)
         .onKeyPress(.space) { tear.tearWithButton(reduceMotion: reduceMotion); return .handled }
         .onKeyPress(.return) { tear.tearWithButton(reduceMotion: reduceMotion); return .handled }
@@ -324,53 +305,133 @@ public struct TearGesture: View {
         .accessibilityAction(named: "Tear off the stub") { tear.tearWithButton(reduceMotion: reduceMotion) }
     }
 
-    @ViewBuilder private func piece(cut: TicketTearGeometry.Cut, pose: (degrees: Double, dx: CGFloat, dy: CGFloat)) -> some View {
-        let flying = tear.phase == .flying || tear.phase == .done
-        let u = tear.flyProgress
-        let s: CGFloat = tear.grab == .right ? 1 : -1
-        let content = ZStack(alignment: .topLeading) {
-            PassPaper(model: model, state: .printed, side: .front)
-                .mask(PolygonShape(points: cut.piece))
-            // curl shade next to the front
-            Rectangle()
-                .fill(LinearGradient(colors: [Color(red: 60 / 255, green: 48 / 255, blue: 30 / 255).opacity(0.26), .clear],
-                                     startPoint: tear.grab == .right ? .leading : .trailing, endPoint: tear.grab == .right ? .trailing : .leading))
-                .frame(width: 46, height: 150)
-                .at(tear.grab == .right ? cut.front.x : cut.front.x - 46, 450)
-                .mask(PolygonShape(points: cut.piece))
-            Rim(points: cut.rim, opacity: 0.9)
-        }
-        .frame(width: 360, height: 600, alignment: .topLeading)
-        .shadow(color: .black.opacity(0.45), radius: (8 + CGFloat(tear.progress) * 10) / 2, y: 6 + CGFloat(tear.progress) * 12)
-        if flying {
-            let th = 25.0 * Double(s)
-            let c = CGPoint(x: 180, y: 525)
-            let rc = rotate(c, about: CGPoint(x: tear.grab == .right ? 0 : 360, y: 450), degrees: th)
-            let d0 = CGPoint(x: rc.x - c.x + s * 14, y: rc.y - c.y + 26)
-            let p0 = CGPoint(x: rc.x + s * 14, y: rc.y + 26)
-            let ctl = CGPoint(x: (p0.x + flyTarget.x) / 2 + 40, y: min(p0.y, flyTarget.y) - 150)
-            let uu = CGFloat(max(0, min(1, u)))
-            let w0: CGFloat = (1 - uu) * (1 - uu), w1: CGFloat = 2 * (1 - uu) * uu, w2: CGFloat = uu * uu
-            let bx: CGFloat = w0 * p0.x + w1 * ctl.x + w2 * flyTarget.x
-            let by: CGFloat = w0 * p0.y + w1 * ctl.y + w2 * flyTarget.y
-            let b = CGPoint(x: bx, y: by)
-            let e = uu * uu * (3 - 2 * uu), sc = 1 - 0.9 * pow(uu, 1.1)
-            content
-                .scaleEffect(reduceMotion ? 1 : sc, anchor: UnitPoint(x: 0.5, y: 525 / 600))
-                .rotationEffect(.degrees(th + Double(s) * 320 * Double(e)), anchor: UnitPoint(x: 0.5, y: 525 / 600))
-                .offset(x: d0.x + b.x - p0.x, y: d0.y + b.y - p0.y)
-                .opacity(reduceMotion ? Double(1 - uu) : (uu > 0.86 ? max(0, 1 - Double(uu - 0.86) / 0.14) : 1))
-        } else {
-            content
-                .rotationEffect(.degrees(reduceMotion ? 0 : pose.degrees), anchor: UnitPoint(x: cut.front.x / 360, y: 450 / 600))
-                .offset(x: reduceMotion ? 0 : pose.dx, y: reduceMotion ? 0 : pose.dy)
-        }
+    @MainActor private static func rasterise(_ model: BoardingPassModel) -> CGImage? {
+        let r = ImageRenderer(content: PassPaper(model: model, state: .printed, side: .front).frame(width: 360, height: 600))
+        r.scale = 3
+        return r.cgImage
     }
 
-    private func rotate(_ p: CGPoint, about h: CGPoint, degrees: Double) -> CGPoint {
-        let a = degrees * .pi / 180
-        let dx = p.x - h.x, dy = p.y - h.y
-        return CGPoint(x: dx * cos(a) - dy * sin(a) + h.x, y: dx * sin(a) + dy * cos(a) + h.y)
+    // MARK: pose
+
+    /// Hinge angle (degrees) while the stub is dragged.
+    private func hingeAngle() -> Double {
+        if reduceMotion { return 0 }
+        let pose = TicketTearGeometry.piecePose(progress: tear.progress, grab: tear.grab, dy: tear.dy, pull: tear.pullAngle)
+        return min(30, abs(pose.degrees) * 0.7)
+    }
+
+    private func canvasPlacement<Content: View>(_ v: Content) -> some View {
+        v.frame(width: Self.canvasSize.width, height: Self.canvasSize.height)
+            .offset(x: -Self.canvasOrigin.x, y: -Self.canvasOrigin.y)
+            .allowsHitTesting(false)
+    }
+
+    // MARK: pass while it is being torn
+
+    private func tornPass(_ cg: CGImage) -> some View {
+        let p = tear.progress, grab = tear.grab
+        let edges = PerforationEdge(seed: model.seed)
+        let cut = TicketTearGeometry.cut(edges: edges, progress: p, grab: grab)
+        let n = cut.brokenBridges
+        let front = PerforationEdge.quantizedFront(frontX: TicketTearGeometry.frontX(progress: p, grab: grab), grab: grab)
+        let hinge = n == 0 || reduceMotion ? 0 : hingeAngle() + 4 * min(1, Double(n) / 3)   // the first bridges open the gap at once
+        let curl = n == 0 || reduceMotion ? 0 : 10 * min(1, p * 3) + tear.pullAngle * 0.6
+        let pose = TearRender.pose(edges: edges, front: front, grab: grab, hinge: hinge, curl: curl)
+        let strips = pose.strips
+        let img = Image(decorative: cg, scale: 3)
+        let o = Self.canvasOrigin
+        let fibres = TearRender.fibres(edges: edges, front: front, grab: grab, seed: model.seed)
+        return ZStack(alignment: .topLeading) {
+            canvasPlacement(Canvas { ctx, _ in
+                var c = ctx; c.translateBy(x: o.x, y: o.y)
+                // one drop shadow for everything that is still flat; the freed part lifts, so its shadow is longer and softer
+                c.drawLayer { l in
+                    l.addFilter(.shadow(color: .black.opacity(0.42), radius: 12, x: 0, y: 24, options: .shadowOnly))
+                    var sil = TearRender.polygon(cut.body)
+                    sil.addPath(TearRender.silhouette(strips, free: false))
+                    l.fill(sil, with: .color(.black))
+                }
+                if n > 0 {
+                    c.drawLayer { l in
+                        l.addFilter(.shadow(color: .black.opacity(0.34), radius: 8 + 10 * p, x: 0, y: 14 + 22 * p, options: .shadowOnly))
+                        l.fill(TearRender.silhouette(strips, free: true), with: .color(.black))
+                    }
+                }
+            })
+            canvasPlacement(Canvas { ctx, _ in
+                var c = ctx; c.translateBy(x: o.x, y: o.y)
+                TearRender.drawStub(c, image: img, strips: strips, shadowOnAttached: n > 0)
+            })
+            canvasPlacement(Canvas { ctx, _ in
+                var c = ctx; c.translateBy(x: o.x, y: o.y)
+                let rs = c.resolve(img)
+                c.drawLayer { l in
+                    l.clip(to: TearRender.polygon(cut.body))
+                    l.draw(rs, in: CGRect(x: 0, y: 0, width: 360, height: 600))
+                }
+                if cut.rim.count > 1 {
+                    var rim = Path(); rim.addLines(cut.rim.filter { $0.x > 14 && $0.x < 346 })
+                    c.stroke(rim, with: .color(.white.opacity(0.85)), style: StrokeStyle(lineWidth: 1.0, lineJoin: .round))
+                    c.stroke(fibres, with: .color(.white.opacity(0.75)), style: StrokeStyle(lineWidth: 0.5, lineCap: .round))
+                }
+            })
+        }
+        .frame(width: 360, height: 600, alignment: .topLeading)
+    }
+
+    // MARK: the freed stub
+
+    /// Curl and bend of the stub in flight, from the pose it had when the last bridge gave way.
+    private func flightFrame(u: Double) -> StubPoseInfo {
+        let edges = PerforationEdge(seed: model.seed)
+        let end = reduceMotion ? 0 : hingeAngle()
+        let uu = min(1, max(0, u))
+        let relax = 1 - pow(min(1, uu / 0.4), 0.8)
+        let hinge = end * relax
+        let curl = reduceMotion ? 0 : 26 * sin(min(1, uu / 0.8) * .pi) * (1 - 0.3 * uu) + 7 * sin(uu * 17) * (1 - uu)
+        let f: CGFloat = tear.grab == .right ? 0 : 360
+        return TearRender.pose(edges: edges, front: f, grab: tear.grab, hinge: hinge, curl: curl, bendLength: 0)
+    }
+
+    @ViewBuilder private func flyingStub() -> some View {
+        if let raster {
+            let s: CGFloat = tear.grab == .right ? 1 : -1
+            let u = tear.flyProgress
+            let uu = CGFloat(max(0, min(1, u)))
+            let info = flightFrame(u: u)
+            let img = Image(decorative: raster, scale: 3)
+            let o = Self.canvasOrigin
+            let c0 = info.center
+            let anchor = UnitPoint(x: c0.x / 360, y: c0.y / 600)
+            // path: quadratic arc from where the stub hangs to the wallet, a small hop at the release and a sideways drift
+            let ctl = CGPoint(x: (c0.x + flyTarget.x) / 2 + 40 * s, y: min(c0.y, flyTarget.y) - 170)
+            let tb = uu * uu * (3 - 2 * uu) * 0.5 + uu * 0.5   // eases out of the release, then keeps moving
+            let w0 = (1 - tb) * (1 - tb), w1 = 2 * (1 - tb) * tb, w2 = tb * tb
+            let b = CGPoint(x: w0 * c0.x + w1 * ctl.x + w2 * flyTarget.x, y: w0 * c0.y + w1 * ctl.y + w2 * flyTarget.y)
+            let hop = -18 * CGFloat(sin(Double(min(1, uu / 0.16)) * .pi)) * (1 - uu)
+            let drift = 16 * CGFloat(sin(Double(uu) * 2 * .pi)) * (1 - uu) * s
+            let e = Double(uu * uu * (3 - 2 * uu))
+            let spin = reduceMotion ? 0 : Double(s) * (260 * e + 9 * sin(Double(uu) * 11) * Double(1 - uu))
+            let scale = reduceMotion ? 1 : (1 + 0.07 * sin(Double(min(1, uu / 0.25)) * .pi)) * (1 - 0.88 * pow(Double(uu), 1.15))
+            let tilt = reduceMotion ? 0 : 38 * sin(Double(uu) * .pi) * Double(1 - uu * 0.4)
+            let fade = reduceMotion ? Double(1 - uu) : (uu > 0.86 ? max(0, 1 - Double(uu - 0.86) / 0.14) : 1)
+            let moveX = reduceMotion ? 0 : b.x - c0.x + drift, moveY = reduceMotion ? 0 : b.y - c0.y + hop
+            ZStack(alignment: .topLeading) {
+                canvasPlacement(Canvas { ctx, _ in
+                    var c = ctx; c.translateBy(x: o.x, y: o.y)
+                    c.drawLayer { l in
+                        l.addFilter(.shadow(color: .black.opacity(0.4 * fade), radius: 8, x: 0, y: 0, options: .shadowOnly))
+                        l.fill(TearRender.silhouette(info.strips, free: nil), with: .color(.black))
+                    }
+                    TearRender.drawStub(c, image: img, strips: info.strips, opacity: fade)
+                })
+            }
+            .frame(width: 360, height: 600, alignment: .topLeading)
+            .scaleEffect(scale, anchor: anchor)
+            .rotationEffect(.degrees(spin), anchor: anchor)
+            .rotation3DEffect(.degrees(tilt), axis: (x: 1, y: 0.35 * Double(s), z: 0), anchor: anchor, perspective: 0.5)
+            .offset(x: moveX, y: moveY)
+        }
     }
 
     private var particles: some View {

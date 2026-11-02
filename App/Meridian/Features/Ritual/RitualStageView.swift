@@ -18,7 +18,7 @@ final class RitualStageController {
     private(set) var slide: Double = 0
     /// Called when the torn pass is pinned; the host then shows the gate.
     @ObservationIgnored var onFinished: () -> Void = {}
-    @ObservationIgnored private var ripOn = false
+    @ObservationIgnored private var lastBridgeHaptic = Date.distantPast
     @ObservationIgnored private var silent = false
     @ObservationIgnored private var feedback = true
     @ObservationIgnored private var started = false
@@ -43,36 +43,29 @@ final class RitualStageController {
             self.sound.play(.tick(heavy: true)); if !self.silent { PaperHaptics.release() }
         }
         clock.onReady = { [weak self] in self?.phase = .ready }
+        // perforation tear: no continuous rip, the bridges give way one by one ("tik"), then one dry "tak", then a light whoosh
         tear.onBegin = { [weak self] in
-            guard let self, self.feedback else { return }
-            self.sound.rip.start(); self.ripOn = true
-            self.phase = .tearing
-        }
-        tear.onTick = { [weak self] _ in
-            guard let self, self.feedback else { return }
-            self.sound.play(.tick(heavy: false)); PaperHaptics.tick()
-        }
-        tear.onVelocity = { [weak self] v in
-            guard let self, self.feedback, self.ripOn else { return }
-            self.sound.rip.set(v)
-        }
-        tear.onFinish = { [weak self] in
             guard let self else { return }
             self.phase = .tearing
-            guard self.feedback else { return }
-            if !self.ripOn { self.sound.rip.start(); self.ripOn = true }
-            self.sound.rip.set(0.9)
+            if self.feedback { MRPerforationSound.shared.begin() }
         }
-        tear.onRelease = { [weak self] _ in
-            guard let self else { return }
-            if self.ripOn { self.sound.rip.stop(); self.ripOn = false }
-            self.phase = .ready
+        tear.onBridges = { [weak self] n in
+            guard let self, self.feedback else { return }
+            MRPerforationSound.shared.bridges(n, speed: self.tear.velocity)
+            self.bridgeHaptic(n)
         }
+        tear.onFinish = { [weak self] in self?.phase = .tearing }
+        tear.onRelease = { [weak self] _ in self?.phase = .ready }
         tear.onTorn = { [weak self] in
             guard let self else { return }
             self.phase = .flying
-            if self.feedback { self.sound.rip.finish(); PaperHaptics.release() }
-            self.ripOn = false
+            guard self.feedback else { return }
+            MRPerforationSound.shared.separate(speed: max(0.5, self.tear.velocity))
+            PaperHaptics.release()
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(70))
+                MRPerforationSound.shared.whoosh()
+            }
         }
         tear.onFlyEnd = { [weak self] in self?.flyEnded() }
         if !reduceMotion { sound.play(.paperSlide) }
@@ -86,12 +79,19 @@ final class RitualStageController {
         clock.skip()
     }
 
+    /// A thin tick per broken bridge, at most one per 22 ms (the trackpad cannot play more).
+    private func bridgeHaptic(_ n: Int) {
+        let now = Date()
+        guard now.timeIntervalSince(lastBridgeHaptic) > 0.022 else { return }
+        lastBridgeHaptic = now
+        PaperHaptics.tick()
+    }
+
     func tearNow() { tear.tearWithButton(reduceMotion: reduceMotion) }
 
     /// Stops sound and timers (the ritual was cancelled).
     func stop() {
         task?.cancel()
-        if ripOn { sound.rip.stop(); ripOn = false }
     }
 
     private func flyEnded() {
@@ -117,6 +117,8 @@ struct RitualStill: Equatable {
     var t: Double = 2400
     var tear: Double = 0
     var grab: TearGrabSide = .right
+    /// 0...1 flight of the freed stub (tear is then taken as complete).
+    var fly: Double = 0
     var annotate = false
 }
 
@@ -234,7 +236,7 @@ struct RitualStageView: View {
         .onKeyPress(.escape) { if let c = controller, c.phase == .print || c.phase == .ready { onCancel(); return .handled }; return .ignored }
         .onAppear {
             if let c = controller { c.begin(reduceMotion: reduceMotion); focused = true }
-            else if let still, still.tear > 0 { stillTear.preview(progress: still.tear, grab: still.grab) }
+            else if let still, still.tear > 0 || still.fly > 0 { stillTear.preview(progress: still.fly > 0 ? 1 : still.tear, grab: still.grab, flyProgress: still.fly) }
         }
     }
 

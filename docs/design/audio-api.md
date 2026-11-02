@@ -7,7 +7,7 @@ MRSound.shared.prewarm()                       // once at launch: renders the fi
 MRSound.shared.play(.printerStep(3))           // fixed cues
 MRSound.shared.play(.chime(.land))
 
-MRSound.shared.rip.start()                     // paper rip, real-time
+MRSound.shared.rip.start()                     // paper rip, real-time (no longer used by the ticket tear, see MRPerforationSound)
 MRSound.shared.rip.set(0.6)                    // call on every drag event, v = drag velocity 0...1 (0 = silent)
 MRSound.shared.rip.finish()                    // torn through: burst + 150 Hz thump  (or rip.stop() when released)
 
@@ -48,3 +48,9 @@ Deviation from the prototype: the forest bird chirps bypass the layer gain stage
 - One-shot cues get a 5 ms raised-cosine fade-in and a fade-out (30 ms, 250 ms for cues of 1 s or more); ticks, clicks, flaps and printer steps keep their own attack (`MRCueRenderer.usesEdgeFades`).
 - Chime: synthesized PA "ding-dong" (see docs/design/audio-credits.md); `Announcements/boarding-chime.*` / `landing-chime.*` in the bundle override it.
 - `startIfNeeded` retries when the first engine start failed.
+
+## Perforation tear (`MRPerforationSound`, `Features/Audio/MRPerforationSound.swift`)
+The ticket stub comes off along its perforation, so the tear is not a paper rip any more. `MRPerforationSound.shared` has its own small `AVAudioEngine` (10 player nodes) and synthesises everything at first use (no samples, no licences, nothing to credit):
+- `begin()` wakes the engine (silent), `bridges(n, speed:)` plays n "tik" clicks (one per broken bridge: noise through a 2.4-5.8 kHz band-pass, 2 ms decay, damped sine, a smaller fibre snap about 8 ms later; faster pull = louder, brighter, denser; speed 0 = silent), `separate(speed:)` the last bridge (dry crack, 190 to 120 Hz "pat", 180 ms of rustle), `whoosh()` a light band-passed sweep (0.5 s) when the stub flies.
+- Gates: `MRSound.shared.uiSoundsAllowed` (UI sounds switch + Do Not Disturb) and the master level.
+- Ritual wiring (`RitualStageController`): `onBridges` plays the clicks and a thin `.alignment` haptic (at most one per 22 ms), `onTorn` plays `separate` + heavy tick and the whoosh 70 ms later, the landing keeps the 150 Hz thud. Tests: `App/MeridianTests/Audio/MRPerforationSoundTests.swift`.

@@ -7,15 +7,18 @@ import Testing
         #expect(s.progress == 0 && !s.isTorn && s.stubAngleDegrees == 0)
     }
 
-    @Test func resistanceIsEaseInCubicForTheFirstTenPercent() {
-        #expect(abs(TearState.progress(forRawDrag: 0.05) - 0.1 * 0.125) < 1e-12)   // 0.1 * (0.5)^3
-        #expect(abs(TearState.progress(forRawDrag: 0.1) - 0.1) < 1e-12)
+    @Test func resistanceIsALightEaseInQuadraticForTheFirstSixPercent() {
+        #expect(abs(TearState.progress(forRawDrag: 0.03) - 0.06 * 0.25) < 1e-12)   // 0.06 * (0.5)^2
+        #expect(abs(TearState.progress(forRawDrag: 0.06) - 0.06) < 1e-12)
+        // light: the first perforation bridge (3.3 %) gives way after less than 12 pt of drag
+        #expect(TearState.rawDrag(forProgress: 0.033) * TearState.dragSpan < 12)
+        #expect(TearState.dragSpan < 360)
         #expect(TearState.progress(forRawDrag: 0.5) == 0.5)                         // 1:1 afterwards
         #expect(TearState.progress(forRawDrag: -3) == 0 && TearState.progress(forRawDrag: 7) == 1)
     }
 
     @Test func rawInverseRoundTrips() {
-        for p in [0.0, 0.01, 0.05, 0.1, 0.4, 0.9] {
+        for p in [0.0, 0.01, 0.05, 0.06, 0.4, 0.9] {
             #expect(abs(TearState.progress(forRawDrag: TearState.rawDrag(forProgress: p)) - p) < 1e-9)
         }
     }
@@ -37,14 +40,14 @@ import Testing
         #expect(s.progress == 0.5)
     }
 
-    @Test func thresholdIsSeventyTwoPercentInclusive() {
+    @Test func thresholdIsFiftyFivePercentInclusive() {
         var s = TearState()
-        s.drag(to: 0.72)
+        s.drag(to: 0.55)
         #expect(s.hasPassedThreshold)
         let done = s.release()
         #expect(done && s.isTorn && s.progress == 1)
         var below = TearState()
-        below.drag(to: 0.7199)
+        below.drag(to: 0.5499)
         let r2 = below.release()
         #expect(!r2)
     }

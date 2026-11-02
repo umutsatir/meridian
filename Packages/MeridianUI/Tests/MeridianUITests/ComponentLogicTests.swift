@@ -47,10 +47,11 @@ import Testing
 
     @Test func tearCutKeepsBodyAndPieceDisjointAtTheFront() {
         let c = TicketTearGeometry.cut(seed: 5, progress: 0.4, grab: .right)
-        #expect(abs(c.front.x - 216) < 1e-9)
-        #expect(c.body.contains(c.front) && c.piece.contains(c.front))
+        // the front rests on the last broken bridge (x = 12 + 8k): 216 pt of raw front -> bridge at 220
+        #expect(abs(c.front.x - 220) < 1e-9)
+        #expect(c.body.contains(c.front) && c.piece.contains { $0.x == c.front.x })   // body and stub meet at the last broken bridge
         let l = TicketTearGeometry.cut(seed: 5, progress: 0.4, grab: .left)
-        #expect(abs(l.front.x - 144) < 1e-9)
+        #expect(abs(l.front.x - 140) < 1e-9)
     }
 
     @Test func printTimelineMatchesTheSpec() {

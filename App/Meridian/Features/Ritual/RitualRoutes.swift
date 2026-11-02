@@ -10,6 +10,15 @@ extension ScreenRegistry {
         register("ritual-seat-together") { RitualDebugScreen(kind: .seat(together: true)).mrWindowChrome() }
         register("ritual-printing") { RitualDebugScreen(kind: .stage(RitualStill(t: 1300, annotate: true))).mrWindowChrome() }
         register("ritual-tear") { RitualDebugScreen(kind: .stage(RitualStill(t: 2400, tear: 0.46, grab: .right, annotate: true))).mrWindowChrome() }
+        // tear phases (progress in %, both directions) and flight frames, no annotation: `tear-phase-50`, `tear-phase-L-50`, `tear-fly-40`
+        for pct in [5, 10, 25, 40, 50, 70, 75, 90, 95] {
+            register("tear-phase-\(pct)") { RitualDebugScreen(kind: .stage(RitualStill(t: 2400, tear: Double(pct) / 100, grab: .right))).mrWindowChrome() }
+            register("tear-phase-L-\(pct)") { RitualDebugScreen(kind: .stage(RitualStill(t: 2400, tear: Double(pct) / 100, grab: .left))).mrWindowChrome() }
+        }
+        for pct in [10, 25, 40, 60, 80] {
+            register("tear-fly-\(pct)") { RitualDebugScreen(kind: .stage(RitualStill(t: 2400, grab: .right, fly: Double(pct) / 100))).mrWindowChrome() }
+            register("tear-fly-L-\(pct)") { RitualDebugScreen(kind: .stage(RitualStill(t: 2400, grab: .left, fly: Double(pct) / 100))).mrWindowChrome() }
+        }
         register("ritual-gate") { RitualDebugScreen(kind: .gate).mrWindowChrome() }
         // the live flow from the first step (Check in) on the canvas data
         register("ritual-live", setup: { m in m.planStage = .plan; m.plan.setScenario(id: "code"); m.plan.setTopic("Auth module refactor") }) {
