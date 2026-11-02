@@ -70,6 +70,22 @@ public struct DayNightGrade: Sendable, Equatable {
         return .init(r: r, g: g, b: b, a: 1)
     }
 
+    private func mixed(_ t: [(Double, (Double, Double, Double))]) -> RGBA {
+        var r = 0.0, g = 0.0, b = 0.0
+        for (w, c) in t { r += w * c.0; g += w * c.1; b += w * c.2 }
+        return .init(r: r, g: g, b: b, a: 1)
+    }
+
+    /// Zenith colour of the sky above the horizon band.
+    public var skyTop: RGBA {
+        mixed([(day, (92, 146, 210)), (golden, (84, 98, 162)), (blue, (24, 32, 80)), (night, (4, 6, 16))])
+    }
+
+    /// Colour of the sky at the horizon (hazier and lighter than the zenith).
+    public var skyHorizon: RGBA {
+        mixed([(day, (198, 219, 237)), (golden, (250, 192, 142)), (blue, (122, 112, 152)), (night, (14, 20, 42))])
+    }
+
     /// 0...1 strength of the city lights: invisible by day, fully lit at night.
     public var lights: Double { min(1, night + blue * 0.6 + golden * 0.04) }
     /// 0...1 strength of the warm low-sun glow near the horizon.

@@ -99,6 +99,17 @@ struct CruiseWindowView: View {
                 .position(x: cx, y: cy)
         }
         .frame(width: W, height: H, alignment: .topLeading)
+        .task(id: "\(frame.origin.iata)>\(frame.destination?.iata ?? "-")") {
+            // real weather along the route, refreshed with the 10 minute cache; only while the window is on screen
+            while !Task.isCancelled {
+                if let fx = WindowFixture.active {
+                    if fx.weather == nil { LiveWeather.shared.ensure(from: fx.position, to: fx.position) }
+                } else {
+                    LiveWeather.shared.ensure(from: frame.origin.coordinate, to: (frame.destination ?? frame.origin).coordinate)
+                }
+                try? await Task.sleep(for: .seconds(60))
+            }
+        }
     }
 
     // MARK: reveal frame
@@ -182,53 +193,30 @@ struct CruiseWindowView: View {
     private func pane(Rw: Double, Rh: Double, Pw: Double, Ph: Double, panelH: Double) -> some View {
         let radius = Pw * 0.31
         let shape = RoundedRectangle(cornerRadius: radius, style: .circular)
-        let layers = sceneLayers()
-        let primary = layers.max(by: { $0.opacity < $1.opacity })?.spec ?? WindowSceneSpec.spec("day")
+        let look = frame.windowLook(ui: ui)
+        let lip = max(1.5, Rw * 0.008)
         return ZStack(alignment: .topLeading) {
             Color.black
-            // scene box: left -4%, width 108%, height 104% (tilted scenes: -14%, 128%)
-            ZStack(alignment: .topLeading) {
-                ForEach(layers, id: \.spec.key) { l in
-                    let b = l.spec.box
-                    sceneBox(l.spec, w: Pw * b.w, h: Ph * b.h).opacity(l.opacity).offset(x: Pw * b.x, y: Ph * b.y)
-                }
-            }
-            .frame(width: Pw, height: Ph, alignment: .topLeading)
+            // scene box: left -4%, width 108%, height 104% so the edge of the map never shows inside the glass
+            LiveWindowScene(look: look, size: CGSize(width: Pw * 1.08, height: Ph * 1.04), animated: !reduceMotion)
+                .offset(x: -Pw * 0.04, y: 0)
+                .accessibilityHidden(true)
 
-            // glass: softened edges
-            ZStack(alignment: .topLeading) {
-                ForEach(layers, id: \.spec.key) { l in
-                    let b = l.spec.box
-                    sceneBox(l.spec, w: Pw * b.w + 60, h: Ph * b.h + 60).opacity(l.opacity).offset(x: Pw * b.x - 30, y: Ph * b.y - 30)
-                }
-            }
-            .frame(width: Pw, height: Ph, alignment: .topLeading)
-            .blur(radius: 2.2)
-            .mask { CSSEllipse(rx: 0.62, ry: 0.56, stops: [.init(color: .clear, location: 0.34), .init(color: .black, location: 0.92)]) }
-            ZStack(alignment: .topLeading) {
-                ForEach(layers, id: \.spec.key) { l in
-                    let b = l.spec.box
-                    sceneBox(l.spec, w: Pw * b.w + 60, h: Ph * b.h + 60).opacity(l.opacity).offset(x: Pw * b.x - 30, y: Ph * b.y - 30)
-                }
-            }
-            .frame(width: Pw, height: Ph, alignment: .topLeading)
-            .blur(radius: 5)
-            .mask { CSSEllipse(rx: 0.60, ry: 0.54, stops: [.init(color: .clear, location: 0.58), .init(color: .black, location: 1.08)]) }
-
-            // sky gradient at the top
-            let sky = primary.sky
-            if !primary.hideSky { LinearGradient(stops: [.init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0), .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 1), location: 0.38),
-                                   .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 0.4), location: 0.68), .init(color: cruiseRGBA(sky.0, sky.1, sky.2, 0), location: 1)],
-                           startPoint: .top, endPoint: .bottom)
-                .frame(height: Ph * 0.22).allowsHitTesting(false) }
+            // glass: faint cabin reflection, a trace of condensation at the bottom edge, hairline scratches
+            CSSEllipse(cx: 0.28, cy: 0.88, rx: 0.5, ry: 0.32, stops: [.init(color: .white.opacity(0.07), location: 0), .init(color: .white.opacity(0), location: 1)])
+                .allowsHitTesting(false)
+            CSSEllipse(cx: 0.5, cy: 1.06, rx: 0.75, ry: 0.30, stops: [.init(color: cruiseRGBA(220, 232, 244, 0.13), location: 0), .init(color: cruiseRGBA(220, 232, 244, 0), location: 1)])
+                .allowsHitTesting(false)
+            GlassScratches().frame(width: Pw, height: Ph).allowsHitTesting(false)
             // reflection and vignette
             LinearGradient(stops: [.init(color: .white.opacity(0), location: 0.30), .init(color: .white.opacity(0.10), location: 0.38),
                                    .init(color: .white.opacity(0.015), location: 0.46), .init(color: .white.opacity(0), location: 0.60)],
                            startPoint: cssPoint(118, Pw, Ph).0, endPoint: cssPoint(118, Pw, Ph).1)
                 .allowsHitTesting(false)
-            CSSEllipse(cx: 0.5, cy: 0.45, rx: 1.3, ry: 1.0, stops: [.init(color: .clear, location: 0.62), .init(color: .black.opacity(0.34), location: 1)])
-            shape.strokeBorder(.white.opacity(0.12), lineWidth: 1)
+            CSSEllipse(cx: 0.5, cy: 0.45, rx: 1.3, ry: 1.0, stops: [.init(color: .clear, location: 0.62), .init(color: .black.opacity(0.30), location: 1)])
+            shape.strokeBorder(.white.opacity(0.10), lineWidth: 1)
             MRInsetShadow(shape, color: .black.opacity(0.45), blur: Rw * 0.05)
+            MRInsetShadow(shape, color: .black.opacity(0.28), y: Rw * 0.018, blur: Rw * 0.03)
 
             // pull-down shade
             ZStack(alignment: .top) {
@@ -249,69 +237,33 @@ struct CruiseWindowView: View {
         }
         .frame(width: Pw, height: Ph, alignment: .topLeading)
         .clipShape(shape)
+        // plastic lip: dark inner edge, a lit upper-left rim and a shaded lower-right rim
         .overlay(shape.stroke(cruiseRGBA(40, 40, 42, 0.9), lineWidth: max(1, Rw * 0.006)).padding(-max(1, Rw * 0.006) / 2))
+        .overlay(shape.stroke(LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0.0), .black.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: lip)
+            .padding(-lip * 1.4 - max(1, Rw * 0.006) / 2))
         .shadow(color: .black.opacity(0.5), radius: Rw * 0.03 / 2)
-    }
-
-    private struct SceneLayer { let spec: WindowSceneSpec; let opacity: Double }
-
-    /// The chosen scene, or the crossfade of the real sun elevation.
-    private func sceneLayers() -> [SceneLayer] {
-        // automatic scene: the take-off roll and the final approach use the canvas' `takeoff` / `landing` scenes
-        if ui.sceneAuto, frame.progress < 0.03 { return [SceneLayer(spec: WindowSceneSpec.spec("takeoff"), opacity: 1)] }
-        if ui.sceneAuto, frame.progress > 0.96 { return [SceneLayer(spec: WindowSceneSpec.spec("landing"), opacity: 1)] }
-        if ui.sceneAuto, let b = frame.windowBlend {
-            let from = WindowSceneSpec.spec(WindowSceneSpec.key(b.from)), to = WindowSceneSpec.spec(WindowSceneSpec.key(b.to))
-            if from.key == to.key { return [SceneLayer(spec: from, opacity: 1)] }
-            return [SceneLayer(spec: from, opacity: 1), SceneLayer(spec: to, opacity: b.weight)]
-        }
-        return [SceneLayer(spec: WindowSceneSpec.spec(ui.scene), opacity: 1)]
-    }
-
-    private func sceneBox(_ s: WindowSceneSpec, w: Double, h: Double) -> some View {
-        ZStack {
-            if let img = WindowPhoto.image(s.image) {
-                // background: url() 50% 0% / cover
-                let scale = max(w / img.size.width, h / img.size.height)
-                Image(nsImage: img).resizable().interpolation(.high)
-                    .frame(width: img.size.width * scale, height: img.size.height * scale)
-                    .frame(width: w, height: h, alignment: .top)
-                    .brightness(s.brightness).contrast(s.contrast).saturation(s.saturation)
-                    .blur(radius: 0.7)
-                    .modifier(DriftModifier(enabled: !reduceMotion && s.zoom == 1))
-                    .scaleEffect(s.zoom, anchor: .bottom)
-            }
-            if let sun = s.sun {
-                CSSEllipse(cx: sun.0, cy: sun.1, rx: 0.5, ry: 0.5, stops: sun.2).blendMode(.screen)
-            }
-            if s.rain { WindowRain(storm: s.storm) }
-            if s.runway { RunwayLights().frame(width: w, height: h) }
-        }
-        .frame(width: w, height: h)
-        .clipped()
-        .rotationEffect(.degrees(s.tilt), anchor: s.key == "takeoff" ? UnitPoint(x: 0.5, y: 0.6) : .center)
     }
 }
 
-/// `wv-drift`: 70 s ease-in-out alternate, scale 1 to 1.06 and a small translate.
-private struct DriftModifier: ViewModifier {
-    let enabled: Bool
-    func body(content: Content) -> some View {
-        if enabled {
-            TimelineView(.animation(minimumInterval: 1.0 / 20)) { tl in
-                let t = tl.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 140) / 70
-                let u = t <= 1 ? t : 2 - t
-                let e = u * u * (3 - 2 * u)
-                content.scaleEffect(1 + 0.06 * e, anchor: .top)
+/// A few hairline scratches on the glass, barely visible, fixed.
+private struct GlassScratches: View {
+    var body: some View {
+        Canvas { ctx, size in
+            var seed: UInt64 = 4242
+            func rnd() -> Double { seed = seed &* 6364136223846793005 &+ 1442695040888963407; return Double((seed >> 33) & 0xFFFFFF) / Double(0x1000000) }
+            for _ in 0..<9 {
+                let x = rnd() * size.width, y = rnd() * size.height, len = 14 + rnd() * 46, a = rnd() * .pi
+                var p = Path()
+                p.move(to: CGPoint(x: x, y: y))
+                p.addQuadCurve(to: CGPoint(x: x + cos(a) * len, y: y + sin(a) * len), control: CGPoint(x: x + cos(a) * len * 0.5 + 3, y: y + sin(a) * len * 0.5 - 2))
+                ctx.stroke(p, with: .color(.white.opacity(0.05 + rnd() * 0.04)), lineWidth: 0.5)
             }
-        } else {
-            content
         }
     }
 }
 
 /// Approach lights of the `landing` scene: two converging rows of warm dots and the red / white PAPI (`rwy`, viewBox 200 x 300).
-private struct RunwayLights: View {
+struct RunwayLights: View {
     var body: some View {
         Canvas { ctx, size in
             let sx = size.width / 200, sy = size.height / 300
@@ -332,17 +284,18 @@ private struct RunwayLights: View {
     }
 }
 
-private struct WindowRain: View {
+struct WindowRain: View {
     let storm: Bool
+    var intensity = 0.6
     var body: some View {
         ZStack {
-            Rectangle().fill(cruiseRGBA(40, 52, 70, 0.2))
+            Rectangle().fill(cruiseRGBA(40, 52, 70, 0.04 + 0.2 * intensity))
             TimelineView(.animation(minimumInterval: 1.0 / 20)) { tl in
                 Canvas { ctx, size in
                     var seed: UInt64 = storm ? 977 * 5 + 3 : 977 * 4 + 3
                     func rnd() -> Double { seed = seed &* 6364136223846793005 &+ 1442695040888963407; return Double((seed >> 33) & 0xFFFFFF) / Double(0x1000000) }
                     let t = tl.date.timeIntervalSinceReferenceDate
-                    for _ in 0..<26 {
+                    for _ in 0..<Int(10 + 28 * intensity) {
                         let dl = rnd() * 3.2
                         let x = rnd() * 0.96 * size.width, y0 = rnd() * 0.7 * size.height, sc = 0.6 + rnd() * 1.1
                         let dur = 2.6 + rnd() * 2.4
@@ -411,7 +364,14 @@ struct CruiseWindowControls: View {
         ("storm", "Storm", [cruiseRGBA(0x2B, 0x33, 0x40), cruiseRGBA(0x6A, 0x75, 0x85)]),
     ]
 
-    private var sceneName: String { Self.scenes.first { $0.0 == ui.currentSceneKey(frame) }?.1 ?? "Day" }
+    /// Live flights add Auto (real sun and weather) and the take-off / landing views to the canvas list.
+    private var items: [(String, String, [Color])] {
+        guard ui.offersAutoScene else { return Self.scenes }
+        return [("auto", "Auto", [cruiseRGBA(0x8E, 0xC3, 0xF2), cruiseRGBA(0xF2, 0xA0, 0x60)])] + Self.scenes
+            + [("takeoff", "Take-off", [cruiseRGBA(0x6F, 0x86, 0x9A), cruiseRGBA(0xC9, 0xD3, 0xC4)]), ("landing", "Landing", [cruiseRGBA(0x4B, 0x5F, 0xA8), cruiseRGBA(0xF2, 0xC4, 0x88)])]
+    }
+    private var selectedKey: String { ui.offersAutoScene ? (ui.sceneAuto ? "auto" : ui.scene) : ui.currentSceneKey(frame) }
+    private var sceneName: String { items.first { $0.0 == selectedKey }?.1 ?? "Day" }
 
     var body: some View {
         let expanded = (hover || ui.capLabels) && ui.menu == nil
@@ -429,8 +389,9 @@ struct CruiseWindowControls: View {
             .animation(MRMotion.ease(MRMotion.d2), value: expanded)
             .padding(.trailing, 20).padding(.top, 18)
             if ui.menu == .scene {
-                CruiseMenu(items: Self.scenes.map { ($0.1, $0.2, $0.0) }, selected: ui.currentSceneKey(frame), diagonal: false, a11y: "Scene") {
-                    ui.scene = $0; ui.sceneAuto = false; ui.menu = nil
+                CruiseMenu(items: items.map { ($0.1, $0.2, $0.0) }, selected: selectedKey, diagonal: false, a11y: "Scene") {
+                    if $0 == "auto" { ui.sceneAuto = true } else { ui.scene = $0; ui.sceneAuto = false }
+                    ui.menu = nil
                 }
                 .padding(.trailing, ui.capLabels ? 244 : 78).padding(.top, 58)
             }

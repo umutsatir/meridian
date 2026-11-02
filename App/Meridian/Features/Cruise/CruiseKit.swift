@@ -30,6 +30,8 @@ struct CruiseFrame: Equatable {
     var etaMinuteOfDay = 10 * 60 + 42
     /// The scene crossfade for the sun at the aircraft (live flights only).
     var windowBlend: WindowBlend?
+    /// Wall-clock moment of the frame (live flights); `nil` for artboards.
+    var date: Date?
 
     var distanceRemainingKm: Int { Int((routeKm * (1 - progress)).rounded()) }
     var flownMin: Int { max(1, Int((progress * totalMin).rounded())) }
@@ -101,6 +103,7 @@ struct CruiseFrame: Equatable {
         etaMinuteOfDay = (eta.hour ?? 0) * 60 + (eta.minute ?? 0)
         pauseBudgetSec = Int(flight.pauseBudgetRemaining(at: now))
         windowBlend = CruiseSnapshot(flight: flight, origin: o, destination: d, now: now).window
+        date = now
     }
 }
 
@@ -122,6 +125,10 @@ final class CruiseUI {
     var scene = "day"
     /// Follow the sun at the aircraft (live) instead of the chosen scene.
     var sceneAuto = false
+    /// Which side of the aircraft the window looks out of (seat A = left, F = right).
+    var windowSide: WindowSide = .left
+    /// The scene menu offers "Auto" (real sun and weather) in live flights.
+    var offersAutoScene = false
     var shade = 0.0
     var sound = true
     var capLabels = false

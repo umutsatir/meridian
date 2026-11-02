@@ -1,4 +1,5 @@
 import MeridianCore
+import MeridianCruise
 import MeridianMaps
 import MeridianUI
 import SwiftUI
@@ -76,6 +77,18 @@ extension ScreenRegistry {
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }
         register("window-scene-menu") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "sunset"; $0.menu = .scene } }
         register("window-light") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "blue" } }
+        // Live window (real satellite ground, sun and weather): frozen position / time, `--at lat,lon,ISO8601 --heading --alt --weather cover,mm,code` override
+        func live(_ name: String, lat: Double, lon: Double, at: String, heading: Double = 90, alt: Double = 30_000, weather: WeatherCondition? = nil) {
+            register(name, setup: { _ in
+                WindowFixture.active = .make(lat: lat, lon: lon, at: at, heading: heading, altitudeFt: alt, weather: weather)
+            }) { CruiseDemo(p: 0.45, view: .window) { $0.sceneAuto = true; $0.offersAutoScene = true } }
+        }
+        live("window-live-day", lat: 47.2, lon: 8.4, at: "2026-06-21T10:30:00Z", heading: 70, alt: 24_000, weather: .init(cloudCover: 30, precipitationMM: 0, weatherCode: 2, windKmh: 10))
+        live("window-live-real", lat: 47.2, lon: 8.4, at: "2026-06-21T10:30:00Z", heading: 70, alt: 24_000)
+        live("window-live-sunset", lat: 47.2, lon: 8.4, at: "2026-06-21T19:15:00Z", heading: 340, alt: 24_000, weather: .init(cloudCover: 25, precipitationMM: 0, weatherCode: 1, windKmh: 10))
+        live("window-live-night", lat: 48.7, lon: 2.6, at: "2026-06-21T22:40:00Z", heading: 90, alt: 18_000, weather: .clear)
+        live("window-live-rain", lat: 50.6, lon: 7.2, at: "2026-06-21T10:30:00Z", heading: 70, alt: 22_000, weather: .init(cloudCover: 95, precipitationMM: 2.4, weatherCode: 63, windKmh: 28))
+        live("window-live-fog", lat: 47.2, lon: 8.4, at: "2026-06-21T07:30:00Z", heading: 70, alt: 12_000, weather: .init(cloudCover: 100, precipitationMM: 0, weatherCode: 45, windKmh: 4))
         register("dashboard") { CruiseDemo(p: 0.45, view: .dash) }
         register("pause-land-early") { CruiseDemo(p: 0.74, sheetHold: 0.62) { $0.policySheet = true } }
 

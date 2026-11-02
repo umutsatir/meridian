@@ -15,10 +15,37 @@ public enum WindowSide: String, Sendable, Codable, CaseIterable {
 /// Camera for the live window: eye above the aircraft looking sideways and down at the terrain.
 public struct WindowCameraSpec: Sendable, Equatable {
     public var center: Coordinate
+    public var eye: Coordinate
     public var eyeAltitudeM: Double
     public var distanceM: Double
     public var pitch: Double
     public var heading: Double
+}
+
+/// The aircraft along its route as a function of time, so the camera can follow every frame instead of every second.
+public struct WindowMotion: Sendable, Equatable {
+    public var origin: Coordinate
+    public var destination: Coordinate
+    /// Route fraction at `anchor`.
+    public var progress: Double
+    /// Route fractions per second (0 while the clock is held).
+    public var ratePerSec: Double
+    public var anchor: Date
+
+    public init(origin: Coordinate, destination: Coordinate, progress: Double, ratePerSec: Double, anchor: Date) {
+        self.origin = origin; self.destination = destination; self.progress = progress; self.ratePerSec = ratePerSec; self.anchor = anchor
+    }
+
+    public func progress(at date: Date) -> Double {
+        min(1, max(0, progress + ratePerSec * date.timeIntervalSince(anchor)))
+    }
+
+    /// Position on the great circle and the heading towards the destination.
+    public func state(progress p: Double) -> (position: Coordinate, heading: Double) {
+        let pos = Geo.interpolate(from: origin, to: destination, fraction: p)
+        let ahead = Geo.distanceKm(from: pos, to: destination) > 0.5
+        return (pos, ahead ? Geo.bearing(from: pos, to: destination) : Geo.bearing(from: origin, to: destination))
+    }
 }
 
 public enum WindowCamera {
@@ -42,6 +69,24 @@ public enum WindowCamera {
         }
     }
 
+    /// Extra downward tilt (degrees) applied on top of MapKit's own 35 degree pitch limit: steeper near the ground
+    /// (take-off, landing) and flatter at cruise altitude, where the horizon sits in the upper third.
+    public static func tiltDegrees(altitudeFt: Double) -> Double {
+        let low = 1 - min(1, max(0, altitudeFt / 10_000))
+        return 42 + 14 * low
+    }
+
+    /// Bearing that points to the right edge of the window view. For a left window this is the heading of the flight:
+    /// the aircraft moves towards the right of the view, so the ground slides to the left (right window: the reverse).
+    public static func screenRightBearing(_ spec: WindowCameraSpec) -> Double { (spec.heading + 90).truncatingRemainder(dividingBy: 360) }
+
+    /// Signed distance in metres the point `to` lies to the right of `from` on screen (negative = left).
+    public static func screenRightMetres(from a: Coordinate, to b: Coordinate, spec: WindowCameraSpec) -> Double {
+        let d = Geo.distanceKm(from: a, to: b) * 1000
+        let rel = (Geo.bearing(from: a, to: b) - screenRightBearing(spec)) * .pi / 180
+        return d * cos(rel)
+    }
+
     /// Point `km` from `a` along initial bearing `bearing` (degrees).
     public static func offset(_ a: Coordinate, bearing: Double, km: Double) -> Coordinate {
         let δ = km / Geo.earthRadiusKm, θ = bearing * .pi / 180
@@ -59,6 +104,6 @@ public enum WindowCamera {
         let look = (heading + side.headingOffset + 360).truncatingRemainder(dividingBy: 360)
         let ground = alt * tan(pitch * .pi / 180)
         let center = offset(position, bearing: look, km: ground / 1000)
-        return WindowCameraSpec(center: center, eyeAltitudeM: alt, distanceM: alt / cos(pitch * .pi / 180), pitch: pitch, heading: look)
+        return WindowCameraSpec(center: center, eye: position, eyeAltitudeM: alt, distanceM: alt / cos(pitch * .pi / 180), pitch: pitch, heading: look)
     }
 }

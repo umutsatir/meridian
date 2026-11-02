@@ -167,6 +167,7 @@ struct LiveCruiseScreen: View {
         let saved = all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))]
         let u = CruiseUI(style: style ?? saved)
         u.sceneAuto = true
+        u.offersAutoScene = true
         _ui = State(initialValue: u)
     }
 

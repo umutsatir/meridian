@@ -173,6 +173,62 @@ import MeridianCore
         #expect(WindowSide(seat: "12A") == .left && WindowSide(seat: "31F") == .right)
     }
 
+    // MARK: motion
+
+    static let jfk = Coordinate(latitude: 40.64, longitude: -73.78)
+
+    @Test func cameraMovesBetweenTwoRouteFractions() {
+        let m = WindowMotion(origin: Fx.lhr.coordinate, destination: Self.jfk, progress: 0.30, ratePerSec: 0, anchor: Fx.t0)
+        let a = m.state(progress: 0.30), b = m.state(progress: 0.31)
+        let alt = WindowCamera.altitudeFt(progress: 0.30, cruiseFt: 37_000)
+        let sa = WindowCamera.spec(position: a.position, heading: a.heading, side: .left, altitudeFt: alt)
+        let sb = WindowCamera.spec(position: b.position, heading: b.heading, side: .left, altitudeFt: alt)
+        #expect(Geo.distanceKm(from: sa.center, to: sb.center) > 30)          // the ground point moves
+        #expect(Geo.distanceKm(from: a.position, to: b.position) > 30)
+        #expect(abs(a.heading - b.heading) > 0.1)                              // a great circle turns slowly
+        #expect(abs(a.heading - b.heading) < 3)
+        #expect(sa.heading != sb.heading && sa.eyeAltitudeM == sb.eyeAltitudeM && sa.pitch == sb.pitch)
+    }
+
+    @Test func groundSlidesBackwardsPastTheWindow() {
+        let m = WindowMotion(origin: Fx.lhr.coordinate, destination: Self.jfk, progress: 0.30, ratePerSec: 0, anchor: Fx.t0)
+        let a = m.state(progress: 0.30), b = m.state(progress: 0.301)
+        for (side, sign) in [(WindowSide.left, 1.0), (.right, -1.0)] {
+            let s0 = WindowCamera.spec(position: a.position, heading: a.heading, side: side, altitudeFt: 37_000)
+            let s1 = WindowCamera.spec(position: b.position, heading: b.heading, side: side, altitudeFt: 37_000)
+            // the camera drifts towards the right of the view in a left window, so the ground moves to the left
+            let moved = WindowCamera.screenRightMetres(from: s0.center, to: s1.center, spec: s0)
+            #expect(moved * sign > 1_000)
+            // the nose points to the right of the picture for the left window, to the left for the right window
+            let nose = WindowCamera.screenRightMetres(from: a.position, to: WindowCamera.offset(a.position, bearing: a.heading, km: 5), spec: s0)
+            #expect(nose * sign > 4_000)
+        }
+    }
+
+    @Test func motionInterpolatesBetweenSeconds() {
+        let m = WindowMotion(origin: Fx.lhr.coordinate, destination: Fx.cdg.coordinate, progress: 0.5, ratePerSec: 1.0 / 2520, anchor: Fx.t0)
+        #expect(abs(m.progress(at: Fx.t0.addingTimeInterval(0.5)) - (0.5 + 0.5 / 2520)) < 1e-12)
+        #expect(m.progress(at: Fx.t0.addingTimeInterval(1e6)) == 1)
+        let held = WindowMotion(origin: Fx.lhr.coordinate, destination: Fx.cdg.coordinate, progress: 0.5, ratePerSec: 0, anchor: Fx.t0)
+        #expect(held.progress(at: Fx.t0.addingTimeInterval(10)) == 0.5)
+        // 30 fps steps are monotonic and smooth
+        var last = m.state(progress: 0.5).position
+        var total = 0.0
+        for i in 1...30 {
+            let p = m.state(progress: m.progress(at: Fx.t0.addingTimeInterval(Double(i) / 30))).position
+            let d = Geo.distanceKm(from: last, to: p)
+            #expect(d < 0.02)
+            total += d; last = p
+        }
+        #expect(total > 0.1)
+    }
+
+    @Test func tiltIsSteeperNearTheGround() {
+        #expect(WindowCamera.tiltDegrees(altitudeFt: 0) > WindowCamera.tiltDegrees(altitudeFt: 5_000))
+        #expect(WindowCamera.tiltDegrees(altitudeFt: 5_000) > WindowCamera.tiltDegrees(altitudeFt: 30_000))
+        #expect(WindowCamera.tiltDegrees(altitudeFt: 30_000) == 42)
+    }
+
     @Test func altitudeFollowsThePhases() {
         let cruise = 34_000.0
         #expect(WindowCamera.altitudeFt(progress: 0, cruiseFt: cruise) == 0)
