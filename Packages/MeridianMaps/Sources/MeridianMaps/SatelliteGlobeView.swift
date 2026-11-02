@@ -1,34 +1,38 @@
-import AppKit
 import MapKit
 import MeridianCore
 import SwiftUI
 
 /// Real satellite globe (Apple Maps `.imagery(elevation: .realistic)`), seen from far enough to read as a sphere with
-/// atmosphere. Non-interactive; drifts slowly eastward unless Reduce Motion is on or the window is not visible.
+/// atmosphere.
+///
+/// The view is fully static: it never moves by itself (no drift, sway or timer). The camera is whatever `camera` says; the
+/// owner of the view changes it from trackpad scrolling, pinch, buttons and keys (`GlobeCamera`). MapKit's own gestures are off
+/// so they cannot fight with those.
 public struct SatelliteGlobeView<Marker: View>: View {
     public var home: Coordinate
-    /// Latitude the camera looks at (the globe is framed so `home` sits higher up the view, like the illustrated one).
-    public var tilt: Double
+    public var camera: GlobeCamera
+    /// Camera distance at zoom 1; the real distance is `distance / camera.zoom`.
     public var distance: Double
-    public var drifts: Bool
     public var hybrid: Bool
     let marker: () -> Marker
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var lonShift = 0.0
-    @State private var visible = true
     @State private var position: MapCameraPosition
 
-    public init(home: Coordinate, tilt: Double = 38, distance: Double = 17_000_000, drifts: Bool = true, hybrid: Bool = false,
+    public init(home: Coordinate, camera: GlobeCamera, distance: Double = 17_000_000, hybrid: Bool = false,
                 @ViewBuilder marker: @escaping () -> Marker) {
-        self.home = home; self.tilt = tilt; self.distance = distance; self.drifts = drifts; self.hybrid = hybrid; self.marker = marker
-        _position = State(initialValue: .camera(Self.camera(home: home, tilt: tilt, distance: distance, shift: 0)))
+        self.home = home; self.camera = camera; self.distance = distance; self.hybrid = hybrid; self.marker = marker
+        _position = State(initialValue: .camera(Self.mapCamera(camera, distance: distance)))
     }
 
-    static func camera(home: Coordinate, tilt: Double, distance: Double, shift: Double) -> MapCamera {
-        let lat = max(-70, min(70, home.latitude - tilt))
-        return MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: lat, longitude: home.longitude + shift),
-                         distance: distance, heading: 0, pitch: 0)
+    /// The camera that frames `home` the way the canvas does: the globe is looked at from `tilt` degrees south of home, so the
+    /// home airport sits higher up the view.
+    public static func homeCamera(home: Coordinate, tilt: Double) -> GlobeCamera {
+        GlobeCamera(lon: home.longitude, lat: home.latitude - tilt)
+    }
+
+    static func mapCamera(_ c: GlobeCamera, distance: Double) -> MapCamera {
+        MapCamera(centerCoordinate: CLLocationCoordinate2D(latitude: c.lat, longitude: c.lon),
+                  distance: distance / c.zoom, heading: 0, pitch: 0)
     }
 
     public var body: some View {
@@ -41,19 +45,10 @@ public struct SatelliteGlobeView<Marker: View>: View {
         .mapStyle(hybrid ? .hybrid(elevation: .realistic) : .imagery(elevation: .realistic))
         .mapControlVisibility(.hidden)
         .allowsHitTesting(false)
-        .task(id: drifts && !reduceMotion && visible) {
-            guard drifts, !reduceMotion, visible else { return }
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(2))
-                if Task.isCancelled { break }
-                lonShift += 1; let sway = 9 * sin(lonShift * 0.07)   // slow sway around the home airport
-                withAnimation(.linear(duration: 2)) {
-                    position = .camera(Self.camera(home: home, tilt: tilt, distance: distance, shift: sway))
-                }
-            }
+        .onChange(of: camera) { _, c in
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { position = .camera(Self.mapCamera(c, distance: distance)) }
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didChangeOcclusionStateNotification)) { n in
-            if let w = n.object as? NSWindow { visible = w.occlusionState.contains(.visible) }
-        }
+        .onChange(of: distance) { _, d in position = .camera(Self.mapCamera(camera, distance: d)) }
     }
 }

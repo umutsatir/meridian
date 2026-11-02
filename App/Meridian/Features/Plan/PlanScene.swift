@@ -18,8 +18,10 @@ struct PlanScene {
 
     let size: CGSize
     let origin: Airport
-    let zoom: Double
-    let center: CGPoint          // screen position of the origin (cxW, cy)
+    let zoom: Double             // plane scale actually drawn (the user's, or `autoZoom`)
+    let autoZoom: Double         // plane scale chosen by the duration
+    let autoCenter: CGPoint      // where the origin sits without panning
+    let center: CGPoint          // screen position of the origin (autoCenter + pan)
     let ringRadius: Double
     let kmRadius: Double
     let tags: [Tag]
@@ -29,7 +31,8 @@ struct PlanScene {
     let arc: Path?
 
     /// `minutes`: ruler position (continuous while dragging). `nil` for a free flight (360 min ring).
-    init(plan: PlanState, size: CGSize, minutes: Double?) {
+    /// `camera`: the user's pan / zoom. The ring and the tags stay bound to the origin, which slides with the pan.
+    init(plan: PlanState, size: CGSize, minutes: Double?, camera: PlanMapCamera = PlanMapCamera(), minZoom: Double = PlanMapCamera.worldZoom) {
         self.size = size
         let o = plan.origin
         origin = o
@@ -37,14 +40,18 @@ struct PlanScene {
         let target = min(360, max(10, minutes ?? 360))
         let kmR = FlightTiming.km(forMinutes: target)
         kmRadius = kmR
-        let z: Double = target <= 20 ? 2.6 : target <= 30 ? 1.8 : target <= 45 ? 1.25 : target <= 60 ? 0.95 : target <= 90 ? 0.7 : target <= 120 ? 0.56 : 0.45
+        let zAuto: Double = target <= 20 ? 2.6 : target <= 30 ? 1.8 : target <= 45 ? 1.25 : target <= 60 ? 0.95 : target <= 90 ? 0.7 : target <= 120 ? 0.56 : 0.45
+        autoZoom = zAuto
+        let z = camera.effectiveZoom(auto: zAuto, minimum: minZoom)
         zoom = z
         let kmPerPx = 40075 * cos(o.coordinate.latitude * .pi / 180) / (EuropeProjection.k * 2 * .pi) / z
         ringRadius = max(24, kmR / kmPerPx)
         let cxW = W / 2, cy = (H * 0.34).rounded()
-        center = CGPoint(x: cxW, y: cy)
+        autoCenter = CGPoint(x: cxW, y: cy)
+        let cxP = cxW + camera.pan.width, cyP = cy + camera.pan.height
+        center = CGPoint(x: cxP, y: cyP)
         let oxy = EuropeProjection.xy(o.coordinate)
-        let tx = cxW - oxy.x * z, ty = cy - oxy.y * z
+        let tx = cxP - oxy.x * z, ty = cyP - oxy.y * z
         func scr(_ c: Coordinate) -> CGPoint {
             let q = EuropeProjection.xy(c)
             return CGPoint(x: q.x * z + tx, y: q.y * z + ty)
@@ -58,7 +65,9 @@ struct PlanScene {
         }
         let cands = plan.destinations.compactMap { d in all.first { $0.a.iata == d.iata } }
         let sel = plan.selectedDestinationIata.flatMap { s in cands.first { $0.a.iata == s } }
-        func inMap(_ r: Row) -> Bool { r.s.x > 40 && r.s.x < W - 40 && r.s.y > 76 && r.s.y < H * 0.6 }
+        // tags live above the bottom panels; once the user moved the map the whole free area counts
+        let bottom = camera.isManual ? H - 340 : H * 0.6
+        func inMap(_ r: Row) -> Bool { r.s.x > 40 && r.s.x < W - 40 && r.s.y > 76 && r.s.y < bottom }
         var placed: [CGPoint] = [], out: [Tag] = []
         func tryPlace(_ r: Row, _ kind: Tag.Kind) {
             guard inMap(r) else { return }
@@ -68,9 +77,11 @@ struct PlanScene {
         }
         let inRange = all.filter { $0.km <= kmR + 1 }
         if let sel { tryPlace(sel, .selected) }
-        for r in cands where out.count < 18 { tryPlace(r, .inRange) }
-        for r in inRange where out.count < 22 && !cands.contains(where: { $0.a.iata == r.a.iata }) && r.km > 40 { tryPlace(r, .inRange) }
-        for r in all.filter({ $0.km > kmR && $0.km < kmR * 1.28 }).sorted(by: { $0.km < $1.km }) where out.count < 26 { tryPlace(r, .out) }
+        // fewer tags the farther out the user zoomed (never changes the automatic framing: budget = full there)
+        let b = { (full: Int) in PlanMapCamera.tagBudget(full: full, zoom: z, autoZoom: zAuto) }
+        for r in cands where out.count < b(18) { tryPlace(r, .inRange) }
+        for r in inRange where out.count < b(22) && !cands.contains(where: { $0.a.iata == r.a.iata }) && r.km > 40 { tryPlace(r, .inRange) }
+        for r in all.filter({ $0.km > kmR && $0.km < kmR * 1.28 }).sorted(by: { $0.km < $1.km }) where out.count < b(26) { tryPlace(r, .out) }
         tags = out
         selected = sel?.a
         selectedPoint = sel?.s

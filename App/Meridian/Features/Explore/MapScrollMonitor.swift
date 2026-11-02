@@ -11,8 +11,8 @@ struct MapScrollEvent {
     var modifiers: NSEvent.ModifierFlags
     /// Momentum phase of a trackpad flick (the fingers are already up).
     var isMomentum: Bool
-    /// Zoom modifier held: Option or Control.
-    var zoomModifier: Bool { modifiers.contains(.option) || modifiers.contains(.control) }
+    /// Zoom modifier held: Command (the only scroll zoom; plain and Option / Control scrolling only move the map).
+    var zoomModifier: Bool { modifiers.contains(.command) }
 }
 
 /// SwiftUI has no scroll-wheel event for a plain view, so a local `NSEvent` monitor reports them. `handler` returns `true`

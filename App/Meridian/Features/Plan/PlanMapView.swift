@@ -16,6 +16,16 @@ struct PlanMapView: View {
     @State private var scrub: DurationScrub?
     @State private var hover: String?
     @State private var scenarioMenu = false
+    /// The user's pan / zoom on top of the automatic framing. Origin and ring stay tied to each other; only the camera moves.
+    @State private var camera = PlanMapCamera()
+    @State private var dragBase: PlanMapCamera?
+    @State private var pinchBase: PlanMapCamera?
+    @State private var seededDebug = false
+
+    /// Apple Maps can show the whole world; the illustrated Europe plane only a region around it.
+    private var minZoom: Double {
+        MapEngine.current == .appleMaps && !MapHealth.shared.failed ? PlanMapCamera.worldZoom : 0.3
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -29,15 +39,28 @@ struct PlanMapView: View {
         let W = size.width, H = size.height
         let free = scrub?.isFree ?? plan.isFreeFlight
         let rawMinutes = scrub?.rawMinutes ?? Double(plan.durationMinutes ?? 372)
-        let scene = PlanScene(plan: plan, size: size, minutes: free ? nil : min(360, rawMinutes))
+        let scene = PlanScene(plan: plan, size: size, minutes: free ? nil : min(360, rawMinutes), camera: camera, minZoom: minZoom)
         let dragging = scrub != nil
+        let manual = camera.isManual
         let flagText = free ? "∞ Free flight" : PlanKit.fmtDur(dragging ? Double(scrub?.detentMinutes ?? 0) : rawMinutes.rounded())
         let cx = W / 2
 
         return ZStack(alignment: .topLeading) {
             MapSurface(style: MapStyleAccess.resolved(mapStyle), center: plan.origin.coordinate, zoom: scene.zoom,
-                          offset: CGSize(width: 0, height: scene.center.y - H / 2))
-                .animation(EuropeMapView.cameraAnimation, value: MapKey(zoom: scene.zoom, origin: plan.origin.iata))
+                          offset: CGSize(width: scene.center.x - W / 2, height: scene.center.y - H / 2))
+                .animation(manual ? nil : EuropeMapView.cameraAnimation, value: MapKey(zoom: scene.zoom, origin: plan.origin.iata))
+                .frame(width: W, height: H)
+                .allowsHitTesting(false)
+
+            // the gesture surface: mouse drag pans (two-finger scroll comes from the scroll monitor below, pinch from the magnify gesture)
+            Color.clear.contentShape(Rectangle())
+                .gesture(DragGesture(minimumDistance: 3)
+                    .onChanged { g in
+                        let base = dragBase ?? camera
+                        dragBase = base
+                        camera = base.panned(by: g.translation)
+                    }
+                    .onEnded { _ in dragBase = nil })
                 .frame(width: W, height: H)
 
             LinearGradient(stops: [.init(color: Color(red: 6 / 255, green: 8 / 255, blue: 13 / 255).opacity(0), location: 0.55),
@@ -46,7 +69,7 @@ struct PlanMapView: View {
                 .allowsHitTesting(false)
 
             // range ring, arc, tags, origin
-            RangeRingView(radius: scene.ringRadius, animated: !dragging)
+            RangeRingView(radius: scene.ringRadius, animated: !dragging && !manual)
                 .position(scene.center)
                 .allowsHitTesting(false)
             if let arc = scene.arc, let end = scene.selectedPoint {
@@ -57,7 +80,7 @@ struct PlanMapView: View {
             ForEach(scene.tags) { t in
                 tagView(t, palette: p)
                     .position(t.point)
-                    .animation(MRMotion.ease(MRMotion.d4), value: t.point)
+                    .animation(manual ? nil : MRMotion.ease(MRMotion.d4), value: t.point)
                     .zIndex(t.kind == .selected ? 4 : (hover == t.airport.iata ? 6 : 2))
             }
             OriginDot().position(scene.center).allowsHitTesting(false)
@@ -81,6 +104,15 @@ struct PlanMapView: View {
                     .buttonStyle(MRRoundButtonStyle()).accessibilityLabel("Map style: \(mapStyle.rawValue)")
             }
             .offset(x: W - 20 - 140, y: 18)
+
+            // recenter on the origin: only when the map was moved or zoomed by hand
+            if camera.showsRecenter(autoZoom: scene.autoZoom) {
+                Button { recenter() } label: { MRIcon(.target, size: 18) }
+                    .buttonStyle(MRRoundButtonStyle()).accessibilityLabel("Recenter on origin")
+                    .help("Recenter on \(plan.origin.iata) (0)")
+                    .offset(x: W - 20 - 40, y: 18 + 40 + 12)
+                    .transition(.opacity)
+            }
 
             // scenario row
             HStack(spacing: 10) {
@@ -135,6 +167,63 @@ struct PlanMapView: View {
         }
         .onKeyPress(.leftArrow) { model.plan.selectPreviousDestination(); return .handled }
         .onKeyPress(.rightArrow) { model.plan.selectNextDestination(); return .handled }
+        .onKeyPress(characters: CharacterSet(charactersIn: "+=-_0"), phases: [.down, .repeat]) { press in
+            let anchor = scene.center
+            switch press.characters {
+            case "+", "=": zoom(by: PlanMapCamera.step, about: anchor, scene: scene, animated: true)
+            case "-", "_": zoom(by: 1 / PlanMapCamera.step, about: anchor, scene: scene, animated: true)
+            case "0": recenter()
+            default: return .ignored
+            }
+            return .handled
+        }
+        .background(MapScrollMonitor { handleScroll($0, scene: scene, size: size) })
+        .simultaneousGesture(MagnifyGesture()
+            .onChanged { v in
+                let base = pinchBase ?? camera
+                pinchBase = base
+                camera = base.zoomed(by: v.magnification, about: v.startLocation, autoCenter: scene.autoCenter, autoZoom: scene.autoZoom, minimum: minZoom)
+            }
+            .onEnded { _ in pinchBase = nil })
+        .onChange(of: plan.origin.iata) { _, _ in camera = camera.afterChange(originChanged: true) }
+        .onAppear { seedDebugGesture(scene: scene) }
+    }
+
+    // MARK: camera
+
+    private func zoom(by factor: Double, about anchor: CGPoint, scene: PlanScene, animated: Bool) {
+        let next = camera.zoomed(by: factor, about: anchor, autoCenter: scene.autoCenter, autoZoom: scene.autoZoom, minimum: minZoom)
+        if animated { withAnimation(MRMotion.smooth) { camera = next } } else { camera = next }
+    }
+
+    private func recenter() { withAnimation(MRMotion.smooth) { camera = camera.recentered() } }
+
+    /// Two-finger scroll (or the wheel) pans; Command + scroll zooms about the pointer. The ruler, dock and Check in bar keep
+    /// their own scrolling, so the map only takes events above them.
+    private func handleScroll(_ e: MapScrollEvent, scene: PlanScene, size: CGSize) -> Bool {
+        guard !model.searchOpen, !popOpen, !scenarioMenu, e.location.y < size.height - 340 else { return false }
+        if e.modifiers.contains(.command) {
+            let dy = abs(e.dy) >= abs(e.dx) ? e.dy : e.dx
+            if dy != 0 { zoom(by: MapZoomModel.wheelFactor(deltaY: dy, precise: e.precise), about: e.location, scene: scene, animated: false) }
+            return true
+        }
+        let f = e.precise ? 1.0 : 8.0   // a notched wheel reports lines
+        camera = camera.panned(by: CGSize(width: e.dx * f, height: e.dy * f))
+        return true
+    }
+
+    /// `--pan dx,dy` / `--pinch f` launch arguments apply one gesture at start (screenshots).
+    private func seedDebugGesture(scene: PlanScene) {
+        guard !seededDebug else { return }
+        seededDebug = true
+        let a = CommandLine.arguments
+        if let i = a.firstIndex(of: "--pan"), i + 1 < a.count {
+            let v = a[i + 1].split(separator: ",").compactMap { Double($0) }
+            if v.count == 2 { camera = camera.panned(by: CGSize(width: v[0], height: v[1])) }
+        }
+        if let i = a.firstIndex(of: "--pinch"), i + 1 < a.count, let f = Double(a[i + 1]) {
+            camera = camera.zoomed(by: f, about: scene.center, autoCenter: scene.autoCenter, autoZoom: scene.autoZoom, minimum: minZoom)
+        }
     }
 
     private struct MapKey: Equatable { var zoom: Double; var origin: String }

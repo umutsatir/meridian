@@ -58,6 +58,17 @@ struct ExAppleWorld: View {
         .onAppear {
             guard !seeded else { return }
             seeded = true
+            // `--pan dx,dy` (screenshots): move the camera the way a two-finger scroll of that many points would
+            let a = CommandLine.arguments
+            if let i = a.firstIndex(of: "--pan"), i + 1 < a.count {
+                let v = a[i + 1].split(separator: ",").compactMap { Double($0) }
+                if v.count == 2 {
+                    let radius = 6.371e6 / (distance(scale) * 0.536) * viewportHeight
+                    let k = GlobeCamera.degreesPerPoint(screenRadius: radius)
+                    center = CLLocationCoordinate2D(latitude: GlobeCamera.clampLatitude(center.latitude + v[1] * k),
+                                                    longitude: GlobeCamera.wrapLongitude(center.longitude - v[0] * k))
+                }
+            }
             position = .camera(camera(scale, center: center))
         }
         .onChange(of: scale) { _, s in

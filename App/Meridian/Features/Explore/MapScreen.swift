@@ -171,6 +171,15 @@ struct WorldMapView: View {
                 let c = mode == .globe ? Self.globeCenter : CGPoint(x: size.width * 0.55, y: 280)   // flat: about Europe
                 m = MapZoomModel().zoomed(to: initialZoom, about: c)
             }
+            if let g = debugGesture() {
+                if g.pinch != 1 { m = m.zoomed(by: g.pinch, about: mode == .globe ? Self.globeCenter : CGPoint(x: size.width / 2, y: size.height / 2)) }
+                if !usesApple {
+                    if mode == .globe {
+                        let k = m.rotationFactor
+                        rotation = CGSize(width: -g.pan.width * 0.4 * k, height: max(-106, min(34, g.pan.height * 0.3 * k)))
+                    } else { m = m.panned(by: g.pan) }
+                }
+            }
         }
         zoom = limited(m, mode: mode, viewport: size)
     }
@@ -181,26 +190,40 @@ struct WorldMapView: View {
         setZoom(MapZoomModel().zoomed(to: zoom.scale, about: c), mode: m, animated: true)
     }
 
-    /// Mouse wheel and Option/Control + scroll zoom about the pointer. Plain two-finger trackpad scroll turns the globe
-    /// (flat: pans). Returns whether the event was used.
+    /// Two-finger trackpad scroll (and the wheel) only MOVES the map: it turns the globe, pans the flat map. Zoom comes from pinch,
+    /// the buttons, the keys and Command + scroll, never from plain scrolling. Returns whether the event was used.
     private func handleScroll(_ e: MapScrollEvent, mode: ExMapMode) -> Bool {
-        guard mapHover != nil else { return false }
-        if usesApple && !(e.zoomModifier || !e.precise) { return false }   // Apple Maps pans / turns itself   // pointer over a panel: let it be
-        if e.zoomModifier || !e.precise {
+        guard mapHover != nil else { return false }   // pointer over a panel: let it be
+        if e.zoomModifier {
             let dy = abs(e.dy) >= abs(e.dx) ? e.dy : e.dx
             guard dy != 0 else { return true }
             setZoom(zoom.zoomed(by: MapZoomModel.wheelFactor(deltaY: dy, precise: e.precise), about: e.location), mode: mode, animated: !e.precise)
             return true
         }
+        if usesApple { return false }   // MapKit pans / turns its own camera with the scroll (interactionModes = [.pan])
+        let f = e.precise ? 1.0 : 8.0   // a notched wheel reports lines
         if mode == .globe {
             guard live else { return false }
             // same mapping as a drag (0.4 deg/pt horizontally, 0.3 vertically), slower when zoomed in; latitude 36 +- 70 limit
-            let f = zoom.rotationFactor
-            rotation = CGSize(width: rotation.width - e.dx * 0.4 * f, height: max(-70 - 36, min(70 - 36, rotation.height + e.dy * 0.3 * f)))
+            let g = zoom.rotationFactor
+            rotation = CGSize(width: rotation.width - e.dx * f * 0.4 * g, height: max(-70 - 36, min(70 - 36, rotation.height + e.dy * f * 0.3 * g)))
         } else {
-            setZoom(zoom.panned(by: CGSize(width: e.dx, height: e.dy)), mode: mode, animated: false)
+            setZoom(zoom.panned(by: CGSize(width: e.dx * f, height: e.dy * f)), mode: mode, animated: false)
         }
         return true
+    }
+
+    /// `--pan dx,dy` / `--pinch f` launch arguments apply one gesture at start (screenshots, Illustrated engine; the Apple
+    /// engine takes the same pan in `ExAppleWorld`).
+    private func debugGesture() -> (pan: CGSize, pinch: Double)? {
+        let a = CommandLine.arguments
+        var pan = CGSize.zero, pinch = 1.0
+        if let i = a.firstIndex(of: "--pan"), i + 1 < a.count {
+            let v = a[i + 1].split(separator: ",").compactMap { Double($0) }
+            if v.count == 2 { pan = CGSize(width: v[0], height: v[1]) }
+        }
+        if let i = a.firstIndex(of: "--pinch"), i + 1 < a.count, let f = Double(a[i + 1]) { pinch = f }
+        return pan == .zero && pinch == 1 ? nil : (pan, pinch)
     }
 
     private func zoomButtons(mode: ExMapMode) -> some View {
@@ -212,7 +235,7 @@ struct WorldMapView: View {
                 .buttonStyle(MRRoundButtonStyle()).disabled(!zoom.canZoomOut)
                 .accessibilityLabel("Zoom out")
         }
-        .help("Zoom: pinch, scroll wheel, Option + scroll, + / - keys, double-click. 0 resets.")
+        .help("Zoom: pinch, + / - keys, Command + scroll, double-click. Two-finger scroll moves the map. 0 resets.")
     }
 
     // MARK: data -> map layers
