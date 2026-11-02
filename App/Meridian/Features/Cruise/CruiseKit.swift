@@ -117,10 +117,19 @@ final class CruiseUI {
     var view: CruiseView = .map
     var style: MapStyle = .terra
     var route = true
-    var follow = true
-    /// Camera centre when `follow` is off.
-    var cam: Coordinate?
-    var zoomK = 0.5
+    /// Follow camera (S16 "Follow plane"): following / free, north up / heading up, zoom.
+    var camera = FollowCameraModel()
+    var follow: Bool {
+        get { camera.following }
+        set { if newValue { camera.recenter() } else { camera.following = false } }
+    }
+    /// Written by the map layer every frame, read by the controls (not observed, so no extra redraws).
+    @ObservationIgnored var lastCamera: FollowCamera?
+    @ObservationIgnored var fitScale = 2.0
+    @ObservationIgnored var engine: FollowCameraModel.Engine = .appleMaps
+    /// The pointer is over the map controls: shows the orientation button.
+    var controlsHover = false
+    var zoomHover = false
     var menu: Menu?
     var scene = "day"
     /// Follow the sun at the aircraft (live) instead of the chosen scene.
@@ -141,7 +150,24 @@ final class CruiseUI {
 
     init(view: CruiseView = .map, style: MapStyle = .terra) { self.view = view; self.style = style }
 
-    func zoom(by d: Double) { zoomK = max(0, min(1, zoomK + d)) }
+    /// `+` / `-` buttons and keys: one logarithmic step, about the plane (following) or the camera centre (free).
+    func zoomStep(_ direction: Int) { camera.zoom(by: direction > 0 ? FollowCameraModel.step : 1 / FollowCameraModel.step, fit: fitScale, engine) }
+
+    /// Wheel, pinch: about `anchor` (view coordinates) while free.
+    func zoom(factor: Double, about anchor: CGPoint) {
+        let target = camera.effectiveScale(fit: fitScale, engine) * factor
+        camera.zoom(by: factor, fit: fitScale, engine)
+        if let cam = lastCamera { camera.keepAnchor(anchor, camera: cam, newScale: FollowCameraModel.clamp(target, engine)) }
+    }
+
+    /// `F` / the Follow button: stop following, or recenter on the plane.
+    func toggleFollow() { if let cam = lastCamera { camera.toggleFollow(camera: cam) } else { follow.toggle() } }
+
+    /// Slider position 0...1 over the whole zoom range.
+    var zoomK: Double {
+        get { FollowCameraModel.k(forScale: camera.effectiveScale(fit: fitScale, engine), engine) }
+        set { camera.setK(newValue, engine) }
+    }
 }
 
 /// Real actions the screen can trigger. Artboards pass no-ops.
@@ -151,65 +177,6 @@ struct CruiseActions {
     var startBreak: () -> Void = {}
     var endBreak: () -> Void = {}
     var toggleSound: (Bool) -> Void = { _ in }
-}
-
-// MARK: - Camera (`Flight.dc.html` renderVals)
-
-struct CruiseCamera {
-    let size: CGSize
-    let zoom: Double
-    let center: Coordinate
-    let here: Coordinate
-    let points: [Coordinate]
-    let k0: Int
-    let k1: Int
-
-    static let samples = 90
-
-    init(frame: CruiseFrame, ui: CruiseUI, size: CGSize) {
-        self.size = size
-        let o = frame.origin.coordinate, d = (frame.destination ?? frame.origin).coordinate
-        var pts: [Coordinate] = []
-        for i in 0...Self.samples { pts.append(Geo.interpolate(from: o, to: d, fraction: Double(i) / Double(Self.samples))) }
-        points = pts
-        let si = max(0, min(Double(pts.count - 1), frame.progress * Double(pts.count - 1)))
-        let a = Int(si.rounded(.down)), b = min(pts.count - 1, a + 1), f = si - Double(a)
-        k0 = a; k1 = b
-        here = Coordinate(latitude: pts[a].latitude + (pts[b].latitude - pts[a].latitude) * f,
-                          longitude: pts[a].longitude + (pts[b].longitude - pts[a].longitude) * f)
-        let mid = pts[pts.count / 2]
-        center = ui.follow ? here : (ui.cam ?? mid)
-        let W = size.width, H = size.height
-        let A = EuropeProjection.xy(o), B = EuropeProjection.xy(d)
-        let dxp = abs(A.x - B.x), dyp = abs(A.y - B.y)
-        let zFit = min(0.62 * (W - 220) / max(dxp, 1), 0.5 * (H - 240) / max(dyp, 1), 5)
-        zoom = max(0.5, min(7, min(zFit, 3.2) * pow(2, (ui.zoomK - 0.5) * 2.4)))
-    }
-
-    var offset: CGSize { CGSize(width: 0, height: size.height * 0.45 - size.height / 2) }
-
-    func screen(_ c: Coordinate) -> CGPoint {
-        EuropeProjection.screenPoint(c, center: center, zoom: zoom, size: size, offset: offset)
-    }
-
-    /// Inverse of `screen` for panning (`inv` of the canvas).
-    func coordinate(at p: CGPoint) -> Coordinate {
-        let k = EuropeProjection.k
-        let c = EuropeProjection.xy(center)
-        let X = c.x + (p.x - (size.width / 2 + offset.width)) / zoom
-        let Y = c.y + (p.y - (size.height / 2 + offset.height)) / zoom
-        let rr = Double.pi / 180
-        let myf1 = log(tan(.pi / 4 + EuropeProjection.lat1 * rr / 2))
-        return Coordinate(latitude: (2 * atan(exp(myf1 - Y / k)) - .pi / 2) / rr, longitude: X / (k * rr) + EuropeProjection.lon0)
-    }
-
-    var screenPoints: [CGPoint] { points.map(screen) }
-    var hereScreen: CGPoint { screen(here) }
-    var heading: Double {
-        let sp = screenPoints
-        let pn = sp[min(sp.count - 1, k0 + 1)], pp = sp[max(0, k0)]
-        return atan2(pn.x - pp.x, -(pn.y - pp.y)) * 180 / .pi
-    }
 }
 
 // MARK: - Shared drawing helpers

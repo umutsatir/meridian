@@ -64,12 +64,16 @@ public struct MapSurface: View {
     public var showsGraticule: Bool
     /// `false` for cameras that move every frame (cruise follow camera).
     public var animatesCamera: Bool
+    /// Follow camera (rotation, deep zoom). When set, `center` / `zoom` / `offset` are ignored.
+    public var followCamera: FollowCamera?
 
     @AppStorage(MapEngine.defaultsKey) private var engineRaw = 0
     @Environment(\.colorScheme) private var scheme
 
     public init(style: MapStyle = .terra, theme: MapTheme? = nil, center: Coordinate, zoom: Double, offset: CGSize = .zero,
-                size: CGSize? = nil, showsLabels: Bool = true, showsGraticule: Bool = true, animatesCamera: Bool = true) {
+                size: CGSize? = nil, showsLabels: Bool = true, showsGraticule: Bool = true, animatesCamera: Bool = true,
+                followCamera: FollowCamera? = nil) {
+        self.followCamera = followCamera
         self.style = style; self.theme = theme; self.center = center; self.zoom = zoom; self.offset = offset; self.size = size
         self.showsLabels = showsLabels; self.showsGraticule = showsGraticule; self.animatesCamera = animatesCamera
     }
@@ -83,14 +87,25 @@ public struct MapSurface: View {
         let wide = size == nil
         Group {
             if apple {
-                AppleMapView(style: style, dark: dark, center: center, zoom: zoom, offset: offset, animates: animatesCamera)
+                AppleMapView(style: style, dark: dark, center: center, zoom: zoom, offset: offset, animates: animatesCamera, follow: followCamera)
                     .grayscale(style == .mono ? 1 : 0)
+            } else if let cam = followCamera {
+                // The illustrated map has no rotation: draw it on a square big enough to cover the view at any angle and
+                // rotate that, like the map engine rotates its camera.
+                // north up needs no cover square (and keeps the rim glow exactly where the design has it)
+                let d = abs(cam.bearing) < 0.01 ? 0 : hypot(cam.size.width, cam.size.height).rounded(.up)
+                EuropeMapView(style: style, theme: theme, center: cam.viewCenter, zoom: cam.scale, offset: .zero,
+                              size: d == 0 ? cam.size : CGSize(width: d, height: d), showsLabels: showsLabels, showsGraticule: showsGraticule)
+                    .transaction { $0.animation = nil }
+                    .rotationEffect(.degrees(-cam.bearing))
+                    .frame(width: cam.size.width, height: cam.size.height)
+                    .clipped()
             } else {
                 EuropeMapView(style: style, theme: theme, center: center, zoom: zoom, offset: offset, size: nil,
                               showsLabels: showsLabels, showsGraticule: showsGraticule)
             }
         }
-        .frame(width: size?.width, height: size?.height)
+        .frame(width: followCamera?.size.width ?? size?.width, height: followCamera?.size.height ?? size?.height)
         .overlay(alignment: .top) {
             if wantsApple && health.failed && wide {
                 Text("The map didn’t load. Your plane is still flying. We’re showing the simple route until the map is back.")
@@ -114,9 +129,12 @@ public struct AppleMapView: NSViewRepresentable {
     public var zoom: Double
     public var offset: CGSize
     public var animates: Bool
+    public var follow: FollowCamera?
 
-    public init(style: MapStyle, dark: Bool, center: Coordinate, zoom: Double, offset: CGSize = .zero, animates: Bool = true) {
+    public init(style: MapStyle, dark: Bool, center: Coordinate, zoom: Double, offset: CGSize = .zero, animates: Bool = true,
+                follow: FollowCamera? = nil) {
         self.style = style; self.dark = dark; self.center = center; self.zoom = zoom; self.offset = offset; self.animates = animates
+        self.follow = follow
     }
 
     public func makeNSView(context: Context) -> Host {
@@ -129,6 +147,10 @@ public struct AppleMapView: NSViewRepresentable {
 
     public func updateNSView(_ v: Host, context: Context) {
         v.apply(style: style, dark: dark)
+        if let follow {
+            v.setFollow(follow)
+            return
+        }
         let animated = animates && context.transaction.animation != nil
         v.setCamera(center: center, zoom: zoom, offset: offset, animated: animated)
     }
@@ -145,7 +167,9 @@ public struct AppleMapView: NSViewRepresentable {
                 if !Task.isCancelled { MapHealth.shared.tiles(failed: true) }
             }
         }
+        public func mapViewDidFinishLoadingMap(_ mapView: MKMapView) { (mapView as? Host)?.reassertFollow() }
         public func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
+            (mapView as? Host)?.reassertFollow()
             guard fullyRendered else { return }
             pending?.cancel()
             MapHealth.shared.tiles(failed: false)
@@ -176,12 +200,55 @@ public struct AppleMapView: NSViewRepresentable {
             }
         }
 
+        /// Camera distance per map-rect height, measured once from MapKit itself (it depends on MapKit's field of view).
+        private var distanceRatio: Double?
+        private var lastFollowKey: [Double] = []
+
+        /// Rotating, deep-zoom camera: an `MKMapCamera` whose distance is bound to the plane scale (the ratio of distance to
+        /// visible rect height is measured once from a visible-rect fit, so overlays stay aligned with the map).
+        private var pendingFollow: FollowCamera?
+        private var reasserts = 0
+        private var requestedKey: [Double] = []
+
+        /// MapKit drops a heading that is set before the map has loaded; set it again once it has (a few tries at most).
+        func reassertFollow() {
+            guard let c = pendingFollow, reasserts < 6, abs(FollowCamera.signedDelta(from: camera.heading, to: c.bearing)) > 0.5 else { return }
+            reasserts += 1
+            lastFollowKey = []
+            setFollow(c)
+        }
+        func setFollow(_ c: FollowCamera) {
+            pendingFollow = c
+            if !isRotateEnabled { isRotateEnabled = true }   // programmatic headings need it; gestures never reach this view (the screen overlays catch them)
+            guard bounds.width > 1, bounds.height > 1 else { return }
+            cameraZoomRange = CameraZoomRange(minCenterCoordinateDistance: 5, maxCenterCoordinateDistance: 6e7)
+            let s = (268_435_456.0 / (2 * .pi)) / (c.scale * EuropeProjection.k)          // map points per screen point
+            let cc = c.viewCenter
+            let coord = CLLocationCoordinate2D(latitude: cc.latitude, longitude: cc.longitude)
+            let mp = MKMapPoint(coord)
+            let key = [mp.x, mp.y, s, c.bearing, bounds.width, bounds.height]
+            if key == lastFollowKey { return }
+            if key != requestedKey { reasserts = 0; requestedKey = key }
+            lastFollowKey = key
+            let w = bounds.width * s, h = bounds.height * s
+            let m = MKMetersPerMapPointAtLatitude(cc.latitude)
+            if distanceRatio == nil {
+                setVisibleMapRect(MKMapRect(x: mp.x - w / 2, y: mp.y - h / 2, width: w, height: h), edgePadding: NSEdgeInsetsZero, animated: false)
+                if visibleMapRect.height > 0, camera.centerCoordinateDistance > 0 {
+                    distanceRatio = camera.centerCoordinateDistance / (visibleMapRect.height * m)
+                }
+            }
+            if let ratio = distanceRatio {
+                camera = MKMapCamera(lookingAtCenter: coord, fromDistance: ratio * h * m, pitch: 0, heading: c.bearing)
+            }
+        }
+
         func setCamera(center: Coordinate, zoom: Double, offset: CGSize, animated: Bool) {
             cam = (center, zoom, offset, animated)
             refit()
         }
 
-        public override func layout() { super.layout(); refit() }
+        public override func layout() { super.layout(); if let c = pendingFollow { setFollow(c) } else { refit() } }
 
         private func refit() {
             guard let (c, z, off, animated) = cam, bounds.width > 1, bounds.height > 1 else { return }

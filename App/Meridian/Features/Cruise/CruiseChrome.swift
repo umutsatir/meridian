@@ -74,6 +74,7 @@ struct CruiseMapControls: View {
         ZStack(alignment: .topTrailing) {
             capsule(expanded: expanded).padding(.trailing, 20).padding(.top, 18)
             CruiseZoomCapsule(ui: ui).padding(.trailing, 20).padding(.top, 202)
+            CruiseFollowControls(ui: ui)
             if ui.menu == .style { styleMenu }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
@@ -93,7 +94,7 @@ struct CruiseMapControls: View {
             .padding(4)
             .fixedSize()
             .cruiseGlass(26, .e2, amber: frame.isAmber)
-            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv } }
+            .onHover { hv in withAnimation(MRMotion.hover) { hover = hv }; ui.controlsHover = hv }
             .animation(MRMotion.ease(MRMotion.d2), value: expanded)
             .accessibilityElement(children: .contain)
             .accessibilityLabel("Map controls")
@@ -108,10 +109,7 @@ struct CruiseMapControls: View {
             .padding(.trailing, ui.capLabels ? 244 : 78).padding(.top, 100)
     }
 
-    private func toggleFollow() {
-        let cam = CruiseCamera(frame: frame, ui: ui, size: size)
-        if ui.follow { ui.follow = false; ui.cam = cam.center } else { ui.follow = true; ui.cam = nil }
-    }
+    private func toggleFollow() { ui.toggleFollow() }
 }
 
 /// An item of the `.fl-cap` capsule: a 40 pt circle that widens to a labelled pill.
@@ -164,11 +162,12 @@ struct CruiseZoomCapsule: View {
     @Bindable var ui: CruiseUI
     var body: some View {
         VStack(spacing: 2) {
-            ZoomItem(icon: .plus, tip: "Zoom in", kbd: "+", a11y: "Zoom in") { ui.zoom(by: 0.18) }
-            ZoomItem(icon: .minus, tip: "Zoom out", kbd: "−", a11y: "Zoom out") { ui.zoom(by: -0.18) }
+            ZoomItem(icon: .plus, tip: "Zoom in", kbd: "+", a11y: "Zoom in") { ui.zoomStep(1) }
+            ZoomItem(icon: .minus, tip: "Zoom out", kbd: "−", a11y: "Zoom out") { ui.zoomStep(-1) }
         }
         .padding(4)
         .cruiseGlass(26, .e2)
+        .onHover { ui.zoomHover = $0 }
         .accessibilityElement(children: .contain).accessibilityLabel("Zoom")
     }
 

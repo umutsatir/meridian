@@ -18,6 +18,7 @@ enum SystemRoutes {
         ScreenRegistry.register("mini-map-hover") {
             MiniMapView(info: .preview(.flight), size: MiniMapSize.m.dimensions, pinnedHover: true)
         }
+        ScreenRegistry.register("mini-map-follow") { MiniMapView(info: .preview(.flight), size: MiniMapSize.m.dimensions, follows: true) }
         ScreenRegistry.register("mini-map-s") { MiniMapView(info: .preview(.flight), size: MiniMapSize.s.dimensions) }
         ScreenRegistry.register("mini-map-l") { MiniMapView(info: .preview(.flight), size: MiniMapSize.l.dimensions) }
         ScreenRegistry.register("seat-tv") { SeatTVRoute(mode: .map) }

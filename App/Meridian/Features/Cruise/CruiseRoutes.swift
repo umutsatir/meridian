@@ -35,7 +35,10 @@ private struct CruiseDemo: View {
 
     init(p: Double, view: CruiseView = .map, style: MapStyle = .terra, policy: PausePolicy = .normal, sheetHold: Double? = nil, toast: Bool = false,
          configure: (CruiseUI) -> Void = { _ in }) {
-        frame = .demo(p: p, policy: policy)
+        // `--at-progress 0.31` pins the plane (follow-camera checks compare two instants of the same route)
+        let args = ProcessInfo.processInfo.arguments
+        let at = args.firstIndex(of: "--at-progress").flatMap { $0 + 1 < args.count ? Double(args[$0 + 1]) : nil }
+        frame = .demo(p: at ?? p, policy: policy)
         let u = CruiseUI(view: view, style: style)
         configure(u)
         _ui = State(initialValue: u)
@@ -73,6 +76,26 @@ extension ScreenRegistry {
         register("cruise-free-camera") { CruiseDemo(p: 0.62) { $0.follow = false; $0.capLabels = true } }
         register("cruise-light") { CruiseDemo(p: 0.45, style: .mono) }
         register("cruise-large") { CruiseDemo(p: 0.45) }
+
+        // Follow camera (Phase E): north up, heading up, street zoom, free camera with the Recenter button
+        register("cruise-follow-north") { CruiseDemo(p: 0.45) }
+        register("cruise-follow-heading") { CruiseDemo(p: 0.45) { $0.camera.orientation = .headingUp } }
+        register("cruise-follow-zoomed") { CruiseDemo(p: 0.45) { $0.camera.scale = 3000 } }
+        register("cruise-follow-zoomed-heading") { CruiseDemo(p: 0.45) { $0.camera.scale = 3000; $0.camera.orientation = .headingUp } }
+        register("cruise-follow-recenter") { CruiseDemo(p: 0.45) { $0.camera.following = false; $0.camera.freeCenterP = EuropeProjection.xy(Coordinate(latitude: 50.9, longitude: 0.6)); $0.camera.scale = 5 } }
+        register("cruise-follow-dbg") { CruiseDemo(p: 0.45) { u in
+            let a = ProcessInfo.processInfo.arguments
+            if let i = a.firstIndex(of: "--scale"), let v = Double(a[i + 1]) { u.camera.scale = v }
+            u.camera.orientation = .headingUp } }
+        // the live flight with a pinned zoom / orientation (`--follow-scale 3000 --follow-heading`), for CPU and motion checks
+        register("cruise-follow-live", setup: { $0.startFlight() }) {
+            LiveCruiseScreen { u in
+                let a = ProcessInfo.processInfo.arguments
+                if let i = a.firstIndex(of: "--follow-scale"), i + 1 < a.count, let v = Double(a[i + 1]) { u.camera.scale = v }
+                if a.contains("--follow-heading") { u.camera.orientation = .headingUp }
+            }.mrWindowChrome()
+        }
+        register("cruise-follow-world") { CruiseDemo(p: 0.45) { $0.camera.scale = 0.3 } }
 
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }
         register("window-scene-menu") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "sunset"; $0.menu = .scene } }

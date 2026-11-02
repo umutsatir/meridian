@@ -169,7 +169,7 @@ private struct MiniMapPanelRoot: View {
         MiniMapView(
             info: surfaces.info, size: state.size.dimensions,
             opacity: surfaces.settings.miniMapOpacity, clickThrough: surfaces.settings.clickThrough,
-            drawsShadow: false,
+            drawsShadow: false, follows: true,
             actions: MiniMapActions(
                 pause: { surfaces.togglePause() },
                 sound: { surfaces.settings.soundOn.toggle() },
