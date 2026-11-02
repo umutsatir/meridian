@@ -99,7 +99,7 @@ nonisolated final class LightsRenderer: MKOverlayRenderer, @unchecked Sendable {
 
     override func draw(_ mapRect: MKMapRect, zoomScale: MKZoomScale, in ctx: CGContext) {
         let space = CGColorSpaceCreateDeviceRGB()
-        ctx.setBlendMode(.plusLighter)
+        ctx.setBlendMode(.normal)
         for s in sites {
             let r = s.radiusM * s.ppm
             let m = r * 1.1
@@ -107,18 +107,20 @@ nonisolated final class LightsRenderer: MKOverlayRenderer, @unchecked Sendable {
             let px = r * zoomScale   // cluster radius in screen points of this tile level
             if px < 1.5 { continue }
             let c = CGPoint(x: s.point.x, y: s.point.y)
+            ctx.setBlendMode(.normal)
             // halo
-            if let g = CGGradient(colorsSpace: space, colors: [CGColor(red: 1, green: 0.62, blue: 0.28, alpha: 0.30), CGColor(red: 1, green: 0.5, blue: 0.2, alpha: 0.10),
+            if let g = CGGradient(colorsSpace: space, colors: [CGColor(red: 1, green: 0.62, blue: 0.28, alpha: 0.62), CGColor(red: 1, green: 0.5, blue: 0.2, alpha: 0.2),
                                                             CGColor(red: 1, green: 0.45, blue: 0.15, alpha: 0)] as CFArray, locations: [0, 0.45, 1]) {
-                ctx.drawRadialGradient(g, startCenter: c, startRadius: 0, endCenter: c, endRadius: r * 0.95, options: [])
+                ctx.drawRadialGradient(g, startCenter: c, startRadius: 0, endCenter: c, endRadius: r * 0.55, options: [])
             }
             guard px > 7 else { continue }
+            ctx.setBlendMode(.plusLighter)
             var seed = s.seed
             func rnd() -> Double { seed = seed &* 6_364_136_223_846_793_005 &+ 1_442_695_040_888_963_407; return Double((seed >> 33) & 0xFFFFFF) / Double(0x1000000) }
-            let n = Int(min(90, 26 + px / 4))
-            let dot = max(0.9, min(2.4, px / 60)) / zoomScale
+            let n = Int(min(420, 70 + px / 1.6))
+            let dot = max(2.0, min(3.6, px / 30)) / zoomScale
             for _ in 0..<n {
-                let a = rnd() * 2 * .pi, d = r * 0.9 * pow(rnd(), 0.8)
+                let a = rnd() * 2 * .pi, d = r * 0.9 * pow(rnd(), 2.0)
                 let warm = rnd()
                 ctx.setFillColor(CGColor(red: 1, green: 0.72 + 0.2 * warm, blue: 0.38 + 0.4 * warm * warm, alpha: 0.55 + 0.4 * rnd()))
                 let x = c.x + cos(a) * d, y = c.y + sin(a) * d * 0.9
@@ -154,6 +156,7 @@ struct LiveWindowMap: NSViewRepresentable {
         // energy: nothing to draw while the window is hidden or occluded
         if let w = v.window, !w.occlusionState.contains(.visible) { return }
         v.apply(camera: camera, animated: animated)
+        context.coordinator.wantTint = tint; context.coordinator.wantLights = lights; context.coordinator.wantCloud = cloudAlpha
         context.coordinator.tint?.update(tint)
         context.coordinator.setLights(lights)
         context.coordinator.setCloud(cloudAlpha)
@@ -167,6 +170,9 @@ struct LiveWindowMap: NSViewRepresentable {
         var lightsRenderer: LightsRenderer?
         var cloudRenderer: MKTileOverlayRenderer?
         var onHealth: (Bool) -> Void = { _ in }
+        /// Latest requested values, applied when MapKit creates the renderers (after the first update).
+        var wantTint = DayNightGrade.RGBA(r: 255, g: 255, b: 255, a: 0)
+        var wantLights = 0.0, wantCloud = 0.0
         private var pending: Task<Void, Never>?
         private var lastLights = -1.0, lastCloud = -1.0
 
@@ -185,18 +191,19 @@ struct LiveWindowMap: NSViewRepresentable {
         func mapView(_ mapView: MKMapView, rendererFor overlay: any MKOverlay) -> MKOverlayRenderer {
             if let t = overlay as? MKTileOverlay {
                 let r = MKTileOverlayRenderer(tileOverlay: t)
-                r.alpha = 0
                 cloudRenderer = r
+                r.alpha = wantCloud
                 return r
             }
             if overlay is WorldOverlay, host?.lightsOverlay === overlay {
                 let r = LightsRenderer(overlay: overlay, sites: LiveWindowMap.lightSites)
-                r.alpha = 0
                 lightsRenderer = r
+                r.alpha = wantLights
                 return r
             }
             let r = TintRenderer(overlay: overlay)
             tint = r
+            r.update(wantTint)
             return r
         }
 
@@ -209,7 +216,6 @@ struct LiveWindowMap: NSViewRepresentable {
         }
 
         func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
-            FileHandle.standardError.write(Data("MAPCAM pitch=\(mapView.camera.pitch) dist=\(mapView.camera.centerCoordinateDistance) alt=\(mapView.camera.altitude) full=\(fullyRendered)\n".utf8))
             guard fullyRendered else { return }
             pending?.cancel()
             onHealth(false)

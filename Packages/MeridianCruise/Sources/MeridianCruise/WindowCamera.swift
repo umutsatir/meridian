@@ -69,11 +69,11 @@ public enum WindowCamera {
         }
     }
 
-    /// Extra downward tilt (degrees) applied on top of MapKit's own 35 degree pitch limit: steeper near the ground
-    /// (take-off, landing) and flatter at cruise altitude, where the horizon sits in the upper third.
+    /// Extra oblique tilt (degrees) applied on top of MapKit's own 35 degree pitch limit: looks more straight down near the ground
+    /// (take-off, landing) and more towards the horizon at cruise altitude, where the horizon sits in the upper third.
     public static func tiltDegrees(altitudeFt: Double) -> Double {
         let low = 1 - min(1, max(0, altitudeFt / 10_000))
-        return 42 + 14 * low
+        return 42 - 12 * low
     }
 
     /// Bearing that points to the right edge of the window view. For a left window this is the heading of the flight:

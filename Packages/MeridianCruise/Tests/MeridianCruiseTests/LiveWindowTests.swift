@@ -223,9 +223,9 @@ import MeridianCore
         #expect(total > 0.1)
     }
 
-    @Test func tiltIsSteeperNearTheGround() {
-        #expect(WindowCamera.tiltDegrees(altitudeFt: 0) > WindowCamera.tiltDegrees(altitudeFt: 5_000))
-        #expect(WindowCamera.tiltDegrees(altitudeFt: 5_000) > WindowCamera.tiltDegrees(altitudeFt: 30_000))
+    @Test func lookIsMoreDownwardNearTheGround() {
+        #expect(WindowCamera.tiltDegrees(altitudeFt: 0) < WindowCamera.tiltDegrees(altitudeFt: 5_000))
+        #expect(WindowCamera.tiltDegrees(altitudeFt: 5_000) < WindowCamera.tiltDegrees(altitudeFt: 30_000))
         #expect(WindowCamera.tiltDegrees(altitudeFt: 30_000) == 42)
     }
 

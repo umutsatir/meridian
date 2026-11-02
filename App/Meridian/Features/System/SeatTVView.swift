@@ -1,4 +1,5 @@
 import MeridianCore
+import MeridianCruise
 import MeridianMaps
 import MeridianUI
 import SwiftUI
@@ -166,14 +167,22 @@ struct SeatTVView: View {
     }
 
     private func windowLayer(_ W: Double, _ H: Double) -> some View {
-        // The cabin window scene belongs to the in-flight screens; until it is wired the seat screen shows its sky.
-        ZStack(alignment: .topLeading) {
-            RadialGradient(colors: [sysRGBA(18, 22, 31), sysRGBA(4, 5, 8)], center: UnitPoint(x: 0.5, y: 0.4), startRadius: 0, endRadius: W * 0.6)
-            MRSky.allCases[0].gradient.frame(width: W, height: 680).offset(y: 24)
+        // The same live scene as the cabin window: satellite ground, real sun and weather, the wing (no oval frame)
+        let o = info.origin ?? Coordinate(latitude: 51.47, longitude: -0.4543)
+        let d = info.destination ?? Coordinate(latitude: 49.0097, longitude: 2.5479)
+        let motion = WindowMotion(origin: o, destination: d, progress: info.progress,
+                                  ratePerSec: (info.paused || info.timeSec <= 0 || info.isFreeFlight) ? 0 : (1 - info.progress) / info.timeSec, anchor: .now)
+        let s = motion.state(progress: info.progress)
+        var look = WindowLook.real(position: s.position, heading: s.heading, date: .now, progress: info.progress, routeKm: Geo.distanceKm(from: o, to: d),
+                                   weather: LiveWeather.shared.profile.condition(at: info.progress))
+        look.motion = motion
+        return ZStack(alignment: .topLeading) {
+            LiveWindowScene(look: look, size: CGSize(width: W, height: H))
             LinearGradient(colors: [sysRGBA(6, 8, 13, 0), sysRGBA(6, 8, 13, 0.7)], startPoint: .top, endPoint: .bottom)
                 .frame(width: W, height: 220).offset(y: H - 220)
         }
         .frame(width: W, height: H)
+        .task { LiveWeather.shared.ensure(from: o, to: d) }
     }
 
     // MARK: Chrome

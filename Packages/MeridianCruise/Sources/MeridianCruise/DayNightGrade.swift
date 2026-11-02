@@ -46,7 +46,10 @@ public struct DayNightGrade: Sendable, Equatable {
 
     public var total: Double { day + golden + blue + night }
 
-    public struct RGBA: Sendable, Equatable { public var r, g, b, a: Double }
+    public struct RGBA: Sendable, Equatable {
+        public var r, g, b, a: Double
+        public init(r: Double, g: Double, b: Double, a: Double) { self.r = r; self.g = g; self.b = b; self.a = a }
+    }
 
     /// Colour laid over the (daytime) satellite imagery: nothing by day, warm at golden hour, indigo at blue hour,
     /// deep navy at night. `a` is the strength of the layer.
