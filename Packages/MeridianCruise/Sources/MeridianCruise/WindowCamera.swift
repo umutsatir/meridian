@@ -96,11 +96,16 @@ public enum WindowCamera {
         return Coordinate(latitude: φ2 * 180 / .pi, longitude: (λ2 * 180 / .pi + 540).truncatingRemainder(dividingBy: 360) - 180)
     }
 
+    /// How much higher the window camera hangs than the aircraft. Looking out of a real window at cruise altitude the ground crawls:
+    /// the apparent speed is ground speed over the width of ground in view, so the wider view (higher eye) is what slows the
+    /// ground down (about 1/3.5 of the old speed) while the speed and parallax still follow the altitude of the flight phase.
+    public static let viewScale = 3.5
+
     /// The eye hangs above `position` at `max(minAltitude, altitude)`, looks to `side` of the heading and down at
     /// `pitch` degrees from the nadir. The map camera's centre is the ground point the eye looks at.
     public static func spec(position: Coordinate, heading: Double, side: WindowSide, altitudeFt: Double, pitch: Double = 72,
-                            minAltitudeM: Double = 450) -> WindowCameraSpec {
-        let alt = max(minAltitudeM, altitudeFt * 0.3048)
+                            minAltitudeM: Double = 450, viewScale: Double = 1) -> WindowCameraSpec {
+        let alt = max(minAltitudeM, altitudeFt * 0.3048) * viewScale
         let look = (heading + side.headingOffset + 360).truncatingRemainder(dividingBy: 360)
         let ground = alt * tan(pitch * .pi / 180)
         let center = offset(position, bearing: look, km: ground / 1000)
