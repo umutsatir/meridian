@@ -11,8 +11,6 @@ public struct BoardingPassView: View {
     private let flat: Bool
     private let live: Bool
     private let hoverPose: Bool
-    @State private var tilt = CGSize.zero   // rx (x), ry (y)
-    @State private var lift: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var scheme
 
@@ -24,34 +22,33 @@ public struct BoardingPassView: View {
 
     static func height(for state: BoardingPassState) -> CGFloat { state.isTornShape ? 452 : 600 }
 
-    public var body: some View {
-        let h = state == .locked ? 452 : Self.height(for: state)
-        let rx = live ? tilt.width : (hoverPose ? -4 : 0), ry = live ? tilt.height : (hoverPose ? 5 : 0)
-        let lf = live ? lift : (hoverPose ? 8 : 0)
+    private func pass(h: CGFloat, rx: Double, ry: Double, lift lf: CGFloat) -> some View {
         Group {
             if state == .locked {
                 PassLocked(size: CGSize(width: 360 * scale, height: 452 * scale))
             } else {
                 PassPaper(model: model, state: state, side: side)
                     .modifier(PaperShadow(flat: flat, lift: lf))
-                    .modifier(PaperTilt(rx: reduceMotion ? 0 : Double(rx), ry: reduceMotion ? 0 : Double(ry), lift: reduceMotion ? 0 : lf,
+                    .modifier(PaperTilt(rx: reduceMotion ? 0 : rx, ry: reduceMotion ? 0 : ry, lift: reduceMotion ? 0 : lf,
                                         size: CGSize(width: 360, height: h)))
             }
         }
         .frame(width: state == .locked ? 360 * scale : 360, height: state == .locked ? h * scale : h)
         .scaleEffect(state == .locked ? 1 : scale, anchor: .topLeading)
         .frame(width: 360 * scale, height: h * scale, alignment: .topLeading)
-        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: tilt)
-        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: lift)
-        .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: hoverPose)
-        .onContinuousHover { phase in
-            guard live else { return }
-            switch phase {
-            case .active(let p):
-                let dx = p.x / 360 - 0.5, dy = p.y / h - 0.5
-                tilt = CGSize(width: -dy * 12, height: dx * 12); lift = 8
-            case .ended:
-                tilt = .zero; lift = 0
+    }
+
+    public var body: some View {
+        let h = state == .locked ? 452 : Self.height(for: state)
+        Group {
+            if live {
+                // The pointer is only a target; CardTiltSmoother advances rx / ry / lift every frame (no jump on first contact).
+                CardTiltHost(normalize: { CGPoint(x: $0.x / (360 * scale) - 0.5, y: $0.y / (h * scale) - 0.5) }, enabled: true) { px, py, hover in
+                    pass(h: h, rx: -py * 12, ry: px * 12, lift: 8 * hover)
+                }
+            } else {
+                pass(h: h, rx: hoverPose ? -4 : 0, ry: hoverPose ? 5 : 0, lift: hoverPose ? 8 : 0)
+                    .animation(reduceMotion ? nil : MRMotion.hoverTilt, value: hoverPose)
             }
         }
         .accessibilityElement(children: .ignore)

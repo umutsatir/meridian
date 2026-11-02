@@ -99,22 +99,27 @@ struct CardTiltHost<Content: View>: View {
         }
         .onChange(of: external) { _, p in
             guard !enabled else { return }
-            driver.setTarget(p.map(normalizeExternal)); wake()
+            driver.setTarget(p); wake()
         }
-        .overlay {
-            Color.clear.contentShape(Rectangle())
-                .allowsHitTesting(enabled)
-                .onContinuousHover { phase in
-                    guard enabled else { return }
-                    switch phase {
-                    case .active(let l): driver.setTarget(normalize(l)); wake()
-                    case .ended: driver.setTarget(nil); wake()
-                    }
-                }
-        }
+        .modifier(HoverLayer(enabled: enabled) { phase in
+            switch phase {
+            case .active(let l): driver.setTarget(normalize(l)); wake()
+            case .ended: driver.setTarget(nil); wake()
+            }
+        })
     }
 
-    private func normalizeExternal(_ p: CGPoint) -> CGPoint { p }
-
     private func wake() { if !running { driver.resume(); running = true } }
+}
+
+/// A transparent full-frame layer (`Color.clear` + `contentShape`) that owns the hover.
+private struct HoverLayer: ViewModifier {
+    let enabled: Bool
+    let action: (HoverPhase) -> Void
+    func body(content: Content) -> some View {
+        let layer = Color.clear.contentShape(Rectangle()).allowsHitTesting(enabled).onContinuousHover { phase in
+            if enabled { action(phase) }
+        }
+        content.overlay { layer }
+    }
 }

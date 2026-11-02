@@ -25,6 +25,14 @@ extension ScreenRegistry {
                 }
             }
         }
+        register("pass-hover-sim") {
+            CardSimHost {
+                ZStack(alignment: .topLeading) {
+                    Color(white: 0.08)
+                    BoardingPassView(.sample, state: .printed, live: true).offset(x: 460, y: 100)
+                }
+            }
+        }
         register("unlock", setup: {
             $0.section = .cards
             CardUnlockPresenter.shared.presentFixture(tier: .gold, atMs: 2900, content: .fixture)
