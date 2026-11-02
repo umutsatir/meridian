@@ -44,6 +44,8 @@ final class MRSoundSettings {
     var duckAnnouncements: Bool { didSet { defaults.set(duckAnnouncements, forKey: prefix + "duck") } }
     /// Play UI sounds and announcements although Do Not Disturb / a Focus is active.
     var allowDuringDoNotDisturb: Bool { didSet { defaults.set(allowDuringDoNotDisturb, forKey: prefix + "dnd") } }
+    /// Cabin sound (the ambient bed) while flying. On by default; the user's choice is remembered.
+    var cabinSoundEnabled: Bool { didSet { defaults.set(cabinSoundEnabled, forKey: prefix + "cabin") } }
     /// Mixer master 0...1.
     var master: Double { didSet { defaults.set(master, forKey: prefix + "master") } }
     var layerLevels: [MRLayer: Double] {
@@ -61,6 +63,7 @@ final class MRSoundSettings {
         func bool(_ k: String, _ d: Bool) -> Bool { defaults.object(forKey: p + k) == nil ? d : defaults.bool(forKey: p + k) }
         uiSoundsEnabled = bool("ui", true)
         announcementsEnabled = bool("announcements", true)
+        cabinSoundEnabled = bool("cabin", true)
         duckAnnouncements = bool("duck", true)
         allowDuringDoNotDisturb = bool("dnd", false)
         if let raw = defaults.stringArray(forKey: p + "groups") {

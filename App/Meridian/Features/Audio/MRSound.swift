@@ -29,7 +29,10 @@ final class MRSound {
 
     /// False when the engine could not start (no output device).
     private(set) var isAvailable = true
-    private(set) var ambientEnabled = false
+    /// True while a flight is in progress (set by `setFlightActive`). The cabin bed only plays during a flight.
+    private(set) var flightActive = false
+    /// The cabin bed is meant to be audible: a flight is running and the user has not switched cabin sound off.
+    var ambientEnabled: Bool { flightActive && settings.cabinSoundEnabled }
 
     private let engine = AVAudioEngine()
     private let format: AVAudioFormat
@@ -39,10 +42,12 @@ final class MRSound {
     private let ambient: MRAmbientDSP
     fileprivate let ripDSP: MRRipDSP
     private var cache: [MRCue: AVAudioPCMBuffer] = [:]
-    private var started = false
+    private var graphBuilt = false
     private var duckToken = 0
     private var observer: NSObjectProtocol?
     private var prewarmTask: Task<Void, Never>?
+    /// Current parameters of the ambient bed (diagnostics, tests).
+    var ambientParams: MRAmbientDSP.Params { ambient.currentParams() }
     /// Last played cues (diagnostic, like `A.log` of the prototype).
     private(set) var recentCues: [MRCue] = []
 
@@ -104,7 +109,12 @@ final class MRSound {
     private func buffer(for cue: MRCue) -> AVAudioPCMBuffer {
         let key = Self.cacheKey(cue)
         if let b = cache[key] { return b }
-        let b = Self.pcm(MRCueRenderer.render(key))
+        let b: AVAudioPCMBuffer
+        if case .chime(let kind) = key, let url = library.chimeFile(kind), let file = Self.loadChime(url, sampleRate: format.sampleRate) {
+            b = Self.pcm(file)
+        } else {
+            b = Self.pcm(MRCueRenderer.render(key))
+        }
         cache[key] = b
         return b
     }
@@ -112,6 +122,32 @@ final class MRSound {
     private static func cacheKey(_ cue: MRCue) -> MRCue {
         if case .printerStep(let i) = cue { return .printerStep(min(max(i, 0), 31)) }
         return cue
+    }
+
+    /// Reads a short chime recording (<= 3 s are kept), converts it to the engine format and adds click-free edges.
+    nonisolated static func loadChime(_ url: URL, sampleRate: Double) -> MRStereoBuffer? {
+        guard let file = try? AVAudioFile(forReading: url),
+              let outFmt = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: sampleRate, channels: 2, interleaved: false),
+              let conv = AVAudioConverter(from: file.processingFormat, to: outFmt) else { return nil }
+        let maxIn = AVAudioFrameCount(min(Double(file.length), 3.0 * file.processingFormat.sampleRate))
+        guard maxIn > 0, let inBuf = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: maxIn),
+              (try? file.read(into: inBuf, frameCount: maxIn)) != nil else { return nil }
+        let cap = AVAudioFrameCount(Double(inBuf.frameLength) * sampleRate / file.processingFormat.sampleRate) + 1024
+        guard let outBuf = AVAudioPCMBuffer(pcmFormat: outFmt, frameCapacity: cap) else { return nil }
+        var fed = false
+        var err: NSError?
+        conv.convert(to: outBuf, error: &err) { _, status in
+            if fed { status.pointee = .endOfStream; return nil }
+            fed = true; status.pointee = .haveData; return inBuf
+        }
+        guard err == nil, outBuf.frameLength > 0, let c = outBuf.floatChannelData else { return nil }
+        let n = Int(outBuf.frameLength)
+        var b = MRStereoBuffer(left: Array(UnsafeBufferPointer(start: c[0], count: n)),
+                               right: Array(UnsafeBufferPointer(start: c[1], count: n)), sampleRate: sampleRate)
+        var peak = b.peak
+        if peak > 0.9 { let k = 0.9 / peak; for i in 0..<n { b.left[i] *= k; b.right[i] *= k }; peak = 0.9 }
+        MRCueRenderer.edgeFade(&b, fadeIn: 0.005, fadeOut: 0.25)
+        return b.hasNonFinite ? nil : b
     }
 
     nonisolated static func pcm(_ s: MRStereoBuffer) -> AVAudioPCMBuffer {
@@ -131,6 +167,7 @@ final class MRSound {
                           + (0..<14).map { MRCue.printerStep($0) }
         prewarmTask = Task {
             for cue in cues where cache[cue] == nil {
+                if case .chime(let k) = cue, library.chimeFile(k) != nil { _ = buffer(for: cue); continue }
                 let rendered = await Task.detached(priority: .utility) { MRCueRenderer.render(cue) }.value
                 if cache[cue] == nil { cache[cue] = Self.pcm(rendered) }
             }
@@ -179,86 +216,112 @@ final class MRSound {
     }
 
     // MARK: Ambient layers (SND-1)
+    //
+    // The cabin bed plays only during a flight (`setFlightActive`, driven by AppModel.activeFlight) and only while the user
+    // keeps "Cabin sound" on (default on). It fades in over 1.8 s and out over 1.5 s (equal power). Level, mute and master
+    // changes ramp in about 0.4 s. The engine itself is never stopped, so nothing is cut off.
 
     func level(of layer: MRLayer) -> Double { settings.level(of: layer) }
 
-    /// Sets a layer level 0...1 and turns the mixer on.
+    /// A flight started (true) or ended / landed / was cancelled / deleted (false).
+    func setFlightActive(_ active: Bool) {
+        guard active != flightActive else { return }
+        flightActive = active
+        syncAmbient()
+    }
+
+    /// The user's cabin sound switch (Settings > Sounds, the cruise sound button). Remembered.
+    func setCabinSound(_ on: Bool) {
+        settings.cabinSoundEnabled = on
+        syncAmbient()
+    }
+
+    /// Sets a layer level 0...1.
     func setLevel(_ layer: MRLayer, _ level: Double) {
         settings.layerLevels[layer] = min(1, max(0, level))
         settings.presetID = nil
-        resumeAmbient()
+        applyLayerParams()
     }
     func setMuted(_ layer: MRLayer, _ muted: Bool) {
         if muted { settings.mutedLayers.insert(layer) } else { settings.mutedLayers.remove(layer) }
-        resumeAmbient()
+        applyLayerParams()
     }
     func setMaster(_ master: Double) {
         settings.master = min(1, max(0, master))
-        resumeAmbient()
+        applyLayerParams()
     }
     func applyPreset(_ preset: MRSoundPreset) {
         settings.layerLevels = preset.levels
         settings.master = preset.master
         settings.mutedLayers = []
         settings.presetID = preset.id
-        resumeAmbient()
-    }
-    /// Fades every layer to silence (keeps the stored levels); any later layer or preset change brings them back.
-    func layersOff() {
-        ambientEnabled = false
-        applyLayerParams(fast: true)
-    }
-    func layersOn() { resumeAmbient() }
-
-    private func resumeAmbient() {
-        ambientEnabled = true
         applyLayerParams()
-        if (anyAudibleLayer) { _ = startIfNeeded() }
     }
-    private var anyAudibleLayer: Bool { MRLayer.allCases.contains { !settings.mutedLayers.contains($0) && settings.level(of: $0) > 0 } && settings.master > 0 }
+    /// Pushes the whole mixer state (Settings > Sounds) without changing whether the bed is on.
+    func setMixer(levels: [MRLayer: Double], muted: Set<MRLayer>, master: Double) {
+        settings.layerLevels = levels.mapValues { min(1, max(0, $0)) }
+        settings.mutedLayers = muted
+        settings.master = min(1, max(0, master))
+        applyLayerParams()
+    }
+    /// Fades the bed out (stored levels kept). Same as `setCabinSound(false)`.
+    func layersOff() { setCabinSound(false) }
+    func layersOn() { setCabinSound(true) }
 
-    private func applyLayerParams(fast: Bool = false) {
-        let snapshot = (levels: settings.layerLevels, muted: settings.mutedLayers, master: settings.master, on: ambientEnabled)
+    private func syncAmbient() {
+        let on = ambientEnabled
+        applyLayerParams()
+        ambient.update { $0.fadeTarget = on ? 1 : 0; $0.fadeSeconds = on ? MRFade.ambientIn : MRFade.ambientOut }
+        if on { _ = startIfNeeded() }
+    }
+
+    private func applyLayerParams() {
+        let snapshot = (levels: settings.layerLevels, muted: settings.mutedLayers, master: settings.master)
         ambient.update { p in
             for l in MRLayer.allCases {
-                let lv = snapshot.on && !snapshot.muted.contains(l) ? (snapshot.levels[l] ?? 0) * snapshot.master : 0
+                let lv = !snapshot.muted.contains(l) ? (snapshot.levels[l] ?? 0) * snapshot.master : 0
                 p.level[l.index] = lv
                 p.gain[l.index] = lv * l.k * 0.22
-                p.tc[l.index] = fast ? 0.05 : 0.08
+                p.tc[l.index] = 0.13
             }
         }
     }
 
     // MARK: Engine
 
+    /// Builds the graph once and starts the engine; retried on the next call when the first start failed (no device yet).
     @discardableResult
     func startIfNeeded() -> Bool {
-        if started { return isAvailable }
-        started = true
-        let node = ambient.makeNode(format: format)
-        let ripNode = ripDSP.makeNode(format: format)
-        engine.attach(node); engine.attach(ripNode)
-        engine.connect(node, to: engine.mainMixerNode, format: format)
-        engine.connect(ripNode, to: engine.mainMixerNode, format: format)
-        for _ in 0..<Self.poolSize {
-            let p = AVAudioPlayerNode()
-            engine.attach(p)
-            engine.connect(p, to: engine.mainMixerNode, format: format)
-            players.append(p); busy.append(false)
-        }
-        do {
-            if mode == .offline {
-                try engine.enableManualRenderingMode(.offline, format: format, maximumFrameCount: 4096)
+        if !graphBuilt {
+            let node = ambient.makeNode(format: format)
+            let ripNode = ripDSP.makeNode(format: format)
+            engine.attach(node); engine.attach(ripNode)
+            engine.connect(node, to: engine.mainMixerNode, format: format)
+            engine.connect(ripNode, to: engine.mainMixerNode, format: format)
+            for _ in 0..<Self.poolSize {
+                let p = AVAudioPlayerNode()
+                engine.attach(p)
+                engine.connect(p, to: engine.mainMixerNode, format: format)
+                players.append(p); busy.append(false)
             }
+            if mode == .offline {
+                do { try engine.enableManualRenderingMode(.offline, format: format, maximumFrameCount: 4096) }
+                catch { isAvailable = false; return false }
+            }
+            graphBuilt = true
+        }
+        if engine.isRunning { return true }
+        do {
             engine.prepare()
             try engine.start()
         } catch {
             isAvailable = false
             return false
         }
-        if mode == .live {
+        isAvailable = true
+        if mode == .live, observer == nil {
             observer = NotificationCenter.default.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated { try? self?.engine.start() }
+                MainActor.assumeIsolated { _ = self?.startIfNeeded() }
             }
         }
         return true

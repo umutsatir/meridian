@@ -4,9 +4,9 @@ import Foundation
 
 /// Kind of chime, see `A.chime` in meridian-audio.js.
 nonisolated enum MRChime: String, Sendable, Hashable, CaseIterable {
-    /// C5 E5 G5 ascending (boarding).
+    /// Airport PA "ding-dong": E5 then C5, soft bell (boarding).
     case board
-    /// G5 E5 C5 descending (landing).
+    /// A single soft "ding" (E5), the end-of-flight counterpart.
     case land
 }
 
@@ -51,7 +51,8 @@ nonisolated enum MRCue: Hashable, Sendable {
         case .click: 0.02...0.1
         case .thump: 0.25...0.5
         case .stamp: 1.0...2.4
-        case .chime: 3.0...5.5
+        case .chime(.board): 1.8...3.2
+        case .chime(.land): 1.2...3.0
         case .seatbelt: 1.4...2.4
         case .whoosh: 0.25...0.5
         case .flap: 0.03...0.1
@@ -99,7 +100,37 @@ nonisolated enum MRCueRenderer {
         case .ripFinish: ripFinish(s)
         case .crewChime: crewChime(s)
         }
-        return s.finish()
+        var out = s.finish()
+        applyEdges(&out, cue)
+        return out
+    }
+
+    /// Cues whose own envelope is already a click-sized transient (ticks, clicks, clacks, printer chirps) keep their attack.
+    static func usesEdgeFades(_ cue: MRCue) -> Bool {
+        switch cue {
+        case .tick, .click, .flap, .printerStep: false
+        default: true
+        }
+    }
+
+    /// Click-free edges: 5 ms raised-cosine fade-in, and a fade-out (30 ms; soft 250 ms tail for cues of 1 s or more).
+    static func applyEdges(_ b: inout MRStereoBuffer, _ cue: MRCue) {
+        guard usesEdgeFades(cue) else { return }
+        edgeFade(&b, fadeIn: 0.005, fadeOut: b.duration >= 1 ? 0.25 : 0.03)
+    }
+
+    static func edgeFade(_ b: inout MRStereoBuffer, fadeIn: Double, fadeOut: Double) {
+        let n = b.frames
+        guard n > 1 else { return }
+        let a = min(n / 2, max(1, Int(fadeIn * b.sampleRate))), r = min(n / 2, max(1, Int(fadeOut * b.sampleRate)))
+        for i in 0..<a {
+            let g = Float(MRFade.raisedCosine(Double(i) / Double(a)))
+            b.left[i] *= g; b.right[i] *= g
+        }
+        for i in 0..<r {
+            let g = Float(MRFade.raisedCosine(Double(i) / Double(r)))
+            b.left[n - 1 - i] *= g; b.right[n - 1 - i] *= g
+        }
     }
 
     // Printer: square-wave stepper chirp (gated at ~60 Hz) + 3-5 kHz band-passed noise tick (20 ms) per step.
@@ -167,10 +198,24 @@ nonisolated enum MRCueRenderer {
         }
     }
 
-    // Three-note bell: C5 E5 G5 ascending (boarding) / reversed (landing).
+    // Airport PA "ding-dong": a soft bell, two notes (E5 then C5, 0.5 s apart) for boarding, one E5 "ding" for landing.
+    // Partials 1 / 2.76 / 5.4 (bell-like), a slow-ish 25 ms swell instead of a hard strike, light room send.
     private static func chime(_ s: MRSynth, _ kind: MRChime) {
-        let notes: [Double] = kind == .land ? [783.99, 659.25, 523.25] : [523.25, 659.25, 783.99]
-        for (i, f) in notes.enumerated() { bell(s, f, Double(i) * 0.22, 0.16, 1.9) }
+        switch kind {
+        case .board:
+            paBell(s, 659.25, 0, 0.17, 1.15)
+            paBell(s, 523.25, 0.52, 0.17, 1.35)
+        case .land:
+            paBell(s, 659.25, 0, 0.15, 1.3)
+        }
+    }
+
+    private static func paBell(_ s: MRSynth, _ f: Double, _ t: Double, _ peak: Double, _ dec: Double) {
+        for (mult, amp) in [(1.0, 1.0), (2.76, 0.22), (5.4, 0.06)] {
+            var o = s.osc(.sine, MRParam(f * mult), start: t, stop: t + dec + 0.5)
+            s.gain(&o, .envelope(at: t, attack: 0.025, peak: peak * amp, decay: dec * (mult > 1 ? 0.45 : 1), release: 0.25))
+            s.out(o, send: 0.35)
+        }
     }
 
     private static func crewChime(_ s: MRSynth) {
