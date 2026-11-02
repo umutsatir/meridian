@@ -98,8 +98,10 @@ struct PlanHomeView: View {
         let cam = camera
         let GS = Self.globeSize * cam.zoom, GR = GS * 0.43, GC = GS / 2
         let gLat = cam.lat, gLon = cam.lon
-        // the sphere turns and grows about its canvas centre: the sphere top sits at y = 190 at zoom 1
-        let centerY = 190 + 0.43 * Self.globeSize
+        // the sphere turns in place and grows about a point in the middle of the view (not about its own centre, which lies
+        // below the window): the sphere top sits at y = 190 at zoom 1
+        let anchorY = H * 0.56
+        let centerY = anchorY + (190 + 0.43 * Self.globeSize - anchorY) * cam.zoom
         let gx = W / 2 - GS / 2, gy = centerY - GC
         // orthographic point of the origin on the globe (`MeridianWorld.point`); hidden on the far side
         let d = Double.pi / 180

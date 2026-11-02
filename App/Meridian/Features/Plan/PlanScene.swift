@@ -68,10 +68,13 @@ struct PlanScene {
         // tags live above the bottom panels; once the user moved the map the whole free area counts
         let bottom = camera.isManual ? H - 340 : H * 0.6
         func inMap(_ r: Row) -> Bool { r.s.x > 40 && r.s.x < W - 40 && r.s.y > 76 && r.s.y < bottom }
+        // zoomed far out the labels need more room so they do not pile up around the ring (the automatic framing keeps 52 x 26)
+        let farOut = camera.isManual && z < zAuto * 0.9
+        let gapX = farOut ? 88.0 : 52.0, gapY = farOut ? 32.0 : 26.0
         var placed: [CGPoint] = [], out: [Tag] = []
         func tryPlace(_ r: Row, _ kind: Tag.Kind) {
             guard inMap(r) else { return }
-            if placed.contains(where: { abs($0.x - r.s.x) < 52 && abs($0.y - r.s.y) < 26 }) { return }
+            if placed.contains(where: { abs($0.x - r.s.x) < gapX && abs($0.y - r.s.y) < gapY }) { return }
             placed.append(r.s)
             out.append(Tag(airport: r.a, kind: kind, point: r.s, km: r.km, minutes: r.min))
         }
