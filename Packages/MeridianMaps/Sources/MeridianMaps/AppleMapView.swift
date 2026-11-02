@@ -92,9 +92,10 @@ public struct MapSurface: View {
             } else if let cam = followCamera {
                 // The illustrated map has no rotation: draw it on a square big enough to cover the view at any angle and
                 // rotate that, like the map engine rotates its camera.
-                let d = hypot(cam.size.width, cam.size.height).rounded(.up)
+                // north up needs no cover square (and keeps the rim glow exactly where the design has it)
+                let d = abs(cam.bearing) < 0.01 ? 0 : hypot(cam.size.width, cam.size.height).rounded(.up)
                 EuropeMapView(style: style, theme: theme, center: cam.viewCenter, zoom: cam.scale, offset: .zero,
-                              size: CGSize(width: d, height: d), showsLabels: showsLabels, showsGraticule: showsGraticule)
+                              size: d == 0 ? cam.size : CGSize(width: d, height: d), showsLabels: showsLabels, showsGraticule: showsGraticule)
                     .transaction { $0.animation = nil }
                     .rotationEffect(.degrees(-cam.bearing))
                     .frame(width: cam.size.width, height: cam.size.height)
