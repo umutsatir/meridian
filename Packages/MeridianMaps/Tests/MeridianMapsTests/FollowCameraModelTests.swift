@@ -233,9 +233,32 @@ final class FollowCameraModelTests: XCTestCase {
         XCTAssertEqual(m.targetBearing(heading: 200), 0)
     }
 
+    func testHeadingUpDefaultIsCloserThanTheRouteFit() {
+        var m = FollowCameraModel()
+        XCTAssertEqual(m.effectiveScale(fit: 1.2, .appleMaps), 1.2)
+        m.toggleOrientation()
+        XCTAssertEqual(m.effectiveScale(fit: 1.2, .appleMaps), 6)
+        XCTAssertEqual(m.effectiveScale(fit: 9, .appleMaps), 9)
+        m.scale = 2                      // the user's choice always wins
+        XCTAssertEqual(m.effectiveScale(fit: 9, .appleMaps), 2)
+    }
+
+    func testRotationDroppedWhenTooFarOutForAppleMaps() {
+        let minS = FollowCameraModel.minRotationScale(viewHeight: 800, latitude: 50.8)
+        XCTAssertEqual(minS, 2.8, accuracy: 0.3)            // measured: MapKit rotated at 2.9 and refused at 2.7
+        var st = FollowCameraState()
+        var m = FollowCameraModel(); m.toggleOrientation(); m.scale = minS * 0.5
+        var c = st.advance(model: m, planeP: .zero, heading: 120, fit: 3, engine: .appleMaps, size: size, dt: 1 / 30, rotationMinScale: minS)
+        XCTAssertEqual(c.bearing, 0)
+        m.scale = minS * 2
+        for _ in 0..<90 { c = st.advance(model: m, planeP: .zero, heading: 120, fit: 3, engine: .appleMaps, size: size, dt: 1 / 30, rotationMinScale: minS) }
+        XCTAssertEqual(c.bearing, 120, accuracy: 0.5)
+    }
+
     func testPivotIsLowerInHeadingUp() {
         XCTAssertGreaterThan(FollowCameraModel.pivotFraction(headUp: true), FollowCameraModel.pivotFraction(headUp: false))
         XCTAssertGreaterThanOrEqual(FollowCameraModel.pivotFraction(headUp: true), 0.6)
+        XCTAssertEqual(FollowCameraModel.pivotFraction(headUp: false), 0.45)   // the canvas
     }
 
     func testBearingTurnsTheShortWay() {

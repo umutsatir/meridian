@@ -62,7 +62,20 @@ public struct FollowCameraModel: Equatable, Sendable {
     public static let step = 1.7
 
     /// The scale in effect: the user's, else the route-fit default.
-    public func effectiveScale(fit: Double, _ engine: Engine) -> Double { Self.clamp(scale ?? fit, engine) }
+    public func effectiveScale(fit: Double, _ engine: Engine) -> Double {
+        Self.clamp(scale ?? (orientation == .headingUp ? max(fit, Self.headingUpDefaultScale) : fit), engine)
+    }
+
+    /// Heading up is a "what is ahead of me" view (Google navigation): by default closer than the whole-route fit.
+    public static let headingUpDefaultScale = 6.0
+
+    /// Apple Maps refuses to rotate when the camera is higher than about 1.1 million metres (it keeps north up that far
+    /// out). Below this plane scale the rotation is therefore dropped (north up), like Apple Maps does. `viewHeight` in
+    /// points, latitude in degrees; 1.94 is MapKit's camera distance per visible metre of height.
+    public static func minRotationScale(viewHeight: Double, latitude: Double) -> Double {
+        let cameraDistanceLimit = 1.05e6, ratio = 1.94, earthRadius = 6_378_137.0
+        return ratio * viewHeight * earthRadius * cos(latitude * .pi / 180) / (EuropeProjection.k * cameraDistanceLimit)
+    }
 
     public mutating func zoom(by factor: Double, fit: Double, _ engine: Engine) {
         guard factor.isFinite, factor > 0 else { return }
@@ -78,9 +91,9 @@ public struct FollowCameraModel: Equatable, Sendable {
 
     // MARK: Layout
 
-    /// Where the plane sits on screen. North up: slightly below the middle. Heading up (Google navigation): in the lower
+    /// Where the plane sits on screen. North up: where the canvas puts it (45 % from the top, near the centre). Heading up (Google navigation): in the lower
     /// third so most of the screen shows what is ahead.
-    public static func pivotFraction(headUp: Bool) -> Double { headUp ? 0.66 : 0.56 }
+    public static func pivotFraction(headUp: Bool) -> Double { headUp ? 0.66 : 0.45 }
 
     public static func pivot(size: CGSize, fraction: Double) -> CGPoint { CGPoint(x: size.width / 2, y: size.height * fraction) }
 
@@ -226,7 +239,8 @@ public struct FollowCameraState: Equatable, Sendable {
 
     /// `snapRotation` skips the easing of turns (Reduce Motion).
     public mutating func advance(model: FollowCameraModel, planeP: CGPoint, heading rawHeading: Double, fit: Double,
-                                 engine: FollowCameraModel.Engine, size: CGSize, dt: Double, snapRotation: Bool = false) -> FollowCamera {
+                                 engine: FollowCameraModel.Engine, size: CGSize, dt: Double, snapRotation: Bool = false,
+                                 rotationMinScale: Double = 0) -> FollowCamera {
         let targetScale = model.effectiveScale(fit: fit, engine)
         let targetPivot = FollowCameraModel.pivotFraction(headUp: model.orientation == .headingUp)
         if !initialized {
@@ -240,6 +254,7 @@ public struct FollowCameraState: Equatable, Sendable {
         pivotFraction += (targetPivot - pivotFraction) * FollowCameraModel.blend(dt: dt, tau: Self.pivotTau)
         logScale += (log(targetScale) - logScale) * FollowCameraModel.blend(dt: dt, tau: Self.scaleTau)
         let scale = exp(logScale)
+        if scale < rotationMinScale { bearing = 0 }      // too far out to rotate (Apple Maps): north up, no easing
 
         let center: CGPoint
         if model.following {

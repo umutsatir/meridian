@@ -3,6 +3,7 @@ import MeridianCruise
 import MeridianMaps
 import MeridianPlan
 import MeridianUI
+import AppKit
 import SwiftUI
 
 /// The cruise screen of `Flight.dc.html`: map, window or dashboard view, the controls and the overlays, drawn for a
@@ -17,6 +18,8 @@ struct CruiseScreen: View {
     var showsToast = false
     var resumed: (title: String, message: String)?
     var showsPausedBar: Bool?
+    /// Live flights: progress at an instant, so the map moves every frame instead of once a second.
+    var progressAt: ((Date) -> Double)?
 
     @Environment(\.colorScheme) private var scheme
     @FocusState private var keyFocus: Bool
@@ -92,7 +95,7 @@ struct CruiseScreen: View {
                 Color.clear.focusable().focusEffectDisabled().focused($keyFocus)
                     .onKeyPress(.space) { handleSpace(); return .handled }
                     .onKeyPress(.escape) { handleEscape() }
-                    .onKeyPress(characters: CharacterSet(charactersIn: "wWfFmM+=-_")) { press in handleKey(press.characters, size: size) }
+                    .onKeyPress(characters: CharacterSet(charactersIn: "wWfFƒmM+=-_")) { press in handleKey(press.characters, size: size) }
             }
             .onAppear { keyFocus = true }
         }
@@ -103,7 +106,7 @@ struct CruiseScreen: View {
         ZStack(alignment: .topLeading) {
             switch ui.view {
             case .map:
-                CruiseMapLayer(frame: frame, ui: ui, size: size)
+                CruiseMapLayer(frame: frame, progressAt: progressAt, ui: ui, size: size)
                 // scrim under the readouts (map only)
                 LinearGradient(colors: [.clear, p.bg0.color.opacity(0.62)], startPoint: .top, endPoint: .bottom)
                     .frame(height: (size.height * 0.26).rounded())
@@ -140,10 +143,10 @@ struct CruiseScreen: View {
         case "m": if !frame.held { ui.mealOpen = true }
         case "w": ui.view = ui.view == .map ? .window : .map; ui.menu = nil
         case "f" where ui.view == .map:
-            let cam = CruiseCamera(frame: frame, ui: ui, size: size)
-            if ui.follow { ui.follow = false; ui.cam = cam.center } else { ui.follow = true; ui.cam = nil }
-        case "+", "=": if ui.view == .map { ui.zoom(by: 0.18) }
-        case "-", "_": if ui.view == .map { ui.zoom(by: -0.18) }
+            if NSEvent.modifierFlags.contains(.option) { ui.camera.toggleOrientation() } else { ui.toggleFollow() }
+        case "ƒ" where ui.view == .map: ui.camera.toggleOrientation()      // ⌥F
+        case "+", "=": if ui.view == .map { ui.zoomStep(1) }
+        case "-", "_": if ui.view == .map { ui.zoomStep(-1) }
         default: return .ignored
         }
         return .handled
@@ -175,7 +178,7 @@ struct LiveCruiseScreen: View {
             if let flight = model.activeFlight, let frame = CruiseFrame(flight: flight, index: model.index, now: context.date) {
                 CruiseScreen(frame: frame, ui: ui, actions: actions,
                              showsToast: toastUntil.map { context.date < $0 } ?? false,
-                             resumed: resumedText(frame))
+                             resumed: resumedText(frame), progressAt: { flight.progress(at: $0) ?? frame.progress })
                     .overlay {
                         // Together mode: the passenger strip rides on top of the cruise screen (S43)
                         if model.plan.mode == .together && ui.view != .dash {
