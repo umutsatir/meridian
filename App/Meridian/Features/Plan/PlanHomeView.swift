@@ -182,7 +182,7 @@ struct PlanHomeView: View {
                 VStack(spacing: 0) {
                     HomeItem(title: "Wallet", icon: .ticket, first: true) { model.section = .wallet }
                     HomeItem(title: "Stats", icon: .chart) { model.section = .stats }
-                    HomeItem(title: "Together", icon: .users) { model.section = .together }
+                    if TogetherAvailability.isVisible { HomeItem(title: "Together", icon: .users) { model.section = .together } }
                 }
                 .padding(.vertical, 4).padding(.horizontal, 1).frame(width: 276)
                 .mrGlass(cornerRadius: 22, elevation: .e3)

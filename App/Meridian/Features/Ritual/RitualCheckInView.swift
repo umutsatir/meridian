@@ -76,7 +76,7 @@ struct RitualCheckInView: View {
             legend(p).offset(x: 272, y: 516)
 
             topicField(p).offset(x: 264, y: 574)
-            togetherCard(p).offset(x: 264, y: 646)
+            if TogetherAvailability.isVisible { togetherCard(p).offset(x: 264, y: 646) }
 
             BoardingPassView(pass, scale: ticketScale)
                 .offset(x: 1030, y: 142)

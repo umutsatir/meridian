@@ -117,9 +117,11 @@ struct PlanMapView: View {
             // scenario row
             HStack(spacing: 10) {
                 ScenarioMenuChip(open: $scenarioMenu)
-                MRSegmented(selection: Binding(get: { model.plan.mode }, set: { model.plan.setMode($0) }),
-                            options: [.init(.solo, "Solo"), .init(.together, "Together", icon: .users, iconSize: 12)])
-                    .background(MRGlassBackdrop(cornerRadius: 12))
+                if TogetherAvailability.isVisible {
+                    MRSegmented(selection: Binding(get: { model.plan.mode }, set: { model.plan.setMode($0) }),
+                                options: [.init(.solo, "Solo"), .init(.together, "Together", icon: .users, iconSize: 12)])
+                        .background(MRGlassBackdrop(cornerRadius: 12))
+                }
             }
             .frame(height: 40)
             .offset(x: 28, y: H - 332)
