@@ -229,7 +229,7 @@ struct CruiseMenu<V: Hashable>: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .onHover { h in withAnimation(MRMotion.hover) { hovered = h ? item.2 : (hovered == item.2 ? nil : hovered) } }
+                .onHover { h in hovered = h ? item.2 : (hovered == item.2 ? nil : hovered) }
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }

@@ -58,7 +58,7 @@ public struct MRSegmented<Value: Hashable>: View {
                 }
                 .buttonStyle(.plain)
                 .focused($focused, equals: opt.value)
-                .onHover { hv in withAnimation(MRMotion.hover) { hovered = hv ? opt.value : (hovered == opt.value ? nil : hovered) } }
+                .onHover { hv in hovered = hv ? opt.value : (hovered == opt.value ? nil : hovered) }
                 .accessibilityAddTraits(on ? .isSelected : [])
             }
         }

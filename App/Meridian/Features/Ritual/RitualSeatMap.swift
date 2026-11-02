@@ -116,7 +116,7 @@ struct RitualSeatMap: View {
             cursor = code
             onSeat(code, z); onZone(z)
         }
-        .onHover { inside in withAnimation(MRMotion.hover) { if live { hover = inside ? code : (hover == code ? "" : hover) } } }
+        .onHover { inside in if live { hover = inside ? code : (hover == code ? "" : hover) } }
         .offset(x: Self.xc(r) - Self.SZ / 2, y: Self.cy + Self.lanes[li] - Self.SZ / 2)
         .zIndex(sel ? 5 : 0)
         .accessibilityLabel("Seat \(code), \(type), \(z.label) zone" + (friend.map { ", taken by \($0.name)" } ?? (off ? ", unavailable" : "")) + (sel ? ", selected" : ""))

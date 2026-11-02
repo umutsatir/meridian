@@ -113,7 +113,12 @@ struct WindowStyler: NSViewRepresentable {
             w.styleMask.insert(.fullSizeContentView)
             w.isOpaque = false
             w.backgroundColor = .clear
+            w.hasShadow = true
             w.isMovableByWindowBackground = true
+            // no layer of the hosting stack may paint outside the rounded shell
+            w.contentView?.wantsLayer = true
+            w.contentView?.layer?.backgroundColor = NSColor.clear.cgColor
+            w.invalidateShadow()
             place(w)
             observers = [NSWindow.didResizeNotification, NSWindow.didEndLiveResizeNotification, NSWindow.didBecomeKeyNotification].map {
                 NotificationCenter.default.addObserver(forName: $0, object: w, queue: .main) { [weak self, weak w] _ in

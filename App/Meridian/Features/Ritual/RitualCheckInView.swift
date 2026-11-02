@@ -104,12 +104,6 @@ struct RitualCheckInView: View {
             .frame(width: 226)
             .offset(x: 1030, y: 668)
 
-            // window seats (A, F) show the view they give (C06 "Window preview"), matched to the time of departure
-            if type == "Window" {
-                WindowSeatPreview(scene: Self.scene(forBoarding: info.boardingTime), palette: p)
-                    .offset(x: 1030 - 70, y: 44)
-                    .transition(.opacity)
-            }
 
             if let code = flyCode { SeatFlyer(code: code, progress: flyProgress, palette: p).allowsHitTesting(false) }
 
@@ -292,26 +286,3 @@ private struct PinnedHover: ViewModifier {
 }
 
 
-/// The oval window preview of the seat step: `WindowView` (200 x 250 in the canvas) drawn at 0.38 with a caption.
-private struct WindowSeatPreview: View {
-    let scene: String
-    let palette: MRPalette
-    @State private var ui = CruiseUI()
-
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 10) {
-            Text("Window view").font(.mr(.mono, size: 10, weight: 500)).foregroundStyle(palette.text3.color)
-            CruiseWindowView(frame: .demo(p: 0.45), ui: ui, size: CGSize(width: 200, height: 250))
-                .frame(width: 200, height: 250)
-                .scaleEffect(0.32, anchor: .topLeading)
-                .frame(width: 64, height: 80, alignment: .topLeading)
-                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .allowsHitTesting(false)
-        }
-        .fixedSize()
-        .frame(width: 64, alignment: .trailing)
-        .onAppear { ui.scene = scene }
-        .onChange(of: scene) { _, v in ui.scene = v }
-        .accessibilityLabel("Window view, \(scene)")
-    }
-}

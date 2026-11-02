@@ -21,6 +21,7 @@ struct MeridianApp: App {
             } else {
                 LaunchGate()
                     .environment(model)
+                    .modifier(ClearWindowBackground())
                     .task {
                         SettingsEffects.applyAll()
                         FocusCoordinator.shared.run(model: model)
@@ -61,6 +62,19 @@ struct MeridianApp: App {
             SettingsView()
                 .environment(model)
                 .frame(width: 1280, height: 800)
+        }
+    }
+}
+
+
+/// The shell draws its own 26 pt rounded window; the scene's default window background (white in a light system
+/// appearance) must not show in the corners and along the edges.
+private struct ClearWindowBackground: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 15.0, *) {
+            content.containerBackground(.clear, for: .window)
+        } else {
+            content
         }
     }
 }
