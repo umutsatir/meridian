@@ -62,6 +62,16 @@ public struct MembershipCardInfo: Sendable, Hashable {
     }
 }
 
+/// Where a live card gets its pointer from: its own hover tracking, or a host that resolves the pointer itself
+/// (the coverflow, where SwiftUI's layout-frame hit-testing does not match the projected drawing) and passes the position
+/// over the card in -0.5...0.5 (nil = not hovered).
+public enum MembershipCardPointer: Equatable, Sendable {
+    case own
+    case external(CGPoint?)
+    var isOwn: Bool { if case .own = self { return true } else { return false } }
+    var externalTarget: CGPoint? { if case .external(let p) = self { return p } else { return nil } }
+}
+
 /// Membership card (Card.dc.html, R02). One card; the coverflow lives elsewhere.
 /// Pointer-driven tilt (rotateY = x * 28, rotateX = -y * 28, so +-14 degrees at the edge, perspective 900, lift 10),
 /// specular glare, hue-shifting foil, brushed-metal sunburst, 6 s idle shimmer, 700 ms bouncy flip, locked state.
@@ -74,9 +84,8 @@ public struct MembershipCardView: View {
     let live: Bool
     let pose: CGPoint?
     let idlePhase: Double?
+    let pointer: MembershipCardPointer
     @Binding var flipped: Bool
-    @State private var pointer: CGPoint? = nil      // -0.5...0.5
-    @State private var entering = false             // first contact eases in; afterwards the tilt follows the pointer closely
     @State private var localFlip = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -85,7 +94,9 @@ public struct MembershipCardView: View {
     ///   - flipped: back face.
     ///   - idlePhase: freezes the idle shimmer at a point of its 6 s loop (0...1) for static renders; nil runs it.
     public init(tier: MembershipTier, size: MembershipCardSize = .list, locked: Bool = false, info: MembershipCardInfo = .init(),
-                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil, idlePhase: Double? = nil) {
+                live: Bool = false, pose: CGPoint? = nil, flipped: Binding<Bool>? = nil, idlePhase: Double? = nil,
+                pointer: MembershipCardPointer = .own) {
+        self.pointer = pointer
         self.tier = tier; self.size = size; self.locked = locked; self.info = info; self.live = live; self.pose = pose
         self.idlePhase = idlePhase
         self._flipped = flipped ?? .constant(false)
@@ -96,36 +107,17 @@ public struct MembershipCardView: View {
     private var isFlipped: Bool { usesExternalFlip ? flipped : localFlip }
 
     public var body: some View {
-        let p = reduceMotion ? nil : (live ? pointer : pose)
-        let px = Double(p?.x ?? 0), py = Double(p?.y ?? 0)
-        let over = p != nil && abs(px) + abs(py) > 0.001
-        let lift: CGFloat = over ? 10 : 0
         let scale = size.scale
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 20).fill(Color.black.opacity(0.01))
-                .frame(width: 340, height: 214)
-                .shadow(color: .black.opacity(over ? 0.4 : 0.45), radius: (40 + lift * 2) / 2, x: CGFloat(-px * 60), y: 30 + lift * 1.6 - CGFloat(py * 30))
-            CardFlip(angle: isFlipped ? 180 : 0, px: px, py: py, lift: lift,
-                     front: { x, y in CardFront(tier: tier, locked: locked, info: info, px: x, py: y, over: over, reduceMotion: reduceMotion, idlePhase: idlePhase) },
-                     back: { x, y in CardBack(tier: tier, locked: locked, info: info, px: x, py: y, over: over) })
-        }
-        .frame(width: 340, height: 214, alignment: .topLeading)
-        .animation(live && over && !entering ? .easeOut(duration: 0.16) : (reduceMotion ? nil : MRMotion.hoverTilt), value: pointer)
-        .animation(reduceMotion ? .easeInOut(duration: 0.2) : MRMotion.bouncy, value: isFlipped)
-        .scaleEffect(scale, anchor: .topLeading)
-        .frame(width: 340 * scale, height: 214 * scale, alignment: .topLeading)
-        .contentShape(Rectangle())
-        .onContinuousHover { phase in
-            guard live else { return }
-            switch phase {
-            case .active(let l):
-                if pointer == nil, !reduceMotion {
-                    // first contact: ease towards the pointer pose, then follow it closely
-                    entering = true
-                    Task { @MainActor in try? await Task.sleep(for: .milliseconds(480)); entering = false }
+        Group {
+            if live {
+                // Pointer is only a target; CardTiltSmoother advances the drawn pose every frame (see CardTiltHost).
+                CardTiltHost(normalize: { CGPoint(x: $0.x / (340 * scale) - 0.5, y: $0.y / (214 * scale) - 0.5) }, enabled: pointer.isOwn, external: pointer.externalTarget) { px, py, hover in
+                    card(px: reduceMotion ? 0 : px, py: reduceMotion ? 0 : py, hover: reduceMotion ? 0 : hover)
                 }
-                pointer = CGPoint(x: min(0.5, max(-0.5, l.x / (340 * scale) - 0.5)), y: min(0.5, max(-0.5, l.y / (214 * scale) - 0.5)))
-            case .ended: pointer = nil
+            } else {
+                let p = reduceMotion ? nil : pose
+                let px = Double(p?.x ?? 0), py = Double(p?.y ?? 0)
+                card(px: px, py: py, hover: abs(px) + abs(py) > 0.001 ? 1 : 0)
             }
         }
         .onTapGesture { if live { toggle() } }
@@ -136,6 +128,25 @@ public struct MembershipCardView: View {
         .accessibilityLabel("\(tier.title) membership card" + (locked ? ", locked, \(Self.fmt(max(0, tier.thresholdKm - info.distanceKm))) kilometres to unlock" : ", unlocked") + ". Press Return to flip.")
         .accessibilityAddTraits(live ? .isButton : [])
         .accessibilityAction(named: "Flip card") { toggle() }
+    }
+
+    private func card(px: Double, py: Double, hover: Double) -> some View {
+        let over = hover > 0.001
+        let lift: CGFloat = 10 * CGFloat(hover)
+        let scale = size.scale
+        return ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 20).fill(Color.black.opacity(0.01))
+                .frame(width: 340, height: 214)
+                .shadow(color: .black.opacity(0.45 - 0.05 * hover), radius: (40 + lift * 2) / 2, x: CGFloat(-px * 60), y: 30 + lift * 1.6 - CGFloat(py * 30))
+            CardFlip(angle: isFlipped ? 180 : 0, px: px, py: py, lift: lift,
+                     front: { x, y in CardFront(tier: tier, locked: locked, info: info, px: x, py: y, over: over, reduceMotion: reduceMotion, idlePhase: idlePhase) },
+                     back: { x, y in CardBack(tier: tier, locked: locked, info: info, px: x, py: y, over: over) })
+        }
+        .frame(width: 340, height: 214, alignment: .topLeading)
+        .animation(reduceMotion ? .easeInOut(duration: 0.2) : MRMotion.bouncy, value: isFlipped)
+        .scaleEffect(scale, anchor: .topLeading)
+        .frame(width: 340 * scale, height: 214 * scale, alignment: .topLeading)
+        .contentShape(Rectangle())
     }
 
     private func toggle() { if usesExternalFlip { flipped.toggle() } else { localFlip.toggle() } }

@@ -81,6 +81,8 @@ struct CardTiltHost<Content: View>: View {
     /// Maps a location in the host's frame to -0.5...0.5.
     let normalize: (CGPoint) -> CGPoint
     let enabled: Bool
+    /// Pointer target supplied by the host when `enabled` is false (nil = not hovered).
+    var external: CGPoint? = nil
     let content: (_ px: Double, _ py: Double, _ hover: Double) -> Content
 
     @State private var driver = CardTiltDriver()
@@ -95,8 +97,13 @@ struct CardTiltHost<Content: View>: View {
                     if running && driver.smoother.isSettled { running = false }
                 }
         }
+        .onChange(of: external) { _, p in
+            guard !enabled else { return }
+            driver.setTarget(p.map(normalizeExternal)); wake()
+        }
         .overlay {
             Color.clear.contentShape(Rectangle())
+                .allowsHitTesting(enabled)
                 .onContinuousHover { phase in
                     guard enabled else { return }
                     switch phase {
@@ -106,6 +113,8 @@ struct CardTiltHost<Content: View>: View {
                 }
         }
     }
+
+    private func normalizeExternal(_ p: CGPoint) -> CGPoint { p }
 
     private func wake() { if !running { driver.resume(); running = true } }
 }
