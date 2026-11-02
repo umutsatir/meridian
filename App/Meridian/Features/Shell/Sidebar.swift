@@ -43,7 +43,7 @@ struct SidebarView: View {
             label("Explore")
             row(.map, "Map", .globe, "⌘3")
             row(.stats, "Stats", .chart, "⌘4")
-            row(.together, "Together", .users, "⌘5")
+            if TogetherAvailability.isVisible { row(.together, "Together", .users, "⌘5") }
             Spacer(minLength: 0)
             footer(p)
         }

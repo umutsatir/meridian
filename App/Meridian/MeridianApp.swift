@@ -45,7 +45,7 @@ struct MeridianApp: App {
                 Button("Tickets") { model.section = .wallet }.keyboardShortcut("2", modifiers: .command)
                 Button("Map") { model.section = .map }.keyboardShortcut("3", modifiers: .command)
                 Button("Stats") { model.section = .stats }.keyboardShortcut("4", modifiers: .command)
-                Button("Together") { model.section = .together }.keyboardShortcut("5", modifiers: .command)
+                if TogetherAvailability.isVisible { Button("Together") { model.section = .together }.keyboardShortcut("5", modifiers: .command) }
                 Divider()
                 Button("Cards") { model.section = .cards }
                 Button("Passport") { model.section = .passport }

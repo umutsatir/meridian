@@ -7,6 +7,9 @@ import Foundation
 /// The only place that turns the Together section on or off. `false` keeps the "Coming in v1.5" placeholder
 /// (`ComingSoonView`). Default is ON so the designed screens are reachable (PRD §9.8, owner decision).
 enum TogetherAvailability {
+    /// Together is set aside for now (owner decision, 2026-11-02): no sidebar item, menu entry, Solo/Together
+    /// switch or "Fly together" card. All the code stays; flip this to bring every entry point back.
+    static let isVisible = false
     nonisolated(unsafe) static var isEnabled = true
     /// There is no backend yet (PRD §11.1): the fake in-memory service is the only implementation. Debug builds show
     /// a small badge so nobody mistakes it for a real server; release builds never draw it.
