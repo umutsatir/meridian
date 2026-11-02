@@ -65,9 +65,9 @@ struct PaperShape: Shape {
         return p
     }
 
-    /// Clip polygon of a torn pass: (0,0) (360,0) tear line ... (0,450).
+    /// Clip polygon of a torn pass: (0,0) (360,0), then the scalloped perforation edge down to (0,450).
     static func tornPolygon(seed: UInt64) -> [CGPoint] {
-        [CGPoint(x: 0, y: 0), CGPoint(x: 360, y: 0)] + TornEdge.polyline(seed: seed) + [CGPoint(x: 0, y: 450)]
+        [CGPoint(x: 0, y: 0), CGPoint(x: 360, y: 0)] + PerforationEdge(seed: seed).body.reversed()
     }
 }
 

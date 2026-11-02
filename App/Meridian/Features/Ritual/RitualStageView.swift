@@ -117,6 +117,8 @@ struct RitualStill: Equatable {
     var t: Double = 2400
     var tear: Double = 0
     var grab: TearGrabSide = .right
+    /// 0...1 flight of the freed stub (tear is then taken as complete).
+    var fly: Double = 0
     var annotate = false
 }
 
@@ -234,7 +236,7 @@ struct RitualStageView: View {
         .onKeyPress(.escape) { if let c = controller, c.phase == .print || c.phase == .ready { onCancel(); return .handled }; return .ignored }
         .onAppear {
             if let c = controller { c.begin(reduceMotion: reduceMotion); focused = true }
-            else if let still, still.tear > 0 { stillTear.preview(progress: still.tear, grab: still.grab) }
+            else if let still, still.tear > 0 || still.fly > 0 { stillTear.preview(progress: still.fly > 0 ? 1 : still.tear, grab: still.grab, flyProgress: still.fly) }
         }
     }
 
