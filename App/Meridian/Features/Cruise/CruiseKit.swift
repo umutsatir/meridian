@@ -161,7 +161,23 @@ final class CruiseUI {
     }
 
     /// `F` / the Follow button: stop following, or recenter on the plane.
-    func toggleFollow() { if let cam = lastCamera { camera.toggleFollow(camera: cam) } else { follow.toggle() } }
+    func toggleFollow() {
+        if camera.following {
+            if let cam = lastCamera { camera.toggleFollow(camera: cam) } else { camera.following = false }
+        } else {
+            recenter()
+        }
+    }
+
+    /// Recenter / follow on: back to the plane at the default close zoom with the remembered orientation (heading up unless the
+    /// owner chose north up). The camera eases there over about 0.6 s.
+    func recenter() { camera.applyFollowDefaults(orientation: FollowCameraModel.preferredOrientation) }
+
+    /// North up <-> heading up (button, ⌥F). The choice is remembered.
+    func toggleOrientation() {
+        camera.toggleOrientation()
+        FollowCameraModel.preferredOrientation = camera.orientation
+    }
 
     /// Slider position 0...1 over the whole zoom range.
     var zoomK: Double {

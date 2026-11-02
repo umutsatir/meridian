@@ -87,7 +87,10 @@ struct WindowLook: Equatable {
     var grade: DayNightGrade { .weights(elevation: sunElevation) }
     /// MapKit limits the pitch to 35 degrees; the extra tilt comes from `tilt`.
     var camera: WindowCameraSpec {
-        WindowCamera.spec(position: position, heading: heading, side: side, altitudeFt: altitudeFt, pitch: 35)
+        // `--window-view-scale 1` restores the old (fast) ground speed, for before / after measurements
+        let a = CommandLine.arguments
+        let dbg = a.firstIndex(of: "--window-view-scale").flatMap { $0 + 1 < a.count ? Double(a[$0 + 1]) : nil }
+        return WindowCamera.spec(position: position, heading: heading, side: side, altitudeFt: altitudeFt, pitch: 35, viewScale: dbg ?? WindowCamera.viewScale)
     }
     var tilt: Double {
         let a = CommandLine.arguments
@@ -184,8 +187,8 @@ struct LiveWindowScene: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Where the far edge of the tilted ground sits, as a fraction of the scene height (upper third at cruise).
-    static let horizon = 0.27
-    static let mapDrop = 0.275
+    static let horizon = 0.035
+    static let mapDrop = 0.035
 
     static let cloudDay: Date = Calendar(identifier: .gregorian).date(byAdding: .day, value: -1, to: .now) ?? .now
 
@@ -206,8 +209,8 @@ struct LiveWindowScene: View {
                 let l = look.at(now)
                 let t = now.timeIntervalSinceReferenceDate
                 // slight head sway behind the glass (the wall of the window has depth); off with Reduce Motion
-                let sx = reduceMotion ? 0 : sin(t * 0.43) * 2.4 + sin(t * 0.17) * 1.6
-                let sy = reduceMotion ? 0 : sin(t * 0.31 + 1) * 1.2
+                let sx = reduceMotion ? 0 : sin(t * 0.21) * 1.4 + sin(t * 0.083) * 1.0
+                let sy = reduceMotion ? 0 : sin(t * 0.15 + 1) * 0.6
                 LiveWindowMap(camera: l.camera, tint: g.groundTint, lights: g.lights, cloudAlpha: 0.18 + 0.75 * a.cloud,
                               cloudDay: Self.cloudDay, animated: false, onHealth: { mapFailed = $0 })
                     .frame(width: size.width * 1.7, height: size.height * 1.7)

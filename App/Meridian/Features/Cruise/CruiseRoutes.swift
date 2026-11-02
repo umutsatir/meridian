@@ -33,12 +33,14 @@ private struct CruiseDemo: View {
     var sheetHold: Double?
     var toast = false
 
-    init(p: Double, view: CruiseView = .map, style: MapStyle = .terra, policy: PausePolicy = .normal, sheetHold: Double? = nil, toast: Bool = false,
+    init(p: Double, view: CruiseView = .map, style: MapStyle = .terra, policy: PausePolicy = .normal, sheetHold: Double? = nil, toast: Bool = false, moving: Bool = false,
          configure: (CruiseUI) -> Void = { _ in }) {
         // `--at-progress 0.31` pins the plane (follow-camera checks compare two instants of the same route)
         let args = ProcessInfo.processInfo.arguments
         let at = args.firstIndex(of: "--at-progress").flatMap { $0 + 1 < args.count ? Double(args[$0 + 1]) : nil }
-        frame = .demo(p: at ?? p, policy: policy)
+        var f = CruiseFrame.demo(p: at ?? p, policy: policy)
+        if moving { f.date = Date() }   // the aircraft keeps flying from now on (window drift measurements)
+        frame = f
         let u = CruiseUI(view: view, style: style)
         configure(u)
         _ui = State(initialValue: u)
@@ -95,10 +97,15 @@ extension ScreenRegistry {
                 if a.contains("--follow-heading") { u.camera.orientation = .headingUp }
             }.mrWindowChrome()
         }
+        // the live follow defaults: close city scale, heading up (the remembered orientation unless `--north-up`)
+        register("cruise-follow-default") { CruiseDemo(p: 0.45) { u in
+            u.camera.applyFollowDefaults(orientation: ProcessInfo.processInfo.arguments.contains("--north-up") ? .northUp : .headingUp) } }
         register("cruise-follow-world") { CruiseDemo(p: 0.45) { $0.camera.scale = 0.3 } }
 
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }
         register("window-scene-menu") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "sunset"; $0.menu = .scene } }
+        // the live window with the aircraft flying (real speed from the demo frame): two shots a few seconds apart show the drift
+        register("window-drift") { CruiseDemo(p: 0.45, view: .window, moving: true) { $0.scene = "day" } }
         register("window-light") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "blue" } }
         // Live window (real satellite ground, sun and weather): frozen position / time, `--at lat,lon,ISO8601 --heading --alt --weather cover,mm,code` override
         func live(_ name: String, lat: Double, lon: Double, at: String, heading: Double = 90, alt: Double = 30_000, weather: WeatherCondition? = nil) {

@@ -27,7 +27,7 @@ struct CruiseFollowControls: View {
                 let up = ui.camera.orientation == .headingUp
                 CruiseCircleButton(icon: .navigate, label: up ? "Heading up" : "North up", kbd: "⌥F",
                                    a11y: up ? "Heading up. Switch to north up" : "North up. Switch to heading up", on: up) {
-                    ui.camera.toggleOrientation()
+                    ui.toggleOrientation()
                 }
                 .padding(.trailing, 24).padding(.top, 302)
                 .transition(.opacity)

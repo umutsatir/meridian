@@ -9,6 +9,7 @@ struct RootView: View {
         AppShell()
             .background(WindowStyler())
             .ignoresSafeArea()
+            .mrNoTitlebarBlur()
             .task {
                 while !Task.isCancelled {
                     model.tick()

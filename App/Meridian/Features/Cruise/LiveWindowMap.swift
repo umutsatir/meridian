@@ -260,6 +260,11 @@ struct LiveWindowMap: NSViewRepresentable {
 
         func apply(camera c: WindowCameraSpec, animated: Bool) {
             if let l = last, l == c { return }
+            // MapKit restarts its tile pipeline with every camera change: only move it when the picture moves by about a pixel
+            // (the aircraft crawls at this zoom, so this is a few updates per second, not 30 jittery ones)
+            if let l = last, abs(l.eyeAltitudeM - c.eyeAltitudeM) < l.eyeAltitudeM * 0.002,
+               abs((c.heading - l.heading + 540).truncatingRemainder(dividingBy: 360) - 180) < 0.03,
+               Geo.distanceKm(from: l.center, to: c.center) * 1000 < max(3, c.eyeAltitudeM * 0.0006) { return }
             let first = last == nil
             last = c
             let cam = Self.camera(c)

@@ -143,8 +143,8 @@ struct CruiseScreen: View {
         case "m": if !frame.held { ui.mealOpen = true }
         case "w": ui.view = ui.view == .map ? .window : .map; ui.menu = nil
         case "f" where ui.view == .map:
-            if NSEvent.modifierFlags.contains(.option) { ui.camera.toggleOrientation() } else { ui.toggleFollow() }
-        case "ƒ" where ui.view == .map: ui.camera.toggleOrientation()      // ⌥F
+            if NSEvent.modifierFlags.contains(.option) { ui.toggleOrientation() } else { ui.toggleFollow() }
+        case "ƒ" where ui.view == .map: ui.toggleOrientation()      // ⌥F
         case "+", "=": if ui.view == .map { ui.zoomStep(1) }
         case "-", "_": if ui.view == .map { ui.zoomStep(-1) }
         default: return .ignored
@@ -172,6 +172,7 @@ struct LiveCruiseScreen: View {
         u.sceneAuto = true
         u.sound = MRSound.shared.settings.cabinSoundEnabled   // the button shows the truth
         u.offersAutoScene = true
+        u.camera.applyFollowDefaults(orientation: FollowCameraModel.preferredOrientation)   // close, heading up (or the remembered north up)
         configure(u)
         _ui = State(initialValue: u)
     }

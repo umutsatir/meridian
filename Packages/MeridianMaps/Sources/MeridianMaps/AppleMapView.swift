@@ -228,6 +228,12 @@ public struct AppleMapView: NSViewRepresentable {
             let mp = MKMapPoint(coord)
             let key = [mp.x, mp.y, s, c.bearing, bounds.width, bounds.height]
             if key == lastFollowKey { return }
+            // Every camera change makes MapKit re-request tiles (grey squares while they load, worst at street zoom). Moves under
+            // half a point, a 0.2 % zoom or 0.05 degrees of heading are not worth that: keep the last image until something
+            // visible changes. The overlays are drawn from the exact camera, so they differ from the map by at most that much.
+            if lastFollowKey.count == key.count, key[4] == lastFollowKey[4], key[5] == lastFollowKey[5],
+               abs(key[0] - lastFollowKey[0]) < 0.5 * s, abs(key[1] - lastFollowKey[1]) < 0.5 * s,
+               abs(key[2] / lastFollowKey[2] - 1) < 0.002, abs(FollowCamera.signedDelta(from: lastFollowKey[3], to: key[3])) < 0.05 { return }
             if key != requestedKey { reasserts = 0; requestedKey = key }
             lastFollowKey = key
             let w = bounds.width * s, h = bounds.height * s
