@@ -7,6 +7,11 @@ import MeridianCore
 public enum SunElevation {
     /// Elevation of the sun above the horizon in degrees (negative = below).
     public static func degrees(at date: Date, coordinate: Coordinate) -> Double {
+        position(at: date, coordinate: coordinate).elevation
+    }
+
+    /// Elevation and azimuth (degrees clockwise from north) of the sun.
+    public static func position(at date: Date, coordinate: Coordinate) -> (elevation: Double, azimuth: Double) {
         let rad = Double.pi / 180
         let jd = date.timeIntervalSince1970 / 86_400 + 2_440_587.5
         let t = (jd - 2_451_545) / 36_525
@@ -39,7 +44,10 @@ public enum SunElevation {
 
         let lat = coordinate.latitude * rad
         let sinElevation = sin(lat) * sin(declination) + cos(lat) * cos(declination) * cos(hourAngle)
-        return asin(max(-1, min(1, sinElevation))) / rad
+        let elevation = asin(max(-1, min(1, sinElevation))) / rad
+        var azimuth = (atan2(sin(hourAngle), cos(hourAngle) * sin(lat) - tan(declination) * cos(lat)) / rad + 180).truncatingRemainder(dividingBy: 360)
+        if azimuth < 0 { azimuth += 360 }
+        return (elevation, azimuth)
     }
 }
 
