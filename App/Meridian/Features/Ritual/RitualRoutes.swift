@@ -41,7 +41,8 @@ struct RitualDebugScreen: View {
             case .seat(let t):
                 RitualBackdrop(kind: .seat)
                 RitualCheckInView(info: info, seat: $seat, topic: $topic, together: $together, scenario: .code,
-                                  zone: RitualZone.of(seat: seat), sidebarInset: 236, live: false)
+                                  zone: RitualZone.of(seat: seat), sidebarInset: 236, live: CommandLine.arguments.contains("--live"),
+                                  pinnedHover: CommandLine.arguments.firstIndex(of: "--hover").map { CommandLine.arguments[$0 + 1] } ?? "")
                     .onAppear { if t { seat = "3C"; together = true } }
             case .stage(let still):
                 RitualBackdrop(kind: .stage)

@@ -84,9 +84,14 @@ struct RitualSeatMap: View {
                 ForEach(0..<4, id: \.self) { li in seatView(row: r, li: li, hov: hov, cur: cur, palette: p) }
             }
             ForEach(RitualZone.allCases) { z in zoneTab(z, palette: p) }
-            if !hov.isEmpty, let _ = seatCenter(hov) { tip(hov, palette: p) }
         }
         .frame(width: Self.W, height: Self.H, alignment: .topLeading)
+        // The tooltip lives in an overlay: as a child of the stack above its alignment guide widened the stack and
+        // pushed the whole aircraft sideways on every hover (the pointer then left the seat, and the map flickered).
+        .overlay(alignment: .topLeading) {
+            if !hov.isEmpty, seatCenter(hov) != nil { tip(hov, palette: p).transition(.opacity) }
+        }
+        .animation(MRMotion.ease(MRMotion.d1), value: hov)
         .scaleEffect(scale, anchor: .topLeading)
         .frame(width: Self.W * scale, height: Self.H * scale, alignment: .topLeading)
         .focusable(live)
@@ -154,10 +159,9 @@ struct RitualSeatMap: View {
         .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(p.strokeHair.color, lineWidth: 1))
         .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
         .fixedSize()
-        .alignmentGuide(.leading) { $0[HorizontalAlignment.center] }
-        .offset(x: c.x, y: c.y - Self.SZ / 2 - 36 + 3)
+        .position(x: c.x, y: c.y - Self.SZ / 2 - 36 + 3 + 15)
+        .frame(width: Self.W, height: Self.H)
         .allowsHitTesting(false)
-        .zIndex(9)
         .accessibilityHidden(true)
     }
 
@@ -213,7 +217,8 @@ private struct SeatCell: View {
                                 startPoint: .topLeading, endPoint: .bottomTrailing))
                            : AnyShapeStyle(hovered && !off ? p.fill3.color : p.fill2.color))
                 if off { Hatch().clipShape(shape) }
-                shape.strokeBorder(p.strokeHair.color, lineWidth: 1).opacity(selected ? 0 : 1)
+                shape.strokeBorder(hovered && !off && !selected ? p.accent1.color.opacity(0.9) : p.strokeHair.color, lineWidth: hovered && !off ? 1.5 : 1)
+                    .opacity(selected ? 0 : 1)
                 if !selected { MRInsetShadow(shape, color: p.strokeGlow.color, y: 1) }
                 if selected {
                     MRInsetShadow(shape, color: .white.opacity(dark ? 0.5 : 0.7), y: 1)
@@ -229,7 +234,7 @@ private struct SeatCell: View {
             .frame(width: 30, height: 30)
             .shadow(color: selected ? .black.opacity(dark ? 0.4 : 0.25) : .clear, radius: 9, y: 8)
             .shadow(color: selected && dark ? Color(red: 106 / 255, green: 183 / 255, blue: 1).opacity(0.38) : .clear, radius: 12)
-            .scaleEffect(selected ? 1.12 : 1)
+            .scaleEffect(selected ? 1.12 : (hovered && !off ? 1.06 : 1))
             .offset(y: selected ? -2 : (hovered && !off ? -1.5 : 0))
             .opacity(off ? 0.34 : 1)
             .overlay {
@@ -239,9 +244,12 @@ private struct SeatCell: View {
             }
             .animation(MRMotion.snappy, value: selected)
             .animation(MRMotion.snappy, value: hovered)
-            .contentShape(shape)
         }
         .buttonStyle(.plain)
+        // The hit area is the seat's fixed 30 pt cell plus the gap around it, not the drawing: the drawing lifts and grows on
+        // hover, and a hit area that moved with it let the pointer fall off the seat it had just entered.
+        .frame(width: 30, height: 30)
+        .contentShape(Rectangle().inset(by: -2))
         .allowsHitTesting(!off)
     }
 
