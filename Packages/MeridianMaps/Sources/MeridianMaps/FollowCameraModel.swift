@@ -76,17 +76,7 @@ public struct FollowCameraModel: Equatable, Sendable {
         6_378_137.0 * cos(latitude * .pi / 180) / (EuropeProjection.k * max(scale, 1e-9))
     }
 
-    // MARK: Remembered orientation
-
-    public static let orientationDefaultsKey = "cruise.follow.orientation"
-
-    /// North up / heading up as the owner last chose it (default: heading up, like Google Maps navigation).
-    public static var preferredOrientation: Orientation {
-        get { UserDefaults.standard.string(forKey: orientationDefaultsKey).flatMap(Orientation.init(rawValue:)) ?? .headingUp }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: orientationDefaultsKey) }
-    }
-
-    /// Following starts (or restarts with Recenter): the remembered orientation and the default close zoom.
+    /// Following starts (or restarts with Recenter): the given orientation and the default close zoom.
     public mutating func applyFollowDefaults(orientation preferred: Orientation) {
         orientation = preferred
         scale = preferred == .headingUp ? nil : Self.followDefaultScale
@@ -113,6 +103,21 @@ public struct FollowCameraModel: Equatable, Sendable {
 
     public func canZoomIn(fit: Double, _ e: Engine) -> Bool { effectiveScale(fit: fit, e) < Self.scaleRange(e).upperBound * 0.999 }
     public func canZoomOut(fit: Double, _ e: Engine) -> Bool { effectiveScale(fit: fit, e) > Self.scaleRange(e).lowerBound * 1.001 }
+
+    // MARK: Tilt (the "navigation" look)
+
+    /// Tilt of the heading-up follow camera once it is close to the ground, degrees.
+    public static let followPitch = 58.0
+    /// The tilt fades in between these plane scales: far out the map stays flat (Apple Maps cannot tilt a high camera).
+    public static let pitchScales = (flat: 14.0, full: 44.0)
+
+    /// The tilt the camera should have: only while following heading-up on Apple Maps, and only close to the ground.
+    /// A free camera (after a drag) is flat, so panning and zooming work in plain map coordinates.
+    public func targetPitch(scale: Double, engine: Engine) -> Double {
+        guard following, orientation == .headingUp, engine == .appleMaps else { return 0 }
+        let u = min(1, max(0, (log(scale) - log(Self.pitchScales.flat)) / (log(Self.pitchScales.full) - log(Self.pitchScales.flat))))
+        return Self.followPitch * u * u * (3 - 2 * u)
+    }
 
     // MARK: Layout
 
@@ -198,9 +203,12 @@ public struct FollowCamera: Equatable, Sendable {
     public var bearing: Double
     public var pivot: CGPoint
     public var size: CGSize
+    /// Tilt of the camera away from straight down, degrees (0 = the flat top-down camera all the plane maths here describes).
+    /// A tilted camera is only drawn by Apple Maps; overlays then ask the map where things are (`MapProjector`).
+    public var pitch = 0.0
 
-    public init(centerP: CGPoint, scale: Double, bearing: Double, pivot: CGPoint, size: CGSize) {
-        self.centerP = centerP; self.scale = scale; self.bearing = bearing; self.pivot = pivot; self.size = size
+    public init(centerP: CGPoint, scale: Double, bearing: Double, pivot: CGPoint, size: CGSize, pitch: Double = 0) {
+        self.centerP = centerP; self.scale = scale; self.bearing = bearing; self.pivot = pivot; self.size = size; self.pitch = pitch
     }
 
     /// 0..<360
@@ -256,30 +264,41 @@ public struct FollowCameraState: Equatable, Sendable {
     public var logScale = 0.0
     /// FollowCamera centre minus plane position (plane units): decays to zero while following, which is the glide back.
     public var offset = CGPoint.zero
+    public var pitch = 0.0
     public var initialized = false
 
-    public static let bearingTau = 0.18, headingTau = 0.3, pivotTau = 0.2, scaleTau = 0.14, recenterTau = 0.30
+    public static let bearingTau = 0.18, headingTau = 0.3, pivotTau = 0.2, scaleTau = 0.14, recenterTau = 0.30, pitchTau = 0.32
 
     public init() {}
 
     /// `snapRotation` skips the easing of turns (Reduce Motion).
     public mutating func advance(model: FollowCameraModel, planeP: CGPoint, heading rawHeading: Double, fit: Double,
                                  engine: FollowCameraModel.Engine, size: CGSize, dt: Double, snapRotation: Bool = false,
-                                 rotationMinScale: Double = 0) -> FollowCamera {
+                                 rotationMinScale: Double = 0, scripted: (scale: Double, pitch: Double)? = nil) -> FollowCamera {
         let targetScale = model.effectiveScale(fit: fit, engine)
-        let targetPivot = FollowCameraModel.pivotFraction(headUp: model.orientation == .headingUp)
+        let targetPivot = FollowCameraModel.pivotFraction(headUp: scripted != nil || model.orientation == .headingUp)
         if !initialized {
             initialized = true
             heading = rawHeading; logScale = log(targetScale); pivotFraction = targetPivot
             bearing = model.targetBearing(heading: rawHeading)
             offset = .zero
+            pitch = model.targetPitch(scale: targetScale, engine: engine)
         }
         heading = FollowCameraModel.approachAngle(heading, to: rawHeading, dt: dt, tau: snapRotation ? 0 : Self.headingTau)
+        if let scripted {
+            // a scripted move (take-off): the caller flies scale and tilt, the camera looks along the heading and sits on the plane
+            bearing = heading; pivotFraction = targetPivot; logScale = log(max(scripted.scale, 1e-6)); pitch = scripted.pitch
+            offset = .zero
+            return FollowCamera(centerP: planeP, scale: scripted.scale, bearing: bearing,
+                                pivot: FollowCameraModel.pivot(size: size, fraction: pivotFraction), size: size, pitch: pitch)
+        }
         bearing = FollowCameraModel.approachAngle(bearing, to: model.targetBearing(heading: heading), dt: dt, tau: snapRotation ? 0 : Self.bearingTau)
         pivotFraction += (targetPivot - pivotFraction) * FollowCameraModel.blend(dt: dt, tau: Self.pivotTau)
         logScale += (log(targetScale) - logScale) * FollowCameraModel.blend(dt: dt, tau: Self.scaleTau)
         let scale = exp(logScale)
         if scale < rotationMinScale { bearing = 0 }      // too far out to rotate (Apple Maps): north up, no easing
+        pitch += (model.targetPitch(scale: scale, engine: engine) - pitch) * FollowCameraModel.blend(dt: dt, tau: snapRotation ? 0 : Self.pitchTau)
+        if pitch < 0.05 { pitch = 0 }
 
         let center: CGPoint
         if model.following {
@@ -292,7 +311,7 @@ public struct FollowCameraState: Equatable, Sendable {
             offset = CGPoint(x: center.x - planeP.x, y: center.y - planeP.y)
         }
         return FollowCamera(centerP: center, scale: scale, bearing: bearing,
-                      pivot: FollowCameraModel.pivot(size: size, fraction: pivotFraction), size: size)
+                      pivot: FollowCameraModel.pivot(size: size, fraction: pivotFraction), size: size, pitch: pitch)
     }
 
     /// The plane marker's angle on screen: its heading relative to the up direction.

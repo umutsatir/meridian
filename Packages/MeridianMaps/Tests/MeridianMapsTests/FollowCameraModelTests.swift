@@ -269,15 +269,6 @@ final class FollowCameraModelTests: XCTestCase {
         XCTAssertEqual(m.targetBearing(heading: 77), 0)
     }
 
-    func testOrientationPreferenceIsRemembered() {
-        let old = UserDefaults.standard.string(forKey: FollowCameraModel.orientationDefaultsKey)
-        defer { if let old { UserDefaults.standard.set(old, forKey: FollowCameraModel.orientationDefaultsKey) } else { UserDefaults.standard.removeObject(forKey: FollowCameraModel.orientationDefaultsKey) } }
-        UserDefaults.standard.removeObject(forKey: FollowCameraModel.orientationDefaultsKey)
-        XCTAssertEqual(FollowCameraModel.preferredOrientation, .headingUp)
-        FollowCameraModel.preferredOrientation = .northUp
-        XCTAssertEqual(FollowCameraModel.preferredOrientation, .northUp)
-    }
-
     func testRecenterTransitionTakesAboutHalfASecond() {
         var st = FollowCameraState()
         var m = FollowCameraModel(orientation: .northUp, scale: nil)

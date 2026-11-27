@@ -10,11 +10,9 @@ struct FlySectionView: View {
 
     var body: some View {
         if let flight = model.activeFlight {
-            if model.takeoffPlaying, let frame = CruiseFrame(flight: flight, index: model.index, now: .now) {
-                TakeoffView(frame: frame) { model.takeoffPlaying = false }
-            } else {
-                LiveCruiseScreen()
-            }
+            // the take-off is the opening move of the cruise camera: one screen, one map, from the runway into the flight
+            LiveCruiseScreen(takeoff: model.takeoffPlaying, onTakeoffDone: { model.takeoffPlaying = false })
+                .id(flight.id)
         } else if model.landingPresented, let info = LandingInfo(model: model) {
             LandingScreen(info: info, onFlyAgain: { model.flyAgainFromLanding() }, onWallet: { notes in
                 // the ticket has flown into the wallet (S23): keep the notes on it and close the summary
@@ -91,15 +89,25 @@ extension ScreenRegistry {
             u.camera.orientation = .headingUp } }
         // the live flight with a pinned zoom / orientation (`--follow-scale 3000 --follow-heading`), for CPU and motion checks
         register("cruise-follow-live", setup: { $0.startFlight() }) {
-            LiveCruiseScreen { u in
+            LiveCruiseScreen(configure: { u in
                 let a = ProcessInfo.processInfo.arguments
                 if let i = a.firstIndex(of: "--follow-scale"), i + 1 < a.count, let v = Double(a[i + 1]) { u.camera.scale = v }
                 if a.contains("--follow-heading") { u.camera.orientation = .headingUp }
-            }.mrWindowChrome()
+            }).mrWindowChrome()
         }
         // the live follow defaults: close city scale, heading up (the remembered orientation unless `--north-up`)
         register("cruise-follow-default") { CruiseDemo(p: 0.45) { u in
             u.camera.applyFollowDefaults(orientation: ProcessInfo.processInfo.arguments.contains("--north-up") ? .northUp : .headingUp) } }
+        // the tilted navigation camera over satellite imagery (`--follow-scale` pins the zoom)
+        register("cruise-follow-sat") { CruiseDemo(p: 0.45, style: .satellite) { u in
+            u.camera.applyFollowDefaults(orientation: .headingUp)
+            let a = ProcessInfo.processInfo.arguments
+            if let i = a.firstIndex(of: "--follow-scale"), i + 1 < a.count, let v = Double(a[i + 1]) { u.camera.scale = v }
+        } }
+        // the live take-off: `--sim "w 1.2;snap t1;w 2;snap t3;..."` saves frames along it
+        register("takeoff-live", setup: { m in m.startFlight() }) {
+            FlySectionView().mrWindowChrome()
+        }
         register("cruise-follow-world") { CruiseDemo(p: 0.45) { $0.camera.scale = 0.3 } }
 
         register("window") { CruiseDemo(p: 0.45, view: .window) { $0.scene = "day" } }

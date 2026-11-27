@@ -32,6 +32,7 @@ struct CruiseScreen: View {
                 ZStack(alignment: .topLeading) {
                 base(size: size, p: p)
 
+                Group {
                 // top left controls
                 CruiseTopLeft(frame: frame, ui: ui, actions: actions)
 
@@ -76,6 +77,17 @@ struct CruiseScreen: View {
                         .position(x: size.width / 2, y: 18 + 31)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         .zIndex(80)
+                }
+                }
+                // the controls arrive when the take-off is over
+                .opacity(ui.introPlaying ? 0 : 1)
+                .allowsHitTesting(!ui.introPlaying)
+                .animation(.easeOut(duration: 0.8), value: ui.introPlaying)
+                if ui.introPlaying {
+                    Button { ui.skipTakeoff() } label: { HStack(spacing: 8) { Text("Skip"); MRKbd("Esc") } }
+                        .buttonStyle(MRButtonStyle(.secondary))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing).padding(.top, 20).padding(.trailing, 24)
+                        .transition(.opacity)
                 }
                 }
                 .blur(radius: ui.policySheet ? 8 : 0)
@@ -128,10 +140,12 @@ struct CruiseScreen: View {
     }
 
     private func handleSpace() {
+        guard !ui.introPlaying else { return }
         if frame.policy.allowsPause || frame.paused { actions.togglePause() } else { ui.policySheet = true }
     }
 
     private func handleEscape() -> KeyPress.Result {
+        if ui.introPlaying { ui.skipTakeoff(); return .handled }
         if ui.policySheet { ui.policySheet = false; return .handled }
         if ui.menu != nil { ui.menu = nil; return .handled }
         if ui.view == .window { ui.view = .map; return .handled }
@@ -139,6 +153,7 @@ struct CruiseScreen: View {
     }
 
     private func handleKey(_ chars: String, size: CGSize) -> KeyPress.Result {
+        guard !ui.introPlaying else { return .ignored }
         switch chars.lowercased() {
         case "m": if !frame.held { ui.mealOpen = true }
         case "w": ui.view = ui.view == .map ? .window : .map; ui.menu = nil
@@ -165,14 +180,24 @@ struct LiveCruiseScreen: View {
     @AppStorage("flight.landingAlert") private var alertEnabled = true
 
     /// - Parameter style: map style to start with; `nil` follows Settings > Maps.
-    init(style: MapStyle? = nil, configure: (CruiseUI) -> Void = { _ in }) {
+    /// The flight has just started: play the take-off (`onTakeoffDone` when its camera move is over or skipped).
+    var onTakeoffDone: () -> Void = {}
+
+    init(style: MapStyle? = nil, takeoff: Bool = false, onTakeoffDone: @escaping () -> Void = {}, configure: (CruiseUI) -> Void = { _ in }) {
+        self.onTakeoffDone = onTakeoffDone
         let all = MapStyle.allCases
         let saved = all[max(0, min(all.count - 1, SettingsKeys.mapStyle.current))]
         let u = CruiseUI(style: style ?? saved)
         u.sceneAuto = true
         u.sound = MRSound.shared.settings.cabinSoundEnabled   // the button shows the truth
         u.offersAutoScene = true
-        u.camera.applyFollowDefaults(orientation: FollowCameraModel.preferredOrientation)   // close, heading up (or the remembered north up)
+        u.camera.applyFollowDefaults(orientation: .headingUp)   // close, looking the way the aircraft flies
+        // Take-off: decided here, not in onAppear, so the controls are never drawn before it. Reduce Motion and a map that is
+        // not Apple Maps skip it.
+        if takeoff, MapEngine.current == .appleMaps, !MapHealth.shared.failed, !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+            u.intro = TakeoffIntro()
+            u.introPlaying = true
+        }
         configure(u)
         _ui = State(initialValue: u)
     }
@@ -191,7 +216,8 @@ struct LiveCruiseScreen: View {
                     }
                     .onChange(of: context.date) { _, now in poll(flight, now) }
                     .onAppear { ui.mealOpen = flight.hold?.kind == .meal; ui.sound = MRSound.shared.settings.cabinSoundEnabled }
-                    .onChange(of: MRSound.shared.settings.cabinSoundEnabled) { _, on in ui.sound = on }
+                    .onAppear { if ui.intro == nil { onTakeoffDone() } }
+                    .onChange(of: ui.introPlaying) { _, playing in if !playing { onTakeoffDone() } }
             }
         }
     }

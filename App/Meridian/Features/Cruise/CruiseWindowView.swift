@@ -70,31 +70,25 @@ struct CruiseWindowView: View {
 
     var body: some View {
         let W = size.width, H = size.height
-        let fit = 0.66
-        var Rh = H * fit, Rw = Rh * 0.77, Th = Rh * 1.48, Tw = Th * 0.733
-        let kk = min(1, (W * 0.985) / Tw, (H * 0.99) / Th)
-        Rh *= kk; Rw *= kk; Th *= kk; Tw *= kk
+        // The window is the subject: three quarters of the height, in a dim cabin it is the only light source of.
+        let fit = 0.76
+        var Rh = H * fit, Rw = Rh * 0.77
+        let kk = min(1, (W * 0.62) / Rw)
+        Rh *= kk; Rw *= kk
         let m = Rw * 0.1, mt = m * 0.5, Pw = Rw - 2 * m, Ph = Rh - mt - m
-        let cx = W / 2, cy = H / 2
+        let cx = W / 2, cy = H * 0.485
+        let look = frame.windowLook(ui: ui)
+        let light = CabinLight(sunElevation: look.sunElevation, shade: ui.shade)
         return ZStack(alignment: .topLeading) {
-            // Flight.dc.html backdrop, then the sidewall
-            Color(.sRGB, red: 6 / 255, green: 6 / 255, blue: 7 / 255)
-            CSSEllipse(cx: 0.5, cy: 0.46, rx: 0.64, ry: 0.58, stops: [
-                .init(color: cruiseRGBA(0x16, 0x18, 0x1c), location: 0), .init(color: cruiseRGBA(0x0b, 0x0c, 0x0e), location: 0.6), .init(color: cruiseRGBA(4, 4, 5), location: 1)])
-            // soft cold glow behind the trim
-            Ellipse()
-                .fill(RadialGradient(stops: [.init(color: cruiseRGBA(176, 196, 226, 0.34), location: 0), .init(color: cruiseRGBA(176, 196, 226, 0.12), location: 0.55),
-                                             .init(color: cruiseRGBA(176, 196, 226, 0), location: 1)], center: .center, startRadius: 0, endRadius: 1))
-                .frame(width: Tw * 1.24, height: Th * 1.2)
-                .blur(radius: Tw * 0.16)
-                .position(x: cx, y: cy).allowsHitTesting(false)
-            // ring shadow
+            CabinWall(light: light, window: CGRect(x: cx - Rw / 2, y: cy - Rh / 2, width: Rw, height: Rh))
+            // the bezel sits in the wall: a soft contact shadow all round, deeper below
             RoundedRectangle(cornerRadius: Rw * 0.416, style: .circular)
-                .fill(Color.clear)
-                .frame(width: Rw + Rw * 0.032, height: Rh + Rw * 0.032)
-                .shadow(color: .black.opacity(0.45), radius: Rw * 0.07 / 2, y: Rw * 0.012)
+                .fill(Color.black.opacity(0.9))
+                .frame(width: Rw * 1.012, height: Rh * 1.012)
+                .blur(radius: Rw * 0.022)
+                .offset(y: Rw * 0.012)
                 .position(x: cx, y: cy)
-            reveal(Rw: Rw, Rh: Rh, m: m, mt: mt, Pw: Pw, Ph: Ph)
+            reveal(Rw: Rw, Rh: Rh, m: m, mt: mt, Pw: Pw, Ph: Ph, look: look, light: light)
                 .frame(width: Rw, height: Rh)
                 .position(x: cx, y: cy)
         }
@@ -114,22 +108,35 @@ struct CruiseWindowView: View {
 
     // MARK: reveal frame
 
-    private func reveal(Rw: Double, Rh: Double, m: Double, mt: Double, Pw: Double, Ph: Double) -> some View {
+    private func reveal(Rw: Double, Rh: Double, m: Double, mt: Double, Pw: Double, Ph: Double, look: WindowLook, light: CabinLight) -> some View {
         let shape = RoundedRectangle(cornerRadius: Rw * 0.4, style: .circular)
         let hh = Rh * 0.112
         let sh = ui.shade
         let hp = hh - mt + Rh * 0.004
         let panelH = hp + sh * (Ph - hp)
         return ZStack(alignment: .topLeading) {
-            shape.fill(LinearGradient(stops: [.init(color: cruiseRGBA(0xef, 0xee, 0xe9), location: 0), .init(color: cruiseRGBA(0xd6, 0xd4, 0xcd), location: 0.48),
-                                              .init(color: cruiseRGBA(0xb9, 0xb7, 0xb0), location: 1)],
-                                      startPoint: cssPoint(162, Rw, Rh).0, endPoint: cssPoint(162, Rw, Rh).1))
-            // bevel
-            shape.strokeBorder(.white.opacity(0.55), lineWidth: max(1, Rw * 0.004))
-            MRInsetShadow(shape, color: .black.opacity(0.2), y: -Rw * 0.03, blur: Rw * 0.06)
-            MRInsetShadow(shape, color: .white.opacity(0.4), y: Rw * 0.02, blur: Rw * 0.04)
+            // The bezel is cabin plastic in cabin light: mid grey, darker under the shade housing. What makes it read as
+            // a window is the daylight on it: brightest on the sloped reveal next to the glass, gone at the outer edge.
+            shape.fill(LinearGradient(stops: [.init(color: cruiseRGBA(0x4a, 0x4c, 0x52), location: 0), .init(color: cruiseRGBA(0x5d, 0x5f, 0x65), location: 0.5),
+                                              .init(color: cruiseRGBA(0x6b, 0x6c, 0x70), location: 1)], startPoint: .top, endPoint: .bottom))
+            RoundedRectangle(cornerRadius: Pw * 0.33, style: .circular)
+                .fill(light.color.opacity(0.95 * light.level))
+                .frame(width: Pw + m * 0.7, height: Ph + m * 0.7)
+                .blur(radius: m * 0.42)
+                .offset(x: m - m * 0.35, y: mt - m * 0.35 + m * 0.12)
+                .blendMode(.screen)
+            // the sill catches the most light
+            Ellipse().fill(light.color.opacity(0.5 * light.level))
+                .frame(width: Pw * 0.86, height: m * 1.5).blur(radius: m * 0.3)
+                .offset(x: m + Pw * 0.07, y: mt + Ph - m * 0.35)
+                .blendMode(.screen)
+            // moulded edge: a lit rim at the top left, a shaded one at the bottom right, and the roll-off into the wall
+            shape.strokeBorder(LinearGradient(colors: [.white.opacity(0.42), .white.opacity(0.06), .black.opacity(0.35)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                               lineWidth: max(1, Rw * 0.006))
+            MRInsetShadow(shape, color: .black.opacity(0.42), blur: Rw * 0.05)
+            MRInsetShadow(shape, color: .black.opacity(0.28), y: -Rw * 0.02, blur: Rw * 0.05)
 
-            pane(Rw: Rw, Rh: Rh, Pw: Pw, Ph: Ph, panelH: panelH)
+            pane(Rw: Rw, Rh: Rh, Pw: Pw, Ph: Ph, panelH: panelH, look: look)
                 .frame(width: Pw, height: Ph)
                 .offset(x: m, y: mt)
 
@@ -190,10 +197,9 @@ struct CruiseWindowView: View {
 
     // MARK: pane
 
-    private func pane(Rw: Double, Rh: Double, Pw: Double, Ph: Double, panelH: Double) -> some View {
+    private func pane(Rw: Double, Rh: Double, Pw: Double, Ph: Double, panelH: Double, look: WindowLook) -> some View {
         let radius = Pw * 0.31
         let shape = RoundedRectangle(cornerRadius: radius, style: .circular)
-        let look = frame.windowLook(ui: ui)
         let lip = max(1.5, Rw * 0.008)
         return ZStack(alignment: .topLeading) {
             Color.black
@@ -208,6 +214,12 @@ struct CruiseWindowView: View {
             CSSEllipse(cx: 0.5, cy: 1.06, rx: 0.75, ry: 0.30, stops: [.init(color: cruiseRGBA(220, 232, 244, 0.13), location: 0), .init(color: cruiseRGBA(220, 232, 244, 0), location: 1)])
                 .allowsHitTesting(false)
             GlassScratches().frame(width: Pw, height: Ph).allowsHitTesting(false)
+            // the breather hole of the middle pane, with the faint frost that collects around it at altitude
+            Circle().fill(RadialGradient(colors: [.white.opacity(0.16), .white.opacity(0)], center: .center, startRadius: 0, endRadius: Pw * 0.05))
+                .frame(width: Pw * 0.1, height: Pw * 0.1).position(x: Pw / 2, y: Ph - Pw * 0.075).allowsHitTesting(false)
+            Circle().fill(.black.opacity(0.5)).frame(width: max(2, Pw * 0.008), height: max(2, Pw * 0.008))
+                .overlay(Circle().stroke(.white.opacity(0.35), lineWidth: 0.6))
+                .position(x: Pw / 2, y: Ph - Pw * 0.075).allowsHitTesting(false)
             // reflection and vignette
             LinearGradient(stops: [.init(color: .white.opacity(0), location: 0.30), .init(color: .white.opacity(0.10), location: 0.38),
                                    .init(color: .white.opacity(0.015), location: 0.46), .init(color: .white.opacity(0), location: 0.60)],
@@ -242,6 +254,77 @@ struct CruiseWindowView: View {
         .overlay(shape.stroke(LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0.0), .black.opacity(0.28)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: lip)
             .padding(-lip * 1.4 - max(1, Rw * 0.006) / 2))
         .shadow(color: .black.opacity(0.5), radius: Rw * 0.03 / 2)
+    }
+}
+
+/// The daylight the window throws into the cabin: its colour follows the sun (cool by day, warm at sunset, a dim blue at
+/// night), its strength the sun and the shade.
+struct CabinLight {
+    var color: Color
+    /// 0 (shade down, or a dark night) to 1 (full day).
+    var level: Double
+
+    init(sunElevation e: Double, shade: Double) {
+        func mix(_ a: (Double, Double, Double), _ b: (Double, Double, Double), _ t: Double) -> (Double, Double, Double) {
+            (a.0 + (b.0 - a.0) * t, a.1 + (b.1 - a.1) * t, a.2 + (b.2 - a.2) * t)
+        }
+        let day = min(1, max(0, (e + 6) / 16))
+        var c = mix((86, 112, 170), (222, 233, 248), day)
+        let warm = max(0, 1 - abs(e - 2) / 7)
+        c = mix(c, (255, 190, 138), warm * 0.8)
+        color = Color(.sRGB, red: c.0 / 255, green: c.1 / 255, blue: c.2 / 255)
+        level = (0.2 + 0.8 * day) * (1 - 0.92 * min(1, max(0, shade)))
+    }
+}
+
+/// The cabin sidewall around the window: dim moulded panels, the seams between them, and the light the window spills on
+/// them. The window is the only light source, so the wall is what makes it look set into something.
+private struct CabinWall: View {
+    let light: CabinLight
+    let window: CGRect
+
+    var body: some View {
+        let w = window
+        Canvas { ctx, size in
+            let full = CGRect(origin: .zero, size: size)
+            // panel: lit a little from the ceiling wash at the top, falling off towards the floor
+            ctx.fill(Path(full), with: .linearGradient(Gradient(stops: [
+                .init(color: cruiseRGBA(0x23, 0x26, 0x2d), location: 0), .init(color: cruiseRGBA(0x1a, 0x1c, 0x22), location: 0.45),
+                .init(color: cruiseRGBA(0x0e, 0x0f, 0x13), location: 1)]), startPoint: .zero, endPoint: CGPoint(x: 0, y: size.height)))
+            // the wall curves in above the window (overhead bins) and below it (armrest line): two soft horizontal folds
+            for (y, h, o) in [(w.minY - w.height * 0.2, w.height * 0.16, 0.05), (w.maxY + w.height * 0.14, w.height * 0.2, -0.22)] {
+                let r = CGRect(x: 0, y: y - h / 2, width: size.width, height: h)
+                ctx.fill(Path(r), with: .linearGradient(Gradient(colors: [.clear, (o > 0 ? Color.white : Color.black).opacity(abs(o)), .clear]),
+                                                        startPoint: CGPoint(x: 0, y: r.minY), endPoint: CGPoint(x: 0, y: r.maxY)))
+            }
+            // seams between the window panels, one window pitch apart
+            let pitch = w.width * 1.24
+            var x = w.midX - pitch / 2
+            while x > -2 { seam(&ctx, x, size); x -= pitch }
+            x = w.midX + pitch / 2
+            while x < size.width + 2 { seam(&ctx, x, size); x += pitch }
+        }
+        .overlay {
+            // daylight on the wall: a wide soft bloom, and a tighter one below the sill
+            Ellipse().fill(light.color.opacity(0.30 * light.level))
+                .frame(width: w.width * 1.5, height: w.height * 1.3).blur(radius: w.width * 0.22)
+                .position(x: w.midX, y: w.midY)
+            Ellipse().fill(light.color.opacity(0.16 * light.level))
+                .frame(width: w.width * 0.95, height: w.height * 0.34).blur(radius: w.width * 0.1)
+                .position(x: w.midX, y: w.maxY + w.height * 0.07)
+        }
+        .overlay {
+            // vignette: the cabin is darker away from the window
+            CSSEllipse(cx: window.midX / max(1, window.midX * 2), cy: 0.48, rx: 0.78, ry: 0.86,
+                       stops: [.init(color: .clear, location: 0.45), .init(color: .black.opacity(0.62), location: 1)])
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+
+    private func seam(_ ctx: inout GraphicsContext, _ x: Double, _ size: CGSize) {
+        ctx.fill(Path(CGRect(x: x - 1, y: 0, width: 2, height: size.height)), with: .color(.black.opacity(0.42)))
+        ctx.fill(Path(CGRect(x: x + 1, y: 0, width: 1, height: size.height)), with: .color(.white.opacity(0.045)))
     }
 }
 

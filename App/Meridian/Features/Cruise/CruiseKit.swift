@@ -107,6 +107,70 @@ struct CruiseFrame: Equatable {
     }
 }
 
+// MARK: - Take-off
+
+/// The first seconds of a flight, flown by the cruise camera itself: it starts low over the departure runway in satellite
+/// imagery, the aircraft accelerates down the real runway and lifts off, and the camera climbs out into the normal follow
+/// view while the aircraft turns onto its route. There is no separate take-off screen and nothing slides in: the map the
+/// take-off ends on is the map the flight continues on.
+struct TakeoffIntro: Equatable {
+    /// When the picture was ready and the clock started; `nil` while the imagery is still loading (black, title only).
+    var start: Date?
+    var created = Date()
+
+    /// The scripted camera move. The controls arrive when it is over.
+    static let duration = 8.4
+    /// The aircraft eases from the runway line onto the route for this long after lift-off (the camera is long done by then).
+    static let joinTime = 12.0
+    static var total: Double { rollEnd + joinTime }
+    /// The picture fades in out of black over this long.
+    static let fadeIn = 1.1
+    /// The aircraft is at lift-off speed after this many seconds and leaves the ground.
+    static let rollEnd = 3.8
+    /// Plane scale of the opening shot: about 1.3 km of ground across a 1280 pt window.
+    static let closeScale = 2400.0
+    /// The imagery gets this long to load before the take-off starts anyway.
+    static let patience = 2.5
+
+    static func ease(_ x: Double) -> Double { let u = min(1, max(0, x)); return u * u * (3 - 2 * u) }
+
+    func time(_ now: Date) -> Double { start.map { max(0, now.timeIntervalSince($0)) } ?? 0 }
+    /// The camera is still scripted (controls hidden).
+    func isPlaying(_ now: Date) -> Bool { time(now) < Self.duration }
+    func isOver(_ now: Date) -> Bool { time(now) >= Self.total }
+    /// Skip: jump to the end of the camera move (the aircraft still eases onto the route).
+    mutating func skip(_ now: Date) { start = now.addingTimeInterval(-Self.duration) }
+
+    /// The camera zoom at `t`: close during the roll, then out to `target` (logarithmic, so the climb looks even).
+    func scale(_ t: Double, target: Double) -> Double {
+        let close = max(target, Self.closeScale)
+        let u = Self.ease((t - Self.rollEnd + 0.6) / (Self.duration - Self.rollEnd + 0.6))
+        return exp(log(close) + (log(target) - log(close)) * u)
+    }
+
+    /// Metres from the start of the roll: an even acceleration over `roll` metres until lift-off at `rollEnd`.
+    func rollMetres(_ t: Double, roll: Double) -> Double { let u = min(1, max(0, t / Self.rollEnd)); return roll * u * u }
+    /// Lift-off speed of that roll, metres per second.
+    func liftOffSpeed(roll: Double) -> Double { 2 * roll / Self.rollEnd }
+    /// After lift-off (`tau` seconds ago): how much of the gap between the runway line and the route is left (1 to 0, level at both ends).
+    func gap(_ tau: Double) -> Double { 1 - Self.ease(tau / Self.joinTime) }
+    /// After lift-off: metres still gained along the runway direction while the speed settles from `v0` to the route speed `v`.
+    func carry(_ tau: Double, from v0: Double, to v: Double) -> Double { max(0, v0 - v) * (1 - exp(-1.1 * max(0, tau))) / 1.1 }
+    /// After lift-off: how far the nose has turned from the runway heading (0) to the route heading (1).
+    func turn(_ tau: Double) -> Double { Self.ease((tau - 0.6) / 6.5) }
+    /// The route line and the airport tag return during the climb.
+    func routeAlpha(_ t: Double) -> Double { Self.ease((t - Self.rollEnd - 1.6) / 2.2) }
+
+    /// Ground speed (knots) and height (metres) for the read-out.
+    func speedKt(_ t: Double) -> Int {
+        Int((t < Self.rollEnd ? 156 * (t / Self.rollEnd) : 156 + 94 * Self.ease((t - Self.rollEnd) / 5)).rounded())
+    }
+    func heightM(_ t: Double) -> Double { t < Self.rollEnd ? 0 : 1250 * pow(Self.ease((t - Self.rollEnd) / (Self.duration - Self.rollEnd)), 1.4) }
+    func phase(_ t: Double) -> String {
+        start == nil || t < 0.7 ? "Cleared for take-off" : t < Self.rollEnd - 0.5 ? "Take-off roll" : t < Self.rollEnd + 1.1 ? "Rotate" : "Climb"
+    }
+}
+
 // MARK: - View state
 
 enum CruiseView: String { case map, window, dash }
@@ -145,6 +209,16 @@ final class CruiseUI {
     var holdProgress = 0.0
     var toastVisible = false
     var mealOpen = false
+    /// The take-off (scripted camera, then the turn onto the route); `nil` once it is over.
+    var intro: TakeoffIntro?
+    /// The scripted part of the take-off is on screen: the controls are hidden.
+    var introPlaying = false
+
+    func skipTakeoff() {
+        guard introPlaying else { return }
+        intro?.skip(.now)
+        introPlaying = false
+    }
 
     enum Menu { case style, scene }
 
@@ -169,15 +243,13 @@ final class CruiseUI {
         }
     }
 
-    /// Recenter / follow on: back to the plane at the default close zoom with the remembered orientation (heading up unless the
-    /// owner chose north up). The camera eases there over about 0.6 s.
-    func recenter() { camera.applyFollowDefaults(orientation: FollowCameraModel.preferredOrientation) }
+    /// Recenter / follow on: back to the plane at the default close zoom, looking the way it flies (Google Maps "re-centre").
+    /// The camera eases there over about 0.6 s.
+    func recenter() { camera.applyFollowDefaults(orientation: .headingUp) }
 
-    /// North up <-> heading up (button, ⌥F). The choice is remembered.
-    func toggleOrientation() {
-        camera.toggleOrientation()
-        FollowCameraModel.preferredOrientation = camera.orientation
-    }
+    /// North up <-> heading up (button, ⌥F), for as long as this camera is followed. Recenter always comes back looking
+    /// along the flight: a remembered "north up" used to make Recenter look like it ignored the direction of travel.
+    func toggleOrientation() { camera.toggleOrientation() }
 
     /// Slider position 0...1 over the whole zoom range.
     var zoomK: Double {

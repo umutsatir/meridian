@@ -66,14 +66,18 @@ public struct MapSurface: View {
     public var animatesCamera: Bool
     /// Follow camera (rotation, deep zoom). When set, `center` / `zoom` / `offset` are ignored.
     public var followCamera: FollowCamera?
+    /// Lets the screen ask the Apple map where a coordinate is drawn (tilted follow camera).
+    public var projector: MapProjector?
+    /// Called when Apple Maps has drawn everything for the current camera (imagery loaded).
+    public var onRendered: (() -> Void)?
 
     @AppStorage(MapEngine.defaultsKey) private var engineRaw = 0
     @Environment(\.colorScheme) private var scheme
 
     public init(style: MapStyle = .terra, theme: MapTheme? = nil, center: Coordinate, zoom: Double, offset: CGSize = .zero,
                 size: CGSize? = nil, showsLabels: Bool = true, showsGraticule: Bool = true, animatesCamera: Bool = true,
-                followCamera: FollowCamera? = nil) {
-        self.followCamera = followCamera
+                followCamera: FollowCamera? = nil, projector: MapProjector? = nil, onRendered: (() -> Void)? = nil) {
+        self.followCamera = followCamera; self.projector = projector; self.onRendered = onRendered
         self.style = style; self.theme = theme; self.center = center; self.zoom = zoom; self.offset = offset; self.size = size
         self.showsLabels = showsLabels; self.showsGraticule = showsGraticule; self.animatesCamera = animatesCamera
     }
@@ -87,7 +91,7 @@ public struct MapSurface: View {
         let wide = size == nil
         Group {
             if apple {
-                AppleMapView(style: style, dark: dark, center: center, zoom: zoom, offset: offset, animates: animatesCamera, follow: followCamera)
+                AppleMapView(style: style, dark: dark, center: center, zoom: zoom, offset: offset, animates: animatesCamera, follow: followCamera, projector: projector, onRendered: onRendered)
                     .grayscale(style == .mono ? 1 : 0)
             } else if let cam = followCamera {
                 // The illustrated map has no rotation: draw it on a square big enough to cover the view at any angle and
@@ -130,11 +134,13 @@ public struct AppleMapView: NSViewRepresentable {
     public var offset: CGSize
     public var animates: Bool
     public var follow: FollowCamera?
+    public var projector: MapProjector?
+    public var onRendered: (() -> Void)?
 
     public init(style: MapStyle, dark: Bool, center: Coordinate, zoom: Double, offset: CGSize = .zero, animates: Bool = true,
-                follow: FollowCamera? = nil) {
+                follow: FollowCamera? = nil, projector: MapProjector? = nil, onRendered: (() -> Void)? = nil) {
         self.style = style; self.dark = dark; self.center = center; self.zoom = zoom; self.offset = offset; self.animates = animates
-        self.follow = follow
+        self.follow = follow; self.projector = projector; self.onRendered = onRendered
     }
 
     public func makeNSView(context: Context) -> Host {
@@ -142,10 +148,13 @@ public struct AppleMapView: NSViewRepresentable {
         h.delegate = context.coordinator
         h.isZoomEnabled = false; h.isScrollEnabled = false; h.isRotateEnabled = false; h.isPitchEnabled = false
         h.showsZoomControls = false; h.showsCompass = false
+        projector?.host = h
         return h
     }
 
     public func updateNSView(_ v: Host, context: Context) {
+        if let projector, projector.host !== v { projector.host = v }
+        context.coordinator.onRendered = onRendered
         v.apply(style: style, dark: dark)
         if let follow {
             v.setFollow(follow)
@@ -159,6 +168,7 @@ public struct AppleMapView: NSViewRepresentable {
 
     @MainActor public final class Coordinator: NSObject, MKMapViewDelegate {
         private var pending: Task<Void, Never>?
+        var onRendered: (() -> Void)?
         /// A failure report is often transient (tiles retry), so it only counts when no render completes within 8 s.
         public func mapViewDidFailLoadingMap(_ mapView: MKMapView, withError error: any Error) {
             pending?.cancel()
@@ -171,6 +181,7 @@ public struct AppleMapView: NSViewRepresentable {
         public func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
             (mapView as? Host)?.reassertFollow()
             guard fullyRendered else { return }
+            onRendered?()
             pending?.cancel()
             MapHealth.shared.tiles(failed: false)
         }
@@ -226,14 +237,15 @@ public struct AppleMapView: NSViewRepresentable {
             let cc = c.viewCenter
             let coord = CLLocationCoordinate2D(latitude: cc.latitude, longitude: cc.longitude)
             let mp = MKMapPoint(coord)
-            let key = [mp.x, mp.y, s, c.bearing, bounds.width, bounds.height]
+            let key = [mp.x, mp.y, s, c.bearing, bounds.width, bounds.height, c.pitch]
             if key == lastFollowKey { return }
             // Every camera change makes MapKit re-request tiles (grey squares while they load, worst at street zoom). Moves under
             // half a point, a 0.2 % zoom or 0.05 degrees of heading are not worth that: keep the last image until something
             // visible changes. The overlays are drawn from the exact camera, so they differ from the map by at most that much.
             if lastFollowKey.count == key.count, key[4] == lastFollowKey[4], key[5] == lastFollowKey[5],
                abs(key[0] - lastFollowKey[0]) < 0.5 * s, abs(key[1] - lastFollowKey[1]) < 0.5 * s,
-               abs(key[2] / lastFollowKey[2] - 1) < 0.002, abs(FollowCamera.signedDelta(from: lastFollowKey[3], to: key[3])) < 0.05 { return }
+               abs(key[2] / lastFollowKey[2] - 1) < 0.002, abs(FollowCamera.signedDelta(from: lastFollowKey[3], to: key[3])) < 0.05,
+               abs(key[6] - lastFollowKey[6]) < 0.05 { return }
             if key != requestedKey { reasserts = 0; requestedKey = key }
             lastFollowKey = key
             let w = bounds.width * s, h = bounds.height * s
@@ -245,7 +257,8 @@ public struct AppleMapView: NSViewRepresentable {
                 }
             }
             if let ratio = distanceRatio {
-                camera = MKMapCamera(lookingAtCenter: coord, fromDistance: ratio * h * m, pitch: 0, heading: c.bearing)
+                if c.pitch > 0, !isPitchEnabled { isPitchEnabled = true }   // programmatic only, like the heading
+                camera = MKMapCamera(lookingAtCenter: coord, fromDistance: ratio * h * m, pitch: c.pitch, heading: c.bearing)
             }
         }
 
@@ -267,5 +280,43 @@ public struct AppleMapView: NSViewRepresentable {
             lastRect = rect
             setVisibleMapRect(rect, edgePadding: NSEdgeInsetsZero, animated: animated)
         }
+    }
+}
+
+
+// MARK: - Projector
+
+/// Asks the Apple map where things are on screen. The flat follow camera is plain arithmetic (`FollowCamera.screen`), a tilted
+/// one is a perspective only MapKit knows exactly (it also limits the tilt by altitude), so overlays of a tilted camera are
+/// placed with the map's own conversion. `apply` moves the map camera at once, so the answers belong to the frame being built.
+@MainActor
+public final class MapProjector {
+    public weak var host: AppleMapView.Host?
+    public init() {}
+
+    /// Moves the map to `camera` now. `false` when there is no Apple map (illustrated engine, map not loaded): use the flat maths.
+    @discardableResult
+    public func apply(_ camera: FollowCamera) -> Bool {
+        guard let host, host.bounds.width > 1 else { return false }
+        host.setFollow(camera)
+        return true
+    }
+
+    /// The tilt the map really has (MapKit lowers it for high cameras).
+    public var pitch: Double { host.map { Double($0.camera.pitch) } ?? 0 }
+
+    public func screen(_ c: Coordinate) -> CGPoint? {
+        guard let host else { return nil }
+        let p = host.convert(CLLocationCoordinate2D(latitude: c.latitude, longitude: c.longitude), toPointTo: host)
+        guard p.x.isFinite, p.y.isFinite else { return nil }
+        return host.isFlipped ? p : CGPoint(x: p.x, y: host.bounds.height - p.y)
+    }
+
+    public func coordinate(_ p: CGPoint) -> Coordinate? {
+        guard let host else { return nil }
+        let q = host.isFlipped ? p : CGPoint(x: p.x, y: host.bounds.height - p.y)
+        let c = host.convert(q, toCoordinateFrom: host)
+        guard CLLocationCoordinate2DIsValid(c) else { return nil }
+        return Coordinate(latitude: c.latitude, longitude: c.longitude)
     }
 }
