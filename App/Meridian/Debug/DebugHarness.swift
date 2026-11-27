@@ -66,6 +66,10 @@ struct DebugHost: View {
             }
         }
         .environment(model)
+        .onAppear {
+            // `--sim` works on every route (pointer replay, Debug/CardSim.swift)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { if let s = CardSim.script { CardSim.run(s) } }
+        }
         .ignoresSafeArea(edges: launch.chrome ? .all : [])
         .frame(width: launch.size.width, height: launch.size.height)
         .preferredColorScheme(launch.theme)
