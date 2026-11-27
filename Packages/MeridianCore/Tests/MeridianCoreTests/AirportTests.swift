@@ -50,3 +50,25 @@ import Testing
         #expect(bogus.countryName(locale: Locale(identifier: "en")) == nil || bogus.countryName(locale: Locale(identifier: "en")) == "Unknown Region")
     }
 }
+
+@Test func departureRunwayPointsTheWayTheFlightLeaves() throws {
+    let index = try AirportIndex.bundled()
+    let lhr = try #require(index.airport(iata: "LHR"))
+    // Heathrow's runways run east-west: leaving towards Paris (south-east) rolls east, towards Dublin (north-west) rolls west.
+    let east = BundledRunways.departure(from: lhr, toward: 140)
+    #expect(east.surveyed)
+    #expect(abs(east.bearing - 90) < 5)
+    #expect(east.lengthM > 3000)
+    let west = BundledRunways.departure(from: lhr, toward: 300)
+    #expect(abs(west.bearing - 270) < 5)
+    #expect(west.start != east.start)
+}
+
+@Test func airportsWithoutSurveyedRunwaysGetAStandIn() {
+    let nowhere = Airport(iata: "ZZZ", name: "Nowhere", city: "Nowhere", countryCode: "XX", continent: .europe,
+                          coordinate: Coordinate(latitude: 40, longitude: 30))
+    let r = BundledRunways.departure(from: nowhere, toward: 45)
+    #expect(!r.surveyed)
+    #expect(abs(r.bearing - 45) < 0.001)
+    #expect(abs(Geo.distanceKm(from: r.start, to: r.end) - 2.4) < 0.05)
+}

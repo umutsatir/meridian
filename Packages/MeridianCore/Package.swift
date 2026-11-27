@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "MeridianCore", targets: ["MeridianCore"]),
     ],
     targets: [
-        .target(name: "MeridianCore", resources: [.copy("Resources/airports.json"), .copy("Resources/aliases.json")]),
+        .target(name: "MeridianCore", resources: [.copy("Resources/airports.json"), .copy("Resources/aliases.json"), .copy("Resources/runways.json")]),
         .testTarget(name: "MeridianCoreTests", dependencies: ["MeridianCore"]),
     ]
 )
