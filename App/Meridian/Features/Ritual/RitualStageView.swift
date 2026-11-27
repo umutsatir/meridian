@@ -36,11 +36,12 @@ final class RitualStageController {
         MRSound.shared.prewarm()
         clock.onStep = { [weak self] i in
             guard let self, !self.silent else { return }
+            if i == 0 { self.sound.play(.paperSlide) }      // the paper sliding out, under the feed steps
             self.sound.play(.printerStep(i)); PaperHaptics.tick()
         }
         clock.onSettle = { [weak self] in
             guard let self else { return }
-            self.sound.play(.tick(heavy: true)); if !self.silent { PaperHaptics.release() }
+            self.sound.play(self.silent ? .tick(heavy: true) : .printerCut); if !self.silent { PaperHaptics.release() }
         }
         clock.onReady = { [weak self] in self?.phase = .ready }
         // perforation tear: no continuous rip, the bridges give way one by one ("tik"), then one dry "tak", then a light whoosh

@@ -7,7 +7,7 @@ import AVFoundation
 #endif
 
 private let allCues: [MRCue] = [
-    .printerStep(0), .printerStep(3), .printerStep(13), .paperSlide, .tick(heavy: false), .tick(heavy: true), .click,
+    .printerStep(0), .printerStep(3), .printerStep(13), .paperSlide, .printerCut, .tick(heavy: false), .tick(heavy: true), .click,
     .thump, .stamp, .chime(.board), .chime(.land), .seatbelt, .whoosh, .flap, .ripFinish, .crewChime,
 ]
 
@@ -36,13 +36,21 @@ final class MRCueRendererTests: XCTestCase {
         XCTAssertEqual(a.left, b.left)
     }
 
-    func testPrinterPitchRisesWithStep() {
-        func crossings(_ i: Int) -> Int {
-            let b = MRCueRenderer.render(.printerStep(i)); var c = 0
-            for k in 1..<min(b.frames, 4000) where (b.left[k - 1] < 0) != (b.left[k] < 0) { c += 1 }
-            return c
-        }
-        XCTAssertGreaterThan(crossings(13), crossings(0))
+    /// The printer is a hiss, not a buzzer: most of a feed step's energy sits above 1 kHz, and it starts and ends quietly.
+    func testPrinterStepIsASoftHiss() {
+        let b = MRCueRenderer.render(.printerStep(4))
+        var lp: Float = 0, low: Float = 0, all: Float = 0
+        let k = Float(1 - exp(-2 * Double.pi * 1000 / b.sampleRate))
+        for x in b.left { lp += (x - lp) * k; low += lp * lp; all += x * x }
+        XCTAssertLessThan(low / all, 0.5, "the feed should be mostly hiss")
+        let n = b.frames
+        XCTAssertGreaterThan(rms(b.left, from: n / 3, to: 2 * n / 3), 2 * rms(b.left, from: n - Int(0.008 * b.sampleRate), to: n), "it lets go at the end")
+    }
+
+    func testPrinterStepsDifferButStayOneMachine() {
+        let a = MRCueRenderer.render(.printerStep(0)), b = MRCueRenderer.render(.printerStep(7))
+        XCTAssertNotEqual(a.left, b.left)
+        XCTAssertEqual(rms(a.left), rms(b.left), accuracy: rms(a.left) * 0.5)
     }
 
     func testStampHasReverbTail() {

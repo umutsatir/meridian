@@ -163,7 +163,7 @@ final class MRSound {
     func prewarm() {
         guard prewarmTask == nil else { return }
         let cues: [MRCue] = [.stamp, .chime(.board), .chime(.land), .seatbelt, .thump, .whoosh, .flap, .click,
-                             .tick(heavy: false), .tick(heavy: true), .paperSlide, .ripFinish, .crewChime]
+                             .tick(heavy: false), .tick(heavy: true), .paperSlide, .printerCut, .ripFinish, .crewChime]
                           + (0..<14).map { MRCue.printerStep($0) }
         prewarmTask = Task {
             for cue in cues where cache[cue] == nil {

@@ -12,10 +12,13 @@ nonisolated enum MRChime: String, Sendable, Hashable, CaseIterable {
 
 /// Every pre-rendered sound of the app. Play with `MRSound.shared.play(_:)`.
 nonisolated enum MRCue: Hashable, Sendable {
-    /// Ticket printer step `i` (0-based; pitch and tick colour rise with `i`).
+    /// Ticket printer feed step `i` (0-based): one short burst of a thermal printer, the head hissing over the paper
+    /// with the stepper underneath. All steps are the same machine; they differ a little so the run does not sound looped.
     case printerStep(Int)
-    /// 1.6 s paper-slide noise bed under the printer chirps.
+    /// 1.6 s of paper sliding out of the slot: the bed under the feed steps.
     case paperSlide
+    /// The cutter at the end of a print: blade down, a low knock from the mechanism, blade back.
+    case printerCut
     /// Short trackpad-style tick; `heavy` is the settle tick.
     case tick(heavy: Bool)
     case click
@@ -47,6 +50,7 @@ nonisolated enum MRCue: Hashable, Sendable {
         switch self {
         case .printerStep: 0.08...0.2
         case .paperSlide: 1.6...1.8
+        case .printerCut: 0.1...0.4
         case .tick: 0.05...0.15
         case .click: 0.02...0.1
         case .thump: 0.25...0.5
@@ -89,6 +93,7 @@ nonisolated enum MRCueRenderer {
         switch cue {
         case .printerStep(let i): printer(s, max(0, i), D: 0.084)
         case .paperSlide: paperSlide(s, 1.6)
+        case .printerCut: printerCut(s)
         case .tick(let heavy): tick(s, heavy)
         case .click: click(s)
         case .thump: thump(s)
@@ -108,7 +113,7 @@ nonisolated enum MRCueRenderer {
     /// Cues whose own envelope is already a click-sized transient (ticks, clicks, clacks, printer chirps) keep their attack.
     static func usesEdgeFades(_ cue: MRCue) -> Bool {
         switch cue {
-        case .tick, .click, .flap, .printerStep: false
+        case .tick, .click, .flap, .printerStep, .printerCut: false
         default: true
         }
     }
@@ -133,24 +138,51 @@ nonisolated enum MRCueRenderer {
         }
     }
 
-    // Printer: square-wave stepper chirp (gated at ~60 Hz) + 3-5 kHz band-passed noise tick (20 ms) per step.
+    // Thermal printer, one feed step: no tone to speak of. The sound of such a printer is the head and the platen roller
+    // dragging paper (band-limited hiss, rippled at the stepper rate) over a quiet motor hum, with a small mechanical
+    // tick as the step engages. The previous square-wave chirp read as a buzzer; this is soft and dry.
     private static func printer(_ s: MRSynth, _ i: Int, D: Double) {
-        var f = MRParam(170 + Double(i) * 5)
-        f.set(170 + Double(i) * 5, at: 0); f.linear(240 + Double(i) * 6, at: D)
-        var seg = s.osc(.square, f, start: 0, stop: D + 0.02)
-        s.filter(&seg, .lowpass, 1400)
-        var g = MRParam(1); g.set(0, at: 0)
-        var k = 0
-        while Double(k) / 60 < D {
-            let t = Double(k) / 60
-            g.set(0.045, at: t); g.set(0, at: t + 1.0 / 120); k += 1
+        let step = 236.0 * (1 + 0.035 * sin(Double(i) * 2.1))          // micro-steps per second, a touch uneven from step to step
+        let level = 1 + 0.12 * sin(Double(i) * 1.3)
+        // an envelope that ripples at the stepper rate: swell 10 ms, hold, let go over the last 30 ms
+        func ripple(_ peak: Double, depth: Double) -> MRParam {
+            var g = MRParam(0); g.set(0, at: 0)
+            var k = 0
+            while Double(k) / step < D + 0.02 {
+                let t = Double(k) / step
+                let env = min(1, t / 0.010) * min(1, max(0, (D + 0.02 - t) / 0.030))
+                g.linear(peak * env, at: t + 0.25 / step)
+                g.linear(peak * env * (1 - depth), at: t + 0.75 / step)
+                k += 1
+            }
+            g.linear(0, at: D + 0.03)
+            return g
         }
-        g.set(0, at: D)
-        s.gain(&seg, g); s.out(seg)
+        var hiss = s.noise(start: 0, stop: D + 0.035, offset: s.random())
+        s.filter(&hiss, .bandpass, 2500 + Double(i % 4) * 90, q: 0.7)
+        s.gain(&hiss, ripple(0.085 * level, depth: 0.5)); s.out(hiss)
+        var air = s.noise(start: 0, stop: D + 0.035, offset: s.random())
+        s.filter(&air, .highpass, 5200)
+        s.gain(&air, ripple(0.022 * level, depth: 0.3)); s.out(air)
+        var hum = s.osc(.triangle, MRParam(step), start: 0, stop: D + 0.035)
+        s.filter(&hum, .lowpass, 700)
+        s.gain(&hum, ripple(0.015, depth: 0)); s.out(hum)
+        var tick = s.noise(start: 0, stop: 0.012, offset: s.random())
+        s.filter(&tick, .bandpass, 1900, q: 1.1)
+        s.gain(&tick, .envelope(at: 0, attack: 0.001, peak: 0.05, decay: 0.004, release: 0.005)); s.out(tick)
+    }
 
-        var n = s.noise(start: 0, stop: 0.03, offset: s.random())
-        s.filter(&n, .bandpass, 3600 + Double(i % 3) * 400, q: 1.4)
-        s.gain(&n, .envelope(at: 0, attack: 0.002, peak: 0.09, decay: 0.012, release: 0.01)); s.out(n)
+    // The cutter: a dry snip (blade through paper), the knock of the mechanism under it, and the blade springing back.
+    private static func printerCut(_ s: MRSynth) {
+        var snip = s.noise(start: 0, stop: 0.03, offset: s.random())
+        s.filter(&snip, .bandpass, 2300, q: 0.8)
+        s.gain(&snip, .envelope(at: 0, attack: 0.001, peak: 0.2, decay: 0.008, release: 0.012)); s.out(snip)
+        var f = MRParam(150); f.set(150, at: 0); f.exp(85, at: 0.05)
+        var knock = s.osc(.sine, f, start: 0, stop: 0.12)
+        s.gain(&knock, .envelope(at: 0, attack: 0.002, peak: 0.2, decay: 0.03, release: 0.05)); s.out(knock)
+        var back = s.noise(start: 0.062, stop: 0.085, offset: s.random())
+        s.filter(&back, .bandpass, 1500, q: 1)
+        s.gain(&back, .envelope(at: 0.062, attack: 0.001, peak: 0.07, decay: 0.005, release: 0.008)); s.out(back)
     }
 
     // Paper sliding out: a quiet low-passed noise swell, a bed under the chirps.
